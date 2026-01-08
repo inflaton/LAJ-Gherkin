@@ -1,10 +1,12 @@
 # LLM-as-a-Judge for Scalable Test Coverage Evaluation
 
-**Paper:** "LLM-as-a-Judge for Scalable Test Coverage Evaluation: Accuracy, Operational Reliability, and Cost"
+This repository contains the complete implementation, dataset, and evaluation framework for our AAAI 2026 workshop paper on using LLMs to assess software test coverage at scale.
+
+**Paper:** ["LLM-as-a-Judge for Scalable Test Coverage Evaluation: Accuracy, Operational Reliability, and Cost"](paper.pdf)
+
+**Accepted at:** AAAI 2026 Workshop on Next Gen Code Development with Collaborative AI Agents
 
 **arXiv:** https://arxiv.org/abs/2512.01232
-
-This repository contains the complete implementation, dataset, and evaluation framework for our AAAI 2026 paper on using LLMs to assess software test coverage at scale.
 
 ## Overview
 
@@ -21,6 +23,8 @@ Assessing software test coverage at scale remains a bottleneck in QA pipelines. 
 
 ```
 LAJ-Gherkin/
+├── paper.pdf                         # AAAI 2026 paper (arXiv:2512.01232)
+│
 ├── dataset/                          # Benchmark dataset
 │   ├── synthetic-jira-tickets-expanded.csv    # 100 Jira tickets
 │   ├── benchmark_feautures/                    # 100 ground truth Gherkin scripts
@@ -210,11 +214,12 @@ See `results/laj_metrics_summary.csv` for complete results.
 If you use this work, please cite:
 
 ```bibtex
-@article{huang2024laj,
+@inproceedings{huang2026laj,
   title={LLM-as-a-Judge for Scalable Test Coverage Evaluation: Accuracy, Operational Reliability, and Cost},
   author={Huang, Donghao and Chew, Shila and Dutkiewicz, Anna and Wang, Zhaoxia},
-  journal={arXiv preprint arXiv:2512.01232},
-  year={2024},
+  booktitle={AAAI 2026 Workshop on Next Gen Code Development with Collaborative AI Agents},
+  year={2026},
+  note={arXiv:2512.01232},
   url={https://arxiv.org/abs/2512.01232}
 }
 ```
