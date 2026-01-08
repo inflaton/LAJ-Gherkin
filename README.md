@@ -51,8 +51,7 @@ LAJ-Gherkin/
 │
 ├── notebooks/                        # Analysis notebooks
 │   ├── 01_EDA.ipynb                            # Exploratory data analysis
-│   ├── 02_LLM-as-a-Judge.ipynb                 # Main LAJ analysis
-│   └── ...                                     # Additional analysis rounds
+│   └── 02_LLM-as-a-Judge.ipynb                 # Main LAJ analysis
 │
 └── .env.example                      # Environment configuration template
 ```
