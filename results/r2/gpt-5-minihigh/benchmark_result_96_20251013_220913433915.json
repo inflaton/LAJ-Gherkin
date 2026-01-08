@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-10-13T22:09:13.433887",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:07:22.268775",
+    "benchmark_end_time": "2025-10-13T22:09:13.433883",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 111.165108,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid deletion (204) for full removal and specific removals (no tagDef, single tagDef, multiple tagDef) with verification of tag state (TC01, TC02, TC03).",
+              "Optional headers handled (X-Killbill-Reason, X-Killbill-Comment) and included in removal flow (TC04).",
+              "Path parameter validation: invalid UUID -> 400 and non-existent payment -> 404 (TC06, TC07).",
+              "Required header validation: missing X-Killbill-CreatedBy -> 400 (TC08).",
+              "Query parameter validation and safety: invalid tagDef formats and injection attempts -> 400; tagDef not present on payment handled as no-op (204) (TC09, TC10, TC13).",
+              "Edge cases: payment with no tags returns 204 and system unchanged; unexpected extra query params are tolerated (TC05, TC14).",
+              "Scale and robustness: large number of tagDef params and concurrency/performance under load covered (TC15, TC16, TC17).",
+              "Operational errors: unauthorized access (401), service unavailable (503), gateway timeout (504) are included (TC11, TC12, TC22).",
+              "Integrations and correctness: audit logging, data consistency after removal, regression and backward-compatibility checks (TC18, TC19, TC20, TC21)."
+            ],
+            "gaps": [
+              "403 Forbidden / authorization scope: no explicit test for an authenticated user with insufficient permissions (403) \u2014 only 401 is covered.",
+              "Content-Type / 'Produces: application/json' verification is missing: tests do not assert response Content-Type headers or error response media-type as required by the spec.",
+              "Atomicity / partial-failure behavior: no scenario for a mixed tagDef request (some valid UUIDs, some invalid or not present) to validate whether removal is atomic or partially applied and how errors are reported.",
+              "Collection-format variants: the spec indicates collectionFormat=multi; tests exercise multiple tagDef parameters but do not verify alternate encodings (e.g., comma-separated values) or boundary/encoding edge-cases.",
+              "Header value validation: presence is tested but not invalid or malformed X-Killbill-CreatedBy values (empty, overly long, or invalid characters).",
+              "Soft-delete semantics: no DB-level verification to confirm whether tags are physically removed vs flagged (soft delete) and whether historical state is preserved.",
+              "Rate-limiting/throttling specifics: performance/load tests exist but explicit rate-limiting behavior (429 handling or throttling rules) is not covered.",
+              "Error response schema: tests assert presence of an error message but do not validate structured error payload fields (error codes, fields, consistent schema)."
+            ],
+            "recommendations": [
+              "Add a 403 test: authenticated user without required authorization should receive 403 Forbidden (verify error payload and that no tags are removed).",
+              "Assert response headers per spec: verify Content-Type is application/json for error responses and document expected behavior for 204 (presence/absence of Content-Type).",
+              "Add atomicity tests: submit tagDef lists containing a mix of valid, invalid, and not-on-payment IDs to confirm all-or-nothing semantics (or document partial success behavior) and DB state after failure.",
+              "Verify collection-format variants: include tests for comma-separated tagDef values in addition to multiple repeated tagDef query parameters, and test URL-encoding edge cases.",
+              "Add header-value validation tests: empty/malformed X-Killbill-CreatedBy, extremely long values, and confirm expected validation errors.",
+              "Clarify and test delete semantics at DB level: add integration tests that inspect persistence to confirm soft vs hard deletion and to validate audit/history records in detail (TC20 enhancement).",
+              "Add explicit rate-limiting tests: burst traffic that should trigger throttling and expected 429 responses or backoff behavior (separate from raw performance/load metrics).",
+              "Validate error response schema: create assertions for the structure of error responses (keys, error codes, user-friendly messages) to ensure consistent client behavior."
+            ],
+            "usage": {
+              "completion_tokens": 6176,
+              "prompt_tokens": 5560,
+              "total_tokens": 11736,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5312,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

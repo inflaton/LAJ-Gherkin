@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-14T20:59:45.893838",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:59:10.325460",
+    "benchmark_end_time": "2025-10-14T20:59:45.893829",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 35.568369,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: TC01, TC08 verify 204 response and state change (host marked out of rotation).",
+              "DELETE - Non-Existent/Invalid State: TC04 (already out of rotation -> 409) and TC14 (no hosts available -> 409) cover attempts when the target state/resource is not actionable.",
+              "DELETE - Concurrency: TC11 covers concurrent requests with first 204 and subsequent 409/204 as appropriate.",
+              "Authorization: TC02 (no auth -> 401), TC03 (invalid auth -> 401), TC13 (malicious headers -> 400/401).",
+              "Request Body N/A: TC09 enforces no request body (malicious/non-empty body -> 400).",
+              "Error Handling: TC05 (503 service down), TC06 (500 internal error), TC07 (405 on wrong method) validate common failure modes.",
+              "Verification of Side Effects: TC12 confirms downstream state via querying host status after success.",
+              "Performance/SLAs: TC10, TC11 include timing expectations under normal and concurrent load."
+            ],
+            "gaps": [
+              "Response headers/content negotiation: Story notes Produces: application/json, but tests do not validate Content-Type/Accept behavior (e.g., JSON error payload format, headers on 204 vs errors).",
+              "Authorization granularity: No scenario for authenticated but not authorized user (403 Forbidden).",
+              "Idempotency expectation: Repeat DELETE behavior is asserted as 409 (TC04), but the story does not define whether DELETE should be idempotent (e.g., repeated calls returning 204). Missing a clarifying test to lock this contract.",
+              "Error payload structure: Tests check for presence of an error message but not a consistent JSON schema (e.g., code, message, timestamp) as implied by Produces: application/json.",
+              "Protocol/standards edge cases: No tests for Accept header negotiation (unsupported media type -> 406) or invalid Content-Type on request -> 415.",
+              "Operational headers/observability: No validation of relevant headers (e.g., correlation/request-id) or audit logging after state change, which is important for admin/ops endpoints.",
+              "CORS/Preflight and HEAD/OPTIONS: Not covered (if applicable to admin endpoints)."
+            ],
+            "recommendations": [
+              "Add tests to validate response headers and content negotiation: ensure errors return Content-Type: application/json with a defined schema; verify 204 responses have no body and appropriate headers.",
+              "Introduce a 403 Forbidden scenario for authenticated users lacking admin privileges/roles.",
+              "Clarify and test idempotency: decide whether repeated DELETE should return 204 (idempotent) or 409 (conflict) and add a scenario asserting the chosen behavior.",
+              "Define and assert a standard error response schema in tests (e.g., {\"code\",\"message\",\"details\"}) for 4xx/5xx cases.",
+              "Add media type negotiation tests: unsupported Accept -> 406, invalid/mismatched Content-Type on request -> 415.",
+              "If applicable, add tests for OPTIONS/HEAD behavior and CORS headers for this admin endpoint.",
+              "Add an observability test: verify an audit log or admin action trail entry is created on successful out-of-rotation change, and that no audit entry is created on failure."
+            ],
+            "usage": {
+              "completion_tokens": 1988,
+              "prompt_tokens": 3433,
+              "total_tokens": 5421,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

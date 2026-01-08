@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-10-15T14:14:19.296722",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T14:13:37.935703",
+    "benchmark_end_time": "2025-10-15T14:14:19.296716",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 93,
+    "average_generation_time_seconds": 41.361013,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 93,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 93,
+            "covered": [
+              "PUT: Valid Request \u2013 multiple success paths with and without query params (TC01, TC02, TC03, TC04, TC05, TC14, TC24).",
+              "PUT: Non-Existing Resource \u2013 404 for missing account/payment method and foreign payment method (TC08, TC09, TC10, TC21).",
+              "PUT: Concurrency Issues \u2013 concurrent requests ensure single final default and consistency (TC22).",
+              "Validation: UUID format and boundary cases, including invalid formats and partial UUIDs (TC06, TC07, TC16, TC23).",
+              "Required/optional headers: presence of X-Killbill-CreatedBy, optional Reason/Comment with audit verification (TC04, TC11).",
+              "Authorization: Unauthorized user handling (401) (TC12).",
+              "Resilience/availability: Service unavailable and downstream timeout behaviors (503/504) (TC13, TC18).",
+              "Functional options: payAllUnpaidInvoices behaviors for accounts with/without unpaid invoices and large volumes (TC01, TC02, TC05, TC17).",
+              "Security hardening: Injection attempt in header is rejected and not executed (TC19).",
+              "Regression coverage: default switching and account without payment methods (TC20, TC21).",
+              "Query parameters handling: pluginProperty variations and unexpected extra param tolerated (TC03, TC14, TC15, TC24)."
+            ],
+            "gaps": [
+              "PUT guideline: Partial update rejection \u2013 no scenario sending an unexpected request body to ensure it is ignored or rejected since this endpoint has no body.",
+              "Idempotency \u2013 no test re-invoking setDefault with the same paymentMethodId to confirm repeat PUTs are safe and produce consistent result (e.g., still 204, no duplicate side effects).",
+              "Error handling: Internal server error (500) not covered (e.g., DB failure while updating default or during invoice payment attempts).",
+              "Authorization nuance: No 403 Forbidden scenario for authenticated but not authorized actors/tenants.",
+              "payAllUnpaidInvoices failure semantics: No scenario where setDefault succeeds but invoice payment attempts partially/fully fail; expected status and audit of attempts are unspecified in tests.",
+              "Validation depth for headers and pluginProperty: No tests for invalid data types, exceeding limits, or disallowed characters/encoding (e.g., overly long Reason/Comment, pluginProperty with non-string types or beyond max).",
+              "Content negotiation: No scenario for incorrect or unexpected Content-Type/Accept headers given the endpoint consumes application/json but has no body.",
+              "Observability: No verification of response headers and auditing for CreatedBy persistence and correlation IDs where applicable.",
+              "Rate limiting/throttling: No tests for burst traffic limits or 429 responses under excessive PUT requests."
+            ],
+            "recommendations": [
+              "Add a scenario that sends an unexpected JSON body and verifies server behavior (reject with 400/415 or ignore), satisfying PUT partial update rejection guidance.",
+              "Add an idempotency test: calling setDefault twice with the same paymentMethodId returns 204 and makes no additional changes or duplicate work.",
+              "Introduce server error simulations (e.g., forced DB failure) to assert a 500 response and proper error payload and logging.",
+              "Add a 403 Forbidden test for an authenticated user lacking permissions/tenant access to the specified account.",
+              "Cover payAllUnpaidInvoices negative paths: simulate payment plugin declines/timeouts while still setting default; assert final status code, side effects, and audit entries.",
+              "Expand validation tests: overly long X-Killbill-Reason/Comment, Unicode/emoji, invalid pluginProperty types, and exceeding maximum pluginProperty entries to ensure correct 400/422 responses.",
+              "Add content negotiation tests for wrong/missing Content-Type and Accept headers to verify strictness or tolerance.",
+              "Verify response/audit headers and persistence: ensure CreatedBy is recorded on the change and that any standard tracing headers are present if applicable.",
+              "Consider rate limiting/throttling tests under sustained PUT load to validate 429 handling and retry guidance."
+            ],
+            "usage": {
+              "completion_tokens": 1688,
+              "prompt_tokens": 6898,
+              "total_tokens": 8586,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 832,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

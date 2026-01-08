@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-13T05:26:51.902429",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:26:22.728576",
+    "benchmark_end_time": "2025-10-13T05:26:51.902425",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 29.173849,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Payload: Multiple happy-path scenarios (single and multiple tags, existing/no-existing tags) are well covered (TC01, TC02, TC04, TC05).",
+              "Required/Optional Headers: Presence and omission of the required X-Killbill-CreatedBy header and optional X-Killbill-Reason and X-Killbill-Comment are tested (TC03, TC06).",
+              "Invalid Payloads: Malformed JSON, empty array, invalid tag-definition UUIDs, unsupported extra fields, and null/empty elements are covered (TC09, TC10, TC11, TC12, TC24).",
+              "Duplicate Handling: Duplicate tag-definition IDs in a single request and adding an already-existing tag on the invoice item are covered (TC13, TC20).",
+              "Resource Not Found / Bad ID Format: Non-existent invoice item (404) and invalid invoice-item-id format (400) are covered (TC07, TC08).",
+              "Authorization / Auth Missing: Unauthorized access case is covered (TC16).",
+              "Large Payload / Performance: Very large payload behavior and a performance under load scenario are present (TC14, TC19).",
+              "Dependency and Service Errors: Service unavailability and dependent service failure scenarios are present (TC17, TC21).",
+              "Edge Conditions: Database-empty state, maximum-tags limit, timeout/long-running operations, and malicious payload scenarios are included (TC15, TC23, TC25, TC18)."
+            ],
+            "gaps": [
+              "Server Internal Errors (500): No explicit test for generic internal server error / DB failure producing 500 responses.",
+              "Partial-success / Atomicity: No test for mixed-valid/invalid tag-definition IDs in the same request to confirm whether operation is atomic or partial (transaction behavior).",
+              "Schema-Level Response Validation: Tests assert tagDefinitionIds but do not validate the full Tag object schema (fields, types, timestamps, createdBy, tag-id UUID format, content-type header).",
+              "Idempotency / Concurrency: No concurrency tests that exercise race conditions or simultaneous requests adding the same tag to ensure no duplicate creation under race.",
+              "Authorization Granularity (403): No test for authenticated but unauthorized users or role-based access control (403).",
+              "Content-Type and Headers: No tests for missing/incorrect Content-Type, or for presence/validation of response headers (e.g., Location, Content-Type).",
+              "Partial network error handling: No tests for transient network errors/retries or intermediate errors (e.g., 502, 504 covered but not retries/backoff behavior).",
+              "Rate Limiting / Throttling: No tests for rate limiting behavior (429) or server throttling under burst traffic.",
+              "Response Validation for Large Success: For large payloads that succeed (TC19), there is no explicit verification of correct count, ordering, or completeness beyond \"contains all created tags\".",
+              "Caching / POST-specific headers: While caching is primarily GET-related, there is no verification of any relevant headers after POST (e.g., cache invalidation signals)."
+            ],
+            "recommendations": [
+              "Add a test that simulates a server-side failure (database exception) and expects a 500 Internal Server Error to validate server error handling.",
+              "Add a test where the request body contains a mix of valid and invalid tag-definition UUIDs to verify atomic vs. partial success semantics and expected rollback behavior.",
+              "Validate the full Tag object schema in success responses: id UUID format, tagDefinitionId, objectType, createdBy, createdDate, and verify Content-Type response header is application/json.",
+              "Add concurrency tests that issue parallel POSTs to add the same tag(s) to the same invoice item to ensure no duplicate tags are created and to detect race conditions.",
+              "Include role-based authorization tests to assert 403 responses for authenticated but unauthorized users and test different user permissions.",
+              "Add tests for missing or incorrect Content-Type request header and verify server returns appropriate errors (415/400); also validate important response headers (Location, Content-Type, caching headers if applicable).",
+              "Add rate-limiting/burst tests to verify 429 behavior or graceful throttling under high request rate.",
+              "For very large successful payloads, add explicit assertions about the number of Tag objects returned and spot-check fields to ensure completeness; for 413 responses, assert the error message format.",
+              "Add tests for retry/backoff behaviors or transient network errors where applicable, and include checks for meaningful error messages and monitoring-friendly responses.",
+              "If the service exposes any limits (e.g., max tags per invoice item), add tests to assert precise limit values and boundary conditions (e.g., one below, exact, one above)."
+            ],
+            "usage": {
+              "completion_tokens": 1874,
+              "prompt_tokens": 6738,
+              "total_tokens": 8612,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

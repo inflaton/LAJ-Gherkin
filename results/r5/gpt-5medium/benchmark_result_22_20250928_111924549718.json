@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-09-28T11:19:24.549694",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:18:30.644622",
+    "benchmark_end_time": "2025-09-28T11:19:24.549690",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 53.905068,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT - Valid Request: Multiple happy-path scenarios verify 204 and that CBA is rebalanced (with required and optional headers).",
+              "PUT - Non-Existing Resource: Invalid/non-existent accountId cases return 400 as specified (invalid format, non-existent, empty DB).",
+              "PUT - Concurrency Issues: High-concurrency scenario ensures consistent CBA state and 204 responses.",
+              "Header validation: Required X-Killbill-CreatedBy present; missing/empty/whitespace/null yield 400; optional Reason/Comment accepted; extra headers tolerated.",
+              "Input validation: UUID format checked; very long accountId rejected with 400; unexpected query params tolerated.",
+              "Resilience/availability: Network retry behavior covered; service unavailability returns 503; unsupported method returns 405.",
+              "Security: Malicious header values (SQLi) and XSS attempts do not leak details or execute.",
+              "Performance: Response-time SLAs under normal and peak load are validated."
+            ],
+            "gaps": [
+              "Authorization/Authentication: No negative tests for missing/invalid/expired auth token leading to 401/403.",
+              "Idempotency: No explicit check that repeated sequential PUTs produce the same final state and consistent 204 responses.",
+              "Request body handling: No test that sending an unexpected request body is rejected (e.g., 400) or ignored as per contract (partial update not applicable but payload should be validated).",
+              "Response headers/content negotiation: No assertions about Content-Type (produces application/json), especially for error responses; also verify 204 has no body.",
+              "Error model: No validation of standardized error schema/fields for 400/503 (e.g., code, message, requestId).",
+              "Auditability: No verification that CreatedBy/Reason/Comment are recorded in audit/audit logs as side effects.",
+              "Rate limiting/backoff: No tests for 429 or Retry-After headers under throttling (if applicable to this API).",
+              "Deterministic business assertions: Several scenarios assert generic \"rebalanced to the correct value\" without verifying explicit computed balances from known fixtures."
+            ],
+            "recommendations": [
+              "Add negative auth tests: missing/invalid token should return 401/403, and valid token continues to pass.",
+              "Add an idempotency scenario: send the same PUT multiple times sequentially and assert CBA and audit entries are not duplicated; responses remain 204.",
+              "Add a test that includes a JSON body to ensure the API rejects it (400) or ignores it, documenting expected behavior.",
+              "Assert response headers: for success ensure 204 with empty body; for errors assert Content-Type: application/json and validate payload structure.",
+              "Define and validate a standard error schema (code, message, details, requestId) for 400 and 503 responses.",
+              "Extend scenarios to check audit logs/history capturing CreatedBy/Reason/Comment for the rebalance operation.",
+              "If rate limiting applies, add tests for burst traffic returning 429 and verify Retry-After/backoff behavior.",
+              "Strengthen business checks with precise, fixture-based balances (pre/post values) to validate the rebalance calculation, not just that it occurred."
+            ],
+            "usage": {
+              "completion_tokens": 3043,
+              "prompt_tokens": 5515,
+              "total_tokens": 8558,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2368,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

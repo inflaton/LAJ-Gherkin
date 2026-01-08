@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-09-28T05:20:03.685039",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:19:35.607412",
+    "benchmark_end_time": "2025-09-28T05:20:03.685035",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 28.077623,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Successful deletion (204) for full removal (no customField param) is covered (TC01).",
+              "Selective deletion via customField query parameter is covered (TC02, TC12, TC18).",
+              "Edge cases for varying numbers of custom fields (one, none, many) are covered (TC03, TC04, TC12).",
+              "Header permutations: required-only and all-optional header combinations are covered (TC05, TC06).",
+              "Path parameter validation and format errors for invoiceItemId (invalid UUID -> 400) are covered (TC07).",
+              "Non-existent resource handling (valid UUID but not found -> 404) is covered (TC08).",
+              "Missing required header handling (X-Killbill-CreatedBy -> 400) is covered (TC09).",
+              "Malformed customField values and basic input validation/security are covered (TC10, TC15).",
+              "Extra/unexpected query parameters tolerance is covered (TC11).",
+              "Robustness/performance scenarios such as heavy load and large parameter lists are included (TC13, TC12).",
+              "Dependent service/unavailability handling is included (TC14).",
+              "Auth failure scenario (expired/invalid token -> 401) is included (TC19).",
+              "Regression scenario for header parsing variations is included (TC20)."
+            ],
+            "gaps": [
+              "Response metadata verification (e.g., Content-Type: application/json, presence/absence of other headers) is not asserted \u2014 story states \"Produces: application/json\" but tests only assert empty body/204.",
+              "Idempotency of the DELETE operation is not tested (e.g., deleting same custom fields twice \u2014 should be safe/consistent).",
+              "Soft-delete semantics are not covered (if applicable: whether fields are soft-deleted vs permanently removed and how they appear to subsequent GETs).",
+              "Concurrency / race conditions for DELETE (simultaneous deletes or delete vs read/update) are not explicitly covered \u2014 heavy load is present but not precise concurrency tests.",
+              "Behavior when the customField list contains a mix of valid IDs and non-existent (but well-formed) IDs is ambiguous and not explicitly covered: should the call succeed and remove existing ones or fail? TC17 covers mixed valid/invalid formats but not \"valid-but-not-present\" IDs.",
+              "Exact shape/content of error responses is not tested (error payload structure, error codes beyond the status, which IDs are reported for partial failures).",
+              "Rate limiting / throttling behavior is not covered (the heavy-load scenario does not assert rate limit responses).",
+              "Header validation limits are partial: long X-Killbill-Comment is covered, but limits/validation for X-Killbill-CreatedBy and X-Killbill-Reason (length, characters) are not tested.",
+              "Behavior for deleting customField IDs that belong to other invoice items (authorization/business-rule checks) is not present."
+            ],
+            "recommendations": [
+              "Add assertions for response headers including Content-Type (application/json) and any relevant KillBill headers to satisfy \"Produces: application/json\".",
+              "Add an idempotency test: delete the same custom fields twice and assert second delete is safe and returns the expected status (204 or defined behavior).",
+              "Add a soft-delete verification: after delete, attempt to GET custom fields for the invoice item and assert they are not returned (or marked deleted) per product semantics.",
+              "Add concurrency tests that perform parallel DELETEs (and interleaved GET/DELETE/PUT) to detect race conditions and ensure consistency.",
+              "Clarify and add tests for mixed-valid-but-nonexistent IDs in customField list (e.g., some UUIDs well-formed but not attached to the invoice item) and assert the expected behavior (partial success vs full failure).",
+              "Define and test the exact error payload schema for 4xx/5xx responses (fields, codes, messages, and when/which IDs are reported) \u2014 add assertions accordingly.",
+              "Add rate-limiting tests: execute many DELETE requests rapidly to confirm throttling behavior and correct error codes/messages (429 or other configured responses).",
+              "Add header validation limits tests for X-Killbill-CreatedBy and X-Killbill-Reason (max length, allowed character sets) in addition to the comment-length test already present.",
+              "Add tests for authorization boundaries such as attempting to delete fields belonging to other tenants/accounts and verify appropriate 403/404/400 behavior depending on rules."
+            ],
+            "usage": {
+              "completion_tokens": 2026,
+              "prompt_tokens": 5523,
+              "total_tokens": 7549,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

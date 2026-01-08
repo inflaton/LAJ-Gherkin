@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-13T19:53:19.260925",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:52:57.580716",
+    "benchmark_end_time": "2025-10-13T19:53:19.260916",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 21.6802,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Successful deletion (HTTP 204) with empty body and idempotency (TC01, TC09)",
+              "Authentication error handling for missing/invalid credentials (HTTP 401) (TC02, TC03)",
+              "Non-existent tenant handling (HTTP 404) (TC04)",
+              "Server-side error handling (HTTP 500) and service unavailable (HTTP 503) (TC05, TC06)",
+              "Malformed request and basic input validation (HTTP 400) (TC07)",
+              "Security input validation for malicious headers (TC08)",
+              "Concurrency and load behavior for multiple concurrent DELETE requests (TC10)",
+              "Regression check to ensure bug does not recur (TC11)",
+              "Integration effect on dependent services to ensure invalidation is observable (TC12)",
+              "State variation: partially populated cache invalidation (TC13)",
+              "Timeout/gateway timeout handling (HTTP 504) (TC14)"
+            ],
+            "gaps": [
+              "Content-Type / response media type verification: story notes \"Produces: application/json\" but tests assert empty body for 204 and do not verify Content-Type or how errors are formatted (JSON error payload) for >=400 responses",
+              "Authorization scope/privilege levels: no test for authenticated-but-not-admin (403) or role-based access control",
+              "Tenant context edge cases: no tests for missing tenant context when authenticated, or for requests where tenant header vs token resolution differs",
+              "Soft-delete vs invalidate semantics: no verification of whether cache entries are flagged vs fully removed (soft delete semantics) as per DELETE-method guideline",
+              "Concurrency with concurrent readers/writers: tests cover concurrent DELETEs but not interactions with concurrent cache reads/writes or cache population during invalidation (possible race conditions)",
+              "Large-scale performance: no test for invalidating very large caches or measurement of resource impact beyond a single \"under load\" test; story warns performance impact",
+              "Rate limiting / throttling: no tests for many requests over short interval and correct handling (429, etc.)",
+              "Error response format consistency: tests check status codes but do not assert structured JSON error body fields (code/message/timestamp) for error scenarios",
+              "Audit/logging/observability: no tests to ensure operations are logged/audited as admin actions"
+            ],
+            "recommendations": [
+              "Add assertions for response headers (Content-Type: application/json) and, for error cases, validate the JSON error schema (presence of code/message) to match \"Produces: application/json\"",
+              "Add tests for authenticated-but-insufficient-privileges (expect HTTP 403) and for authenticated requests with missing tenant context (define expected behavior: 400 vs 404) to cover RBAC and tenant resolution",
+              "Introduce tests that exercise soft-delete semantics vs actual removal (verify whether entries are marked deleted or fully purged) if the implementation differentiates invalidate vs delete",
+              "Create concurrency tests that combine concurrent cache reads/writes with invalidation to detect race conditions and data corruption, not only concurrent DELETEs",
+              "Add large-scale performance tests that invalidate very large tenant caches and measure resource usage and time (to address the story note on potential performance impact)",
+              "Add rate-limiting / throttling tests (many requests in short time) and verify correct status codes (e.g., 429) and stability under burst traffic",
+              "Standardize and assert error response payload structure for all >=400 responses (schema validation) so clients can parse errors consistently",
+              "Add tests to verify audit/logging entries are created for admin cache invalidation operations (important for security/compliance)"
+            ],
+            "usage": {
+              "completion_tokens": 1833,
+              "prompt_tokens": 3389,
+              "total_tokens": 5222,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

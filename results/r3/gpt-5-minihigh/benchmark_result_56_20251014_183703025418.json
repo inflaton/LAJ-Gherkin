@@ -1,0 +1,99 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "56_2025-10-14T18:37:03.025380",
+    "jira_id": "56",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/customFields - Add custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T18:34:49.664345",
+    "benchmark_end_time": "2025-10-14T18:37:03.025376",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 133.361031,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "56_qe_sup-gpt4.1_agent-gpt4.1_1748919557.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Payload: End-to-end success paths are covered (TC01, TC02, TC03, TC04, TC19) verifying HTTP 201 and that a JSON array of created CustomField objects is returned.",
+              "Required/Optional Headers: Tests verify required X-Killbill-CreatedBy presence (TC01) and missing-required-header behavior (TC07), and optional headers X-Killbill-Reason and X-Killbill-Comment (TC02).",
+              "Path parameter validation: Invalid UUID format and non-existent bundle cases are covered (TC05 -> 400, TC06 -> 404).",
+              "Malformed/Invalid Payloads: Malformed JSON, empty body, schema validation, and unsupported extra fields are tested (TC08, TC09, TC10, TC12).",
+              "Duplicate field name validation: Duplicate names inside the same request are checked (TC11).",
+              "Large payloads & limits: A large-payload/scale test is present (TC17) to validate behavior near system limits.",
+              "Service / dependency failures: Service-unavailable and dependency-failure scenarios are covered (TC15, TC20) returning 503.",
+              "Timeouts & retry: Network timeout and retry behavior are considered (TC16).",
+              "Concurrency & performance: Multiple concurrent requests and data consistency under concurrency are tested (TC22).",
+              "Security: Basic injection and XSS attempts are included (TC23, TC24) to validate input sanitization or rejection.",
+              "Extra URL/query leniency: Extra query parameters are tolerated (TC13).",
+              "Regression & documentation: Field-name casing regression and API documentation accessibility are covered (TC21, TC25)."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency: No explicit test for handling repeated identical POSTs (client retries) or idempotency semantics (e.g., dedupe, 409, or idempotency keys).",
+              "500 Internal Server Error: There is coverage for 503, but no explicit scenario simulates unexpected server-side failures (e.g., DB error) returning 500 and the expected error format.",
+              "Atomicity / partial success: Missing tests for mixed arrays where some CustomField objects are valid and others invalid \u2014 expected all-or-none transactional behavior is not validated.",
+              "Content-Type handling: No tests for missing/incorrect Content-Type header (e.g., expecting 415 Unsupported Media Type) or validating response Content-Type header.",
+              "Authorization vs Authentication: 401 (missing/invalid token) is covered (TC14) but tests for authenticated-but-forbidden (403) are absent.",
+              "Response schema & metadata verification: Tests assert response contains created objects but do not validate server-generated fields (IDs, createdDate/createdBy canonicalization, objectType) or that objectId in response matches path bundleId.",
+              "Field-level validation details: Tests do not exhaustively validate per-field constraints (types, max lengths, regexes) for CustomField attributes.",
+              "Duplicate across existing data: Duplicate detection is tested only within the same request (TC11); no test verifies behavior when a new request conflicts with existing custom fields.",
+              "Rate limiting / throttling: No explicit tests that verify rate-limit behavior (429) or Retry-After headers under high-frequency requests.",
+              "413 / payload-too-large: No test for behavior when payload exceeds maximum allowed size and expected 413 response.",
+              "Concurrency race conditions for uniqueness constraints: TC22 checks performance and consistency but not race conditions that could produce duplicate records or constraint violations under simultaneous requests.",
+              "Audit header validation: No tests for validating format/length/content of X-Killbill-CreatedBy (e.g., empty string, overly long value) or ensuring it is logged/returned where expected."
+            ],
+            "recommendations": [
+              "Add idempotency / duplicate-submission tests: repeat the same POST and assert either a single creation, a proper conflict response (409), or behavior when idempotency keys are used.",
+              "Add server-error (500) tests: simulate DB or unexpected server failures to validate stable error format and no sensitive data leakage.",
+              "Add transactional/atomicity tests: submit mixed-validity arrays and assert whether API is atomic (all succeed) or partial successes are returned with clear error reporting; update acceptance criteria to specify expected behavior.",
+              "Test Content-Type handling: include scenarios with missing/incorrect Content-Type header expecting 415 or 400, and assert response Content-Type is application/json.",
+              "Add authorization tests (403): include authenticated users lacking permissions to verify 403 responses and appropriate error messages.",
+              "Validate response schema and metadata: assert server-generated fields (id, createdDate, objectId/objectType relationship to path bundleId, createdBy) are present and correct and that the response exactly matches the documented CustomField schema.",
+              "Add field-level validation tests: check invalid data types, lengths, disallowed characters, and specific attribute constraints for each CustomField property.",
+              "Test duplication against existing data: attempt to create fields that collide with pre-existing custom fields (not only in-request duplicates) and assert expected behavior.",
+              "Add rate-limiting/throttling tests: generate rapid requests to observe 429 responses and Retry-After headers and verify graceful degradation.",
+              "Add payload-too-large tests: submit a payload exceeding server limits and verify a 413 (or documented behavior) is returned.",
+              "Add focused concurrency/locking tests: simulate parallel requests that would create the same custom field and assert constraints and correct error handling (race-condition detection).",
+              "Validate audit headers: test X-Killbill-CreatedBy format/length, empty values, and ensure auditability (not exposing PII) and that headers are honored in created metadata.",
+              "Update acceptance criteria / API docs: clarify atomicity for batch creates, idempotency expectations, exact response schema (including server-generated fields), error formats for 500/413/429, and the behavior when payload objectId differs from path bundleId."
+            ],
+            "usage": {
+              "completion_tokens": 5392,
+              "prompt_tokens": 6302,
+              "total_tokens": 11694,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4160,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

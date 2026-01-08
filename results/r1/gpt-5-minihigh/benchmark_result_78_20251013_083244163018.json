@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-10-13T08:32:44.162992",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:30:25.757791",
+    "benchmark_end_time": "2025-10-13T08:32:44.162988",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 138.405197,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid POST creation flows with HTTP 201 and confirmation string/URI are exercised (e.g., TC01, TC02, TC12, TC13, TC19, TC20, TC21, TC23).",
+              "Required and optional headers are tested: presence and missing X-Killbill-CreatedBy (TC01, TC03) and optional X-Killbill-Reason/X-Killbill-Comment (TC02).",
+              "Request-body validation for common negative cases is covered: missing planId, invalid currency, malformed JSON, empty body (TC04, TC05, TC09, TC08).",
+              "Duplicate planId/conflict scenario is covered (TC06).",
+              "Behavior with extra/unsupported fields in payload is exercised (TC07).",
+              "Authentication missing scenario is covered (TC10).",
+              "Operational and integration scenarios are covered: catalog unavailable (TC11), dependent services up and degraded (TC23, TC24), and network retry/recovery (TC16).",
+              "Concurrency for creating multiple unique plans in parallel is covered (TC22).",
+              "Performance and large-payload awareness are present: response-time SLA test (TC17) and very large payload scenario (TC15).",
+              "Security checks for injection/XSS patterns are included (TC18)."
+            ],
+            "gaps": [
+              "Content-Type enforcement is not asserted: no explicit tests that requests must use Content-Type: application/json nor that responses include Content-Type: application/json.",
+              "Incomplete schema validation coverage: only planId-missing and currency-invalid are explicitly tested; other required fields (productName, productCategory, amount type/format, billingPeriod enumeration) and invalid data types (e.g., amount as string, negative amounts) are not exhaustively tested.",
+              "Server-side error handling (500 Internal Server Error) is not simulated or validated; there are no tests to confirm safe behavior and no partial persistence on database failures.",
+              "Concurrency conflict race conditions are not covered: there is no test where multiple concurrent requests attempt to create the same planId to verify single-winner/atomic behavior and proper conflict responses.",
+              "Authorization/permission coverage is missing: tests check missing authentication (401) but not insufficient privileges (403) or role-based access.",
+              "Idempotency and duplicate-submission semantics are under-specified: retry behavior of the same exact request and idempotency guarantees are not clearly tested.",
+              "Payload-too-large behavior is ambiguous: large-payload test accepts either 201 or 400 but does not assert 413 or system limits; threshold tests are missing.",
+              "Rate limiting/throttling behavior (e.g., 429) is not tested.",
+              "Error response schema and consistency are not validated: tests assert presence of messages but do not validate structure, fields, or consistent content-type for error bodies.",
+              "Current-catalog version semantics are not asserted: tests check retrievability but do not explicitly verify the plan was added to the current catalog version (metadata/version).",
+              "Transactional/rollback behavior when dependent integrations fail is not tested: it is not verified whether partial writes are avoided or rolled back.",
+              "Content negotiation and Accept header handling are not covered."
+            ],
+            "recommendations": [
+              "Add explicit tests for Content-Type enforcement: send requests with correct and incorrect Content-Type headers and assert proper rejection (415) and verify responses include Content-Type: application/json.",
+              "Expand schema validation tests to cover all required fields and invalid types/values: missing productName, missing productCategory, invalid amount formats (string, negative, out-of-range), invalid billingPeriod values, and malformed field types.",
+              "Add tests that simulate server-side failures (database down, 500 Internal Server Error) to verify the API returns expected error codes and that no partial catalog changes are persisted.",
+              "Implement concurrency race tests where multiple clients concurrently attempt to create the same planId; assert only one succeeds and the others receive clear conflict codes and no duplicate entries are created.",
+              "Add authorization tests for insufficient privileges (expect 403) and for expired/invalid tokens to distinguish authentication vs authorization failures.",
+              "Make idempotency explicit: add tests that retry the same POST payload and assert the expected behavior (idempotent success, conflict, or defined response), and document contract.",
+              "Make large-payload testing explicit: determine system limits, run payloads around the threshold, and assert 413 Payload Too Large where applicable rather than a vague 201/400 outcome.",
+              "Add rate-limiting/high-load tests to validate throttling behavior and 429 responses if applicable.",
+              "Define and test a canonical error response schema (fields, types, content-type) and validate error responses for 4xx/5xx cases.",
+              "Add tests that explicitly verify the plan was written to the current catalog version (check version metadata) and include controlled cleanup to avoid unintended live-catalog pollution in CI.",
+              "Add transactional/integration tests to validate rollback semantics when dependent services fail (ensure no orphaned or partially applied changes).",
+              "Add tests for Accept header and content negotiation and for incorrect Accept values to validate content negotiation behavior."
+            ],
+            "usage": {
+              "completion_tokens": 9695,
+              "prompt_tokens": 5854,
+              "total_tokens": 15549,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 8640,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

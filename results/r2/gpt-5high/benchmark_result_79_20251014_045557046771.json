@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "79_2025-10-14T04:55:57.046737",
+    "jira_id": "79",
+    "jira_title": "Implement/Test API: GET /1.0/kb/credits/{creditId} - Retrieve a credit by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T04:53:18.014907",
+    "benchmark_end_time": "2025-10-14T04:55:57.046733",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 159.031826,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "79_qe_sup-gpt4.1_agent-gpt4.1_1748921053.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Valid Request: Successful retrieval for CREDIT_ADJ and CBA_ADJ returns 200 with application/json and matching id (TC01, TC02, TC15).",
+              "Empty/Not Found Handling: 404 when no credit exists, non-existent id, or id not of credit types (TC03, TC04, TC11, TC18).",
+              "Path parameter validation and input hardening: invalid/truncated/whitespace-padded ids and SQLi/XSS attempts return 400 and do not compromise the system (TC05, TC12, TC13, TC16, TC17).",
+              "Query Parameters: Unexpected query parameter is ignored; response remains 200 with valid body (TC08).",
+              "Authorization: Missing or invalid tokens produce 401 with error body (TC06, TC07).",
+              "Resilience: 503 returned when the database is unavailable (TC10).",
+              "Performance/Load: Acceptable response times under high load and concurrent requests (TC09, TC19).",
+              "Response headers basic check: Content-Type application/json verified on success (TC01, TC02)."
+            ],
+            "gaps": [
+              "Caching Behavior: No tests for ETag/Cache-Control/Last-Modified headers or 304 Not Modified revalidation.",
+              "Rate Limiting: No scenarios validating throttling behavior (e.g., 429 Too Many Requests, Retry-After, rate-limit headers).",
+              "Authorization granularity: No test for authenticated but unauthorized user/tenant resulting in 403 (if applicable).",
+              "Content negotiation: No tests that vary the Accept header or validate 406 Not Acceptable for unsupported media types.",
+              "Response schema depth: The InvoiceItem payload is not validated against the full schema (required fields, data types, enum values, value constraints).",
+              "Error response contract: Tests only look for a generic message; they do not assert a standardized error JSON structure or error-specific headers.",
+              "Boundary test correctness: TC14 uses a \u201cvery large UUID,\u201d which is not a valid UUID; this should be treated as a 400 invalid id or be reworked into a valid boundary case; whitespace-trimming expectations in TC17 may need clarification."
+            ],
+            "recommendations": [
+              "Add caching tests: verify ETag/Cache-Control/Last-Modified on 200 responses and 304 flows via If-None-Match/If-Modified-Since.",
+              "Add rate limiting tests: burst requests to trigger limits; assert 429, Retry-After, and X-RateLimit-* headers; confirm recovery after the window.",
+              "Add a 403 scenario for an authenticated user without access (e.g., wrong tenant/role) if the API enforces such authorization.",
+              "Expand positive-path schema assertions to validate the full InvoiceItem contract (id, type enum limited to CREDIT_ADJ/CBA_ADJ, amount, currency, invoiceId, accountId, dates, etc.).",
+              "Standardize error assertions: validate error response JSON schema (fields like code/type/message), Content-Type application/json, and consistent status codes.",
+              "Add content negotiation tests: Accept: application/json returns 200; unsupported Accept yields 406 Not Acceptable.",
+              "Fix TC14: replace with realistic UUID boundary cases (uppercase/lowercase hex, hyphen positions) or classify oversize ids as 400; clarify expected trimming behavior for TC17.",
+              "Clarify/remove TC20 unless specific backward-compatibility guarantees are defined; otherwise, explicitly assert what \u201cbackward compatible\u201d means (payload shape, headers)."
+            ],
+            "usage": {
+              "completion_tokens": 7852,
+              "prompt_tokens": 4626,
+              "total_tokens": 12478,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

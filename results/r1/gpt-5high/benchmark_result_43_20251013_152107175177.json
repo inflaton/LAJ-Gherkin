@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-10-13T15:21:07.175146",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T15:18:10.164225",
+    "benchmark_end_time": "2025-10-13T15:21:07.175141",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 89,
+    "average_generation_time_seconds": 177.010916,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 89,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 89,
+            "covered": [
+              "PUT - Valid Request: Happy-path updates return 204 and persist the new payment/paymentTransaction state (TC01, TC02, TC13, TC14, TC15, TC23, TC24, TC26).",
+              "PUT - Non-Existing Resource: 404 when payment or transaction is missing or mismatched, including empty DB and cross-payment transactionId (TC06, TC07, TC12, TC27).",
+              "PUT - Concurrency Issues: Concurrent updates on the same transaction with final state consistency are exercised (TC17).",
+              "Authorization: 401 Unauthorized when credentials are missing/invalid (TC11).",
+              "Input validation and error handling: invalid UUIDs, missing required header, missing/malformed body, and inconsistent state data yield 400 (TC03, TC04, TC05, TC08, TC09, TC10).",
+              "Operational resilience: backend slowness/dependency degradation covered with 503/504 and resilience expectations (TC16, TC22).",
+              "Security hardening: SQL injection and XSS payload handling validated (TC18, TC19).",
+              "Behavior with optional/extra inputs: optional headers combinations and extra query/body fields behavior covered (TC02, TC13, TC24, TC25)."
+            ],
+            "gaps": [
+              "PUT - Partial Update semantics: No explicit test that rejects unsupported partial updates unless allowed by contract; TC23 assumes only required fields are enough but does not assert rejection when mandatory state fields are omitted.",
+              "Idempotency: No scenario validating that repeating the exact same PUT results in 204 and no additional state changes.",
+              "Content negotiation/media types: No tests for incorrect Content-Type (415) or unsupported Accept (406), nor assertions that 204 responses have no body; error responses content-type/shape not asserted.",
+              "Authorization (RBAC): No 403 Forbidden test for authenticated but non-admin user lacking privileges.",
+              "Server error handling: No simulation/validation of 500 Internal Server Error (e.g., DB failure) with proper error envelope.",
+              "Audit trail: No verification that X-Killbill-CreatedBy/Reason/Comment are persisted to audit logs/history for the payment/transaction.",
+              "State-machine depth: Limited coverage of valid state transitions and enumerations; only an invalid transition is tested (TC08).",
+              "Internationalization/encoding: No tests for Unicode/emoji or non-ASCII in headers/reason/comment/AdminPayment fields."
+            ],
+            "recommendations": [
+              "Add an explicit Partial Update test: send only a subset of state fields when the contract requires more; expect 400 unless spec permits partial updates. If partial updates are allowed, document and add positive cases showing which fields may be omitted.",
+              "Add idempotency tests: perform the same PUT multiple times and verify 204 each time, unchanged final state, and no duplicate side effects/audit entries.",
+              "Add media type tests: wrong Content-Type returns 415; unsupported Accept returns 406; assert 204 responses have an empty body and appropriate headers; assert error responses return application/json with a stable error schema.",
+              "Add RBAC test for 403 Forbidden: authenticated non-admin user attempts update and is denied.",
+              "Simulate internal failures (e.g., DB exception) to validate 500 response and error payload consistency.",
+              "Verify audit logging: after a successful update, assert CreatedBy/Reason/Comment are recorded in audit logs/history for both payment and transaction.",
+              "Expand state-machine coverage: add examples for valid transitions (e.g., PENDING->SUCCESS, PENDING->FAILED, SUCCESS->CHARGEBACK where applicable) and enforce allowed enumerations/constraints.",
+              "Add i18n tests: include Unicode/emoji and locale-specific characters in AdminPayment fields and headers to ensure proper storage and echoing without corruption."
+            ],
+            "usage": {
+              "completion_tokens": 6370,
+              "prompt_tokens": 6337,
+              "total_tokens": 12707,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5568,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

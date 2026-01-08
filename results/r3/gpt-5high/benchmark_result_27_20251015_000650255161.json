@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "27_2025-10-15T00:06:50.255118",
+    "jira_id": "27",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/paymentMethods - Add a payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T00:05:20.253447",
+    "benchmark_end_time": "2025-10-15T00:06:50.255113",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 90.001666,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "27_qe_sup-gpt4.1_agent-gpt4.1_1748917729.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST Valid Payload: Multiple success paths (TC01, TC02, TC03, TC04, TC05, TC06, TC07, TC08, TC10, TC11) returning 201 with JSON PaymentMethod and Location header per story.",
+              "Query Parameters: isDefault, payAllUnpaidInvoices, controlPluginName (multi), pluginProperty, and combined usage covered; unexpected param ignored (TC02\u2013TC04, TC08, TC09).",
+              "Headers: Required X-Killbill-CreatedBy enforced (TC16); optional X-Killbill-Reason and X-Killbill-Comment handled (TC05).",
+              "Error Scenarios per story: 400 for malformed body/missing fields/invalid accountId format (TC12, TC13, TC14, TC16), 404 for non-existent account (TC15).",
+              "Validation/Security: Input hardening via SQLi/XSS attempts rejected (TC19, TC20).",
+              "Large Payloads: Max-size payload handled (TC10).",
+              "Server Error Handling: 500 on plugin inconsistency (TC27); 503 on plugin service down (TC18).",
+              "Resilience/Retry/Concurrency: Network failure and retry safety (TC21); concurrent POSTs without duplicates (TC23).",
+              "Performance/Timeouts: Explicit latency targets and timeout behavior (TC22, TC28, TC29).",
+              "Integration Behavior: Control plugins invoked and downstream sync verified (TC04, TC26).",
+              "Backward Compatibility: Older client payload supported (TC25)."
+            ],
+            "gaps": [
+              "Duplicate submission semantics not explicitly verified (same payload re-post without network error) for idempotency or 409 conflict handling.",
+              "Media type/content negotiation not tested (e.g., missing/incorrect Content-Type -> 415; invalid Accept header).",
+              "Query param negative validation gaps: non-boolean values for isDefault/payAllUnpaidInvoices; malformed pluginProperty formats; unknown controlPluginName behavior.",
+              "Response headers not fully validated (e.g., Content-Type: application/json on 201/4xx/5xx).",
+              "Authorization granularity: 403 Forbidden (valid token without required permissions/role) not covered; only 401 is tested.",
+              "Audit trail verification not asserted via retrieval (ensuring CreatedBy/Reason/Comment appear in audit/audit logs).",
+              "Default-switching behavior not asserted when setting isDefault=true on an account that already has a default (previous default becomes non-default).",
+              "Behavior when payAllUnpaidInvoices=true and payments fail partially not covered (creation should still be 201; verify invoice payment attempts/outcomes).",
+              "JSON body robustness: unknown/extra fields handling (ignore vs reject) not tested; null vs missing fields differentiation.",
+              "Location header follow-up not validated by a GET to the returned URL to confirm the resource is retrievable."
+            ],
+            "recommendations": [
+              "Add an explicit idempotency/duplicate submission test: send the same POST twice (with and without any supported idempotency key) and assert desired behavior (201+single resource or 409/200).",
+              "Add media type tests: POST with Content-Type=text/plain and missing Content-Type to expect 415; invalid Accept header handling.",
+              "Add negative query param tests: isDefault=abc, payAllUnpaidInvoices=1/abc -> 400; unknown controlPluginName -> defined behavior (400/422/503); malformed pluginProperty parsing.",
+              "Assert response headers: Content-Type application/json for success and error responses; verify Location format conforms to the resource URL.",
+              "Add authorization/permissions test for 403 Forbidden (valid token lacking scope/role).",
+              "Verify audit: after creation with CreatedBy/Reason/Comment, call audit/history endpoint or GET to confirm fields recorded as expected.",
+              "Test default transition: when isDefault=true on an account with an existing default, verify previous default is unset and new one is active.",
+              "Cover payAllUnpaidInvoices failure semantics: simulate declines/partial failures and assert creation still returns 201 and invoice payment attempts are logged/marked accordingly.",
+              "Test JSON body with extra/unknown fields and nulls: confirm whether they are ignored or rejected per schema; include wrong data types to ensure 400.",
+              "Follow the Location header with a GET to ensure the created PaymentMethod is retrievable and matches the response body."
+            ],
+            "usage": {
+              "completion_tokens": 6113,
+              "prompt_tokens": 7438,
+              "total_tokens": 13551,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5184,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

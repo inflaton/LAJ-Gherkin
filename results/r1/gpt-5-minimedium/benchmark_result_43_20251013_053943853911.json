@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-10-13T05:39:43.853886",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:39:08.756849",
+    "benchmark_end_time": "2025-10-13T05:39:43.853882",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 35.097033,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT - Valid Request: Successful update scenarios (TC01, TC02, TC23) verify expected 204 behavior and DB update.",
+              "PUT - Non-Existing Resource: 404 cases for missing payment/transaction and empty DB (TC06, TC07, TC12).",
+              "PUT - Input Validation: Invalid ID formats, malformed JSON, missing body, and inconsistent state checks covered (TC04, TC05, TC08, TC09, TC10).",
+              "PUT - Headers: Required header missing case (X-Killbill-CreatedBy) and optional headers presence/combination/whitespace variations covered (TC03, TC02, TC24, TC26).",
+              "PUT - Concurrency: Concurrent update scenario and final-state consistency (TC17).",
+              "Error / Resilience: Backend timeout and degraded dependency behaviors are considered (TC16, TC22).",
+              "Security: SQL injection and XSS payload tests are included (TC18, TC19).",
+              "Edge cases / Limits: Maximum and minimum allowed field values covered (TC14, TC15).",
+              "Robustness: Extra/unsupported request-body fields and extra query parameters are explicitly tested (TC13, TC25).",
+              "Authentication/Authorization: Unauthorized request returns 401 (TC11).",
+              "Regression/Performance: Regression scenario for previously problematic state and high-load performance test included (TC20, TC21).",
+              "Accessibility/Documentation: API docs accessibility check is present (TC28)."
+            ],
+            "gaps": [
+              "Partial Update semantics: The guidelines ask to verify partial updates are rejected unless allowed. Tests include a \"partial input\" success (TC23) but there is no explicit scenario asserting that disallowed partial updates are rejected or clarifying allowed partial-update policy.",
+              "Duplicate submission / Idempotency: No tests for handling duplicate/ replayed PUT requests or idempotency guarantees.",
+              "Server Internal Errors (5xx) and DB failure modes: While timeouts and degraded dependencies are present, explicit 500 Internal Server Error behavior (e.g., DB failure, unexpected exceptions) and how the API surfaces them is not tested.",
+              "Rate limiting / throttling: High-load performance is present (TC21) but there are no tests that assert rate-limiting, throttling or back-pressure behavior (e.g., 429 responses).",
+              "Content-Type / Accept headers: No tests ensure requests with missing/incorrect Content-Type or Accept headers are handled consistently.",
+              "Authorization scope/roles: There is an unauthorized (401) test, but no test asserting forbidden (403) behavior for authenticated non-admin roles or token with insufficient privileges.",
+              "Audit/logging and headers validation: The story requires X-Killbill-CreatedBy; audit side-effects (audit record created, creator recorded) are not verified.",
+              "Atomicity / Transactional integrity: No tests for rollback semantics if update partially fails (e.g., payment state updated but transaction not), or multi-table consistency on failure.",
+              "Schema/type validation depth: While invalid state / malformed JSON are covered, there are no explicit tests for type mismatches for each important field (e.g., numeric vs string), or boundary numeric overflow tests beyond max-length strings.",
+              "Id cross-ownership mismatch nuance: TC27 covers mismatched payment/transaction cross-reference, but more variations (transaction exists but linked to another tenant/account) are not covered."
+            ],
+            "recommendations": [
+              "Add explicit partial-update policy tests: one scenario that asserts partial updates are accepted (if allowed) and another that asserts they are rejected with 400 when they are not permitted. Document expected behavior in acceptance criteria before implementing tests.",
+              "Add duplicate-submission/idempotency tests: send the same PUT twice and verify idempotent behavior or appropriate conflict handling.",
+              "Include 500 Internal Server Error simulations: e.g., force DB exception and verify API returns 500 with safe error payload and does not leak internals.",
+              "Add rate-limiting/throttling tests: validate 429 responses or degraded behavior when request rates exceed configured limits, and ensure the system recovers gracefully.",
+              "Validate Content-Type/Accept handling: test missing or incorrect Content-Type and Accept headers and ensure consistent error codes (e.g., 415/406 or 400 per API contract).",
+              "Add authorization scope tests: include authenticated non-admin (403 Forbidden) and token-scoped access checks to ensure only admins can perform this operation.",
+              "Verify audit/logging side-effects: test that X-Killbill-CreatedBy (and optional reason/comment) are recorded in audit logs / DB audit tables with correct values and trimming behavior for whitespace variants.",
+              "Add transactional/atomicity tests: simulate partial failures (e.g., update touches multiple tables) and assert rollback or compensating behavior to preserve consistency.",
+              "Expand schema/type validation tests: include field-level type mismatch cases and numeric boundary/overflow tests beyond max-length strings.",
+              "Extend cross-ownership tests: verify behavior when transaction belongs to another payment, another account, or another tenant (multi-tenant isolation).",
+              "Add tests for large payloads and size limits (beyond TC14): ensure very large payloads are handled or rejected gracefully (413 / 400) and do not cause resource exhaustion."
+            ],
+            "usage": {
+              "completion_tokens": 1990,
+              "prompt_tokens": 6337,
+              "total_tokens": 8327,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

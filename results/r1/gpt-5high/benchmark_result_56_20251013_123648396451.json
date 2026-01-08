@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "56_2025-10-13T12:36:48.396422",
+    "jira_id": "56",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/customFields - Add custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T12:34:18.091270",
+    "benchmark_end_time": "2025-10-13T12:36:48.396418",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 150.305148,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "56_qe_sup-gpt4.1_agent-gpt4.1_1748919557.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple success paths return HTTP 201 with a JSON array of created CustomField objects (TC01, TC02, TC03, TC04, TC13, TC17, TC19).",
+              "Headers: Required X-Killbill-CreatedBy validated (present -> 201, missing -> 400); optional Reason/Comment accepted (TC01, TC02, TC07, TC19).",
+              "Path Parameter Validation: Invalid UUID -> 400, non-existent bundle -> 404 (TC05, TC06).",
+              "Request Body Validation: Malformed JSON, empty body, empty array, schema errors, unsupported fields, duplicate field names -> 400 (TC08\u2013TC12, TC18).",
+              "Security/Authorization: Unauthorized access -> 401; SQLi/XSS inputs rejected or sanitized without leaking info (TC14, TC23, TC24).",
+              "Resilience and Availability: Service dependency failures and service unavailability -> 503; network timeout scenario covered (TC15, TC20, TC16).",
+              "Performance/Scalability: Large payload within limits and concurrent POSTs with data consistency and acceptable response times (TC17, TC22).",
+              "Behavior with existing/no existing custom fields handled correctly (TC03, TC04)."
+            ],
+            "gaps": [
+              "Duplicate Submission/Idempotency: No test to ensure re-sending the same POST does not create duplicates (e.g., using an idempotency key).",
+              "Batch Atomicity: No scenario with a mixed array (some valid, some invalid) to define all-or-nothing vs partial creates.",
+              "Content Negotiation: No tests for missing/incorrect Content-Type (415), unsupported Accept header (406), or asserting response Content-Type=application/json.",
+              "Server Error Handling (500): No simulation of internal errors (e.g., DB failure) and standardized error payloads.",
+              "Boundary/Field Validation: No tests for max lengths, allowed characters, Unicode, or empty/whitespace X-Killbill-CreatedBy value.",
+              "Payload Limits Exceeded: No scenario when array size exceeds limits (expect 413 or defined 4xx).",
+              "Authorization 403: No test for authenticated user lacking permission.",
+              "Persistence/Audit: No follow-up GET to verify fields were persisted and audit attributes (CreatedBy/Reason/Comment) recorded.",
+              "Error Schema Consistency: Scenarios assert \u201cerror message\u201d but don\u2019t validate the standard error response structure or that sensitive details are not leaked.",
+              "Ambiguity in TC21: Expected outcome for case sensitivity is unspecified, making the test non-deterministic.",
+              "Retry Semantics: TC16 does not verify idempotent behavior on client retries (potential duplicate creation)."
+            ],
+            "recommendations": [
+              "Add idempotency coverage: include X-Killbill-Idempotency-Key (if supported), resend identical POST; assert single creation and consistent response on retry.",
+              "Define and test batch atomicity: submit mixed valid/invalid items; assert expected behavior (reject all with 400 or partial create with 207/response details).",
+              "Add media-type tests: missing/invalid Content-Type -> 415; unsupported Accept -> 406; assert response Content-Type=application/json on 201/4xx/5xx.",
+              "Simulate internal failures to validate 500 handling and stable, standardized error payloads.",
+              "Introduce boundary tests: very long/empty names and values, special/Unicode chars, invalid data types, and empty/whitespace or oversized X-Killbill-CreatedBy.",
+              "Test payloads beyond system limits and expect 413 Payload Too Large or documented behavior.",
+              "Add authorization tests for 403 Forbidden (valid token but insufficient privileges).",
+              "Verify persistence by fetching the bundle\u2019s custom fields after 201 and confirming audit info (CreatedBy/Reason/Comment) is stored.",
+              "Validate error response schema uniformly across errors; ensure no stack traces or internals are exposed and include correlation IDs if applicable.",
+              "Clarify TC21 and split into explicit allow vs reject cases for field name case sensitivity.",
+              "Extend retry/timeout testing: combine with idempotency to ensure safe client retries do not create duplicates."
+            ],
+            "usage": {
+              "completion_tokens": 8117,
+              "prompt_tokens": 6302,
+              "total_tokens": 14419,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7232,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "53_2025-10-14T21:13:40.727559",
+    "jira_id": "53",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/tags - Add tags to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:13:04.586661",
+    "benchmark_end_time": "2025-10-14T21:13:40.727552",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 36.140891,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "53_qe_sup-gpt4.1_agent-gpt4.1_1748919377.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST - Valid Payload: Multiple success scenarios (single, multiple, empty list) returning 201 with Tag array.",
+              "POST - Invalid Payload: Malformed JSON, non-array body, missing body, invalid/extra fields, invalid tag UUIDs all return 400.",
+              "POST - Validation: Path param UUID format validation (invalid bundleId -> 400) and non-existent bundleId -> 400.",
+              "POST - Duplicate Submission: Duplicate/already-assigned tags handled without duplicates in response.",
+              "POST - Large Payloads: Max allowed size (201) and exceeding max (400) covered.",
+              "POST - Server Error Handling: Service unavailable (503) and timeout (504) covered.",
+              "Authorization: Unauthorized (missing/invalid token) returns 401.",
+              "Optional headers: Reason and Comment present in success flow.",
+              "Resilience: Retry after transient network failure leads to 201.",
+              "Integration/consistency: POST followed by GET verifies tags; cross-service consistency checked.",
+              "Performance: Latency under normal load; concurrent requests under peak load."
+            ],
+            "gaps": [
+              "POST - Server Error Handling: No explicit 500 Internal Server Error scenario (e.g., unhandled exception).",
+              "Content negotiation: No test for 415 Unsupported Media Type when Content-Type is not application/json; no Accept header handling (406) checks; no assertion on response Content-Type application/json.",
+              "Authorization/Permissions: No 403 Forbidden scenario when user lacks permissions (Background mentions permissions but no negative test).",
+              "Response schema depth: Tests only check bundleId and tagDefinitionId; no full Tag object schema validation (required fields, types, immutables).",
+              "Auditability: Optional headers (Reason/Comment) are sent but not verified as persisted/audited in system logs/history.",
+              "Idempotency on retry: Retry scenario does not assert that no duplicate tags are created across retries.",
+              "Negative header validation: No test for invalid/empty X-Killbill-CreatedBy value (e.g., empty string, overly long value).",
+              "Security headers and input hardening: Malicious payload covered, but no test for header injection or unexpected unicode/encoding issues.",
+              "Observability: No verification of correlation/request IDs or error body structure (error code, message, details) consistency."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate an unexpected server exception and assert a 500 response with a structured error body.",
+              "Add content negotiation tests: 415 for missing/incorrect Content-Type; 406 for unacceptable Accept header; assert response Content-Type is application/json on 201/4xx/5xx.",
+              "Include a 403 Forbidden scenario for a user lacking permissions despite valid authentication.",
+              "Validate the full Tag schema in responses (all required fields, types, and absence of extraneous fields).",
+              "Extend tests to verify audit persistence of X-Killbill-Reason and X-Killbill-Comment (e.g., via audit endpoints or logs).",
+              "Enhance the retry test to assert idempotency: after retry, no duplicate tags exist and the number of tags equals the unique inputs.",
+              "Add negative header value tests: empty or overly long X-Killbill-CreatedBy should return 400 with clear validation errors.",
+              "Add tests for unusual encodings/unicode in headers/body and ensure proper rejection or handling.",
+              "Standardize error response validation across 400/401/403/415/500/503/504: assert presence of error code, message, and trace/correlation ID if applicable."
+            ],
+            "usage": {
+              "completion_tokens": 1774,
+              "prompt_tokens": 6808,
+              "total_tokens": 8582,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

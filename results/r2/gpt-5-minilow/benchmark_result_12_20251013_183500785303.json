@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "12_2025-10-13T18:35:00.785269",
+    "jira_id": "12",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId} - Update account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:34:23.524327",
+    "benchmark_end_time": "2025-10-13T18:35:00.785262",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 37.260935,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "12_qe_sup-gpt4.1_agent-gpt4.1_1748916603.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple successful update scenarios (minimal fields, all fields, large payload) validate the happy-path behavior and returning 204 on success.",
+              "Required Headers: Tests for presence and absence of X-Killbill-CreatedBy (TC01, TC02, TC05) check required header validation.",
+              "Query Parameter treatNullAsReset: Both true and false/omitted cases covered (TC03, TC04).",
+              "Invalid Inputs: Invalid accountId format, invalid account body data, unexpected input formats and unsupported extra fields are asserted to produce 400/ignore behavior (TC06, TC07, TC10, TC21).",
+              "Non-existent Resource: Updating a non-existent account is covered (TC08).",
+              "Authentication/Authorization: Missing/invalid authentication token scenario covered (TC09), producing 401.",
+              "Error Handling: Server error scenario (database unavailable) and expected 500 covered (TC12).",
+              "Partial / selective updates & regressions: Partial input and specific regression on email field are included (TC15, TC19).",
+              "Concurrency & Performance: Concurrent updates and performance/timeout conditions are covered (TC17, TC14, TC13).",
+              "Security validation: Injection/malicious input handling covered (TC18).",
+              "Integration: Propagation to dependent services covered (TC16).",
+              "Boundary values: Min/max allowed values covered (TC20).",
+              "Extra query parameters: Behavior when unexpected query params are present is covered (TC22)."
+            ],
+            "gaps": [
+              "HTTP semantics & response content-type: The story indicates the endpoint \"produces: application/json\" but tests do not assert response Content-Type or expected response body shape for error responses or for 204 (which normally has no body).",
+              "Schema-level field validation: Tests reference \"invalid Account data\" but there are no concrete cases exercising schema constraints (e.g., email format validation, numeric ranges, string length limits, required vs optional Account fields per the Account schema).",
+              "UUID path parameter pattern enforcement: While invalid UUID format is tested (TC06), there is no explicit test that a valid UUID that is syntactically correct but semantically wrong (e.g., wrong casing or other subtle format issues) is handled consistently\u2014this is minor but sometimes relevant.",
+              "Authorization vs. Permissioning (403 cases): Tests cover missing/invalid token (401) but do not cover authenticated users lacking permission (403) \u2014 the story mentions \"user performing the update\" header but not RBAC; nevertheless 403 scenarios are missing.",
+              "Partial update semantics clarity: The PUT guidelines expect full replace semantics; tests include partial update scenarios (TC19) but do not verify whether partial updates are permitted or rejected according to API contract. This is a specification ambiguity the tests do not resolve.",
+              "Response for extra/unsupported fields not strictly defined: TC10 allows either 204 or ignoring extra fields, but acceptance criteria do not specify desired behavior \u2014 tests do not assert error vs warning behavior or response metadata.",
+              "Rate limiting and throttling: No tests exist for handling high request rates or 429 responses (guideline coverage gap).",
+              "Caching behavior: No tests for caching headers (ETag/Cache-Control) although the standard guidelines mention caching for GET; for PUT there may still be expectations to update or invalidate caches.",
+              "Idempotency and duplicate submission: No test ensures idempotency of repeated identical PUT requests or behavior on duplicate submissions.",
+              "Response timing SLA & monitoring: Tests mention \"response time within acceptable limits\" (TC13) but there are no concrete SLA assertions or thresholds defined/tested.",
+              "Logging/audit headers: The story requires X-Killbill-CreatedBy and optional Reason/Comment headers; tests check presence/absence but do not verify that audit logging or change history is recorded.",
+              "Produced content on success: Acceptance Criteria note \"Produces: application/json\" but 204 has no body \u2014 tests do not assert whether API returns any JSON (e.g., location or change summary) or empty body."
+            ],
+            "recommendations": [
+              "Add explicit assertions for response headers and Content-Type for both success and error responses (including verifying 204 has no body and appropriate Content-Type/Content-Length headers).",
+              "Create concrete schema validation tests that exercise Account field constraints: email format, phone number format, numeric ranges, allowed enums, string length limits, and required vs optional fields. Include both valid and invalid examples with expected 400 error payloads.",
+              "Clarify and add tests for PUT semantics (replace vs partial update): if partial updates are allowed, document and assert expected behavior; if not allowed, add tests that verify partial payloads are rejected with proper error (400 or 409 as decided).",
+              "Add tests for authorization/permission failures (403) to distinguish between unauthenticated (401) and authenticated-but-forbidden (403) cases.",
+              "Add idempotency / duplicate-submission tests to verify repeated identical PUTs produce consistent results and do not create side-effects.",
+              "Add rate limiting tests (high request bursts) to validate 429 throttling or acceptable handling under load, and add retry/backoff behavior tests if applicable.",
+              "Add tests to validate caching/invalidation behavior where relevant (e.g., ensure dependent GET endpoints reflect updates, ETag changes or Cache-Control are updated).",
+              "Make error response assertions more precise: check that error bodies contain useful error codes/messages and match API error schema.",
+              "Add tests to verify audit/change-history: that X-Killbill-CreatedBy, X-Killbill-Reason and Comment are recorded and retrievable via audit endpoints or change logs.",
+              "Define and assert performance SLAs explicitly for large payloads and high-latency scenarios (TC13/TC14), including acceptable response time thresholds and retry semantics.",
+              "Tighten concurrency tests to assert conflict resolution strategy: last-write-wins, optimistic locking (409), or merge behavior; include tests that check for lost updates."
+            ],
+            "usage": {
+              "completion_tokens": 1496,
+              "prompt_tokens": 5451,
+              "total_tokens": 6947,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

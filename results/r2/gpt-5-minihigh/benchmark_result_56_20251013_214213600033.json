@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "56_2025-10-13T21:42:13.600006",
+    "jira_id": "56",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/customFields - Add custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T21:40:39.715189",
+    "benchmark_end_time": "2025-10-13T21:42:13.600002",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 93.884813,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "56_qe_sup-gpt4.1_agent-gpt4.1_1748919557.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid payload / success path: multiple scenarios (TC01, TC02, TC03, TC04, TC13, TC17, TC19) verify successful creation and HTTP 201 with a JSON array response.",
+              "Path parameter validation and not-found handling: TC05 validates invalid UUID format (400) and TC06 covers bundle not found (404).",
+              "Required/optional headers: TC07 verifies missing required X-Killbill-CreatedBy (400); TC02 and TC19 cover optional X-Killbill-Reason and X-Killbill-Comment behavior.",
+              "Request-body validation: TC08 (malformed JSON), TC09 (empty body), TC10 (schema validation / missing required fields), TC12 (unsupported additional fields), TC11 (duplicate field names in same request), and TC18 (empty array) exercise a wide range of payload validation rules.",
+              "Non-functional / resilience: TC15 (service unavailable 503), TC20 (dependent service failure 503), TC16 (network timeout), TC17 (large payload), and TC22 (concurrent requests) cover availability, performance and concurrency aspects.",
+              "Security: TC23 (SQL injection) and TC24 (XSS) check input sanitization and that sensitive details are not exposed.",
+              "Integration/regression: TC21 handles a regression scenario (field name casing); TC25 checks documentation accessibility; TC13 ensures extra query parameters don\u2019t break behavior.",
+              "Authentication: TC14 verifies missing/invalid authentication token results in unauthorized access (401).",
+              "Response-content verification in success scenarios: TC01 explicitly checks that response objects match the request payload."
+            ],
+            "gaps": [
+              "Unsupported Media Type / Content-Type handling: no test verifies behavior when Content-Type is missing or not application/json (expected 415 or defined error).",
+              "500 Internal Server Error simulation: database / server-side failure scenarios (500) are not explicitly tested (only 503 cases are present).",
+              "Duplicate submission idempotency: no tests for repeat/subsequent identical requests (same payload sent twice) to validate deduplication or idempotency behavior.",
+              "Type-level validation: TC10 checks missing required fields but there is no explicit test for invalid data types (e.g., number vs string, invalid enum values) inside CustomField objects.",
+              "Response headers and server-generated fields: tests do not assert response headers (Content-Type, Location) or presence/format of server-generated fields (ids, timestamps).",
+              "Partial-transaction semantics: no scenario for mixed arrays (some CustomField objects valid, others invalid) to show whether the API is transactional (all-or-nothing) or supports partial success and how errors are reported.",
+              "Duplicate across requests / against existing data: TC11 covers duplicates within the same request, but not duplicate field names already present in the bundle or duplicates across concurrent requests and the expected conflict behavior (e.g., 409).",
+              "Authorization scope / permissions: only missing-token (401) is tested; there is no test for authenticated but unauthorized users (403) or permission boundaries.",
+              "Rate limiting / throttling: no tests validate rate limits or behavior under aggressive request rates (beyond TC22 concurrency performance assertions).",
+              "Boundary and length validations: no tests for max/min lengths of field names/values, allowed character sets, or exact boundary conditions (e.g., array size limits, very large single field values leading to 413).",
+              "Error response payloads: while many error codes are asserted, there is limited checking of error body structure/fields (standardized error schema, helpful error messages, error codes).",
+              "Client-visible auditing of reason/comment headers: tests include Reason/Comment as inputs but do not assert that these are persisted or appear in audit logs / resource metadata as required."
+            ],
+            "recommendations": [
+              "Add tests for Content-Type handling: send requests with missing/incorrect Content-Type (e.g., text/plain) and assert expected 415/400 behaviour and clear error messages.",
+              "Add a server-error simulation test (500): simulate DB or unexpected server failure and assert an HTTP 500 with a safe error payload.",
+              "Add duplicate-submission/idempotency tests: send the same payload twice (and with idempotency token if supported) to define and validate expected behavior (create duplicate vs dedupe vs conflict).",
+              "Add precise type-validation tests: include CustomField objects with incorrect data types and invalid enum values to ensure schema validation rejects them with clear errors.",
+              "Assert response headers and server-generated fields: verify Content-Type in responses, and assert presence/format of created object metadata (id, createdDate, createdBy), and Location header if applicable.",
+              "Add partial-success/transactionality tests: submit arrays mixing valid and invalid items and define expected behavior (rollback or partial create) then verify it.",
+              "Add tests for duplicates against stored data and concurrent conflicting creations: assert expected conflict handling (e.g., 409) or defined merge/overwrite behavior when names already exist.",
+              "Add authorization-scope tests: verify authenticated users with insufficient permissions receive 403 and cannot create custom fields.",
+              "Add rate-limiting tests: hammer the endpoint or simulate throttling to ensure graceful 429 responses or backoff behavior; combine with concurrency tests to verify stability.",
+              "Add boundary/length tests: validate min/max lengths for names/values, very large single field values, and array-size limits including behavior when limits are exceeded (413 or defined error).",
+              "Improve error-body assertions: standardize and assert error response schema (error code, message, fields) for all negative scenarios to help clients parse and react programmatically.",
+              "Add tests to verify X-Killbill-Reason and X-Killbill-Comment are recorded/visible where required (audit logs or resource metadata) or confirm they are treated as pure headers if that is the spec)."
+            ],
+            "usage": {
+              "completion_tokens": 6081,
+              "prompt_tokens": 6302,
+              "total_tokens": 12383,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4864,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-10-14T02:57:40.954204",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T02:54:45.813746",
+    "benchmark_end_time": "2025-10-14T02:57:40.954198",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 175.140452,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "POST Valid Payload: Happy-path creation returns 201, asserts JSON array response and Location header; DB association verified (TC01, TC03\u2013TC05).",
+              "Headers: Required X-Killbill-CreatedBy present/absent and optional Reason/Comment covered (TC02, TC05, TC13).",
+              "Path Parameter Validation: Invalid UUID format and missing accountId -> 400; non-existent account -> 404 (TC07\u2013TC09).",
+              "Request Body Validation: Malformed JSON, empty body, missing required fields, invalid email format -> 400 (TC10\u2013TC12, TC17).",
+              "Boundary/Large Payloads: Maximum field sizes covered (TC16).",
+              "Extraneous Inputs: Extra body fields and unexpected query params considered (TC06, TC18).",
+              "Security: SQL injection and XSS attempts rejected (TC23, TC24).",
+              "Resilience/Errors: External dependency down -> 503; slow DB/perf thresholds; transient network retry (TC15, TC19, TC25).",
+              "Concurrency: Concurrent POSTs handled without duplication/data loss (TC20).",
+              "Integration: POST effects verified via subsequent GET and downstream propagation (TC26).",
+              "Internationalization: Unicode/special character handling covered (TC21).",
+              "Authorization: Invalid/missing token scenarios covered (TC14)."
+            ],
+            "gaps": [
+              "Duplicate Submission: No scenario for posting the same email twice (idempotency/uniqueness). Expect 409 Conflict or idempotent behavior.",
+              "Server Error Handling (500): No test simulating unexpected internal errors distinct from 503 dependency failures.",
+              "Content Negotiation/Headers: Missing tests for incorrect or absent Content-Type (expect 415), unsupported Accept (406), and verifying response Content-Type is application/json.",
+              "Response Shape Consistency: Several success scenarios assert a single object instead of the spec\u2019s JSON array; no strict schema validation of the array/items.",
+              "Location Header Semantics: Presence is checked, but not validated for correct resource URL format; ambiguity between single resource vs list not resolved.",
+              "Rate Limiting/Throttling: No tests for burst traffic leading to 429 Too Many Requests.",
+              "Header Value Validation: No tests for empty/whitespace or overly long X-Killbill-CreatedBy; no validation of Reason/Comment length/charset.",
+              "Ambiguous Expectations: Multiple scenarios state \"201 or 400/422/503 depending on behavior\", which is non-deterministic for acceptance tests (TC06, TC13, TC14, TC16, TC18, TC19, TC21).",
+              "Background Setup Leakage: Background sets optional headers for all tests, which may invalidate scenarios that intend to test only required or missing headers."
+            ],
+            "recommendations": [
+              "Add duplicate submission tests: same email posted twice sequentially and via retry; define expected outcome (409 Conflict vs idempotent 200/201 with no duplication).",
+              "Add content-negotiation tests: missing/wrong Content-Type -> 415; unsupported Accept -> 406; verify response Content-Type header is application/json.",
+              "Introduce explicit 500 Internal Server Error test by forcing an unhandled exception path; assert standardized error payload (code, message, requestId).",
+              "Make tests deterministic: replace \"201 or 4xx/5xx\" with a single expected status per case after clarifying behavior with API owners (extra fields, unicode emails, auth failures, large payload limits).",
+              "Align success assertions with spec: assert response is always a JSON array of AccountEmail objects; validate against the AccountEmail schema (required fields, types, no additionalProperties if applicable).",
+              "Validate Location header: ensure it points to the created email resource (or well-defined list endpoint) and matches the created entity; assert absolute/relative format per spec.",
+              "Add rate limiting scenarios: burst POSTs leading to 429 and proper Retry-After handling.",
+              "Expand header value validation: test empty/blank X-Killbill-CreatedBy and long/special-char values; assert proper 400 with descriptive error.",
+              "Isolate header setup: move optional headers out of Background; set headers per scenario or use Scenario Outlines to avoid cross-test contamination.",
+              "Clarify and then test extra body field handling (TC06): either reject with 400 and explicit error list or ignore safely; assert behavior."
+            ],
+            "usage": {
+              "completion_tokens": 7583,
+              "prompt_tokens": 6487,
+              "total_tokens": 14070,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6656,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

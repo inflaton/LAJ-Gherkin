@@ -1,0 +1,80 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-15T16:04:03.420191",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:02:48.928690",
+    "benchmark_end_time": "2025-10-15T16:04:03.420187",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 74.491497,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: 204 with empty body; verifies actual cache invalidation and idempotency (TC01, TC09, TC11, TC13).",
+              "DELETE - Non-Existent Resource: 404 for non-existent tenant context (TC04).",
+              "DELETE - Concurrency: parallel same-tenant DELETEs return 204 without race conditions; performance threshold asserted (TC10).",
+              "Error Handling: 400 for malformed requests (TC07); 401 for missing/invalid auth (TC02, TC03); 500/503/504 for backend/service/timeout failures (TC05, TC06, TC14).",
+              "Security: header injection handled with 400/403 and error messaging (TC08).",
+              "Integration impact: dependent services observe cache invalidation; no stale data returned (TC12)."
+            ],
+            "gaps": [
+              "Response headers: Story states Produces: application/json; no tests assert Content-Type or header behavior for 204 responses.",
+              "Authorization/RBAC: No scenario for authenticated but non-admin user resulting in 403 Forbidden.",
+              "Tenant context validation: No scenario for missing/invalid tenant context header/token (as opposed to non-existent tenant) and expected error code.",
+              "Multi-tenant isolation: No scenario verifying that invalidating cache for the current tenant does not affect other tenants\u2019 caches.",
+              "Cross-tenant concurrency: No scenario for concurrent invalidations across different tenants to ensure isolation under load.",
+              "DELETE guideline - Soft Deletes: Not applicable for cache invalidation, but explicitly noting N/A can clarify expectations."
+            ],
+            "recommendations": [
+              "Add a scenario to assert response headers: verify Content-Type behavior for 204 responses per API contract (either omit or explicitly application/json as specified).",
+              "Add RBAC test: valid authenticated non-admin should receive 403 and no cache invalidation occurs.",
+              "Add tenant context validation test: missing tenant header/token should yield a clear 400/401 with structured error body.",
+              "Add multi-tenant isolation test: invalidate Tenant A and verify Tenant B\u2019s cache remains intact.",
+              "Add cross-tenant concurrency test: concurrent DELETEs for different tenants complete with isolation and no cross-tenant side effects.",
+              "Document soft-delete non-applicability for this endpoint to align with DELETE method guidelines."
+            ],
+            "usage": {
+              "completion_tokens": 2866,
+              "prompt_tokens": 3389,
+              "total_tokens": 6255,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2368,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

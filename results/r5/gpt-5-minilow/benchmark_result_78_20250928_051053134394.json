@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-09-28T05:10:53.134366",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:10:38.444336",
+    "benchmark_end_time": "2025-09-28T05:10:53.134362",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 14.690026,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01, TC02, TC12, TC13, TC19, TC20, TC21, TC23) verify successful creation with valid simplePlan payloads including optional headers, edge lengths and different catalog states.",
+              "Invalid Payload / Validation: Scenarios (TC04, TC05, TC08, TC09, TC18) cover missing required fields, invalid currency, empty body, malformed JSON, and malicious input validation (XSS/SQL).",
+              "Duplicate Submission / Conflict: TC06 covers attempt to create with an already-existing planId (conflict leading to HTTP 400).",
+              "Authentication / Authorization: TC10 verifies missing authentication returns HTTP 401; Background includes valid credentials for positive paths.",
+              "Error & Resilience: TC11 covers service-unavailable scenarios; TC16 covers transient network failure/retry behavior; TC15 covers very large payloads (system-dependent outcome).",
+              "Concurrency: TC22 covers concurrent requests to add plans and expects successful creation for unique planIds.",
+              "HTTP semantics & method handling: TC14 verifies unsupported HTTP method returns 405.",
+              "Performance: TC17 provides a basic response-time expectation for creation."
+            ],
+            "gaps": [
+              "Server-side failure modes (500): No explicit scenario simulates internal server/database failures that should return HTTP 500 and appropriate error handling/rollbacks.",
+              "Response schema/content-type validation: The story specifies the response body is a string and produces application/json implicitly; tests do not verify content-type headers, response schema strictly, or exact response format (string vs URI vs JSON-wrapped string).",
+              "Header validation beyond presence: While X-Killbill-CreatedBy presence is tested, there are no negative tests for invalid header values (e.g., empty string, excessively long CreatedBy, or invalid characters).",
+              "Idempotency / Duplicate Submissions at transport level: There is no test of repeated identical submissions (retries) producing idempotent behavior or duplicate creation protection beyond TC06 which covers existing planId conflict.",
+              "Transactional integrity: No tests confirm partial failures do not leave the catalog in an inconsistent state (e.g., failure after partial writes, rollback checks).",
+              "Integration edge cases: While TC23/TC24 cover integration happy/degraded paths, there is no fine-grained testing of integration timeouts, partial dependencies failing, or integration retries/backoff behavior.",
+              "Authorization scope/roles: TC10 checks missing auth, but there are no scenarios for insufficient permissions/roles (403) vs unauthenticated (401).",
+              "Content negotiation and consumes header: No tests explicitly verify that the request with wrong Content-Type is rejected (e.g., missing or incorrect application/json).",
+              "Rate limiting and throttling: No tests for rate limiting / throttling behavior under high request rates.",
+              "Caching and headers: No tests for caching headers (ETag, Cache-Control) or for clients reacting to these headers.",
+              "Negative concurrency conflict: No test where concurrent requests attempt to create the same planId to ensure a single winner and proper conflict response for others."
+            ],
+            "recommendations": [
+              "Add a 500/Internal Server Error test: simulate database or service exception during plan creation and assert HTTP 500 and that no partial catalog entries remain (transaction rollback).",
+              "Validate response headers and schema: add assertions that response Content-Type is application/json, and that the response body type matches the contract (explicit string/URI) and format (e.g., valid URI when expected).",
+              "Header value validation tests: include scenarios with invalid/empty/oversized X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment values to ensure proper validation and error messages.",
+              "Idempotency and duplicate transport retries: add tests for repeated identical POSTs (retries) to confirm either idempotent behavior or clear conflict responses and no duplicate entries.",
+              "Transactional integrity tests: simulate a failure in a downstream step (e.g., dependent service writes) to assert atomicity and no inconsistent catalog state.",
+              "Integration robustness: add tests for dependent service timeouts, partial failures, and retry/backoff behavior to verify TC24 coverage is detailed and deterministic.",
+              "Authorization/roles: add scenarios for authenticated but unauthorized users (expect 403) to distinguish from unauthenticated (401).",
+              "Content-Type/consumes validation: test requests with incorrect or missing Content-Type header and assert proper 4xx errors.",
+              "Rate limiting & stress tests: include rate-limiting tests and high-frequency request tests to validate throttling behavior and error responses (429) or system stability.",
+              "Concurrency conflict test: add scenario where multiple concurrent requests try to create the same planId and assert one success (201) and the others receive a proper conflict (400/409) and no duplicate entries are created."
+            ],
+            "usage": {
+              "completion_tokens": 1269,
+              "prompt_tokens": 5854,
+              "total_tokens": 7123,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

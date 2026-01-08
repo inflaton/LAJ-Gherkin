@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "3_2025-10-13T14:05:35.747614",
+    "jira_id": "3",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/tags - Remove tags from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T14:03:13.878317",
+    "benchmark_end_time": "2025-10-13T14:05:35.747610",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 87,
+    "average_generation_time_seconds": 141.869293,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 87,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "3_qe_sup-gpt4.1_agent-gpt4.1_1748915976.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 87,
+            "covered": [
+              "DELETE Method - Valid Deletion: Single, multiple, and all-tags removal return 204 with empty body and persist changes (TC01, TC02, TC03, TC04, TC19).",
+              "Header Validation: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment accepted/omitted (TC04, TC09, TC19).",
+              "Query Parameters: tagDef supports collectionFormat=multi, omission (remove all), empty array, large lists, unexpected params, invalid/malformed values, and mixed valid/invalid (TC02, TC03, TC08, TC11, TC13, TC14, TC18, TC20).",
+              "Non-Existent/Invalid Resource: Invalid UUID format and non-existent account both yield 400 per spec (TC06, TC07).",
+              "Business Rule: AUTO_PAY_OFF constraint enforced (400 when no default payment method) (TC10).",
+              "Authorization: Unauthenticated/unauthorized requests return 401/403 (TC15).",
+              "Server/Error Handling & Resilience: 5xx on service down; retry after transient network failure succeeds (TC12, TC16).",
+              "Performance/Concurrency (basic): Concurrent deletes across multiple accounts complete within acceptable time (TC17).",
+              "Idempotency/No-op: Deleting from an account with no tags returns 204 and no changes (TC05)."
+            ],
+            "gaps": [
+              "DELETE Concurrency on the same resource: No scenario where two clients delete the same tag(s) on the same account simultaneously (race/idempotency).",
+              "Soft delete behavior: No verification whether deletions are soft vs hard (e.g., flags vs physical removal) per DELETE guideline.",
+              "Rate limiting/throttling: No tests for 429 Too Many Requests or related headers under burst traffic.",
+              "AUTO_PAY_OFF happy path: No success case when default payment method exists (should return 204).",
+              "Atomicity on mixed valid/invalid tagDefs: Test asserts 400 but does not verify no tags were removed (all-or-nothing behavior).",
+              "Duplicate tagDef values: No scenario validating handling of repeated UUIDs in query (deduplication/idempotency).",
+              "Removing a non-applied tag when other tags exist: No explicit no-op case distinct from \u201cno tags on account.\u201d",
+              "Error response format: No checks that error responses are application/json and conform to a standard error schema (code/message), as specified by Produces: application/json."
+            ],
+            "recommendations": [
+              "Add a race-condition test: two concurrent DELETEs for the same account and tag(s); assert both return 204 and result is consistent (idempotent, no 409).",
+              "Verify soft vs hard deletion: ensure tags are not merely flagged deleted, or, if soft delete is used, that behavior is consistent and documented.",
+              "Introduce rate-limiting tests: sustained burst of DELETEs leading to 429 with proper Retry-After headers if applicable.",
+              "Add success scenario for removing AUTO_PAY_OFF when the account has a default payment method (expect 204).",
+              "Assert atomicity for mixed valid/invalid tagDefs: on 400, verify no tags were removed from the account.",
+              "Test handling of duplicate tagDef query parameters: duplicates are ignored/deduped and operation still returns 204.",
+              "Add no-op scenario for removing a tagDef not applied to the account while other tags are present; expect 204 and no changes.",
+              "Validate error response headers/body: check Content-Type application/json and standard error fields for 4xx/5xx responses."
+            ],
+            "usage": {
+              "completion_tokens": 6922,
+              "prompt_tokens": 5684,
+              "total_tokens": 12606,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6144,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

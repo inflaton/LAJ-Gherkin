@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "10_2025-10-14T20:40:50.976410",
+    "jira_id": "10",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/auditLogs - Retrieve audit logs by account id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:40:22.512264",
+    "benchmark_end_time": "2025-10-14T20:40:50.976406",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 28.464142,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "10_qe_sup-gpt4.1_agent-gpt4.1_1748916432.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Successful retrieval returns 200 with JSON array of AuditLog objects; schema presence checked.",
+              "Empty Response: Case where account exists but has no logs returns 200 with empty array.",
+              "Path Parameter Validation: Malformed/empty UUIDs handled with 400/422; injection attempt rejected.",
+              "Resource Not Found: 404 returned when account does not exist.",
+              "Authorization: 401 covered for missing and invalid tokens.",
+              "Query Parameters: Extra/unknown query parameter provided and effectively ignored while still returning 200.",
+              "Server Error Handling: Simulated DB outage returns 500.",
+              "Resilience/Non-functional: Large dataset performance, concurrency under load, and timeout scenarios (503/504) are exercised.",
+              "Content-Type/Produces: application/json verified in success scenarios."
+            ],
+            "gaps": [
+              "Pagination: No scenarios validating pagination behavior for large datasets (page/limit cursors) or confirming it is not supported.",
+              "Rate Limiting: No tests for throttling behavior or 429 responses under burst traffic.",
+              "Caching Behavior: No validation of ETag/Last-Modified or Cache-Control headers; no conditional GET (If-None-Match/If-Modified-Since) tests.",
+              "Authorization (Forbidden): No scenario for authenticated user lacking permission (403), if applicable.",
+              "Query Parameters (valid combos): If endpoint supports any filters or audit level parameters, there are no tests for valid parameter combinations; if not supported, no test asserting rejection vs ignore contract.",
+              "Response Schema Depth: Tests state \"all required fields\" but do not assert specific fields, types, enums, or date formats per AuditLog definition.",
+              "Headers/Content Negotiation: No test for Accept header handling or 406 when unacceptable media type is requested.",
+              "Error Response Structure: No validation that error payloads follow a standard error schema (code, message, details, requestId)."
+            ],
+            "recommendations": [
+              "Add pagination tests: request with page/size (or cursors) and verify item counts, total indicators, next/prev links; also test out-of-range pages. If pagination is not supported, add a scenario asserting that pagination params are rejected with 400.",
+              "Introduce rate limiting tests: send bursts exceeding quotas and assert 429 with Retry-After; verify normal throughput under limits.",
+              "Add caching tests: verify Cache-Control and ETag headers on 200; perform conditional GET to assert 304 Not Modified when appropriate.",
+              "Add a 403 Forbidden scenario for an authenticated user lacking scope/role, if the API enforces authorization beyond authentication.",
+              "Expand query parameter coverage: include any supported filters (e.g., auditLevel) with valid/invalid values; assert behavior and input validation. If no query params are supported, add a scenario asserting unknown params are explicitly ignored or rejected per spec.",
+              "Strengthen schema assertions: explicitly validate required AuditLog fields (id, changeType, objectType, objectId, createdDate, createdBy, reasonCode, comments, history) with correct data types and formats.",
+              "Validate error response schema consistently across 400/401/404/422/500/503/504, including standard fields (timestamp, requestId, code, message).",
+              "Add content negotiation tests: include Accept: application/json (200) and unacceptable types (e.g., text/xml) to expect 406 if enforced.",
+              "Capture and assert response headers common to GET endpoints (Content-Type charset, Content-Length presence/reasonableness)."
+            ],
+            "usage": {
+              "completion_tokens": 1313,
+              "prompt_tokens": 4166,
+              "total_tokens": 5479,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 576,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-13T10:17:49.453769",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:16:30.309260",
+    "benchmark_end_time": "2025-10-13T10:17:49.453765",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 79.144505,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE - Valid Deletion: Multiple success scenarios return 204 and verify the account is marked closed (soft-close semantics).",
+              "DELETE - Non-Existent Resource: Scenarios cover already closed and non-existent accounts returning 204 idempotently.",
+              "DELETE - Soft Deletes: Tests assert the account is marked as closed rather than removed; downstream effects verified.",
+              "DELETE - Concurrency (partial): Concurrent deletions across different accounts and retry idempotency are tested.",
+              "Story-specific query flags: Thorough coverage of defaults, per-flag, pairwise, and all-true/all-false combinations with correct side effects.",
+              "Validation: Invalid UUID format (400), unsupported extra query param ignored, missing required header (400).",
+              "Authorization: Missing/invalid auth returns 401.",
+              "Error handling: Simulated system/database failure returns 500.",
+              "Security hardening: SQL injection in path and XSS in headers covered.",
+              "Performance/scale: Large volumes and concurrent closures tested."
+            ],
+            "gaps": [
+              "DELETE - Concurrency (same resource): No scenario where two clients try to close the same account concurrently; race-condition handling not verified.",
+              "Response semantics for 204: No explicit checks that the 204 response has no body and appropriate headers (e.g., Content-Type may be omitted for 204 or match API contract \"application/json\").",
+              "Optional headers behavior: No tests that X-Killbill-Reason and X-Killbill-Comment are accepted, persisted/audited, and retrievable in logs/history.",
+              "Query parameter type validation: No negative tests for non-boolean values (e.g., cancelAllSubscriptions=foo) or duplicate/conflicting flags; expected behavior (400 vs ignore) not asserted.",
+              "Idempotency with differing flags: No test that a second call with different flags after closure does not perform additional side effects.",
+              "DELETE with request body: No test for sending a body on DELETE (should be ignored or rejected per API convention).",
+              "Authorization depth: No 403/permission scenario (authenticated but not authorized) if RBAC applies.",
+              "Cancel with no resources: No explicit case where cancelAllSubscriptions=true on an account with zero subscriptions to confirm graceful no-op."
+            ],
+            "recommendations": [
+              "Add a concurrency test for the same account (two parallel DELETEs) to prove race-safe idempotency and lack of conflicts.",
+              "Assert 204 response semantics: verify no response body and headers meet the contract (including or omitting Content-Type consistently).",
+              "Add scenarios validating optional headers: supply X-Killbill-Reason/Comment and verify they are recorded in audit/history.",
+              "Introduce negative validation for query params (non-boolean values, duplicates) and define expected outcome (400 or ignore) with assertions.",
+              "Test idempotency when flags differ across retries (first closes with defaults, second attempts with cleanup flags) to ensure no further side effects.",
+              "Add a case for DELETE with a request body to ensure it is ignored or rejected per API spec.",
+              "If RBAC is applicable, add a 403 Forbidden scenario where the user is authenticated but lacks permission to close accounts.",
+              "Add a scenario with cancelAllSubscriptions=true for an account with no subscriptions to confirm clean no-op and 204."
+            ],
+            "usage": {
+              "completion_tokens": 3765,
+              "prompt_tokens": 6316,
+              "total_tokens": 10081,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3072,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

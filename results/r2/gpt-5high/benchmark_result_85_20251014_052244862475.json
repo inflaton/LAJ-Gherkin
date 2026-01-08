@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "85_2025-10-14T05:22:44.862447",
+    "jira_id": "85",
+    "jira_title": "Implement/Test API: GET /1.0/kb/export/{accountId} - Export account data",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T05:19:48.521684",
+    "benchmark_end_time": "2025-10-14T05:22:44.862442",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 176.340758,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "85_qe_sup-gpt4.1_agent-gpt4.1_1748921476.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Valid Request: 200 OK with application/octet-stream and a valid account export is asserted.",
+              "Required/optional headers: X-Killbill-CreatedBy enforced (400 when missing); X-Killbill-Reason and X-Killbill-Comment optional and accepted.",
+              "Path parameter validation: accountId UUID format enforced; malformed and injection inputs return 400.",
+              "Not-found handling: 404 returned when the account does not exist or when the DB is empty.",
+              "Authorization: 401 for missing/invalid auth token is covered (if authentication is required).",
+              "Resiliency/performance: large export handling, slow downstream (still 200), service unavailable (500), and timeout (504) are covered.",
+              "Negative robustness: extra/unsupported headers tolerated, unsupported HTTP method returns 405, missing path variable returns 404.",
+              "Regression/backward compatibility/accessibility: Content-Type regression verified; legacy header tolerated; documentation accessibility checked.",
+              "Non-applicable acknowledged: Pagination and query parameters do not apply to this single-resource export and are excluded from coverage."
+            ],
+            "gaps": [
+              "Empty Response: Behavior when an existing account has no exportable data (200 with minimal archive vs 204 No Content) is not defined or tested.",
+              "Authorization depth: No scenario for 403 Forbidden (valid auth but insufficient permissions/role).",
+              "Rate Limiting: No tests for throttling/429 responses or Retry-After headers under burst traffic.",
+              "Caching Behavior: No validation of Cache-Control policy (e.g., no-store) and absence/presence of validators (ETag/Last-Modified) or conditional GET behavior.",
+              "Export artifact validation: Tests do not verify the octet-stream is a decompressible archive with expected files/content mapped to the account.",
+              "Error contract: Error payload/schema and Content-Type for 4xx/5xx responses are not asserted (e.g., standard Kill Bill error fields).",
+              "Content-Disposition/filename: No assertion that downloads are served as attachment with a sensible, deterministic filename."
+            ],
+            "recommendations": [
+              "Define and test behavior when an account exists but has no exportable records; add a scenario for either 200 with a minimal archive or 204 No Content, per API spec.",
+              "Add a 403 Forbidden scenario using a valid token lacking the required scope/role.",
+              "Introduce rate-limiting scenarios: generate bursts to trigger 429; assert Retry-After and any rate-limit headers.",
+              "Add caching checks: assert Cache-Control policy (e.g., no-store or private); validate ETag/Last-Modified if used; exercise conditional GET with If-None-Match/If-Modified-Since expecting 304 if unchanged.",
+              "Strengthen export validation by downloading the stream, verifying it is decompressible, and asserting expected files/records for a known seeded account.",
+              "Assert standardized error responses across 400/404/500/504: structure, fields, and Content-Type; include correlation/request id headers if applicable.",
+              "Assert Content-Disposition header (attachment; filename=<accountId>-export.zip or similar) and verify consistent filename pattern across requests."
+            ],
+            "usage": {
+              "completion_tokens": 7193,
+              "prompt_tokens": 5510,
+              "total_tokens": 12703,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6528,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

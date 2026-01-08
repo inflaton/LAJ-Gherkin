@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-15T15:24:14.287791",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:22:13.534303",
+    "benchmark_end_time": "2025-10-15T15:24:14.287786",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 91,
+    "average_generation_time_seconds": 120.753483,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 91,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 91,
+            "covered": [
+              "POST - Valid Payload: Multiple successful 204 scenarios using required-only inputs and all optional query parameters; correct side-effects such as paying all unpaid invoices, partial payments, capping overpayments, and passing plugin properties (TC01, TC02, TC03, TC04, TC05).",
+              "POST - Invalid Payload: Robust input validation including malformed/unknown IDs, invalid types and ranges (paymentMethodId, paymentAmount zero/negative, targetDate format, externalPayment boolean, pluginProperty type), and missing/empty required header (TC10\u2013TC16).",
+              "POST - Duplicate Submission: Retries after transient errors do not create duplicate payments; safe retry behavior validated (TC22, TC28).",
+              "POST - Large Payloads: Extreme values covered via very large paymentAmount and large pluginProperty arrays (TC23, TC24).",
+              "POST - Business Rules/Validation: Handles accounts with no unpaid invoices or no invoices by returning 204 with no processing; partial and overpayment behaviors verified (TC06, TC07, plus TC02\u2013TC04).",
+              "POST - Server Error Handling: Proper handling of dependency and internal failures (DB 500, gateway 502/503, plugin 502/503) (TC18, TC19, TC27).",
+              "Authorization: Unauthorized access returns 401 with appropriate messaging (TC17).",
+              "Query Parameters Handling: Optional parameters exercised in combination; unknown/extra parameters behavior covered (TC02, TC25).",
+              "Security: Negative tests for SQL injection and XSS ensure no code execution or sensitive info leakage (TC20, TC21).",
+              "Performance/Concurrency: Response time under normal and peak load; resource utilization under stress; concurrent requests covered (TC30, TC31, TC32).",
+              "Empty Response Semantics: 204 responses validated in success and no-op scenarios (TC01, TC06, TC07)."
+            ],
+            "gaps": [
+              "Rate Limiting/Throttling: No scenarios validating 429 Too Many Requests or Retry-After behavior under bursts.",
+              "Response format for 204: No explicit assertion that the body is empty and headers (e.g., Content-Type) are appropriate for a 204 response.",
+              "Content negotiation/media type: No tests for incorrect or missing Content-Type/Accept leading to 415/406 where applicable.",
+              "Default externalPayment behavior: No positive assertion that omitting externalPayment uses the internal payment path by default.",
+              "Non-existent but well-formed paymentMethodId: Missing scenario distinguishing invalid format vs well-formed, non-existent ID and expected status (e.g., 404/422).",
+              "TargetDate edge cases: No coverage for timezone offsets (Z, +/-hh:mm), past/future dates, or invalid calendar dates like 2025-02-30.",
+              "PluginProperty value validation: No tests for invalid entries within the array (empty strings, excessively long values) beyond type errors.",
+              "URL/header size limits: No tests for excessively long query strings or headers triggering 414 URI Too Long or 431 Request Header Fields Too Large.",
+              "Audit/observability: No verification that CreatedBy/Reason/Comment are recorded in audit logs or emitted events. (Nice-to-have)",
+              "Idempotency key header: If supported by the API, no tests verifying idempotent retries via an idempotency key. (Conditional, not in story)"
+            ],
+            "recommendations": [
+              "Add rate limiting tests: burst POSTs leading to 429 with Retry-After; verify graceful degradation and recovery.",
+              "Add response-format checks: assert 204 has an empty body and appropriate headers; add negative tests for invalid Content-Type and Accept (expect 415/406 where applicable).",
+              "Add a scenario proving default externalPayment=false path (internal processing) when the parameter is omitted.",
+              "Differentiate paymentMethodId failures: add a test for a well-formed but non-existent paymentMethodId and assert the exact status code expected by the API (e.g., 404/422).",
+              "Extend targetDate tests: include timezone offsets, past vs future dates, and invalid calendar dates; confirm server-side interpretation and validation.",
+              "Harden pluginProperty validation: test empty strings, oversized values, and max-length enforcement; expect 400 on violation.",
+              "Exercise size limits: send very long query strings and large headers to validate 414/431 or server-side truncation/validation behaviors.",
+              "If supported, add idempotency-key tests to guarantee safe retries without duplicates independent of transport errors.",
+              "Optionally verify audit logging: assert CreatedBy/Reason/Comment are persisted and retrievable via audit endpoints or events."
+            ],
+            "usage": {
+              "completion_tokens": 4497,
+              "prompt_tokens": 7048,
+              "total_tokens": 11545,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3520,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

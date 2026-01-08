@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "95_2025-10-15T10:46:04.586942",
+    "jira_id": "95",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/tags - Add tags to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:45:53.019594",
+    "benchmark_end_time": "2025-10-15T10:46:04.586936",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 11.567342,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "95_qe_sup-gpt4.1_agent-gpt4.1_1748922214.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01, TC02, TC03, TC11, TC14, TC19) verify successful creation and correct response code 201 and response body contents.",
+              "Invalid Payload / Validation: Malformed JSON (TC08), invalid tag UUIDs (TC09), partial/null elements (TC17), extra/unexpected fields (TC10) and invalid paymentId format (TC06) are covered.",
+              "Resource Existence Errors: Non-existent payment scenarios (TC05, TC18) covering 404 behavior are present.",
+              "Required Headers Validation: Missing required header X-Killbill-CreatedBy is tested (TC07); optional headers X-Killbill-Reason and X-Killbill-Comment are exercised (TC02).",
+              "Duplicate / Idempotency: Duplicate tag submission and idempotent behavior is tested (TC11, TC19).",
+              "Concurrency & Performance: Concurrency (TC20) and load/performance (TC12) scenarios are included to exercise race conditions and response time under load.",
+              "Service/Dependency Failure: Downstream service unavailability is tested (TC13) to validate handling of dependency failures (503).",
+              "Security Input Validation: Malicious payload (script injection) is tested (TC16) and unauthorized user scenario is included (TC15)."
+            ],
+            "gaps": [
+              "Server Internal Errors (5xx): No explicit scenario for unhandled server/database failure returning 500 (apart from dependency 503). The POST guidelines call out simulating server errors; this is not directly present.",
+              "Tag definition not found / invalid tag IDs semantic error: Tests cover malformed tag UUIDs (format) but there is no explicit scenario for well-formed UUIDs that do not correspond to any tag definition (expected 404 or 400 depending on API spec).",
+              "Response Schema & Content-Type: While responses are asserted to be JSON arrays of Tag objects, there are no explicit schema-level tests (e.g., validating all Tag fields, types, presence of createdBy/createdDate) or Content-Type header verification.",
+              "Rate limiting / Throttling: There is no explicit rate limiting test (rapid repeated requests leading to 429 or throttling behavior). TC12 and TC20 exercise load/concurrency but do not assert rate-limit behavior.",
+              "Negative header values and header validation beyond presence: No tests for invalid header formats/lengths or forbidden characters in header values.",
+              "Boundary conditions for array size lower than minimum (if any): Empty array is covered (TC04) and large array upper boundary is covered (TC14), but explicit tests for array sizes just above allowed maximum (if the API enforces a max) are missing.",
+              "Caching / Headers: Not relevant for POST in most APIs, but there are no checks for response caching or headers (ETag/Cache-Control) where applicable."
+            ],
+            "recommendations": [
+              "Add a 500 Internal Server Error simulation (e.g., DB failure) to validate server error handling and that appropriate error payloads are returned.",
+              "Add a scenario for well-formed tag UUIDs that do not exist in the system to verify semantic 404 or validation errors for missing tag definitions.",
+              "Add schema-level assertions for returned Tag objects: validate field presence and types (paymentId, tagDefinitionId, createdBy, createdDate, etc.) and verify Content-Type: application/json.",
+              "Add explicit rate-limiting tests that send bursts of requests to assert 429 or backoff behavior (or confirm absence thereof).",
+              "Add header validation tests for invalid X-Killbill-CreatedBy/X-Killbill-Reason values (too long, invalid chars) to ensure robust header validation.",
+              "If the API enforces a maximum array length, add tests for just-over-the-limit arrays to ensure correct 4xx handling; otherwise document the allowed max and keep large-payload tests (TC14) to validate limits.",
+              "Clarify and add tests for tag-definition-level errors (e.g., trying to add a tag that is disabled/archived) if the business logic treats those specially."
+            ],
+            "usage": {
+              "completion_tokens": 1117,
+              "prompt_tokens": 6214,
+              "total_tokens": 7331,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

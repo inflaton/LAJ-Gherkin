@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "79_2025-09-28T07:26:15.434462",
+    "jira_id": "79",
+    "jira_title": "Implement/Test API: GET /1.0/kb/credits/{creditId} - Retrieve a credit by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:24:37.612745",
+    "benchmark_end_time": "2025-09-28T07:26:15.434459",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 97.821714,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "79_qe_sup-gpt4.1_agent-gpt4.1_1748921053.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Request: Successful retrieval for both CREDIT_ADJ and CBA_ADJ with 200 responses and Content-Type application/json (TC01, TC02, TC15, TC20).",
+              "Input validation & error codes: Invalid UUID and malformed ID formats produce 400 (TC05, TC12, TC13, TC16, TC17); non-existent or wrong-typed credit IDs produce 404 (TC03, TC04, TC11, TC14, TC18).",
+              "Authorization: Missing and expired/invalid authentication tokens are tested and return 401 (TC06, TC07).",
+              "Service resilience & error handling: Database/service unavailability returns 503 (TC10); degraded performance and concurrent load are exercised with response-time expectations (TC09) and 100 concurrent requests (TC19).",
+              "Security: SQL injection and XSS attempts in the creditId are tested and handled as invalid input without compromising the system (TC12, TC13).",
+              "Query parameter robustness: Unexpected extra query parameters are ignored and do not affect success responses (TC08)."
+            ],
+            "gaps": [
+              "Caching Behavior: No tests validate caching headers (ETag, Cache-Control) or conditional GET semantics (If-None-Match -> 304 Not Modified).",
+              "Rate Limiting / Throttling: Although concurrency/performance is tested (TC19), there are no negative tests for rate-limit enforcement (e.g., exceeding a quota and receiving 429).",
+              "Authorization granularity: Missing tests for authenticated-but-forbidden scenarios (403) such as accessing a credit belonging to another tenant/account or insufficient scope/role.",
+              "Schema / Contract Validation: \"valid InvoiceItem JSON object\" is asserted but there are no explicit, deterministic schema/field-level validations against the InvoiceItem definition (amount, currency, invoiceId, etc.).",
+              "Error response contract: Error responses are checked for message presence but not for Content-Type consistency or a structured error schema (fields like code, message, details).",
+              "Content Negotiation: No tests for Accept header variations (e.g., unsupported Accept -> 406 or expected fallback behavior).",
+              "Method-level negatives & path handling: No tests for method-not-allowed (405) on this endpoint, or for a missing path parameter (e.g., calling /1.0/kb/credits/).",
+              "Path-encoding edge cases: Missing tests for URL-encoded UUIDs, hyphen-less UUIDs, uppercase/lowercase variants, and other encoding/format edge cases."
+            ],
+            "recommendations": [
+              "Add caching tests: verify ETag and Cache-Control on 200 responses and conditional GET behavior (If-None-Match -> 304) to ensure correct caching semantics.",
+              "Add explicit rate-limiting tests: simulate request bursts that exceed configured limits to verify 429 responses and any Retry-After headers or quota headers.",
+              "Add authorization/ownership tests: verify access attempts to credits owned by other accounts/tenants return the documented response (403 or 404 per policy) and test scope/role-based access if applicable.",
+              "Add strict schema/contract validation: validate successful responses against the InvoiceItem JSON schema (field presence, types, value ranges) and add field-level assertions (amount, currency, invoiceId, createdDate, type).",
+              "Standardize error contract tests: assert Content-Type for 4xx/5xx responses and validate standardized error payload fields (code/message/details) across scenarios.",
+              "Add content-negotiation tests: confirm behavior for unsupported Accept headers and ensure the API responds with the correct status or fallback format per contract.",
+              "Add method-not-allowed (405) tests and a test for missing path parameter handling to ensure proper routing and error status codes.",
+              "Add more path-parameter edge cases: URL-encoded IDs, hyphen-less UUIDs, uppercase/lowercase forms, excessively long but syntactically valid inputs, and other encoding attacks.",
+              "If pagination guidance is included in generic GET checklists, document pagination as not applicable for this single-resource endpoint (so it is not counted as a gap)."
+            ],
+            "usage": {
+              "completion_tokens": 6307,
+              "prompt_tokens": 4626,
+              "total_tokens": 10933,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5440,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

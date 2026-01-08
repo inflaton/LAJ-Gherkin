@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-09-28T13:08:07.012839",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T13:04:18.231500",
+    "benchmark_end_time": "2025-09-28T13:08:07.012834",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 228.781334,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "PUT - Valid Request: Successful updates return 204 and persist changes (TC01, TC02, TC03, TC04, TC15, TC16, TC17, TC26 within limit).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment accepted; unsupported headers ignored (TC01, TC02, TC05, TC08).",
+              "Request validation: Missing body, malformed JSON, and invalid CustomField schema return 400 (TC09, TC10, TC11).",
+              "Path parameter validation: Invalid accountId format returns 400 (TC06).",
+              "Non-existing resource handling: Non-existent account returns an error (TC07).",
+              "Security hardening: SQL injection and XSS payloads rejected with 400 (TC20, TC21).",
+              "Resilience/errors: Service down (503), dependency failure (502), timeout (504), and retry behavior covered (TC13, TC14, TC19, TC22).",
+              "Large payloads: Handles large arrays and enforces payload-size limit with 413 when exceeded (TC04, TC26).",
+              "Business rule: Duplicate custom field names rejected (TC23).",
+              "Integration effects: Audit logging and external reporting reflect updates (TC27, TC28).",
+              "Performance: Concurrent requests across multiple accounts maintain consistency (TC25).",
+              "PUT semantics edge case: Empty array removes all fields (TC15), indicating full-replacement behavior."
+            ],
+            "gaps": [
+              "PUT guideline - Partial update semantics: No explicit test to confirm whether partial updates are allowed or rejected (e.g., sending a subset of existing custom fields and verifying merge vs replace behavior).",
+              "Concurrency on the same resource: No scenario with simultaneous updates to the same account to detect race conditions, last-write-wins vs optimistic locking (e.g., 409 with ETag/If-Match).",
+              "Idempotency: No test proving that sending the exact same PUT payload repeatedly yields 204 and no duplicate side effects (including audit log duplication).",
+              "Content negotiation and headers: No checks for Content-Type=application/json on error responses; no test for missing/wrong Content-Type leading to 415; no check that 204 responses have an empty body.",
+              "Error contract: Tests assert presence of an error message but do not validate a consistent error schema (e.g., code, message, details).",
+              "Boundary negatives: While maximum lengths are tested, there is no test for values exceeding limits (should return 400) or invalid character sets/unicode/null values in fields.",
+              "Non-existent account status code: Suite expects 400; if API intends 404 for missing resources, there is no scenario to validate/clarify this behavior.",
+              "Authorization depth: Only 401 is covered; no 403 scenario for authenticated users lacking permission (if RBAC applies).",
+              "Rate limiting/throttling: No scenario for 429 when many PUTs are sent rapidly (if enforced).",
+              "Black-box verification: Several scenarios rely on database assertions; there is no follow-up GET to validate changes externally, which is preferable for acceptance tests."
+            ],
+            "recommendations": [
+              "Add explicit partial-update semantics tests: (a) send a subset of existing fields and verify full replacement vs merge; (b) if partial updates are not allowed, ensure a 400 response.",
+              "Add same-account concurrency tests: two (or more) concurrent PUTs on the same account; verify expected conflict handling or last-write-wins; include ETag/If-Match if supported.",
+              "Add idempotency tests: repeat identical PUT payloads; verify 204 each time, no duplicates, and a single audit record if deduplication is expected.",
+              "Validate HTTP headers/protocol: assert Content-Type=application/json on error responses; verify 415 for non-JSON payloads; ensure 204 responses have no body.",
+              "Define and assert a standard error schema (fields like errorCode, message, details) across all 4xx/5xx scenarios.",
+              "Extend boundary validation: add tests for values just over maximum limits (expect 400), invalid characters, unicode, and nulls in CustomField fields.",
+              "Clarify and test status for non-existent accounts: if API prefers 404, add a scenario for 404; otherwise document 400 as intended.",
+              "Add 403 authorization test if RBAC exists (authenticated but not authorized).",
+              "Consider rate limiting tests (429) for bursty PUT traffic if the platform enforces throttling.",
+              "Prefer black-box verification: after PUT, GET the account\u2019s custom fields to assert state instead of relying on DB checks; this also validates read-after-write consistency.",
+              "Add tests to ensure X-Killbill-Reason and X-Killbill-Comment are persisted/visible in audit logs and tied to the update event."
+            ],
+            "usage": {
+              "completion_tokens": 7110,
+              "prompt_tokens": 6919,
+              "total_tokens": 14029,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

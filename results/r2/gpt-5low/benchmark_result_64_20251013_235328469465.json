@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-13T23:53:28.469437",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:53:04.434538",
+    "benchmark_end_time": "2025-10-13T23:53:28.469431",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 91,
+    "average_generation_time_seconds": 24.034893,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 91,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 91,
+            "covered": [
+              "PUT > Valid Request: Multiple positive paths verify 204 response and functional effects (bundle and all paused subscriptions resume).",
+              "PUT > Non-Existing Resource: 404 when bundle not found (empty DB/random UUID).",
+              "PUT > Concurrency Issues: Concurrent resume requests verified with first 204 and subsequent 400/409.",
+              "Parameter Validation: bundleId UUID format (400), requestedDate valid future date, past date rejected (400), pluginProperty valid array and large list handling.",
+              "Headers: Required X-Killbill-CreatedBy enforced (400 if missing); optional X-Killbill-Reason and X-Killbill-Comment handled and audited; boundary lengths covered.",
+              "Authorization: Unauthorized/invalid user results in 401/403.",
+              "Robustness/Resilience: Dependency failure 500, plugin service latency/timeout 504, retry after transient failure succeeds.",
+              "Security: SQL injection attempt in pluginProperty and XSS in comment handled safely.",
+              "Idempotency/Invalid State: Already active/cancelled bundles rejected with 400.",
+              "Extra Inputs: Unexpected query params are ignored/do not break success."
+            ],
+            "gaps": [
+              "PUT > Partial Update: Not applicable here (no request body), but no scenario asserts that sending an unexpected body is rejected or ignored consistently.",
+              "requestedDate format validation: No tests for invalid date formats, timezone handling (e.g., Z, offsets), or boundary like today/now semantics.",
+              "pluginProperty collectionFormat=multi: No test using repeated query keys (pluginProperty=...&pluginProperty=...) and mixed valid/invalid entries.",
+              "Response headers/content negotiation: No assertions on Content-Type/produces=application/json, nor behavior when Accept header is non-JSON for a 204 response.",
+              "Auditing breadth: Only verifies reason/comment recorded; no check that CreatedBy is captured in audit logs.",
+              "Rate limiting/throttling: No scenarios validating behavior under API-level rate limits.",
+              "Idempotency on repeat same request after success: Covered via concurrency partially, but not a clean sequential retry of the same request resulting in 204 vs 400/409 per contract.",
+              "Error body schema: Tests assert presence of an error message but not structure/schema (code, message, type) for 400/404/401/403/500/504."
+            ],
+            "recommendations": [
+              "Add a scenario sending a non-empty JSON body to the PUT and assert the API either rejects with 400 or ignores it per spec (document expected behavior).",
+              "Extend requestedDate tests: invalid format (e.g., 2025-13-01, 2025-02-30), timezone forms (UTC Z and +/- offsets), and boundary like today to confirm server rules.",
+              "Add pluginProperty tests using collectionFormat=multi (multiple repeated query params), empty array, duplicate keys, and mixed valid/invalid entries to confirm strict/lenient parsing.",
+              "Assert response headers: verify Content-Type on error responses and that 204 has no body; include Accept header variations to confirm content negotiation behavior.",
+              "Audit log assertions: verify CreatedBy, Reason, and Comment are all recorded with correct values and timestamps.",
+              "Include a rate-limiting scenario (burst of requests) to confirm proper 429 or acceptable handling if rate limits apply to this endpoint.",
+              "Add a sequential idempotency test: resume paused bundle (204), immediately repeat same request and assert defined outcome (400/409) without side effects.",
+              "Validate error response schema across 400/401/403/404/500/504 to ensure consistent fields (e.g., error type/code/message)."
+            ],
+            "usage": {
+              "completion_tokens": 1796,
+              "prompt_tokens": 6265,
+              "total_tokens": 8061,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

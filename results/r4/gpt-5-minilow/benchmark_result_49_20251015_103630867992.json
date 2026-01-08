@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-15T10:36:30.867963",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:36:18.580601",
+    "benchmark_end_time": "2025-10-15T10:36:30.867959",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 12.287358,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01, TC12 confirm successful operation returns 204 and host marked out of rotation.",
+              "Authentication: TC02 and TC03 cover missing and invalid authentication leading to 401 responses.",
+              "Idempotency / Non-Existence variants: TC04 and TC14 cover cases where no host is available or host already out of rotation (409).",
+              "Server/Operational Errors: TC05 and TC06 cover service-unavailable (503) and internal server errors (500).",
+              "HTTP semantics: TC07 verifies method not allowed (405) for invalid HTTP method usage.",
+              "Request validation: TC09 covers handling of non-empty/malicious request body (400).",
+              "Extra parameters handling: TC08 covers tolerance of extra query parameters (still returns 204).",
+              "Concurrency and performance: TC10 and TC11 address response time under normal load and concurrent requests including expected 204/409 behavior for concurrent deletes.",
+              "Security headers injection: TC13 addresses header-based injection / malformed headers causing authentication/validation failures."
+            ],
+            "gaps": [
+              "Produces / Content-Type header: The story specifies \u201cProduces: application/json\u201d but no scenario asserts response Content-Type or header behavior (especially for 204 responses).",
+              "204 semantics vs body: Tests expect empty body for 204 (TC01/TC08/TC10) but do not assert that a Content-Type header is absent or how the server behaves with a 204 and a declared application/json producer. Edge cases (e.g., presence of a Content-Type with empty body) aren\u2019t checked.",
+              "Authorization vs Authorization-level errors: No test for insufficient privileges (403 Forbidden) \u2014 e.g., authenticated user without admin rights.",
+              "Non-existent resource variants beyond \"no hosts\": There is coverage for already-out and no-hosts; however, scenarios for identifying and addressing a specific host identifier (if API later extended) are absent \u2014 currently the story is host-local but tests don\u2019t validate selection/identification behavior.",
+              "Soft-delete / persistence verification: Tests assert host is marked out of rotation but do not validate persistence (database/state) across restarts or whether action is reversible (put back into rotation).",
+              "Header and response metadata: No assertions for other headers like Retry-After on 503, Cache-Control, ETag, or any rate-limit headers.",
+              "Rate limiting / throttling: TC11 covers concurrent correctness and timing, but there are no explicit rate-limiting/throttling tests (e.g., many rapid requests resulting in 429).",
+              "Negative/ malformed HTTP variations: Tests do not cover malformed HTTP (bad verbs beyond GET), invalid URL path variants, or unsupported content-types in requests beyond malicious body payload."
+            ],
+            "recommendations": [
+              "Add assertions for response headers and Content-Type on success and error responses. Specifically verify Content-Type when 204 is returned (should be none or consistent with API contract) and check application/json on error responses per story.",
+              "Add a test for insufficient privileges returning 403 when an authenticated token lacks admin privileges.",
+              "Add persistence/regression checks that the host state is durable across service restarts and that the out-of-rotation flag is persisted (or documented as ephemeral).",
+              "Add explicit rate-limiting tests: send a high rate of requests to verify 429 behavior or ensure graceful throttling when applicable.",
+              "Include tests for response metadata on 503 (e.g., Retry-After) and for consistent error payload shapes (JSON error object schema) across 4xx/5xx responses.",
+              "Add negative HTTP-path and invalid-URL tests to ensure correct handling of malformed endpoints and unexpected paths, and tests for unsupported content-type handling if the endpoint accepts a body."
+            ],
+            "usage": {
+              "completion_tokens": 1113,
+              "prompt_tokens": 3433,
+              "total_tokens": 4546,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

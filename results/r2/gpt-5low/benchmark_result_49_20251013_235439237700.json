@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-13T23:54:39.237671",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:54:14.076927",
+    "benchmark_end_time": "2025-10-13T23:54:39.237667",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 25.16074,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid operation: Successful 204 with host marked out of rotation (TC01, TC08, TC10, TC12).",
+              "Authorization: 401 for missing/invalid credentials (TC02, TC03).",
+              "Error handling: 400 invalid body (TC09), 405 wrong method (TC07), 409 host already out/no hosts (TC04, TC14), 500 internal error (TC06), 503 service down (TC05).",
+              "Concurrency: Concurrent requests behavior validated; first succeeds, others handled appropriately (TC11).",
+              "Request body N/A: Negative validation with non-empty/malicious body (TC09).",
+              "Security hardening: Malicious headers handling (TC13).",
+              "Behavioral verification: Host state verified after success (TC01, TC12).",
+              "Performance: Response time under normal and concurrent load (TC10, TC11).",
+              "Resilience: Endpoint availability/health scenarios (TC05)."
+            ],
+            "gaps": [
+              "Response headers: Story states Produces: application/json, but tests do not assert Content-Type or header behavior for 204 (and 204 typically has no body/Content-Type).",
+              "Idempotency: Expected behavior for repeated DELETE when host already out is ambiguous; tests use 409 in some places and allow 409 or 204 in TC11. Deterministic outcome should be specified and tested.",
+              "Error payload contract: Tests assert generic error messages but do not validate a standard error schema (e.g., code, message, correlationId).",
+              "Non-existent/target ambiguity: If the endpoint targets the current host implicitly, clarify and add a test to ensure no unintended cross-host effects; if a host identifier can be provided elsewhere, add a scenario for an unknown host.",
+              "Audit/observability: No scenarios validating that the action is auditable/logged (if required by ops standards).",
+              "Soft delete (guideline): Not applicable here, but if the operation is reversible, add a complementary test (e.g., PUT/POST to bring host back) to ensure state can be restored."
+            ],
+            "recommendations": [
+              "Add header assertions: For 204, verify no Content-Type and empty body; if the API must always produce application/json, align spec or return 200 with a JSON payload and test accordingly.",
+              "Define and test idempotency: Decide whether repeated DELETE should return 204 (idempotent) or 409 (conflict) and make tests consistent (update TC04/TC11 accordingly).",
+              "Validate standardized error schema across 4xx/5xx, including fields like errorType/code/message and a trace/correlation ID.",
+              "Clarify targeting semantics: Add a scenario asserting the action applies only to the current host and cannot affect other hosts unintentionally.",
+              "If operational auditing is a requirement, add a scenario verifying an audit log entry is created with actor, timestamp, and host details.",
+              "Optionally, add a recovery scenario showing the host can be put back into rotation (complementary endpoint), confirming the change is reversible and consistent."
+            ],
+            "usage": {
+              "completion_tokens": 1628,
+              "prompt_tokens": 3433,
+              "total_tokens": 5061,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

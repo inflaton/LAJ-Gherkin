@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "95_2025-10-13T05:33:56.035247",
+    "jira_id": "95",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/tags - Add tags to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:33:19.722758",
+    "benchmark_end_time": "2025-10-13T05:33:56.035244",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 36.312486,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "95_qe_sup-gpt4.1_agent-gpt4.1_1748922214.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01, TC02, TC03) verify successful creation of tags with valid JSON arrays and required/optional headers, returning 201 and a JSON array of Tag objects.",
+              "Required Header Validation: TC01/TC03/TC07 explicitly test presence and absence of X-Killbill-CreatedBy and the expected error when missing.",
+              "Path Parameter Validation: TC06 checks invalid paymentId format (400) and TC05/TC18 cover non-existent paymentId (404).",
+              "Request Body Validation: TC08 (malformed JSON), TC09 (invalid tag UUID format), TC17 (nulls/partial elements), and TC10 (unexpected fields) cover a broad set of invalid payload cases.",
+              "Duplicate Handling / Idempotency: TC11 and TC19 validate duplicate UUIDs in the request and re-posting existing tags to avoid duplication.",
+              "Large/Boundary Payloads & Performance: TC14 (very large array) and TC12 (under load) address large payload and basic performance concerns.",
+              "Concurrency & Consistency: TC20 addresses concurrent requests and expects consistent, duplicate-free final state.",
+              "Dependency & Server Error Handling: TC13 models an upstream/tag-service unavailability and expects 503.",
+              "Security: TC15 (unauthorized user) and TC16 (malicious payload injection) cover basic auth and input-safety/security checks.",
+              "Empty Body Handling: TC04 covers an empty array and expects an empty JSON array response with 201."
+            ],
+            "gaps": [
+              "Tag definition NOT FOUND: No explicit scenario where a well-formed tagDefinition UUID does not exist in the system (expected behavior not defined/tested \u2014 e.g., 404 or partial failure).",
+              "Partial/Transactional Behavior: No tests for mixed-case requests (some tag UUIDs valid/existing, others non-existent or invalid) to verify atomic vs. partial success semantics and the resulting rollback/partial-apply behavior.",
+              "Content-Type / Accept Headers and Unsupported Media Type: No tests verify request Content-Type requirements (application/json), response Content-Type, or behavior when using unsupported media types (eg. 415).",
+              "Response Schema / Contract Validation: Tests check presence of Tag objects but do not assert full schema details (field types, required metadata fields, response headers such as Content-Type, or Location header if applicable).",
+              "Server 500/Internal Error Simulation: TC13 covers 503 for tag service unavailability but there is no explicit test for 500 Internal Server Error scenarios (e.g., DB failure) and rollback semantics.",
+              "Rate Limiting / Throttling: TC12 addresses performance under load but there are no focused tests for rate-limiting / throttling behavior (429 responses) or burst protection.",
+              "Caching / Headers (ETag, Cache-Control): No tests validate caching-related response headers.",
+              "Authorization Token Handling: TC15 checks an \"unauthorized-user\" header but there is no explicit test for missing/invalid auth token flows (401) vs. insufficient permissions (403) and role-based authorization checks.",
+              "Limits & Rejection Policies: No tests for enforcement of maximum allowed number of tags (if any limit exists) that should return a clear error (e.g., 413/4xx).",
+              "Concurrency determinism: TC20 calls out concurrency but does not define precise assertions for race conditions (e.g., which request wins, timing windows, DB uniqueness constraint failures)."
+            ],
+            "recommendations": [
+              "Add a scenario where tagDefinition UUIDs are well-formed but do not exist to assert expected behavior (404 for each missing tag or a transactional failure) and ensure the API documents which approach is used.",
+              "Add tests for mixed valid/invalid tag arrays to validate whether the operation is atomic or partial; assert transactional behavior and resulting state in DB.",
+              "Add explicit tests for Content-Type and Accept headers: successful request with Content-Type: application/json; requests with missing/incorrect Content-Type should return 415 (or documented error). Assert response Content-Type is application/json.",
+              "Add contract/schema tests that validate Tag object fields (types, required fields like paymentId, tagDefinitionId, createdBy, createdDate, metadata) and presence of response headers (Content-Type, possibly Location, and any request-tracking headers).",
+              "Introduce tests simulating 500-level failures (DB failure, unexpected server error) to verify 500 responses and how partial writes are handled or rolled back.",
+              "Add focused rate-limiting tests that send bursts of requests to validate 429 responses or throttling semantics; separate these from general performance/load tests.",
+              "Add caching-related tests if applicable for GET endpoints or any responses that could be cached \u2014 verify ETag/Cache-Control semantics where appropriate.",
+              "Add explicit authentication token tests: missing token, expired token, token with insufficient scope \u2014 assert clear 401 vs 403 behavior consistent with security policy.",
+              "Define and test limits: if there is a maximum allowed tags-per-request or per-entity, add tests to exercise the boundary and over-limit rejection.",
+              "For concurrency tests, make deterministic assertions: e.g., run N concurrent requests where some create the same tag and assert final DB state contains a single tag and that conflicting requests return consistent error codes if applicable."
+            ],
+            "usage": {
+              "completion_tokens": 2568,
+              "prompt_tokens": 6214,
+              "total_tokens": 8782,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1472,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

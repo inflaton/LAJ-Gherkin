@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-10-13T13:53:44.583425",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T13:51:07.628717",
+    "benchmark_end_time": "2025-10-13T13:53:44.583416",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 156.954699,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "POST - Valid Payload: Single and multiple credit creation return 201 with JSON array response; includes cases with invoiceId (invoice adjustment) and without invoiceId (CBA).",
+              "POST - Query Parameters: autoCommit=true behavior covered; pluginProperty with multi values covered and passed through to plugins.",
+              "Headers: Required X-Killbill-CreatedBy enforced (success and missing -> 400); optional X-Killbill-Reason and X-Killbill-Comment exercised and auditable.",
+              "Success Semantics: Verifies 201 Created, JSON array payload mirrors request fields; Location header presence validated for successful creation.",
+              "POST - Invalid Payload: Malformed JSON (400), missing required fields (400), invalid accountId format (400), unsupported currency (400), invalid pluginProperty type (400), empty body (400).",
+              "Resource Existence: 404 for non-existent account and non-existent invoice explicitly tested.",
+              "Security/Validation: SQL injection attempts rejected (400/422); XSS in headers sanitized/not reflected; positive amount edge considered.",
+              "Duplicate Submission: Idempotency/duplicate-on-retry regression test ensures only one credit is created.",
+              "Integration Failures: Plugin unavailable (503) and plugin error (400/500) covered; plugin properties propagation validated.",
+              "Operational/Resilience: System unavailable (503), timeout case (504), and large payload handling (413/400) covered.",
+              "Performance/Scalability: Normal and peak response time targets, stress resource utilization under load.",
+              "State Coverage: Empty-account state (creates new credit invoice) and populated account state (balance updated) covered."
+            ],
+            "gaps": [
+              "Body shape contract: API requires a JSON array of InvoiceItem; several scenarios send a single object (\u201cthe item in the body\u201d). No test validates that sending a single object yields a 400/415, nor that array is strictly required.",
+              "Content negotiation: No checks for Content-Type=application/json (415 on wrong/missing Content-Type) and no verification of response Content-Type=application/json or Accept negotiation (e.g., 406 for unsupported Accept).",
+              "autoCommit defaults and validation: No test for default autoCommit=false behavior when omitted, explicit autoCommit=false, or invalid boolean values (e.g., autoCommit=yes -> 400).",
+              "Atomicity of batch requests: No scenario with a mixed-validity array (one bad item among good ones) to verify all-or-nothing behavior, error code, and rollback (no partial credits created).",
+              "Cross-entity integrity: No test that invoiceId must belong to the provided accountId (should 400/404).",
+              "Multi-account array: No test where a single request contains items for different accountIds (should be rejected per \u201ccredits for an account\u201d).",
+              "Amount validation specifics: No clear expectation for positive amounts (story says treated as negative); test TC13 is ambiguous. Also missing tests for zero amount, decimal precision/scale, and extreme numeric ranges.",
+              "itemType handling: Story says itemType typically CREDIT_ADJ or CBA_ADJ but not required; no tests for omitted itemType (should infer correctly) or invalid itemType values (should 400).",
+              "Internal server error paths: No explicit simulation of core persistence/database failure leading to 500 and ensuring no side effects.",
+              "Authorization 401: A 403 (insufficient permissions) is covered, but no test for missing/invalid auth credentials leading to 401.",
+              "Location header semantics for bulk: No assertion about Location behavior when multiple resources are created (e.g., single collection URL vs per-item links).",
+              "Audit and tracing headers: While reason/comment are checked, no validation of audit record structure/timestamps/createdBy consistency beyond presence."
+            ],
+            "recommendations": [
+              "Enforce the body array contract: Add tests that send a single InvoiceItem object (not array) and expect 400/415; ensure all success scenarios explicitly send arrays, even for single-credit requests.",
+              "Add content negotiation tests: Verify 415 for non-JSON Content-Type, 400 for missing Content-Type if applicable, 406 for unsupported Accept, and assert response Content-Type=application/json on success/errors.",
+              "Cover autoCommit defaults/validation: Add scenarios for default (omitted) behaving as false, explicit autoCommit=false, and invalid boolean values -> 400.",
+              "Define and test batch atomicity: Craft a request array with one invalid InvoiceItem; assert expected behavior (rollback/no partial creations) and appropriate error code; repeat with plugin errors to verify transactional integrity.",
+              "Add integrity checks: Ensure invoiceId must belong to accountId; ensure all items in the array refer to the same accountId (reject mixed-account arrays).",
+              "Clarify and make precise amount rules: Replace TC13 with two explicit cases: positive amount is auto-negated (verify stored amount) or is rejected (400). Add zero, precision/scale, and boundary amount tests.",
+              "itemType robustness: Add tests where itemType is omitted (expect correct inference to CREDIT_ADJ or CBA_ADJ) and where itemType is invalid (expect 400).",
+              "Simulate 500 Internal Server Error: Inject database/persistence failure and verify 500 response and full rollback.",
+              "Authorization coverage: Add a scenario for invalid/missing auth token/credentials returning 401 (distinct from missing X-Killbill-CreatedBy).",
+              "Clarify Location in bulk responses: Add expectations for Location header when multiple credits are created (e.g., collection endpoint or links per item).",
+              "Audit verification depth: Add checks that audit logs capture createdBy, reason, comment, timestamps, and correlate to created items.",
+              "Add mixed-array plugin behaviors: Array request where plugin fails on one item to verify atomic rollback and uniform error handling."
+            ],
+            "usage": {
+              "completion_tokens": 7743,
+              "prompt_tokens": 8287,
+              "total_tokens": 16030,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6528,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

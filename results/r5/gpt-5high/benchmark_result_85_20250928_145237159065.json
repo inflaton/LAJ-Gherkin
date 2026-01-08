@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "85_2025-09-28T14:52:37.159041",
+    "jira_id": "85",
+    "jira_title": "Implement/Test API: GET /1.0/kb/export/{accountId} - Export account data",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T14:49:42.823196",
+    "benchmark_end_time": "2025-09-28T14:52:37.159037",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 174.335841,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "85_qe_sup-gpt4.1_agent-gpt4.1_1748921476.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Valid Request: 200 with application/octet-stream and a valid export archive for an existing account (TC01, TC02, TC14).",
+              "Header Parameters: Required X-Killbill-CreatedBy enforced (200 when present, 400 when missing); optional X-Killbill-Reason/X-Killbill-Comment accepted; extra headers tolerated (TC01\u2013TC03, TC06).",
+              "Path Parameter Validation: UUID format enforced; malformed and injection attempts return 400 (TC04, TC11); missing accountId path returns 404 (TC12).",
+              "Non-Existing Resource: 404 for unknown account and when DB is empty (TC05, TC07).",
+              "Authorization: 401 for unauthenticated requests (TC18).",
+              "Produces/Content-Type: application/octet-stream verified; regression for missing header covered (TC01, TC02, TC14).",
+              "Resilience/Performance: large payloads, slow downstream within timeout, concurrency under load; correct 500/504 on failures/timeouts (TC08\u2013TC10, TC13, TC17).",
+              "HTTP Method Hardening: 405 for unsupported method (TC16).",
+              "Pagination/Query Parameters: Not applicable for a single binary export endpoint."
+            ],
+            "gaps": [
+              "Empty Response: No scenario where the account exists but has no associated data; expected behavior (minimal archive vs 204) is not verified.",
+              "Authorization: No 403 Forbidden case for an authenticated user lacking permission/scope.",
+              "Rate Limiting: No tests for throttling/429 Too Many Requests and presence of Retry-After or X-RateLimit-* headers.",
+              "Caching Behavior: No validation of ETag/Last-Modified/Cache-Control headers or conditional requests (If-None-Match/If-Modified-Since).",
+              "Content Negotiation: No tests for Accept header variations or 406 Not Acceptable when octet-stream is not acceptable.",
+              "Download Metadata: No validation of Content-Disposition filename to ensure predictable downloadable artifact naming.",
+              "Error Response Schema: Error payload structure (e.g., code, message, requestId/timestamp) not asserted; tests only check generic indications.",
+              "Header Value Robustness: No boundary/invalid-value tests for audit headers (very long values, non-ASCII, CRLF injection).",
+              "Partial Content: If supported, no tests for Range requests (206) or explicit assertion of not supported behavior (416)."
+            ],
+            "recommendations": [
+              "Add a scenario for an account with zero associated data and define expected outcome (e.g., minimal but valid archive vs 204 No Content); assert archive integrity/size accordingly.",
+              "Add a 403 Forbidden test using an authenticated user without the required role/scope to distinguish 401 vs 403 behaviors.",
+              "Introduce rate-limiting tests that burst requests to trigger 429; assert Retry-After and any X-RateLimit-* headers and backoff behavior.",
+              "Validate caching headers: assert appropriate Cache-Control (e.g., no-store), and presence/absence of ETag/Last-Modified; issue conditional GETs to verify 304/200 semantics as per API design.",
+              "Add content negotiation tests: Accept: application/octet-stream, */*, and application/json; verify 200 for acceptable types and 406 when not acceptable.",
+              "Check Content-Disposition for a predictable filename pattern (e.g., attachment; filename=account-{accountId}-export.zip).",
+              "Assert standard error payload schema for 400/404/500/504 (fields like errorCode, message, requestId, timestamp) instead of generic text matching.",
+              "Add negative and boundary tests for audit headers: extremely long values, Unicode, disallowed characters, and CRLF injection; expect 400 and sanitization where applicable.",
+              "If partial downloads are supported, add Range/206 tests and Accept-Ranges checks; otherwise add a test asserting 416 or lack of Accept-Ranges.",
+              "Document that pagination and query parameters are not applicable for this endpoint to keep test metrics focused on relevant areas."
+            ],
+            "usage": {
+              "completion_tokens": 7126,
+              "prompt_tokens": 5510,
+              "total_tokens": 12636,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6272,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

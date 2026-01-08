@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "95_2025-10-13T10:56:30.683879",
+    "jira_id": "95",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/tags - Add tags to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:55:16.476999",
+    "benchmark_end_time": "2025-10-13T10:56:30.683875",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 74.206876,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "95_qe_sup-gpt4.1_agent-gpt4.1_1748922214.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "POST: Valid payloads return 201 with a JSON array of Tag objects (TC01, TC02, TC03).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment accepted (TC02, TC03, TC07).",
+              "Path and resource validation: 400 for invalid paymentId format; 404 for non-existent payment (TC05, TC06, TC18).",
+              "Invalid payload handling: malformed JSON, invalid UUIDs, unexpected fields, null elements -> 400 (TC08, TC09, TC10, TC17).",
+              "Duplicate handling/idempotency behavior: duplicate tags in payload and already-existing tags do not create duplicates (TC11, TC19); concurrency consistency checked (TC20).",
+              "Large payloads and performance: max-size arrays and peak-load response time validated (TC12, TC14).",
+              "Server error handling: upstream/dependency failure returns 503 (TC13).",
+              "Security negatives: unauthorized access (401/403) and malicious payload rejected (TC15, TC16).",
+              "Edge case: empty array accepted with 201 and empty response (TC04)."
+            ],
+            "gaps": [
+              "Server error 500 path not covered (e.g., database failure simulation distinct from 503 dependency outage).",
+              "Content negotiation: no test for missing/incorrect Content-Type leading to 415, or unsupported Accept leading to 406; response Content-Type header not asserted.",
+              "Authentication: no scenario for missing/invalid auth token/credentials (Background assumes valid token).",
+              "Tag definition existence: no case where tag UUIDs are well-formed but refer to non-existent tag definitions (expected 400 or 404 per API contract).",
+              "Response schema: Tag object not validated against the full #/definitions/Tag (only a subset of fields checked).",
+              "Boundary above limits: no test for payload exceeding maximum allowed size/count (expected 413 Payload Too Large or 400).",
+              "Idempotent retry behavior for identical POST requests (e.g., with/without an Idempotency-Key) not explicitly verified.",
+              "Error response schema: structure/fields of error bodies (code, message, type) not asserted.",
+              "Audit propagation: values from X-Killbill-Reason and X-Killbill-Comment not verified in audit metadata of resulting tags."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate internal server errors (e.g., database failure) and expect 500 with a standard error body.",
+              "Add content negotiation tests: missing/wrong Content-Type -> 415; unsupported Accept -> 406; assert response Content-Type: application/json on success and errors.",
+              "Include negative authentication tests for missing/invalid auth token to expect 401.",
+              "Add a test where tagDefinition UUIDs are syntactically valid but do not exist, and assert the intended status code (clarify spec if needed).",
+              "Validate the full Tag schema per #/definitions/Tag (required fields, types) and verify array items match the created resources.",
+              "Introduce a test for payloads exceeding maximum allowed array size/overall body size and assert 413 or 400 per limits.",
+              "Add an explicit idempotent retry test sending the same request twice (optionally using an Idempotency-Key) to ensure no duplicate creation and consistent status codes.",
+              "Assert a consistent error response schema across 400/404/503 (fields like errorCode, message).",
+              "Verify that X-Killbill-Reason and X-Killbill-Comment are persisted/returned in audit metadata for created tags (or accessible via audit APIs)."
+            ],
+            "usage": {
+              "completion_tokens": 4813,
+              "prompt_tokens": 6214,
+              "total_tokens": 11027,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4032,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

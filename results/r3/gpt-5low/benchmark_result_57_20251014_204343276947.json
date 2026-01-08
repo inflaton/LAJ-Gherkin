@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "57_2025-10-14T20:43:43.276915",
+    "jira_id": "57",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/customFields - Modify custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:43:03.070986",
+    "benchmark_end_time": "2025-10-14T20:43:43.276909",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 40.205923,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "57_qe_sup-gpt4.1_agent-gpt4.1_1748919636.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "PUT - Valid Request: Multiple happy-path scenarios validate successful updates (204) with required and optional headers.",
+              "PUT - Non-Existing Resource: 404 for nonexistent bundleId is covered.",
+              "PUT - Invalid Inputs: 400s for invalid bundleId format, malformed JSON, missing body, and missing required header.",
+              "Schema Validation: Unsupported fields in body return 400.",
+              "Header Handling: Required X-Killbill-CreatedBy validated; optional X-Killbill-Reason and X-Killbill-Comment exercised.",
+              "State Variations: Updates when no existing custom fields, when updating existing fields, and when removing all fields (empty array).",
+              "Edge Cases: Maximum number of custom fields, max value length, empty values, special characters regression.",
+              "Security Negative: SQL injection-like payload rejected with 400.",
+              "Reliability/Resilience: Transient failure retry succeeds; dependency failures mapped to 503/500.",
+              "Auth: Unauthorized request returns 401.",
+              "Load/Performance: Normal and peak load scenarios validate 204 and response time.",
+              "URL Robustness: Unexpected query parameter tolerated without breaking core behavior."
+            ],
+            "gaps": [
+              "PUT - Concurrency Control: No scenarios to detect/update conflicts (e.g., last-writer-wins vs optimistic locking, 409 with If-Match/ETag or version).",
+              "PUT - Partial Update Policy: Story does not state if partial updates are allowed; tests assume they are. Add scenarios to ensure partial updates are rejected if not allowed, or explicitly verify allowed behavior per API spec.",
+              "Content Negotiation: No tests for incorrect/missing Content-Type (e.g., 415) or unacceptable Accept header (e.g., 406), despite produces/consumes being specified.",
+              "Idempotency: No test to verify repeated identical PUTs produce the same final state and consistent status code.",
+              "Validation Depth: Missing tests for invalid CustomField schema details (e.g., missing required properties, wrong data types, invalid key/name format, null values, too-long values beyond max, exceeding max number should error).",
+              "Auditability: No verification that X-Killbill-Reason and X-Killbill-Comment are persisted to audit logs/history.",
+              "Error Body Contracts: While status codes are asserted, there is no strict validation of error response schema (codes, messages, error types).",
+              "UUID Pattern Enforcement: Only a generic invalid string is tested; no explicit test of the documented UUID regex pattern and boundary cases (uppercase/lowercase, hyphen positions).",
+              "Large Payload Handling: No tests for very large but valid bodies within limits vs exceeding server limits (payload size leading to 413).",
+              "Rate Limiting/Throttling: Under peak load, no assertion about hitting or not hitting rate limits (429), if applicable to this API."
+            ],
+            "recommendations": [
+              "Add concurrency tests: two concurrent PUTs with conflicting updates; if optimistic locking is supported, include If-Match/ETag and expect 409 on stale version; otherwise document last-writer-wins and verify final state.",
+              "Clarify and test partial update behavior: if PUT replaces the full set, send a partial array and expect rejection (400/422); if allowed, verify only specified fields change and unspecified remain intact.",
+              "Add content negotiation tests: missing/incorrect Content-Type -> 415; unacceptable Accept header -> 406; with 204, still verify headers are appropriate.",
+              "Add idempotency test: apply the same PUT twice and verify state unchanged and response consistent (204).",
+              "Expand validation coverage: cases with missing required CustomField properties, invalid data types, nulls, keys with invalid characters, value length exceeding max -> 400/422; exceeding maximum count -> 400/422.",
+              "Verify audit fields: after successful update, retrieve audit/history to confirm X-Killbill-Reason and X-Killbill-Comment are recorded.",
+              "Define and assert error response schema: validate error code, message, and type fields for 400/404/500/503/401 consistently.",
+              "Strengthen UUID tests: cover boundary/case sensitivity and exact hyphen placement per regex pattern.",
+              "Test large payload behavior: near-limit payload succeeds within performance bounds; beyond-limit returns 413 with descriptive error.",
+              "Consider rate limiting behavior under sustained peak load: validate 429 if limits apply, or explicitly verify absence of throttling for this endpoint if not applicable."
+            ],
+            "usage": {
+              "completion_tokens": 1576,
+              "prompt_tokens": 6139,
+              "total_tokens": 7715,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 640,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

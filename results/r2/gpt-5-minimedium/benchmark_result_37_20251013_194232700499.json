@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-13T19:42:32.700471",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:41:50.897602",
+    "benchmark_end_time": "2025-10-13T19:42:32.700466",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 41.802864,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC12, TC13, TC17, TC18) verify successful deletion (204) for typical, optional-headers, long/short emails, uppercase and legacy-client cases.",
+              "Required header validation: TC07 verifies missing X-Killbill-CreatedBy results in 400; TC02/others verify presence of required header.",
+              "Path parameter validation: TC05 and TC06 cover invalid accountId and invalid email formats producing 400.",
+              "Not-found handling: TC03, TC04, TC09 cover 404 responses for missing account and missing email (including account with no emails).",
+              "Authentication/Authorization: TC10 covers invalid/expired token resulting in 401.",
+              "Dependency / service errors: TC11 covers 503 service-unavailable behavior.",
+              "Concurrency / race conditions: TC15 tests concurrent deletes resulting in one 204 and remaining 404, covering race behavior.",
+              "Edge cases & security: TC16 covers injection/XSS in email parameter (400); TC12 and TC13 cover very long and minimal-length emails.",
+              "Idempotency/Retry behavior: TC19 covers transient network failure and retry semantics."
+            ],
+            "gaps": [
+              "Content-Type / Produces: No scenario asserts the response Content-Type or that error responses are application/json as stated in the acceptance criteria (\"Produces: application/json\").",
+              "URL-encoding / special characters in path: Tests do not cover emails with characters that require URL encoding (e.g., +, %, /, spaces encoded) and how the server handles them.",
+              "Empty or malformed header values: No tests for empty X-Killbill-CreatedBy value, extremely long header values, or invalid types for optional headers (X-Killbill-Reason/Comment).",
+              "Soft-delete semantics / persistence verification: The story/guidelines mention possible soft deletes; tests only check \"email no longer exists\" but do not verify whether the record was soft-deleted (e.g., marked deleted) vs hard-removed, nor audit trailing data.",
+              "Response body structure for errors: Tests assert presence of an error message but do not validate the error payload schema, error codes/messages, or consistent JSON structure for error responses.",
+              "Idempotency policy clarity: The tests assume 404 for subsequent deletes (TC15) but acceptance criteria do not explicitly define idempotency \u2014 no tests that assert alternative idempotent behaviours (e.g., delete returns 204 if already deleted).",
+              "URL path normalization / case-sensitivity for emails: TC17 tests uppercase matching but there is no explicit coverage for case-insensitive matching variants (e.g., delete using lowercase when stored is uppercase) beyond the single regression case.",
+              "Rate limiting / throttling: No tests cover rate limiting or behavior under high request rate (guideline for GET/DELETE rate limiting)."
+            ],
+            "recommendations": [
+              "Add assertions for Content-Type and response Content (application/json) for both success (where applicable) and error responses. Even if 204 has no body, check headers consistently for Content-Type on error responses.",
+              "Add tests for emails containing characters that require URL encoding (e.g., plus sign: user+tag@example.com, spaces encoded, percent-encodings) to ensure correct routing and validation.",
+              "Add tests for empty or boundary header values: empty X-Killbill-CreatedBy, extremely long X-Killbill-Reason/Comment, and invalid types to validate header value validation and length limits.",
+              "Add a soft-delete verification scenario (if soft deletes are supported): verify deletion flag, retention of historical data, and that a subsequent \"list emails\" does not show it while audit trail still contains the record.",
+              "Define and test the error response schema: add tests that validate error JSON fields (code, message, details) for 400/401/404/503 responses to enforce contract consistency.",
+              "Clarify idempotency contract and add tests accordingly: if delete should be idempotent (return 204 even if already deleted) or not (return 404), add a dedicated test to assert the chosen behavior consistently.",
+              "Add tests for header-related audit behavior: verify that X-Killbill-CreatedBy/Reason/Comment are recorded in any audit logs or returned in change events if applicable.",
+              "Add rate-limiting / throttling tests: simulate burst requests to ensure the system responds with 429 or appropriate throttling behavior if such policy exists.",
+              "Add tests to validate URL path normalization and case-insensitive matching across more permutations (store lowercase, delete uppercase, and vice versa) to fully exercise matching rules."
+            ],
+            "usage": {
+              "completion_tokens": 2185,
+              "prompt_tokens": 5675,
+              "total_tokens": 7860,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

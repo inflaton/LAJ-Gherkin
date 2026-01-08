@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "5_2025-09-28T15:48:06.164988",
+    "jira_id": "5",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/customFields - Add custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T15:44:36.046552",
+    "benchmark_end_time": "2025-09-28T15:48:06.164985",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 210.118433,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "5_qe_sup-gpt4.1_agent-gpt4.1_1748916088.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "POST: Valid payloads create custom fields with 201 and array response (TC01\u2013TC04, TC13, TC14, TC29).",
+              "POST: Input validation and 400 errors for invalid accountId format, malformed/empty bodies, empty arrays, unsupported fields, duplicate names, wrong data types, and null handling (TC06\u2013TC12, TC26\u2013TC28, TC30).",
+              "POST: Required/optional headers covered: CreatedBy required (positive/negative), Reason and Comment optional (TC01\u2013TC03, TC07).",
+              "POST: Large payload handling covered both at-limit success and over-limit rejection (TC14, TC15).",
+              "Authorization: 401 for missing/invalid auth token (TC16).",
+              "Server-side failure handling: service unavailable returns 503 (TC17).",
+              "Security hardening: SQL injection and XSS payloads are rejected (TC18, TC19).",
+              "Resilience/performance/concurrency extras: retry flow, response time, concurrent requests, and regression/backward-compatibility/integration checks (TC20\u2013TC25)."
+            ],
+            "gaps": [
+              "Duplicate submission/idempotency: No scenario posting the same payload twice to ensure duplicates are not created or a conflict is returned.",
+              "Server error handling: No explicit 500 Internal Server Error case (e.g., database failure) with proper error body; only 503 is covered.",
+              "Content negotiation/contract: Tests don\u2019t assert response Content-Type=application/json (Produces) or request Content-Type=application/json, nor behavior for wrong/missing Content-Type (e.g., 415).",
+              "Response semantics ambiguity: TC05 expects response to include both new and existing fields, but the story specifies the response represents the created fields only.",
+              "Non-existent account status: TC10 expects 400; many APIs use 404. The story doesn\u2019t specify; contract should be clarified and tests aligned.",
+              "Atomicity: No test for mixed valid/invalid objects in the same array to confirm all-or-nothing creation (no partial success).",
+              "Persistence verification: Success scenarios don\u2019t verify via a follow-up GET that fields were actually stored and associated with the account.",
+              "Retry idempotency: TC20 doesn\u2019t confirm that a retry after transient failure creates exactly one set of fields (no duplicates).",
+              "Header value validation: No tests for CreatedBy/Reason/Comment length limits, allowed characters, or whitespace-only CreatedBy.",
+              "Business limits: No tests for maximum number of custom fields per request/account and case-insensitive duplicate detection across requests.",
+              "Schema contract on success: Success assertions say \u201cmatching the request\u201d but don\u2019t verify server-generated fields required by CustomField definition (e.g., ids, timestamps) or exact shape of returned objects.",
+              "Behavior for unexpected query parameters (TC13) is assumed as 201, but the contract doesn\u2019t specify whether unknown params are ignored or rejected."
+            ],
+            "recommendations": [
+              "Add a duplicate submission test: POST the same array twice to the same account; assert the second call is idempotent (no duplicates) or returns 409 Conflict per contract.",
+              "Add explicit 500 path: simulate database failure to ensure a 500 with a structured error payload is returned.",
+              "Assert contract headers: verify response Content-Type=application/json; add cases for missing/incorrect request Content-Type leading to 415 Unsupported Media Type; include Accept header behavior if applicable.",
+              "Resolve TC05 vs. spec: decide whether the response should include only newly created fields (per story) or all fields; update the test or acceptance criteria accordingly.",
+              "Clarify and test status for non-existent account (404 Not Found vs. 400 Bad Request) and align implementation/tests.",
+              "Add atomicity test with a mixed array (one invalid, others valid) to confirm the operation fails entirely and nothing is created.",
+              "Enhance TC20 to verify idempotency on retry: after retry, confirm only one set of fields exists for the account.",
+              "Add persistence checks: after 201, GET the account\u2019s custom fields and verify presence, values, and audit attributes (CreatedBy, Reason, Comment).",
+              "Add header validation tests: empty/whitespace-only CreatedBy should fail; test max lengths and allowed character sets for CreatedBy/Reason/Comment.",
+              "Introduce limits tests: max number of fields per request/account and case-insensitive duplicate names across requests should be enforced as per business rules.",
+              "Strengthen schema assertions on success: verify required fields from CustomField definition (ids, names, values, timestamps) and forbid unknown properties.",
+              "Define behavior for unexpected query parameters and add a test to enforce either rejection (400) or ignore-with-success, consistent with the API contract."
+            ],
+            "usage": {
+              "completion_tokens": 9002,
+              "prompt_tokens": 6650,
+              "total_tokens": 15652,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 8000,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

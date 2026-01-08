@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-13T08:59:23.468272",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:58:59.825672",
+    "benchmark_end_time": "2025-10-13T08:59:23.468267",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 23.642595,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "DELETE Method - Valid Deletion: Success paths verified for removing all tags, specific tags via tagDef, items with no tags, and behavior with extra params.",
+              "DELETE Method - Non-Existent Resource: 404 for missing invoice item is covered.",
+              "Authorization: 401 for invalid/expired token and 400 for missing required X-Killbill-CreatedBy header are covered.",
+              "Input Validation: Invalid invoiceItemId (non-UUID), malformed tagDef UUIDs, empty/partial tagDef inputs are covered with 400 responses.",
+              "Error Handling: Service unavailable (503) and integration partial failure handling (204/207) are covered; potential payload size issues (204/413) are considered.",
+              "Security/Hardening: Injection/XSS attempts in headers validated (400/422).",
+              "Query Parameters: Presence/absence of tagDef, subset selection, non-present tag IDs, and extra/unexpected query params covered.",
+              "Regression/Usability: Special characters in comments, empty response body expectations for 204 are covered."
+            ],
+            "gaps": [
+              "DELETE Method - Concurrency/Idempotency: No explicit test for race conditions where tags are deleted by another client between requests, or repeated DELETE calls being idempotent (e.g., second delete returns 204 and no side effects).",
+              "Soft Deletes/Auditing: No verification that audit entries are created with CreatedBy/Reason/Comment; soft-delete behavior (if applicable) not asserted.",
+              "Rate Limiting/Throttling: No tests for 429 or behavior under request bursts specific to this endpoint (distinct from general performance).",
+              "Response Headers: No assertions for headers on 204 responses (e.g., Content-Type absent or appropriate; no unexpected body; correlation/request-id headers if standard).",
+              "Collection Format \"multi\": No scenario verifying tagDef is correctly parsed when sent as repeated query params (tagDef=uuid1&tagDef=uuid2) per the specified collection format.",
+              "500 Internal Server Error: No simulation of generic server-side failure (e.g., DB exception) resulting in 500.",
+              "Authorization 403: No scenario for authenticated but unauthorized principal (e.g., lacking permission to modify tags).",
+              "Edge Cases: Duplicate tagDef values, mixture of valid and invalid tagDef values in the same request and expected outcome not covered."
+            ],
+            "recommendations": [
+              "Add concurrency/idempotency scenarios: two clients delete the same tags concurrently; verify consistent state and idempotent responses on repeat DELETE.",
+              "Verify auditing: after successful deletion, retrieve audit logs to confirm CreatedBy/Reason/Comment are recorded; add negative cases when Reason/Comment exceed allowed length.",
+              "Introduce rate limiting tests: burst of DELETE requests leading to 429 and proper Retry-After, distinct from performance timing.",
+              "Assert response headers for 204: ensure no Content-Type/body is returned (or consistent with API standards), and presence of any standard trace headers.",
+              "Add collectionFormat=multi test: send tagDef as repeated params (tagDef=uuid1&tagDef=uuid2) and validate only those tags are removed.",
+              "Include a 500 simulation: force backend failure to assert 500 error schema and stability.",
+              "Add 403 Forbidden test: user authenticated but without permission to remove tags.",
+              "Add edge-case tests: duplicate tagDef UUIDs handled gracefully; mixed valid/invalid UUIDs \u2013 define whether entire request fails (400) or partial removal occurs with clear error reporting."
+            ],
+            "usage": {
+              "completion_tokens": 1894,
+              "prompt_tokens": 5394,
+              "total_tokens": 7288,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

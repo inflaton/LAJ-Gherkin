@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-13T06:08:05.703797",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T06:06:03.589275",
+    "benchmark_end_time": "2025-10-13T06:08:05.703793",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 122.114518,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid deletion flows: TC01, TC02, TC03, TC04, TC05 and TC06 verify deletion of all fields, subsets, single field and no-field cases producing 204 and empty body.",
+              "Path parameter validation: TC07 and TC08 cover invalid UUID format (400) and invoice item not found (404).",
+              "Header handling: TC05, TC06, TC09 and TC20 exercise required X-Killbill-CreatedBy, optional X-Killbill-Reason and X-Killbill-Comment headers and header formatting edge cases.",
+              "Query parameter validation: TC02, TC10, TC12, TC17 and TC18 cover removal by id subset, malformed ids, large lists, mixed valid/invalid ids, and duplicate ids.",
+              "Edge cases and robustness: TC04, TC11, TC13, TC14, TC15 and TC16 cover no custom fields, extra query params, high load, dependent service unavailability, injection attempts, and long comment header.",
+              "Authentication: TC19 covers expired or invalid authentication token resulting in 401."
+            ],
+            "gaps": [
+              "Concurrency and race conditions: No tests simulate concurrent deletes or race conditions when multiple clients modify the same invoice item custom fields.",
+              "Idempotency: No explicit test that repeated identical DELETE calls are idempotent (same result and safe to repeat).",
+              "Collection format enforcement: Tests do not assert the supported collection format for customField (spec says collectionFormat multi); the suite does not check multi param form vs comma separated values.",
+              "Behavior for valid but not attached customField IDs: Missing tests to confirm behavior when provided UUIDs are syntactically valid but not present on the specified invoice item (should those be ignored, reported, or cause an error?).",
+              "Response headers and content negotiation: No assertions for Content-Type, Content-Length, or other response headers (the spec says produces application/json but tests do not validate headers, especially for 204 responses).",
+              "Audit and side effects: No tests verify that X-Killbill-CreatedBy, X-Killbill-Reason or X-Killbill-Comment are recorded in audit logs or change history.",
+              "Authorization scopes and permission errors: No tests for insufficient privileges returning 403 or for missing authentication token cases separate from header validation.",
+              "Boundary conditions and limits: TC12 covers large lists but there are no explicit tests for maximum query length, max allowed number of IDs, or header size limits for CreatedBy and Reason.",
+              "Malformed collection edge cases: No tests for empty customField values, trailing commas, URL encoded values, or other malformed multi-value encodings.",
+              "Soft delete semantics and history: No tests confirm whether deletion is soft or hard and how deleted custom fields appear in history endpoints or DB.",
+              "Server error coverage: Aside from service unavailable (503), there are no tests for 500 Internal Server Error or consistent error JSON schema.",
+              "Rate limiting and throttling: No tests for rate limiting behavior or handling of rapid repeated requests."
+            ],
+            "recommendations": [
+              "Add concurrency tests that perform overlapping DELETE requests (two clients removing overlapping custom fields) and verify final state, atomicity and correct response codes.",
+              "Add idempotency tests: issue the same DELETE twice (or more) and assert stable 204 responses and consistent state.",
+              "Add explicit tests for collectionFormat handling: verify multi form (customField=id1&customField=id2) works and test comma separated input to assert expected behavior; update spec if only one format is allowed.",
+              "Clarify and then test behavior when provided customField UUIDs are valid but not associated with the invoice item (define whether to ignore, warn, or error) and add tests accordingly.",
+              "Assert response headers: check Content-Type, Content-Length and ensure error responses are application/json with a consistent error schema; verify 204 responses contain no body and proper headers.",
+              "Add tests to verify that X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment are persisted to audit logs or change history if that is expected behavior.",
+              "Add authorization tests for missing token (401) and insufficient privileges (403), and distinguish these from missing X-Killbill-CreatedBy header validation.",
+              "Add boundary tests for maximum numbers of IDs, overall query length, and header length limits for CreatedBy, Reason and Comment (TC16 covers comment length but CreatedBy and Reason should also be tested).",
+              "Add malformed customField edge case tests: empty values, trailing commas, blank parameters, and URL encoding issues and assert appropriate 400/422 responses.",
+              "Add tests that verify soft vs hard delete semantics via GET or history endpoints after deletion, and confirm expected visibility of deleted custom fields.",
+              "Add server error handling tests (simulate 500 Internal Server Error) to validate graceful failure and error JSON schema.",
+              "Add rate limiting and throttling tests to ensure predictable behavior under repeated rapid requests and surface 429 or similar responses where applicable."
+            ],
+            "usage": {
+              "completion_tokens": 7316,
+              "prompt_tokens": 5523,
+              "total_tokens": 12839,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6272,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "36_2025-10-14T06:18:22.842530",
+    "jira_id": "36",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/allTags - Retrieve account tags",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:16:25.091051",
+    "benchmark_end_time": "2025-10-14T06:18:22.842525",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 117.751474,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "36_qe_sup-gpt4.1_agent-gpt4.1_1748918344.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: 200 OK for default call returning a JSON array of Tag objects; Tag schema asserted; Content-Type application/json validated.",
+              "Empty Response: Account with no tags returns 200 and an empty array.",
+              "Query Parameters (valid): objectType filter, includedDeleted flag, and audit levels (FULL, MINIMAL, NONE) covered, including combined usage and defaults (NONE, false).",
+              "Error Handling: 400 for malformed UUID and invalid audit value; 404 for non-existent account, empty DB, and soft-deleted account.",
+              "Authorization: 401 when token is missing/invalid.",
+              "Robustness: 503 downstream service unavailable and 504 timeout scenarios covered.",
+              "Security: SQL injection in accountId returns 400 without leaking internal details.",
+              "Performance and Concurrency: Large dataset performance and concurrent requests consistency validated.",
+              "Regression/Compatibility: Ensures deleted tags are included when requested (regression) and default behavior remains compatible.",
+              "Integration Consistency: After add/delete via related APIs, GET reflects changes."
+            ],
+            "gaps": [
+              "Pagination: No tests for pagination parameters or explicit confirmation it is not supported; only performance with large datasets is covered.",
+              "Caching Behavior: No validation of ETag/If-None-Match, Last-Modified/If-Modified-Since, Cache-Control, or 304 Not Modified responses.",
+              "Rate Limiting/Throttling: No scenarios for 429 Too Many Requests or related headers (Retry-After, rate limit headers).",
+              "Authorization breadth: No 403 Forbidden scenario for authenticated users lacking required permissions/roles.",
+              "Query Params (invalid/completeness): No tests for invalid objectType (unknown value, wrong case), invalid includedDeleted type (e.g., includedDeleted=yes/1), or repeated/multi-value objectType handling.",
+              "Filter edge case: objectType filter resulting in zero matches (but account has tags for other types) not validated (should return 200 with empty array).",
+              "Content negotiation: No tests for Accept header behavior (e.g., Accept: text/xml -> 406) or absence of Accept.",
+              "Schema depth: Tests say Tag conforms to schema but do not assert required fields presence/format (e.g., tagDefinitionId, objectId, objectType, active/deleted indicator, audit fields shape).",
+              "Result ordering: No guarantee or validation of deterministic ordering (e.g., by createdDate) across calls.",
+              "Scenario breadth vs. name: The \"all combinations\" scenario (TC06) exercises a single combination; not parameterized to cover more combinations or all objectType enum values."
+            ],
+            "recommendations": [
+              "If pagination is supported, add limit/offset tests including boundary values and link/next semantics; if not supported, add an explicit test and document non-paginated behavior with performance expectations.",
+              "Add caching tests: capture ETag/Last-Modified on first call, send conditional GET (If-None-Match/If-Modified-Since) to assert 304 and proper Cache-Control/Vary headers.",
+              "Add rate limiting scenarios: burst requests to trigger 429, validate Retry-After and any X-RateLimit-* headers.",
+              "Add 403 Forbidden test for an authenticated user lacking required scope/role to distinguish from 401.",
+              "Expand invalid parameter coverage: objectType with unknown/invalid value and wrong case; includedDeleted with non-boolean values; assert 400 with clear error body.",
+              "Add filter-empty-result test: valid objectType that has no tags for the account returns 200 with empty array.",
+              "Test Accept header negotiation: Accept: application/json returns 200; unacceptable media types (e.g., text/xml) return 406.",
+              "Strengthen schema assertions: explicitly validate required Tag fields, data types, and how deleted tags are represented (e.g., isActive=false or deleted flag); verify audit fields for FULL vs MINIMAL content.",
+              "Validate response ordering or document that ordering is unspecified; add a test for deterministic sort if defined.",
+              "Convert TC06 into a Scenario Outline to iterate key objectType enum values and combinations with includedDeleted and audit.",
+              "Optionally add a test for multiple/duplicate query params (e.g., repeated objectType) to confirm server behavior (first-wins vs 400)."
+            ],
+            "usage": {
+              "completion_tokens": 6217,
+              "prompt_tokens": 6025,
+              "total_tokens": 12242,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5312,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

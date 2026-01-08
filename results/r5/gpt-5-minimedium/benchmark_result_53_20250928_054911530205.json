@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "53_2025-09-28T05:49:11.530162",
+    "jira_id": "53",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/tags - Add tags to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:48:44.505426",
+    "benchmark_end_time": "2025-09-28T05:49:11.530156",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 27.02473,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "53_qe_sup-gpt4.1_agent-gpt4.1_1748919377.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: multiple scenarios (TC01, TC03, TC04, TC05, TC20) verify successful creation and persistence with valid inputs and headers.",
+              "Optional Headers: TC02 verifies X-Killbill-Reason and X-Killbill-Comment handling.",
+              "Single / Multiple / Empty payloads: TC03, TC04 and TC07 cover single, multiple, and empty-array payload behaviors.",
+              "Input Validation: malformed JSON, non-array body and invalid UUIDs are covered (TC10, TC11, TC12).",
+              "Required header validation: missing X-Killbill-CreatedBy is covered (TC13).",
+              "Bundle Id validation: invalid format and non-existent bundle ID are covered (TC08, TC09).",
+              "Duplicate / existing tags: TC06 and TC26 address adding already-assigned tags and preventing duplicate Tag objects in responses.",
+              "Error conditions: service unavailable, slow backend/timeout, payload too large, malformed input and injection are covered (TC17, TC22, TC21, TC10, TC18).",
+              "Authentication: unauthorized access (missing/invalid token) is covered (TC16).",
+              "Retry / transient failures: TC19 covers retry behavior after transient network failure.",
+              "Integration checks: post-then-get consistency and cross-service consistency are covered (TC27, TC28).",
+              "Performance: normal and peak load scenarios are included (TC24, TC25).",
+              "Extra headers and unsupported fields: TC23 and TC15 cover extra HTTP headers and extra fields in body respectively (asserting error for invalid extra fields).",
+              "Accessibility: API documentation accessibility is considered (TC29)."
+            ],
+            "gaps": [
+              "General 5xx server error handling: there is a 503 (TC17) and 504 (TC22) but no explicit test for a generic 500 Internal Server Error path or behavior when unexpected server errors occur.",
+              "Authorization/Permissions granularity: tests cover missing/invalid auth token (401) but do not cover insufficient permissions / forbidden (403) scenarios (e.g., authenticated user lacking required role).",
+              "Concurrency and race conditions: while TC25 stresses concurrent requests for performance, there are no focused tests for correctness under race (e.g., two concurrent requests adding the same tag causing duplicates or partial failures).",
+              "Idempotency and duplicate-submission semantics: TC19 and TC26 touch retry/duplicate tag behavior but there is no explicit test for repeated identical POSTs (idempotency expectations) and their exact response semantics.",
+              "Partial failure / atomicity: no test verifies atomic behavior when payload contains both valid and non-existent/invalid tagDefinitionIds (should be fully rejected or partially applied per contract).",
+              "Response schema and headers validation: tests assert Tag objects and status codes but do not validate full Tag schema (all fields, types) or HTTP response headers like Content-Type, Location, ETag, or cache headers.",
+              "Rate limiting / throttling: no tests cover API rate-limiting behavior or throttling responses (429).",
+              "Payload content constraints: tests for invalid content beyond UUID format (e.g., extremely long UUID-like strings, duplicate UUIDs inside same request body) are missing.",
+              "Error-code contract checks: some API contracts return different status codes for resource-not-found (e.g., 404 vs 400); tests do not assert compliance with broader API spec variations."
+            ],
+            "recommendations": [
+              "Add a 500 Internal Server Error test (simulate unexpected backend exception) to verify server-side error handling and generic error payload format.",
+              "Add authorization/permission tests that exercise authenticated-but-forbidden users to confirm 403 responses and correct error messages.",
+              "Add focused concurrency/race-condition tests: e.g., two concurrent POSTs adding overlapping tag sets to the same bundle and assert no duplicate Tag records and consistent final state.",
+              "Add idempotency/duplicate-submission tests: send the same POST twice (or repeated identical retries) and assert expected behavior (no duplicate resources) and stable responses.",
+              "Add atomicity tests for mixed-validity payloads: include both valid and non-existent/invalid tagDefinitionIds in one request and assert whether operation is all-or-nothing per contract.",
+              "Validate response headers and full Tag schema: assert Content-Type, and verify all expected Tag fields (IDs, createdBy, createdDate, etc.) and their types/values.",
+              "Add rate-limiting tests (429) and throttling scenarios to ensure graceful handling under abuse or policy limits.",
+              "Add tests for duplicate UUIDs inside the same request body and for unusual but valid/invalid payload edge cases (very long strings, boundary sizes) beyond count-based payload size tests.",
+              "If the API contract allows alternative error codes (e.g., 404 for not-found), add tests to assert the exact expected error codes and messages to prevent ambiguity."
+            ],
+            "usage": {
+              "completion_tokens": 2234,
+              "prompt_tokens": 6808,
+              "total_tokens": 9042,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

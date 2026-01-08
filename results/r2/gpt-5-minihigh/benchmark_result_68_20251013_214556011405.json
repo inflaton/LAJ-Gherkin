@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "68_2025-10-13T21:45:56.011366",
+    "jira_id": "68",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/xml - Upload the full catalog as XML",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T21:44:08.915424",
+    "benchmark_end_time": "2025-10-13T21:45:56.011360",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 107.095936,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "68_qe_sup-gpt4.1_agent-gpt4.1_1748920401.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid payloads: Multiple success scenarios (TC01, TC02, TC03, TC04, TC05, TC13, TC24, TC28-TC31) verify that well-formed XML uploads create a new catalog version and return 201 with a confirmation string/URI.",
+              "Header validation: Required/optional header handling is covered (TC01-TC03 for correct usage; TC06 and TC07 for missing/empty X-Killbill-CreatedBy).",
+              "Malformed/invalid body handling: Malformed XML, partial/corrupted payloads, whitespace-only payloads and empty bodies are tested (TC08, TC09, TC18, TC23) and expected to return 400.",
+              "Content-Type negative test and encodings: Unsupported content-type is tested (TC10); different encodings (UTF-8, UTF-16) are exercised (TC29).",
+              "Large payloads and boundary values: Very large payload and boundary-field tests are present (TC12, TC30).",
+              "Duplicate/edge-case behavior acknowledged: Duplicate-version behavior is exercised (TC25) though allowed outcome is left open to implementation.",
+              "Authentication and authorization: Invalid/missing auth is tested (TC14) to assert 401/403 responses.",
+              "Resilience and error propagation: Network interruption and backend-unavailable scenarios are included (TC15, TC16) to verify no partial processing and 503 behavior.",
+              "Security checks: Uploads containing unsafe/malicious content (e.g., XXE) are covered (TC17).",
+              "Performance and concurrency: Basic performance and concurrent upload scenarios are included (TC19, TC20).",
+              "Extra inputs tolerance: Extra headers, unexpected query params, comments/CDATA, large whitespace and special characters are covered (TC11, TC26, TC27, TC28, TC24).",
+              "Location and response verification: Several scenarios assert the presence of Location header and that the response body contains a confirmation string/URI (TC01, TC02)."
+            ],
+            "gaps": [
+              "Schema/semantic validation: There are no explicit tests that validate catalog semantics \u2014 i.e., well-formed XML that violates the catalog schema (missing required catalog elements, invalid field types/ranges, invalid dates) is not covered.",
+              "Deterministic duplicate behavior: TC25 allows either 201 or 409; the suite does not assert a single, deterministic expected behavior for duplicate-version submissions nor enforce a contract for idempotency.",
+              "Content-Type permutations & charset handling: Positive tests for acceptable variants (application/xml, text/xml with charset params, application/xml; charset=) are missing \u2014 only a negative application/json test exists. No tests assert the correct handling of charset mismatches between Content-Type and XML prolog.",
+              "Response content-type and body format: Tests assert a confirmation string/URI presence but do not verify the produced response Content-Type (text/plain vs application/json) or the canonical format of the confirmation payload.",
+              "Location header correctness & reachability: Presence of Location is asserted, but no tests validate that the Location URL actually resolves to the uploaded resource or that the GET on Location returns expected catalog content and metadata.",
+              "Internal server errors & rollback semantics: There is no explicit simulation of 500 Internal Server Error conditions (e.g., DB failure) and verification that partial writes are rolled back and proper 500 responses are returned.",
+              "Concurrency conflict on same-version uploads: While there are concurrent load tests, there is no focused test for race conditions where two clients try to create the same catalog version concurrently and for verifying consistent outcome/locking behavior.",
+              "Audit/persistence of header metadata: Tests do not verify that X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment are persisted with the catalog or exposed in the created resource metadata.",
+              "Rate limiting / throttling: No tests exercise API rate limits (e.g., >threshold requests leading to 429) or verify backoff/throttling behavior.",
+              "Status-code specificity: Several scenarios accept multiple possible status codes (e.g., TC12, TC25); the suite lacks assertions aligned to a single API contract for specific error codes such as 415 (Unsupported Media Type) vs 400/422."
+            ],
+            "recommendations": [
+              "Add schema-level validation tests: upload well-formed XML that violates catalog schema (missing products, invalid price formats, out-of-range numbers, bad dates) and assert specific error responses (400/422) with clear messages.",
+              "Decide and codify duplicate-version behavior: agree the expected behavior (e.g., 409 Conflict or idempotent 201) and add deterministic tests, including repeat submission and concurrent-duplicate tests to assert that contract.",
+              "Expand Content-Type tests: add positive tests for application/xml, text/xml with charset params, and explicit tests for charset mismatches between Content-Type and XML prolog; assert the exact expected status (201 or 415) per API contract.",
+              "Assert response format and Location correctness: verify response Content-Type, validate the confirmation payload format, and perform a GET against the Location header to assert the created catalog matches the uploaded XML and contains persisted metadata.",
+              "Simulate internal server errors and rollback: add tests that mock DB failures or exceptions to verify 500 responses and ensure no partial catalog versions are stored (transactional rollback).",
+              "Add focused concurrency/race tests: run concurrent uploads of the same version and assert consistency (locking, single creation, or deterministic conflict).",
+              "Verify audit persistence: after successful upload, GET the created resource and assert X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment are stored in the catalog metadata and available via API/audit logs.",
+              "Introduce rate-limiting tests: spike request rates to validate throttling (429) and measure behavior under abuse conditions.",
+              "Tighten status-code assertions: align tests to the formal API specification (decide expected codes for unsupported media type, unprocessable entity, duplicates) and remove ambiguous \"201 or 409 / 201 or 400\" expectations so tests are deterministic and actionable.",
+              "Add negative header boundary tests: very-long CreatedBy values, invalid characters, and header-injection attempts to verify header validation and guardrails."
+            ],
+            "usage": {
+              "completion_tokens": 6747,
+              "prompt_tokens": 6351,
+              "total_tokens": 13098,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5440,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

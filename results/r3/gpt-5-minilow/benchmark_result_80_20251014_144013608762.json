@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-10-14T14:40:13.608732",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:39:15.328410",
+    "benchmark_end_time": "2025-10-14T14:40:13.608727",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 58.280317,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Many scenarios (TC01, TC02, TC03, TC04, TC05, TC06, TC07, TC26, TC27, TC31) validate successful creation of single/multiple credits, optional headers, plugin properties, autoCommit and invoice-specific adjustments.",
+              "Invalid Payload / Validation: Scenarios for malformed JSON, missing required fields, unsupported currency, invalid accountId format, invalid pluginProperty, empty body cover typical validation errors (TC11, TC12, TC14, TC15, TC16, TC21).",
+              "Authentication / Authorization: Authorization and permission errors are covered (TC18) and presence-of-required-header validation is covered (TC10).",
+              "Not Found Errors: Missing account and missing invoice cases are covered (TC08, TC09).",
+              "Integration and Plugin Behavior: Plugin unavailable/returns error scenarios are present (TC28, TC29) and pluginProperty passing is covered (TC05).",
+              "Idempotency / Duplicate Submission: Regression test for duplicate/retry behavior is present (TC30).",
+              "Edge Conditions & Limits: Large payload, max items, timeout and payload-too-large are present (TC23, TC24, TC25) and extra unexpected fields handling is present (TC22).",
+              "Security: SQL injection and XSS attempts are explicitly tested (TC19, TC20).",
+              "Performance and Load: Response-time and resource utilization under normal/peak/stress are included (TC32, TC33, TC34).",
+              "Response semantics: Success response code (201), Location header, and response body expectations are covered in success scenarios (TC01\u2013TC07)."
+            ],
+            "gaps": [
+              "Server-side 5xx error handling: No explicit test that simulates internal server errors (e.g., DB failure) and verifies 500 response and safe failure modes (guideline: Server Error Handling for POST).",
+              "Content-Type and Accept header handling: Tests do not explicitly validate Content-Type enforcement (application/json) or behavior when Accept is missing/unsupported.",
+              "401 Unauthorized vs 403 Forbidden: There is TC18 for insufficient permissions (403) but no explicit test for unauthenticated requests (401).",
+              "Partial-failure transactional behavior for multi-item requests: No scenario where a multi-item request contains a mix of valid and invalid items to verify atomicity vs partial success semantics.",
+              "Concurrency-related race conditions: While performance is covered, there are no functional concurrency tests for race conditions (e.g., two concurrent requests adjusting the same invoice leading to balance/invoice conflicts).",
+              "Idempotency details: TC30 checks duplicates on retry but does not specify idempotency keys or behavior with network repeats vs unique identifiers\u2014missing explicit idempotency-key behavior tests.",
+              "Schema-level validation for InvoiceItem fields beyond required presence: No tests for invalid enum values for itemType, invalid negative/scale of decimal precision, or invalid date formats if applicable.",
+              "Internationalization/currency edge-cases: Tests do not validate currency precision/rounding, cross-currency attempts, or supported currency list beyond \u201cunsupported currency\u201d negative case.",
+              "Response headers beyond Location: No tests for other useful headers (e.g., content-length, caching headers) though caching is less relevant for POST."
+            ],
+            "recommendations": [
+              "Add a 500 Internal Server Error simulation (e.g., mock DB failure) to verify safe error responses and that partial side-effects are handled or rolled back.",
+              "Add tests that assert Content-Type: application/json is required and behavior when missing or incorrect (415 Unsupported Media Type or 400).",
+              "Add an unauthenticated scenario to verify 401 vs 403 behavior for missing/expired credentials.",
+              "Introduce transactional/partial-failure tests for multi-item requests: create a request where one item is invalid and assert whether the whole request is rejected or partially applied\u2014document expected behavior.",
+              "Add concurrency tests that perform concurrent adjustments to the same invoice/account to detect race conditions and ensure balances remain consistent.",
+              "Clarify and test idempotency semantics: if idempotency keys are supported, add tests for repeated submissions with the same key and different payloads; if not, document expectation and add tests accordingly.",
+              "Expand schema validation tests: include invalid itemType enum, out-of-range amounts, excessive decimal precision, and invalid date formats for any date fields.",
+              "Add currency precision and cross-currency tests: validate rounding/precision and behavior when currency conversion would be required or unsupported currencies are passed.",
+              "Add server-side rate limiting / throttling tests (guideline: Rate Limiting) to verify 429 behavior under abusive request rates; useful for POST endpoints as well.",
+              "Add a test that asserts the API rejects or sanitizes dangerous header values (reason/comment) and stored/displayed values are safe (extend TC20 with assertions on stored data)."
+            ],
+            "usage": {
+              "completion_tokens": 1208,
+              "prompt_tokens": 8287,
+              "total_tokens": 9495,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

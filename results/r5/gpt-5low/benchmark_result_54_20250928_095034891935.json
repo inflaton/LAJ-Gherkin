@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-09-28T09:50:34.891898",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:49:43.364630",
+    "benchmark_end_time": "2025-09-28T09:50:34.891894",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 51.527264,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Method - Valid Deletion: Happy paths covered for removing all tags, specific tags, empty array, and when bundle has no tags (TC01, TC02, TC03, TC04, TC12, TC16, TC17).",
+              "DELETE Method - Non-Existent Resource: 404 for non-existent bundleId (TC06).",
+              "DELETE Method - Concurrency: Concurrent DELETEs verified with no corruption (TC15).",
+              "Header Validation: Required X-Killbill-CreatedBy enforced; optional headers exercised; malicious header values validated (TC03, TC08, TC14).",
+              "Query Parameters Validation: tagDef optional, multi-value handling, very large list, invalid UUIDs, mixed validity, and unexpected params exercised (TC01, TC02, TC07, TC11, TC12, TC13, TC16).",
+              "Error Handling: 400 invalid bundleId/tagDef, 401 unauthorized, 404 not found, 503 service unavailable, potential 504 timeout (TC05, TC07, TC09, TC06, TC10, TC18).",
+              "Integration/Data Consistency: Post-delete verification via GET checks remaining tags (TC17)."
+            ],
+            "gaps": [
+              "DELETE Method - Soft Deletes: No test verifies whether removals are soft vs. hard delete (e.g., audit/status flags, recoverability).",
+              "Idempotency: No scenario verifying repeated DELETEs on the same tags/bundle return consistent 204 and cause no side effects.",
+              "Deletion of Non-Associated Tags: No test for valid tagDef UUIDs that are not currently on the bundle (should be a no-op with 204).",
+              "Duplicate tagDef Parameters: Behavior not tested when the same tagDef is provided multiple times.",
+              "Authorization Depth: 403 forbidden (authenticated but not authorized) is not covered; only 401 unauthorized is tested.",
+              "Response Headers/Content Negotiation: No checks for Content-Type on 204 (often none) and for error responses producing application/json per spec; no validation of error schema/body shape.",
+              "Audit/History: No verification that CreatedBy/Reason/Comment are recorded in audit logs/history.",
+              "Rate Limiting/Throttling: No scenarios for 429 or similar when many requests occur in a short time (distinct from concurrency).",
+              "Input Boundary Conditions: No tests for extremely long header values, empty strings (e.g., CreatedBy=\"\"), or maximum URL/query length handling.",
+              "Security/NFR: No test for method not allowed (405) on this path for other verbs, or for TLS/redirect expectations (if applicable)."
+            ],
+            "recommendations": [
+              "Add a test to determine and assert soft vs. hard delete behavior (e.g., verify audit trail and that tags are not simply flagged, if applicable).",
+              "Add idempotency scenarios: repeat DELETE with the same tagDef list and with no tags remaining; expect 204 and no changes.",
+              "Add a scenario where tagDef includes valid UUIDs not attached to the bundle; expect 204 and no errors (no-op).",
+              "Test duplicate tagDef entries in the query to confirm deduplication or defined behavior.",
+              "Expand authorization tests to include 403 Forbidden for authenticated users lacking required permissions.",
+              "Validate response headers: ensure 204 has no body and appropriate headers; verify error responses are application/json and follow the standard error schema.",
+              "Introduce an audit verification step to assert CreatedBy/Reason/Comment are persisted in audit/history endpoints.",
+              "Add rate limiting tests to verify 429 Too Many Requests (if implemented) or system behavior under burst traffic.",
+              "Add boundary tests for headers (empty string, overly long values, non-UTF8) and URL/query length limits.",
+              "Optionally, add a negative test for unsupported methods (e.g., POST/PUT on the same path returns 405) to harden the contract."
+            ],
+            "usage": {
+              "completion_tokens": 2043,
+              "prompt_tokens": 4976,
+              "total_tokens": 7019,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

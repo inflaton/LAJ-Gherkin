@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-10-15T00:00:40.284709",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T23:58:01.523470",
+    "benchmark_end_time": "2025-10-15T00:00:40.284705",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 93,
+    "average_generation_time_seconds": 158.761235,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 93,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 93,
+            "covered": [
+              "DELETE/Valid Deletion: Success paths are well covered, including delete-all when customField is omitted (TC01, TC04, TC18), delete-specific via collectionFormat=multi (TC02), handling duplicates (TC14), large batches (TC13), idempotency for repeated deletes (TC15), and verification via follow-up GET showing removal (TC01, TC02, TC04).",
+              "DELETE/Non-Existent Resource: Deleting for a valid-but-missing account returns 204 no-op (TC06), and repeated deletion of already-deleted fields remains 204 (TC15).",
+              "DELETE/Concurrency: High concurrency under load with performance checks (TC16) and timeout behavior ensuring no partial completion (TC12).",
+              "Validation and Error Handling: Invalid accountId format (TC05), invalid customField UUIDs (TC08), missing required X-Killbill-CreatedBy (TC07), backend failure (TC11), and unauthorized access (401/403) (TC10) are covered.",
+              "Security Hardening: SQL injection in path (TC19) and XSS attempt in query param (TC20) return 400.",
+              "Headers: Required X-Killbill-CreatedBy enforced (TC01, TC07); optional X-Killbill-Reason and X-Killbill-Comment accepted (TC03).",
+              "Query Parameter Semantics: Multi-valued customField confirmed (TC02) and duplicates tolerated without error (TC14).",
+              "Integration/State Verification: Post-deletion state is validated within the system and across dependent services (TC01, TC02, TC04, TC17)."
+            ],
+            "gaps": [
+              "DELETE/Soft Deletes: No scenario verifies whether deletion is soft vs hard. If soft deletes exist, tests should assert audit trail and soft-deleted state rather than physical removal.",
+              "Mixed Validity Set: Behavior when some customField IDs are valid/existing and others are valid UUIDs but non-existent is not tested (all-or-nothing vs partial success).",
+              "Ownership Constraints: Not tested whether customField IDs that belong to a different account are rejected or ignored (authorization/consistency gap).",
+              "Cross-Actor Concurrency: No scenario where concurrent deletes are issued by different users; does not assert correct attribution of CreatedBy and consistent outcomes across actors.",
+              "Error Response Contract: Negative scenarios only assert presence of an error message; they do not validate error schema/fields (e.g., code, message, type) or content type for errors.",
+              "Response Headers on 204: Story states produces application/json; tests don\u2019t assert header behavior for 204 (e.g., absence of body, Content-Type handling) or standard headers for error cases (e.g., Retry-After on 503/504 if applicable).",
+              "Unsupported Query Parameters: TC09 assumes extra params are ignored with 204, but expected behavior is unspecified; this should be clarified and asserted per spec.",
+              "CreatedBy Value Validation: No test for invalid CreatedBy values (e.g., empty string/whitespace, overly long) despite being required."
+            ],
+            "recommendations": [
+              "Add soft-delete/audit scenarios: After DELETE, verify audit history captures X-Killbill-CreatedBy/Reason/Comment and whether records are soft-deleted vs permanently removed (if applicable).",
+              "Add mixed-ID transactional behavior: Provide one existing and one non-existent (but valid UUID) customField; assert expected outcome (400 with no changes vs 204 ignoring unknown IDs) and verify no partial deletion.",
+              "Add ownership tests: Attempt to delete customField IDs that belong to a different account; assert correct error code or ignore policy per spec.",
+              "Add cross-user concurrency: Run concurrent DELETEs from two different users; assert both results (likely 204) and that audit CreatedBy attribution reflects the actual request that performed the deletion.",
+              "Verify error response contract: Assert consistent error JSON schema (fields like code, message), and Content-Type for error responses.",
+              "Verify 204 header semantics: Assert empty body and expected header behavior for 204 responses; document whether Content-Type is omitted on 204 and ensure consistency.",
+              "Clarify and codify behavior for unsupported query parameters: If they should be rejected, change TC09 to expect 400; if tolerated, assert they are ignored without side effects.",
+              "Add CreatedBy value validation tests: empty string, whitespace-only, and overly long values should return 400 with a clear validation error."
+            ],
+            "usage": {
+              "completion_tokens": 7345,
+              "prompt_tokens": 5440,
+              "total_tokens": 12785,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

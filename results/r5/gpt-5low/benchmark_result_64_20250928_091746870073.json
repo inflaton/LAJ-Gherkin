@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-09-28T09:17:46.870048",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:16:40.104913",
+    "benchmark_end_time": "2025-09-28T09:17:46.870044",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 66.765131,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT > Valid Request: Multiple successful resume scenarios (with/without optional headers and query params) returning 204.",
+              "PUT > Non-Existing Resource: 404 when bundle not found (empty DB) covered.",
+              "PUT > Concurrency Issues: Concurrent requests scenario validates first success and subsequent 400/409.",
+              "Validation: Invalid bundleId format -> 400; missing required header -> 400; invalid state (active/cancelled) -> 400.",
+              "Query Parameters: requestedDate valid future date; requestedDate in past -> 400; pluginProperty valid multi values; invalid type -> 400; extra param ignored.",
+              "Optional Headers: Reason/Comment captured and audited.",
+              "Authorization: Unauthorized/forbidden access path tested (401/403).",
+              "Robustness/Resilience: System error (500), plugin service degraded (204/504), retry after transient failure.",
+              "Security: SQL injection attempt and XSS handling scenarios.",
+              "Performance/Stress: Load test and large number of pluginProperty values boundary.",
+              "Backward compatibility and regression scenarios included.",
+              "Data-state effects: Verifies bundle and contained subscriptions resume as expected."
+            ],
+            "gaps": [
+              "PUT > Partial Update: Endpoint has no body; no test that sending a request body is rejected/ignored (e.g., 400/415 or ignored).",
+              "Non-Existing Resource (normal DB state): No explicit test for random non-existent bundleId when other bundles exist (distinct from empty DB).",
+              "requestedDate format validation: No test for invalid date format, timezone handling (e.g., RFC 3339/ISO-8601), or boundary like today/current time.",
+              "Response semantics for 204: No assertion that response body is empty and headers (e.g., Content-Type) are appropriate for 204.",
+              "Idempotency: No scenario verifying that repeating the same valid resume request remains safe/no additional side-effects (e.g., second identical call behavior).",
+              "Header handling: No test for header name case-insensitivity and trimming/normalization beyond value whitespace; no test for excessively long or invalid unicode in headers beyond max-length happy path.",
+              "pluginProperty edge cases: No tests for duplicate keys, URL-encoded values, empty strings, or invalid collectionFormat (multi) semantics.",
+              "404 vs 400 differentiation: No explicit scenario for well-formed but unknown UUID returning 404 (separate from invalid format 400).",
+              "Audit/traceability: No test verifying audit entries on failure cases (e.g., 400/404/500) record CreatedBy/Reason/Comment appropriately or are omitted."
+            ],
+            "recommendations": [
+              "Add a test: sending a non-empty JSON body with the PUT returns 400/415 or is ignored with 204, and verify no unintended updates (Partial Update rule).",
+              "Add a test: well-formed random UUID that does not exist (with other bundles present) returns 404 and includes clear not-found message.",
+              "Add tests for requestedDate formats: invalid string, timezone offsets (Z, +05:30), boundary of now/today, and far-future dates; verify server validation rules.",
+              "Assert 204 semantics: verify no response body and appropriate headers (e.g., no Content-Type or correct one), and that application/json is not misleading for 204.",
+              "Add idempotency scenario: repeat the exact same valid request (same bundleId, same requestedDate) and assert stable behavior (204 first, 400/409 or idempotent 204 second) per design.",
+              "Add header robustness: vary header name casing, include leading/trailing spaces around header names/values, test unicode/emoji and invalid byte sequences; ensure proper rejection or normalization.",
+              "Extend pluginProperty tests: duplicate keys, URL-encoded values, empty entries, very long single value, and ensure multi-value parsing per collectionFormat=multi.",
+              "Separate tests to explicitly distinguish 400 (invalid UUID format) vs 404 (unknown UUID valid format) expectations.",
+              "Add audit log checks on error paths: verify presence/absence and correctness of CreatedBy/Reason/Comment in audit for 4xx/5xx outcomes."
+            ],
+            "usage": {
+              "completion_tokens": 1969,
+              "prompt_tokens": 6265,
+              "total_tokens": 8234,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

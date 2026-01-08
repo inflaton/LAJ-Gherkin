@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-14T06:16:25.090538",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:13:27.140505",
+    "benchmark_end_time": "2025-10-14T06:16:25.090534",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 177.950029,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Deletion: Success paths covered for invalidating all caches (no cacheName) and a specific cache (returns 204, empty body) \u2014 TC01, TC02.",
+              "Non-Existent Resource: 400 error when cache does not exist or is not alive \u2014 TC03, TC04.",
+              "Optional query parameter behavior: With and without cacheName, and ignoring unsupported params \u2014 TC01, TC02, TC09.",
+              "Error handling beyond AC: Unauthorized (401/403) and server error (500) flows validated \u2014 TC06, TC07.",
+              "Edge-case input validation: Empty, oversized, special characters, mixed case, and regression formats produce 400 with no side effects \u2014 TC05, TC10, TC11, TC12, TC15.",
+              "No caches present: Still returns 204 with empty body \u2014 TC08.",
+              "Concurrency: Multiple simultaneous DELETE requests remain stable and return 204 \u2014 TC14.",
+              "Performance: Large-scale invalidation completes within acceptable time \u2014 TC13."
+            ],
+            "gaps": [
+              "Response headers/schema: Not validating 'Produces: application/json' claim, Content-Type on error responses, and ensuring 204 has no Content-Type/body.",
+              "Idempotency: No explicit scenario proving repeated sequential calls (same target) remain safe and return consistent 204.",
+              "Concurrency for named cache: No tests for concurrent invalidation of the same specific cacheName or mixed 'all caches' vs 'specific' requests.",
+              "Soft-delete semantics adapted for caches: No validation that caches are cleared but not removed and repopulate on next access.",
+              "Parameter normalization: No tests for trimmed/whitespace-only names, percent-decoding nuances, or Unicode cache names.",
+              "Multi-valued query parameter: Behavior not defined/tested when cacheName appears multiple times (e.g., cacheName=a&cacheName=b).",
+              "URL length/limits: No boundary test clarifying expected behavior for excessively long query strings (e.g., 414 vs 400).",
+              "Error body contract: Not asserting standardized error schema/fields (e.g., code, message) for 400/401/500 responses.",
+              "Case-sensitivity ambiguity: TC12 is conditional ('if case-sensitive'); spec and test should be deterministic."
+            ],
+            "recommendations": [
+              "Add header and body assertions: For 204 ensure empty body and appropriate headers; for errors ensure Content-Type: application/json and validate error schema.",
+              "Add idempotency scenarios: Repeat DELETE for the same cache and for 'all caches' sequentially; responses should remain 204 with no adverse effects.",
+              "Extend concurrency tests: Concurrent invalidation of the same named cache and mixed 'all caches' + 'specific cache' requests to verify ordering/locking behavior.",
+              "Validate cache semantics post-invalidation: Confirm caches still exist and repopulate on the next read (e.g., verify a dependent GET warms the cache).",
+              "Expand input normalization coverage: Whitespace-only and trimmed names, percent-encoded inputs, and Unicode cache names; define and assert expected outcomes.",
+              "Test multi-valued cacheName handling: Verify API either rejects with 400 or defines precedence when cacheName is repeated.",
+              "Add URL length boundary tests: Define expected status (400 vs 414) and validate for extreme query lengths.",
+              "Clarify and codify case sensitivity: Update the spec to state case rules and make TC12 assert a single expected outcome."
+            ],
+            "usage": {
+              "completion_tokens": 7873,
+              "prompt_tokens": 3739,
+              "total_tokens": 11612,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

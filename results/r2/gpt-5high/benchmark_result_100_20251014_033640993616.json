@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-14T03:36:40.993588",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T03:34:07.427348",
+    "benchmark_end_time": "2025-10-14T03:36:40.993583",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 153.566235,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "DELETE Method - Valid Deletion: Success paths covered for removing all custom fields (no query param) and removing specific fields via multi-valued customField parameter, returning 204 with empty body (TC01, TC02, TC03, TC04, TC06, TC07, TC10, TC15, TC19, TC20, TC21, TC23).",
+              "DELETE Method - Non-Existent Resource: 404 when paymentId does not exist (TC09).",
+              "Story-required validation: 400 for invalid paymentId format (TC08).",
+              "Query parameter semantics: Optional customField param behavior (remove all when absent) verified; multi format with repeated keys verified; boundary counts for few/many IDs covered (TC01, TC02, TC06, TC07, TC15).",
+              "Header requirements: Required X-Killbill-CreatedBy enforced (400 when missing) and optional X-Killbill-Reason/Comment accepted (TC03, TC11).",
+              "Invalid customField ID handling: 400 for malformed UUIDs and for mixed valid/invalid values (TC13, TC16).",
+              "Security hardening: XSS in header and SQL injection-like input in query rejected (TC17, TC18).",
+              "Authorization: 401 for invalid/unauthenticated token (TC12).",
+              "Resilience/ops: Service unavailable (503) and performance under load scenarios included (TC14, TC19).",
+              "Integration: Audit log presence/unavailability scenarios included (TC21, TC22)."
+            ],
+            "gaps": [
+              "DELETE Method - Concurrency: No scenarios for race conditions or idempotency under concurrent deletes (e.g., two clients deleting same fields simultaneously or rapid repeated DELETEs).",
+              "DELETE Method - Soft Deletes: No explicit validation of soft-delete behavior vs hard delete. If soft delete is expected, there is no check for a deleted flag or retrieval semantics post-delete.",
+              "Idempotency on repeat: No scenario calling the same DELETE twice to confirm stable 204 and no side effects on subsequent calls.",
+              "Duplicate IDs in query: No test where the same customField UUID is repeated to ensure deduplication/consistent behavior.",
+              "Mixed existence with valid UUIDs: No scenario where one UUID exists and another is a well-formed but non-existent UUID to define partial-success behavior (delete what exists and ignore unknown vs fail).",
+              "Empty/blank query values: No test for customField= (empty), whitespace-only value, or missing value after the equals sign to confirm 400 vs ignore.",
+              "Response headers: Story states Produces: application/json, but there is no check for response headers on 204 (e.g., Content-Type presence/absence and correctness for a no-body response).",
+              "Authorization 403: No scenario for authenticated user lacking permissions (forbidden) vs unauthenticated (401).",
+              "Unexpected request body: Request Body is N/A; no test sending a body to confirm it is rejected (e.g., 415/400) or ignored per API contract.",
+              "Server error handling: No simulated 500/Internal Server Error path (e.g., DB failure) to ensure robust error mapping."
+            ],
+            "recommendations": [
+              "Add concurrency/idempotency tests: fire two parallel DELETEs on the same payment custom fields; assert both return 204 and state ends consistent. Add a repeat-delete scenario to verify idempotency.",
+              "Clarify and test soft-delete vs hard-delete: if soft delete applies, verify deleted flag/audit visibility; if hard delete, assert subsequent GET of custom fields returns none with no residual markers.",
+              "Add a test with duplicate customField UUIDs in the query to validate deduplication/consistent results.",
+              "Add a mixed-validity existence test using well-formed UUIDs where some exist and some do not (define expected behavior: ignore unknowns and succeed vs fail with 400).",
+              "Add validation for empty/blank customField values (customField= and whitespace) to ensure proper 400 responses.",
+              "Verify response headers on 204: assert no body and Content-Type behavior is correct per API (often absent for 204), or align with Produces contract.",
+              "Add a 403 Forbidden scenario for an authenticated but unauthorized principal to distinguish from 401.",
+              "Add a test that includes an unintended request body to ensure the API rejects (415/400) or ignores it, matching documentation.",
+              "Include a negative path simulating backend failure to confirm 500 error handling and stable contract."
+            ],
+            "usage": {
+              "completion_tokens": 6907,
+              "prompt_tokens": 6120,
+              "total_tokens": 13027,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5952,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

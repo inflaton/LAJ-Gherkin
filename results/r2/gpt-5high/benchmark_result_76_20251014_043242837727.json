@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-10-14T04:32:42.837697",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T04:29:36.469959",
+    "benchmark_end_time": "2025-10-14T04:32:42.837691",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 186.367732,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: TC01 covers retrieval with both subscriptionId and requestedDate; TC02/TC19 cover retrieval with only subscriptionId (current product). TC01 also verifies Content-Type and basic schema.",
+              "Empty Response/Not Found: TC05 (subscription not found 404), TC11 (empty DB 404), TC13 (date before start 404) address no-data scenarios.",
+              "Query Parameters: TC01\u2013TC04, TC06, TC08, TC14 exercise combinations (both present, one missing, both missing), invalid formats (date, UUID), and unexpected parameters.",
+              "Authorization: TC09 verifies 401 for missing/invalid authentication.",
+              "System/Dependency Failures: TC10 (503 service down) and TC21 (502/503 downstream failure) cover upstream errors.",
+              "Security/Validation Hardening: TC16 (SQL injection) and TC17 (XSS) ensure inputs are sanitized and errors are generic.",
+              "Performance/Load: TC15 and TC20 validate behavior and response time under load.",
+              "Regression/Boundary: TC18 validates boundary-date correctness; TC12 exercises future-date behavior (though expectations are not fixed).",
+              "Produces JSON: TC01 asserts application/json responses; Product schema is referenced for validation.",
+              "Pagination: Not applicable to this single-resource endpoint (no collections)."
+            ],
+            "gaps": [
+              "Caching Behavior: No tests for ETag/Last-Modified/Cache-Control or conditional GET (If-None-Match/If-Modified-Since -> 304).",
+              "Rate Limiting/Throttling: No scenarios to trigger and assert 429 with Retry-After under burst traffic.",
+              "Authorization Completeness: No 403 Forbidden case for valid token without permission/tenant isolation.",
+              "Ambiguous Outcomes: TC03, TC04, TC12, TC14 allow \u201c200 or error\u201d; acceptance must be deterministic and aligned to requirements.",
+              "Error Payload Schema: No consistent validation of error response structure/headers across 4xx/5xx responses.",
+              "Parameter Edge Cases: Missing tests for blank/whitespace subscriptionId, overly long values, and tricky date values (e.g., 2021-02-30, leap day, DST/timezone handling for date-only).",
+              "Content Negotiation: No tests for Accept header behavior (e.g., 406 Not Acceptable) or charset handling on responses.",
+              "Spec Consistency: Security cases allow 422; the story only calls for >=400. Standardize on expected codes (likely 400) for invalid inputs."
+            ],
+            "recommendations": [
+              "Add caching tests: assert Cache-Control and ETag/Last-Modified; perform conditional GETs with If-None-Match/If-Modified-Since and expect 304 Not Modified when appropriate.",
+              "Add rate limiting coverage: burst requests to elicit 429 with Retry-After, plus a control scenario below thresholds to ensure no false positives.",
+              "Add 403 Forbidden scenarios: valid token lacking rights to the subscription/account or cross-tenant access attempts.",
+              "Make tests deterministic: split TC03, TC04, TC12, TC14 into specific expected behaviors per finalized requirements (e.g., only requestedDate -> 400, no params -> 400, extra params -> either ignored with 200 or rejected with 400).",
+              "Validate error response schema and headers for all 4xx/5xx: assert application/json with consistent fields (e.g., code, message, details), and check Content-Type on errors.",
+              "Extend input validation: add tests for blank/whitespace or overly long subscriptionId, invalid-but-well-formed dates (2021-02-30), leap day handling, and clarify date/timezone expectations for requestedDate (date-only).",
+              "Clarify unknown parameter handling: decide on ignore vs reject and update TC14 to assert the chosen behavior explicitly.",
+              "Add Accept header tests: 406 when Accept excludes application/json; default to JSON when Accept is absent.",
+              "Optionally add a 500 Internal Server Error simulation to validate generic error handling paths in addition to 502/503."
+            ],
+            "usage": {
+              "completion_tokens": 7519,
+              "prompt_tokens": 5044,
+              "total_tokens": 12563,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6656,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

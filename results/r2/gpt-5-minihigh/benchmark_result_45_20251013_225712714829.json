@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-13T22:57:12.714801",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:55:26.024907",
+    "benchmark_end_time": "2025-10-13T22:57:12.714795",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 77,
+    "average_generation_time_seconds": 106.689888,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 77,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 77,
+            "covered": [
+              "Core success flows: invalidating all caches (no cacheName) and invalidating a named alive cache are covered (TC01, TC02) with 204 and empty-body assertions.",
+              "Error flows: 400 responses for non-existent cache, cache not alive, empty cacheName and invalid cache formats are covered (TC03, TC04, TC05, TC10, TC11, TC12, TC15).",
+              "Authentication and authorization: unauthorized access scenario is present (TC06).",
+              "Server error handling: 500 scenario for cache subsystem failures is present (TC07).",
+              "Edge and query parameter handling: no-caches behavior and unsupported extra query parameters are tested (TC08, TC09).",
+              "Input validation: length, special characters and case-sensitivity checks are included (TC05, TC10, TC11, TC12, TC15).",
+              "Performance and concurrency: large-scale invalidation performance and concurrent invalidation of all caches are tested (TC13, TC14).",
+              "Background covers endpoint reachability and admin authentication context for the scenarios."
+            ],
+            "gaps": [
+              "Content-Type and media type verification is missing. The story states \"Produces: application/json\" but tests do not assert response Content-Type for success or error responses (and several success cases expect empty body).",
+              "Error payload schema and structure are not asserted beyond presence of a message. There are no JSON schema checks for error fields, codes, or types.",
+              "Rate limiting and throttling behavior are not tested (no 429 scenarios or burst request handling).",
+              "Idempotency and fine-grained race conditions for a single cacheName are not covered. TC14 tests concurrent deletes of all caches but there are no concurrency tests targeting the same named cache to expose race conditions.",
+              "Authorization expectation is ambiguous. The unauthorized scenario allows \"401 or 403\" rather than asserting a single expected behavior and does not distinguish missing token versus insufficient privileges.",
+              "Malformed URL encoding and percent-decoding edge cases are only partially covered. Tests do not include invalid percent-encoding or other encoding edge cases.",
+              "HTTP method restrictions are not tested (no checks for 405 Method Not Allowed if using GET/POST/PATCH on this endpoint).",
+              "Error body content type and Content-Type consistency for 204 responses are not checked; behavior around header presence with no body is unspecified in the tests."
+            ],
+            "recommendations": [
+              "Add assertions for response headers: verify Content-Type is application/json where applicable, and define expected header behavior for 204 responses (whether Content-Type is present or not).",
+              "Define and test a structured error payload schema (e.g., fields such as code, message, type) and validate error responses against that schema in each error scenario.",
+              "Add rate limiting tests: burst of requests to trigger throttling and assert 429 responses or configured throttling behavior, and validate graceful degradation under load.",
+              "Add idempotency and targeted concurrency tests: repeated deletes for the same cacheName (sequence: success then repeated request) and concurrent deletes targeting the same cacheName to reveal race conditions and establish expected behavior.",
+              "Make authorization tests explicit and split into cases: missing credentials -> expect 401, invalid token -> 401, insufficient permissions -> expect 403 (or align with system policy) and assert exact status codes.",
+              "Add encoding edge case tests: invalid percent-encoding, reserved characters, and boundary length tests beyond the 1024 case to verify limits and server validation handling.",
+              "Add method-not-allowed tests to ensure non-DELETE methods return 405 where appropriate and validate Accept/Content-Type negotiation behavior.",
+              "If the system is distributed, add tests to validate cross-node cache invalidation propagation and observable side effects (metrics, logs) as part of performance and stability checks."
+            ],
+            "usage": {
+              "completion_tokens": 7902,
+              "prompt_tokens": 3739,
+              "total_tokens": 11641,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

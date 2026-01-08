@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "10_2025-09-28T06:23:34.194597",
+    "jira_id": "10",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/auditLogs - Retrieve audit logs by account id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T06:22:03.579624",
+    "benchmark_end_time": "2025-09-28T06:23:34.194592",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 90.614968,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "10_qe_sup-gpt4.1_agent-gpt4.1_1748916432.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Acceptance criteria: Successful retrieval (200) and account-not-found (404) are explicitly covered (TC01, TC03).",
+              "Valid Request & response basics: TC01 and TC13 verify 200 responses, Content-Type application/json, and that the body is a JSON array of AuditLog objects.",
+              "Empty response handling & regression: TC02 and TC12 ensure accounts with no audit logs return an empty JSON array and prevent regressions that previously returned 500.",
+              "Input validation & security: TC04, TC10 and TC15 cover malformed UUIDs, injection attempts, and empty accountId cases.",
+              "Authorization (basic): TC05 and TC06 cover missing and invalid authentication tokens (401 scenarios).",
+              "Query parameter tolerance: TC07 checks that extra/unknown query parameters are ignored and do not break the endpoint.",
+              "Server error and timeouts: TC08 and TC11 cover DB/unavailable/system errors (500) and timeout/service-unavailable cases (503/504).",
+              "Performance & concurrency: TC09 (large dataset) and TC14 (100 concurrent requests) exercise load/performance and concurrency behavior.",
+              "Backward compatibility: TC13 ensures older clients still receive expected successful responses."
+            ],
+            "gaps": [
+              "Pagination: No scenarios validate pagination (page/limit/offset), default page size, out-of-range pages, or stable ordering for large result sets. TC09 returns 10,000 items but does not test page boundaries or paginated links/headers.",
+              "Rate limiting / throttling: No tests provoke or validate rate limiting behavior (e.g., 429 responses, Retry-After headers) under high request rates; TC14 exercises concurrency but does not assert rate-limiting behavior.",
+              "Caching behavior: No scenarios test caching headers (ETag, Cache-Control, Last-Modified) or conditional GETs that should yield 304 Not Modified.",
+              "Authorization (permissions): Tests check missing/invalid tokens (401) but do not verify authorization/permission errors (403) for valid tokens lacking required scopes/roles.",
+              "Schema-level validation: While TC01 asserts required fields exist, there are no explicit tests asserting field types, formats (e.g., timestamps, UUIDs), allowed enum values, or nested object shapes for AuditLog objects.",
+              "Ambiguous expected status codes: Several scenarios allow multiple expected codes (e.g., 400 or 422); tests should align with a single behavior defined in the API contract to avoid flakiness.",
+              "Response header completeness: Apart from Content-Type, headers like Content-Length, Vary, and any rate-limit headers are not validated.",
+              "Content negotiation and Accept header: No tests for Accept header variations or behavior when unsupported media types are requested."
+            ],
+            "recommendations": [
+              "Add pagination tests: request with explicit page/limit parameters, validate item counts per page, next/prev links or pagination headers, behavior when requesting out-of-range pages, and consistent ordering across pages. If the API does not support pagination, add a test that asserts the documented behavior and define limits to avoid returning excessively large payloads.",
+              "Add rate-limiting tests: simulate sustained/high-frequency requests to trigger throttling and assert 429 responses and presence/semantics of Retry-After headers; include graceful-degradation checks when limits are reached.",
+              "Add caching tests: verify Cache-Control and ETag/Last-Modified headers on responses; perform conditional GETs with If-None-Match / If-Modified-Since and assert 304 Not Modified when appropriate.",
+              "Add permission/authorization tests: include cases with a valid token but insufficient privileges to assert 403 Forbidden and test any role-based access constraints if applicable.",
+              "Tighten expected status codes: update ambiguous tests (400 vs 422) to match the API specification and make test expectations deterministic.",
+              "Add schema/field-level validation tests: assert types and formats for each AuditLog field (UUIDs, timestamps ISO-8601, enums), required vs optional fields, and validate JSON schema against the API definition.",
+              "Extend header validation: assert presence/format of other relevant headers (Content-Length, Vary, any rate-limit headers) and validate character set in Content-Type if required.",
+              "Add content negotiation tests: request different Accept headers (e.g., unsupported media types) and assert correct status codes (406 or fallback behavior) per the API contract.",
+              "Refine large dataset testing: instead of returning enormous payloads in one request, verify server behavior for very large datasets (pagination, streaming, chunking) and measure resource usage; include tests for response time SLAs but make them tolerant to environment variability.",
+              "Combine concurrency and rate-limit tests: run concurrent requests at a volume expected to trigger throttling and assert the system returns proper throttling responses rather than internal errors; capture metrics for success vs throttled responses."
+            ],
+            "usage": {
+              "completion_tokens": 6772,
+              "prompt_tokens": 4166,
+              "total_tokens": 10938,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5760,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

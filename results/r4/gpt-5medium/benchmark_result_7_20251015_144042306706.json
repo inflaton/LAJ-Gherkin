@@ -1,0 +1,81 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-10-15T14:40:42.306675",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T14:39:04.299901",
+    "benchmark_end_time": "2025-10-15T14:40:42.306670",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 98.006769,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE - Valid Deletion: Successful deletion when no customField param (delete-all), deletion of specified IDs, deletion when account has no fields, duplicates handled, idempotent repeat deletes; response 204 with empty body; verification via subsequent GET.",
+              "DELETE - Non-Existent Resource: Deleting for a valid-but-nonexistent account is exercised and confirmed idempotent (204).",
+              "DELETE - Concurrency: Peak-load test with 100 concurrent DELETEs validates stability and performance thresholds.",
+              "Input validation: 400 for invalid accountId format; 400 for invalid customField UUIDs; extra unsupported query param ignored; SQL injection and XSS attempts rejected.",
+              "Authorization: 401/403 path for unauthorized user; required X-Killbill-CreatedBy enforced (400 when missing); optional Reason/Comment accepted.",
+              "Resilience: Backend failure returns 500; network timeout/504 covered with guarantee of no partial completion.",
+              "Integration consistency: Dependent systems reflect deletion via follow-up GET."
+            ],
+            "gaps": [
+              "DELETE - Soft Deletes: No tests confirming soft vs hard delete semantics or audit/history records (e.g., CreatedBy/Reason/Comment captured in audit logs).",
+              "Response headers/produces: No assertions for Produces: application/json or Content-Type headers on 204 responses; no Accept/content negotiation checks.",
+              "Mixed validity in customField list: No scenario where some IDs are valid and others are invalid or not present on the account to define all-or-nothing vs partial-success behavior.",
+              "Ownership/scope: No test ensuring customField IDs belonging to a different account are ignored or rejected.",
+              "Concurrency edge cases: No scenario with two different actors deleting overlapping sets simultaneously, or concurrent specific-ID deletes to expose race conditions beyond bulk delete load.",
+              "Query parameter style/encoding: Multi-style is covered, but no negative test for alternative encodings (e.g., CSV) or excessively long query strings approaching server limits."
+            ],
+            "recommendations": [
+              "Add scenarios to verify soft vs hard delete behavior, including audit log assertions that CreatedBy/Reason/Comment are recorded, or explicitly confirm hard delete if intended.",
+              "Assert response headers: on success ensure 204 with no body and expected headers (or explicit absence), and verify Produces: application/json/Accept handling as per API contract.",
+              "Add a test mixing valid and invalid/nonexistent customField IDs to define expected behavior (fail the whole request vs ignore bad IDs) and verify resulting state.",
+              "Include a scenario where provided customField IDs do not belong to the target account and validate the correct error/ignore behavior.",
+              "Expand concurrency coverage: parallel deletes from different users with overlapping ID sets; concurrent delete-all vs delete-specific to detect races and ensure idempotency.",
+              "Add query-parameter robustness tests: invalid encoding styles, extremely large number of IDs to test URL length limits, and ensure consistent 400 or handling per spec."
+            ],
+            "usage": {
+              "completion_tokens": 4083,
+              "prompt_tokens": 5440,
+              "total_tokens": 9523,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3456,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-13T04:26:52.849755",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:26:26.529681",
+    "benchmark_end_time": "2025-10-13T04:26:52.849750",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 26.320069,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: TC01/TC02/TC12/TC13/TC17/TC18 exercise successful deletion for typical, large, minimal, case-variant and legacy-client email values.",
+              "Non-Existent Resource: TC03/TC04/TC09 verify 404 behavior when account or email is not found.",
+              "Input Validation: TC05/TC06/TC16 cover invalid accountId format, invalid email formats and injection/XSS in the email parameter.",
+              "Header Validation: TC01/TC02/TC07/TC08 test required header presence, optional headers handling and behavior with extra unsupported query parameter.",
+              "Authorization: TC10 covers unauthorized (invalid/expired token) responses.",
+              "Concurrency / Race Conditions: TC15 tests concurrent deletion behavior and expected mix of 204/404.",
+              "Transient / Dependency Failures: TC11 and TC19 cover service unavailability and transient network retry recovery.",
+              "Performance: TC14 asserts a response-time threshold for the DELETE operation.",
+              "Regression / Compatibility: TC17 and TC18 cover regression and backward-compatibility scenarios."
+            ],
+            "gaps": [
+              "Soft Delete Behavior: No scenario verifies whether deletion is soft (e.g., resource marked deleted) vs permanently removed, or validates retention/recovery semantics.",
+              "Idempotency / Repeatability beyond concurrency: While TC15 covers concurrent deletes, there is no explicit test asserting idempotent behavior for repeated sequential DELETE calls (e.g., two sequential identical deletes: first 204, second 404 or 204 depending on spec).",
+              "Audit / Side-Effects: No tests assert that audit metadata is recorded (e.g., createdBy, reason, comment persisted to audit logs) after deletion.",
+              "URL-Encoding / Special Characters: Missing tests for emails with URL-sensitive characters (e.g., '+' , '%', '/', spaces) and ensuring proper encoding/decoding of the path parameter.",
+              "Authorization scopes/roles: TC10 covers invalid token but there are no tests for insufficient privileges or role-based authorization (401 vs 403 differentiation).",
+              "Rate Limiting / Throttling: No tests for rate limiting behavior under high request load.",
+              "Soft-error server 500 handling: TC11 covers 503 service unavailable, but no explicit test for unexpected 500/internal server errors and their payload/format.",
+              "Content-Type / Response Body Format: The story says produces application/json on success; tests do not assert response content-type headers (success 204 typically empty) or the exact structure of error JSON payloads.",
+              "Caching/Headers: No checks for caching headers or other response header correctness (ETag, Cache-Control) though less applicable to DELETE, still sometimes required for consistency during deletion flows."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification scenario: after delete, verify resource is marked 'deleted' but retrievable by admin/audit endpoint (or confirm permanent removal depending on spec).",
+              "Add explicit idempotency tests: perform sequential DELETE calls and assert defined behavior for second+ calls (204 vs 404 depending on API contract).",
+              "Add audit-log checks: after deletion assert that X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment were recorded in the audit trail (or an admin-readable endpoint).",
+              "Add URL-encoding tests: emails that include '+', '%', '/', spaces and ensure proper URL-encoding in the path and correct server behavior.",
+              "Add authorization/role tests: cover insufficient-permission cases that should return 403, and verify correct differentiation between 401 and 403.",
+              "Add rate-limiting / throttling tests: simulate many requests to verify 429 or throttling behavior if applicable.",
+              "Add tests for unexpected server errors (500) and ensure error payload format and logging are acceptable.",
+              "Assert response headers and error payload format: include checks for Content-Type on errors, and verify error message fields/structure match API spec.",
+              "Clarify and add tests for idempotency and contract around 204 (no content) vs returning a JSON body on success; if the API doc claims produces application/json, add assertions that error responses are JSON and success is empty with proper headers."
+            ],
+            "usage": {
+              "completion_tokens": 1138,
+              "prompt_tokens": 5675,
+              "total_tokens": 6813,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

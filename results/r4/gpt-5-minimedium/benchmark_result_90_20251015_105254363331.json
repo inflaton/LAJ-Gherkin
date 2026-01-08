@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "90_2025-10-15T10:52:54.363294",
+    "jira_id": "90",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Add custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:52:28.812874",
+    "benchmark_end_time": "2025-10-15T10:52:54.363289",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 25.550415,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "90_qe_sup-gpt4.1_agent-gpt4.1_1748921815.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01-TC04, TC18) exercise successful creation with single/multiple/empty arrays and verify 201 responses.",
+              "Required & Optional Headers: TC01 and TC02 validate behavior with both required (X-Killbill-CreatedBy) and optional (X-Killbill-Reason, X-Killbill-Comment) headers.",
+              "Path parameter validation: TC05 (non-existent ID) and TC06 (invalid UUID format) cover 404 and 400 path parameter error cases.",
+              "Invalid payloads: TC08 (malformed JSON), TC09 (missing body), and TC11 (extra/unknown fields) cover malformed/missing/extra payload scenarios.",
+              "Authorization: TC12 covers unauthenticated/unauthorized access resulting in 401/403.",
+              "System errors & availability: TC13 covers service-unavailable (503) behavior.",
+              "Large payloads: TC14 addresses maximum/very large payload handling (and possible 413 outcome).",
+              "Performance & load: TC15, TC24 cover response-time and degraded-performance thresholds.",
+              "Concurrency & duplication: TC16 and TC25 cover concurrent requests and retry/duplication behavior.",
+              "Validation edge cases: TC17-TC21 cover duplicate names, persistence, max/min lengths, special characters, and injection attempts.",
+              "State variations: TC22 and TC23 cover empty DB and partially populated DB scenarios.",
+              "Integration verification: TC18 verifies persistence by retrieving custom fields after creation."
+            ],
+            "gaps": [
+              "Response schema / field-level validation: Tests do not explicitly validate the response payload against the CustomField schema (#/definitions/CustomField) \u2014 e.g., presence/format of required properties (name/key, value, objectType), types, UUIDs returned, timestamps, or createdBy propagation.",
+              "Deterministic handling of extra/unknown fields: TC11 is non-deterministic (\"201 or 400 depending on API behavior\") \u2014 there is no test asserting the API contract for how unknown fields are handled (should be ignored or should cause validation error).",
+              "Content-Type header validation: No tests verify behavior when Content-Type is missing or incorrect (Consumes: application/json).",
+              "500 / internal server errors: There is no explicit test for 500 Internal Server Error or database failure simulation (guideline: Server Error Handling).",
+              "Duplicate submission / idempotency semantics: While TC16 and TC25 touch concurrency and retry, there is no focused deterministic test for duplicate submissions (same payload submitted twice) and how the API prevents/handles duplicates (idempotency).",
+              "Exact authorization semantics: TC12 allows 401 or 403 but does not assert which one is expected by contract; no tests for authorization scopes/roles or invalid tokens format.",
+              "Rate limiting / throttling: No tests for rate limiting behavior (429) or behavior under high request rates.",
+              "Caching and headers: No tests check caching-related headers or behaviors (ETag, Cache-Control) \u2014 even the GET used for integration (TC18) does not validate caching headers.",
+              "Response body validation on error: Error response body content and structured error codes/messages are not consistently validated (many tests assert presence of an error message but not the exact structure or error codes)."
+            ],
+            "recommendations": [
+              "Add strict response-schema validation tests: assert the response array elements conform to #/definitions/CustomField (required fields, types, UUID formats, createdBy, createdDate if present).",
+              "Make extra-fields behavior deterministic: update TC11 to assert expected API contract (either ignored unknown properties or explicit 4xx validation error) and implement tests accordingly.",
+              "Add Content-Type tests: verify missing/incorrect Content-Type results in 400 (or the API-specified response) and that application/json is required.",
+              "Simulate server failures and 500 responses: add tests that simulate DB failures or uncaught exceptions to verify 500 handling and consistent error messages.",
+              "Add idempotency/duplicate-submission tests: create tests that POST the same payload twice (with same client behavior) and assert whether duplicates are created or the API deduplicates/rejects, and that appropriate response codes and resource states are observed.",
+              "Tighten authorization tests: split TC12 into explicit 401 (no credentials) vs 403 (insufficient privileges) tests and assert exact expected codes/messages for each case.",
+              "Add rate-limiting tests: simulate many rapid requests from the same client to verify throttling behavior and 429 responses if applicable.",
+              "Validate error response structure: for 400/404/401/403/503 tests assert the exact error schema (error code, message) used by the API so clients can reliably parse errors.",
+              "For performance/load and large payloads: add concrete assertions for maximum allowed payload size, expected 413 behavior, and a test that asserts no partial writes occur on failure (transactionality)."
+            ],
+            "usage": {
+              "completion_tokens": 2244,
+              "prompt_tokens": 6336,
+              "total_tokens": 8580,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

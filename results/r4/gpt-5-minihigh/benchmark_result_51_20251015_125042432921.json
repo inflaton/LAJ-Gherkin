@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-15T12:50:42.432894",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:49:28.094612",
+    "benchmark_end_time": "2025-10-15T12:50:42.432891",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 79,
+    "average_generation_time_seconds": 74.338279,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 79,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 79,
+            "covered": [
+              "Valid Payload: Successful transfer scenarios exercise minimal and full payloads, billingPolicy permutations, requestedDate, and pluginProperty handling (TC01, TC02, TC03, TC04, TC05, TC26).",
+              "Response semantics: Success status (201), response body as a Bundle JSON, and Location header presence/validation are asserted (TC01, TC02).",
+              "Input validation and error handling: Invalid bundleId format, invalid requestedDate, invalid billingPolicy, missing required body, missing required header and input-sanitization/security cases (SQLi/XSS) produce 400 as expected (TC08, TC09, TC10, TC11, TC12, TC15, TC16).",
+              "Non-existent resources: 404 cases for missing bundle or target account and empty DB states are covered (TC06, TC07, TC22, TC23).",
+              "Server/dependency failures: Service unavailable and inconsistent dependency data covered (503 and 500 scenarios) (TC14, TC24).",
+              "Authorization: Unauthorized access is covered (401) (TC13).",
+              "Headers and query params: Required X-Killbill-CreatedBy, optional X-Killbill-Reason/X-Killbill-Comment and their boundary (max length) checks, plus billingPolicy/requestedDate/pluginProperty query params are covered (TC02, TC03, TC04, TC05, TC21).",
+              "PluginProperty edge cases: multiple entries, empty array, large payload behavior and XSS injection checks are present (TC05, TC18, TC20, TC16).",
+              "Concurrency & resilience: Transient network retry and concurrent request behavior are covered (TC17, TC29).",
+              "Performance / load: Response time under normal/peak load and resource utilization tests are included (TC27-TC30).",
+              "Edge cases & regressions: Extra unsupported parameters, transfer-to-same-account regression, and backward compatibility missing-optional-fields are present (TC19, TC25, TC26).",
+              "Response contract asserted at a high level: Tests require the returned object to be a Bundle JSON object and validate Location header (TC01, TC02)."
+            ],
+            "gaps": [
+              "Duplicate submissions / idempotency: No explicit tests for repeating the same transfer request (idempotency semantics / duplicate handling are not covered).",
+              "Content-Type handling: No tests for missing/incorrect request Content-Type or asserting response Content-Type (application/json) and unsupported media type (415) behavior.",
+              "Malformed JSON: No test sending syntactically invalid JSON to assert 400 error handling for bad request bodies.",
+              "Target accountId format validation: Tests cover non-existent account and SQLi, but do not explicitly assert that a non-UUID accountId format returns 400.",
+              "Rate limiting / throttling: No tests for rate limits (429) or throttling behavior under very high request rates (distinct from performance tests).",
+              "Field-level response schema validation: While tests assert a \"valid Bundle object\", there are no explicit, granular contract checks for required bundle fields, types and relationships (e.g., bundleId matches Location URL, accountId updated).",
+              "PluginProperty corner cases: Duplicate keys, invalid key/value types, and explicit format validation for pluginProperty entries are not covered in detail.",
+              "Content-length / payload-limit behavior: TC20 mentions large payloads but there is no concrete test asserting server returns 413 when limits are exceeded (explicit limit testing missing).",
+              "Authorization granularity (403): Only unauthenticated (401) is tested; cases for authenticated-but-forbidden (403) or role-based permission checks are not present."
+            ],
+            "recommendations": [
+              "Add idempotency / duplicate-submission tests: send the same transfer twice (and if supported, test with an Idempotency-Key) to assert defined behavior (201 then 409 / idempotent 200 / no-op) and document the expected semantics.",
+              "Add Content-Type tests: submit requests with missing or incorrect Content-Type header and assert 400/415; assert response Content-Type is application/json on success and error responses.",
+              "Add malformed JSON tests: send syntactically invalid JSON bodies and verify 400 with clear error messages.",
+              "Add accountId format validation tests: supply non-UUID accountId strings and expect 400 with explanatory error.",
+              "Add rate-limiting / throttling tests: fire bursts of requests to verify 429 or throttling behavior and presence of Retry-After header; distinguish from performance load tests.",
+              "Add strict response schema/contract tests: validate Bundle JSON fields (bundleId, accountId, subscriptions, effective dates, etc.), types, and that Location header URL matches returned bundleId.",
+              "Extend pluginProperty coverage: test duplicate keys, invalid types/values inside pluginProperty, and extreme per-entry sizes; assert specific validation errors.",
+              "Add explicit payload limit tests: craft requests that exceed maximum allowed payload and assert 413 behavior and appropriate error messaging.",
+              "Add authorization-permission tests: test authenticated users with insufficient privileges to assert 403 behavior if applicable, and test auditing headers are logged/propagated as required.",
+              "Add duplicate/concurrent transfer conflict tests: simulate race conditions for the same bundle being transferred concurrently and assert atomicity/consistency and correct error codes if conflicts occur."
+            ],
+            "usage": {
+              "completion_tokens": 7130,
+              "prompt_tokens": 7734,
+              "total_tokens": 14864,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6016,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

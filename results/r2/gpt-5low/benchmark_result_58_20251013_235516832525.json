@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "58_2025-10-13T23:55:16.832498",
+    "jira_id": "58",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/customFields - Remove custom fields from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:54:55.926751",
+    "benchmark_end_time": "2025-10-13T23:55:16.832495",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 20.905744,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "58_qe_sup-gpt4.1_agent-gpt4.1_1748919726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Multiple success paths covered (all fields, single, multiple, none present) with 204 responses (TC01\u2013TC05).",
+              "DELETE - Non-Existent Resource: 404 for missing bundle and empty DB state (TC07, TC23).",
+              "DELETE - Concurrency: Simultaneous deletes on same bundle validated (TC16).",
+              "Input validation: Invalid bundleId format and truncated UUID return 400 (TC06, TC22); invalid customField UUID and empty value return 400 (TC09, TC19).",
+              "Optional headers: Reason and Comment accepted and do not affect outcome (TC04, TC18, TC20, TC21).",
+              "Authorization/Authentication: 401 on invalid/expired token; 400 on missing required CreatedBy header (TC13, TC08).",
+              "Resilience/Error handling: 503 service unavailable and 503/504 for degraded dependency (TC12, TC24).",
+              "Security hardening: Malicious CreatedBy value is rejected, no side effects (TC14).",
+              "Robustness: Extra unsupported query parameter is ignored while performing deletion (TC11).",
+              "Data integrity/regression: Unrelated bundles unaffected; post-delete state consistent (TC17, TC25).",
+              "Performance: Large-scale deletion completes within target latency (TC15)."
+            ],
+            "gaps": [
+              "DELETE - Soft Deletes: No test verifies whether deletion is soft vs hard (e.g., audit/deleted flag visibility via audit APIs).",
+              "Idempotency: No scenario deleting the same customField(s) twice to ensure subsequent calls remain 204 and system state stable.",
+              "Mixed presence in request: No case where some customField IDs exist and others do not in the same request (should still succeed and only remove existing).",
+              "Response headers: No assertions on Content-Type/Produces for 204 and error responses, nor standard headers (e.g., application/json on errors).",
+              "Authorization/Permissions granularity: No 403 Forbidden scenario for authenticated but unauthorized user/role.",
+              "Audit propagation: No verification that X-Killbill-Reason/Comment/CreatedBy are recorded in audit logs for the deletion event."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification scenario: perform DELETE, then query audit/history endpoints to confirm deletion type (soft vs hard) per product expectations.",
+              "Add an idempotency test: delete a set of customFields, repeat the exact DELETE, expect 204 both times and unchanged state.",
+              "Add a mixed-ID request test: send customField IDs where some are present and some are absent; expect 204 and only present ones removed.",
+              "Assert response headers: verify Content-Type on error responses is application/json; for 204 confirm no body and appropriate headers; optionally check correlation/request IDs if standard.",
+              "Include a 403 Forbidden scenario to cover role-based access control where the user lacks permission to delete custom fields.",
+              "Validate audit persistence: after DELETE with Reason/Comment/CreatedBy, query audit logs to ensure these values are captured for the operation."
+            ],
+            "usage": {
+              "completion_tokens": 1558,
+              "prompt_tokens": 6309,
+              "total_tokens": 7867,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

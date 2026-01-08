@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-09-28T11:59:26.032732",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:58:24.315236",
+    "benchmark_end_time": "2025-09-28T11:59:26.032727",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 61.717491,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Valid Deletion: Success cases for removing all tags, specific tags, empty array, very large sets; all return 204 with empty body (TC01, TC02, TC04, TC12, TC16).",
+              "Path and query validation: Invalid bundleId format -> 400 (TC05); invalid tagDef format -> 400; partial invalid tagDef -> 400 (TC07, TC13).",
+              "Non-Existent Resource: Valid UUID but missing bundle -> 404 (TC06).",
+              "Required/optional headers: Missing X-Killbill-CreatedBy -> 400; optional X-Killbill-Reason and X-Killbill-Comment supported (TC08, TC03).",
+              "Concurrency: 100 concurrent DELETEs with integrity checks (TC15).",
+              "Resiliency: Service unavailable -> 503; timeout handling with 504 or 204 (TC10, TC18).",
+              "Security hardening: Header injection/XSS validation (TC14); unauthorized user -> 401 (TC09).",
+              "Query param handling: multi-valued tagDef, absence of tagDef, and ignored extra params (TC01, TC02, TC11, TC16).",
+              "Integration/data consistency: Follow-up GET confirms tag state post-deletion (TC17)."
+            ],
+            "gaps": [
+              "Soft delete/audit expectations: No verification of soft-delete vs hard delete semantics or audit trail entries created using CreatedBy/Reason/Comment.",
+              "Idempotency: No explicit scenario for repeated DELETE calls with the same tagDef ensuring consistent 204 and no side effects beyond TC04.",
+              "Unknown-but-valid tagDef UUIDs: Behavior not covered when tagDef contains valid UUIDs not associated with the bundle (should be ignored vs error).",
+              "Atomicity on partial invalid tagDef: TC13 asserts 400 but does not verify that no valid tags were removed (rollback).",
+              "Response headers: No checks for Content-Type (produces application/json), standard error model shape, or headers like Cache-Control (if applicable for errors).",
+              "Authorization granularity: 403 Forbidden (authenticated but not permitted) not distinguished from 401 in any scenario.",
+              "Rate limiting/throttling: No coverage for 429 or server behavior under burst traffic beyond concurrency correctness.",
+              "Method/contract strictness: No test for 405 on unsupported methods for the same resource or for Accept header negotiation."
+            ],
+            "recommendations": [
+              "Add an audit/soft-delete scenario: verify audit log entries created with X-Killbill-CreatedBy/Reason/Comment and confirm whether deletion is soft vs hard per product spec.",
+              "Add an idempotency test: perform repeated DELETEs with identical tagDef sets and verify stable 204 and no errors.",
+              "Cover unknown-but-valid tagDef UUIDs: include a case where some tagDefs are valid UUIDs but not attached to the bundle; define and assert expected behavior (ignore vs error).",
+              "Strengthen TC13 to assert transactional behavior: on 400 due to one invalid tagDef, verify that no valid tags were removed.",
+              "Validate response headers and error model: assert Content-Type: application/json on success/error, and check standard error payload fields (code, message).",
+              "Add a 403 scenario for authenticated users lacking permission to delete tags.",
+              "Introduce rate-limiting tests to validate 429 and proper Retry-After headers under burst traffic.",
+              "Add contract strictness tests: unsupported methods return 405; exercise Accept header variations to confirm content negotiation."
+            ],
+            "usage": {
+              "completion_tokens": 3124,
+              "prompt_tokens": 4976,
+              "total_tokens": 8100,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2368,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-13T18:50:27.322059",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:50:08.406850",
+    "benchmark_end_time": "2025-10-13T18:50:27.322055",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 18.915205,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC12, TC13, TC17, TC18) verify successful deletion and response 204 for a variety of email formats and header combinations.",
+              "Non-Existent Resource: Scenarios TC03, TC04, TC09 explicitly cover non-existent account and non-existent email cases and expect 404.",
+              "Input Validation: TC05 and TC06 cover invalid accountId and invalid email format with expected 400 responses; TC16 covers injection/XSS in the email parameter.",
+              "Authorization: TC10 covers unauthorized access returning 401.",
+              "Required Headers: TC07 verifies behavior when required header X-Killbill-CreatedBy is missing.",
+              "Optional Headers: TC02 verifies optional headers (X-Killbill-Reason, X-Killbill-Comment) are accepted.",
+              "Concurrency and Race Conditions: TC15 checks concurrent deletion behavior (one 204 and subsequent 404s) representing race conditions.",
+              "Transient / Retry Behavior: TC19 covers retry after a transient network failure.",
+              "Error / Dependency Handling: TC11 covers service-unavailable/dependency failure mapping to 503.",
+              "Performance: TC14 asserts a response-time SLA (under 500ms).",
+              "Edge Cases - Size & Case: TC12 (very long email) and TC13 (minimal-length email) verify boundary email lengths; TC17 validates case-sensitivity/regression."
+            ],
+            "gaps": [
+              "Soft Delete Behavior: No scenario verifies whether deletion is a soft delete (e.g., \"deleted\" flag) vs permanent removal, or verifies audit/logging of soft-deletes.",
+              "Request/Response Content-Type and Produces Header: No tests verify response content-type, or that responses are application/json for error payloads as the story mentions \"Produces: application/json\".",
+              "Detailed Error Payload Validation: While many scenarios assert status codes and presence of an error message, there is no structured validation of error payload schema, error codes, or consistent fields (e.g., error type, code, accountId/email echoed).",
+              "Authorization Variants: Tests cover invalid token (401) but not insufficient permissions (403) or role-based access control scenarios.",
+              "Rate Limiting / Throttling: No tests for rate limiting or behavior under sustained high request volume.",
+              "Input Encoding / URL-Encoding: No tests cover URL-encoding or special characters in the path (e.g., emails with +, % signs) and how the API handles encoded vs raw values.",
+              "Header Validation: There is no negative test for malformed optional headers or excessive header lengths; also no verification that X-Killbill-CreatedBy is correctly recorded/audited.",
+              "Idempotency Semantics: There is no explicit test verifying idempotency semantics beyond TC15\u2019s concurrency (e.g., repeated DELETEs from same client expect 204 then 404 or always 204).",
+              "Logging/Auditing/Telemetry: No checks that deletion events produce the expected audit logs or events.",
+              "HTTP Method Restrictions: No tests to ensure wrong HTTP methods (e.g., POST/GET) to the same path are rejected (405)."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification scenario: confirm whether deleted emails remain in DB with a deleted flag or are permanently removed, and add assertions for audit fields (deletedBy, deletedReason, deletedDate) if applicable.",
+              "Validate response content-type and JSON error payload schema: create tests asserting application/json and that error responses contain consistent fields (message, code, type, details).",
+              "Add tests for 403/permission-denied: simulate a valid token with insufficient privileges to ensure proper 403 handling.",
+              "Add URL-encoding tests: include emails containing +, %2B, spaces, and other characters and verify the API handles encoded and unencoded forms correctly.",
+              "Add idempotency/repeat-delete semantics test: define and assert the expected behavior for repeated DELETE calls from the same client (should subsequent calls return 204 or 404 consistently?).",
+              "Introduce rate-limiting/load tests: verify behavior under burst traffic and ensure proper 429 or throttling behavior if applicable.",
+              "Add negative header tests: malformed X-Killbill-CreatedBy values, extremely long header values, and absence/presence checks for optional headers affecting audit metadata.",
+              "Add tests to assert the API rejects unsupported methods on the endpoint (e.g., POST/PUT) with 405.",
+              "Add logging/audit verification: where possible, assert that deletion operations are recorded in audit logs or emitted events with correct metadata (who, when, reason, comment).",
+              "Add structured error-message assertions for invalid inputs and not-found cases (e.g., specific error codes) to ensure clients can reliably react programmatically."
+            ],
+            "usage": {
+              "completion_tokens": 1189,
+              "prompt_tokens": 5675,
+              "total_tokens": 6864,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

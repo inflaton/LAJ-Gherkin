@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "36_2025-10-15T03:00:43.417544",
+    "jira_id": "36",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/allTags - Retrieve account tags",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:58:58.781903",
+    "benchmark_end_time": "2025-10-15T03:00:43.417537",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 104.635634,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "36_qe_sup-gpt4.1_agent-gpt4.1_1748918344.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Success 200 with JSON array of Tag objects; Tag schema asserted; default behaviors verified (audit defaults to NONE, includedDeleted defaults to false).",
+              "Query Parameters: objectType filter, includedDeleted=true, audit NONE/MINIMAL/FULL, and combined parameter scenarios; unsupported parameter is ignored; invalid audit value returns 400.",
+              "Empty Response: Account with no tags returns 200 and an empty array.",
+              "Error Handling: 400 for malformed UUID; 404 for non-existent account (including empty DB and soft-deleted account); 503 downstream unavailable; 504 timeout.",
+              "Authorization: 401 for missing/invalid token.",
+              "Security: SQL injection in accountId is rejected without leaking server internals.",
+              "Integration/Regression: Consistency after tag add/delete; regression case for deleted tags; backward compatibility without query params.",
+              "Performance/Concurrency: Large dataset response time; concurrent requests return consistent 200 responses.",
+              "Headers: Content-Type is application/json validated."
+            ],
+            "gaps": [
+              "Pagination: No scenarios to validate presence/absence of pagination (e.g., limit/offset, Link headers) for large result sets.",
+              "Caching Behavior: No tests for ETag/If-None-Match, Last-Modified/If-Modified-Since, or Cache-Control directives and 304 responses.",
+              "Rate Limiting: No tests for burst traffic behavior (e.g., 429 Too Many Requests and rate-limit headers).",
+              "Query Parameter Robustness: No invalid objectType enum test; no case-sensitivity checks (e.g., invoice vs INVOICE); no invalid boolean for includedDeleted; no behavior for repeated parameters; no test where objectType filter yields zero results (should return 200 empty).",
+              "Schema Depth: Tag schema conformance is stated but not strictly validated against the full definition (required fields, types, constraints); error response schema (fields like code, message) not validated consistently across 4xx/5xx.",
+              "Content Negotiation: No tests for Accept header handling (e.g., unsupported Accept -> 406; Accept: application/json honored).",
+              "Deterministic Ordering: No expectation around sort order or stability of results across calls (if specified or required).",
+              "Minor test issue: TC16 When step omits includedDeleted=true while expecting deleted tags to be included."
+            ],
+            "recommendations": [
+              "Add pagination-focused scenarios: verify no pagination is used (and all tags are returned) or, if supported, test page size, next/prev links, and total count for large datasets.",
+              "Add caching tests: assert ETag/Last-Modified and Cache-Control headers; follow-up GET with If-None-Match/If-Modified-Since should return 304 when appropriate.",
+              "Introduce rate-limiting tests: send a burst of requests to observe 200 vs 429 thresholds and assert X-RateLimit-* headers if implemented.",
+              "Expand query parameter robustness: invalid objectType (e.g., FOO) -> 400; case sensitivity checks; invalid boolean for includedDeleted; repeated params behavior; objectType yielding zero matches returns 200 with empty array.",
+              "Strengthen schema validation: validate Tag and audit structures against the OpenAPI/JSON Schema (required fields, types, enums, no extra fields); validate a consistent error schema across 400/401/404/503/504.",
+              "Test content negotiation: Accept: application/json returns 200; unsupported Accept (e.g., application/xml) returns 406; confirm Content-Type remains application/json.",
+              "Define and test expected ordering (e.g., by createdDate or tagDefinitionName) or explicitly assert order is unspecified to avoid flaky tests.",
+              "Correct TC16 to include includedDeleted=true in the request to align steps with expectations.",
+              "Optionally add authorization nuance tests (403) if role/tenant permissions apply to this endpoint."
+            ],
+            "usage": {
+              "completion_tokens": 6385,
+              "prompt_tokens": 6025,
+              "total_tokens": 12410,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5568,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

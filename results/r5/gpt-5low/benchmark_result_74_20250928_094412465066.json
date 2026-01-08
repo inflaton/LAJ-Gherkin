@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "74_2025-09-28T09:44:12.465040",
+    "jira_id": "74",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/plan - Retrieve plan for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:43:29.595675",
+    "benchmark_end_time": "2025-09-28T09:44:12.465037",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 42.869362,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "74_qe_sup-gpt4.1_agent-gpt4.1_1748920805.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "GET/Valid Request: Success paths with both parameters, only subscriptionId, and boundary-date are covered (TC01, TC02, TC13).",
+              "Empty Response/No Data: Cases for empty database and ambiguous no-match behavior are exercised (TC03, TC04, TC11).",
+              "Query Parameters: Combinations and validation are well covered, including missing params, malformed UUID/date, non-existent ID, and extra/ignored params (TC01\u2013TC08, TC14).",
+              "Authorization: Unauthorized access returns 401 (TC09).",
+              "Resilience/Error Handling: Service/database unavailable and data integrity conflicts covered (TC10, TC12).",
+              "Security/Injection: SQLi and XSS attempts validated and rejected (TC17, TC18).",
+              "Performance: Response-time under normal and concurrent load validated (TC15, TC16)."
+            ],
+            "gaps": [
+              "Caching Behavior: No assertions for ETag, Cache-Control, Last-Modified, or conditional GET handling.",
+              "Rate Limiting/Throttling: No scenarios validating 429 Too Many Requests or retry headers under burst traffic.",
+              "Content-Type/Headers: Success criteria mention application/json, but no explicit check for Content-Type, charset, or consistent error response media type.",
+              "Deterministic behavior when parameters omitted: The story hints \u201cdefault or error\u201d but tests assert 200 or default/empty ambiguously (TC03, TC04, TC11) without pinning expected behavior.",
+              "RequestedDate outside a subscription\u2019s effective period: No scenario where subscriptionId is valid but requestedDate falls outside any plan for that subscription (expected 404/204 or defined behavior).",
+              "Error contract: Tests check for generic error messages but don\u2019t validate structured error schema (code, message, requestId, details) or localization consistency.",
+              "Authorization breadth: 403 Forbidden (authenticated but not authorized) not covered.",
+              "Time semantics: No tests for timezone handling, date normalization, or invalid but parseable dates (e.g., 2024-02-30) mapping to specific errors."
+            ],
+            "recommendations": [
+              "Add caching scenarios: verify ETag/Last-Modified in 200 responses, perform conditional GET with If-None-Match/If-Modified-Since to expect 304, and assert Cache-Control directives.",
+              "Add rate limiting tests: generate bursts to trigger 429, validate Retry-After header, and ensure well-behaved degradation.",
+              "Assert headers explicitly: Content-Type: application/json; charset=utf-8 for both success and error responses; verify no-cache vs cacheable responses per requirements.",
+              "Clarify and make deterministic the behavior when subscriptionId and/or requestedDate are omitted; update tests to assert the exact status code and body per spec.",
+              "Add scenario: valid subscriptionId with requestedDate before start or after end of any plan should return the defined outcome (e.g., 404 Not Found or 204 No Content).",
+              "Validate error schema: assert structured fields (e.g., errorCode, message, requestId/correlationId) and consistent JSON content type.",
+              "Include 403 test: authenticated user lacking permission gets 403 with proper error body.",
+              "Add date/time robustness: test timezone-qualified inputs (e.g., Z, offsets), out-of-range dates (2024-02-30), and ensure normalization to service\u2019s timezone rules with clear outcomes.",
+              "Optionally add negative tests for whitespace/trim and case sensitivity in query parameter names if applicable to the API gateway."
+            ],
+            "usage": {
+              "completion_tokens": 1770,
+              "prompt_tokens": 4829,
+              "total_tokens": 6599,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

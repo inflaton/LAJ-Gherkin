@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-09-28T07:46:45.744932",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:45:23.206952",
+    "benchmark_end_time": "2025-09-28T07:46:45.744928",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 82.537976,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Happy paths and core acceptance criteria: default parameters, explicit offset/limit, optional headers, and no-data case are present (TC01, TC02, TC03, TC04).",
+              "Parameter validation and pagination basics: negative/zero values and non-integer types are tested; partial input (offset only) and max/large limit cases are included (TC06, TC07, TC10, TC12, TC13).",
+              "Authorization and header handling: required header missing and invalid/expired token scenarios are covered (TC05, TC08), plus header parsing/regression checks (TC16).",
+              "Error handling for dependencies: service-unavailable scenario is covered (TC09).",
+              "Security concerns: header injection test covers malicious input handling for headers (TC14).",
+              "Concurrency and duplicate processing: retry-after-failure and concurrent requests scenarios address idempotency / exactly-once expectations (TC15, TC18).",
+              "Operational/edge cases and backward compatibility: unexpected query params, older clients without optional headers, and API docs/accessibility are included (TC11, TC17, TC19).",
+              "Auditability: optional reason/comment headers and auditable behavior are explicitly tested (TC03, TC16)."
+            ],
+            "gaps": [
+              "Response-body/schema validation: tests assert application/json and that invoices were generated, but do not validate the response JSON schema (e.g., processedCount, invoiceIds, errors) or error payload structure.",
+              "Non-parked accounts not explicitly asserted: no test verifies that invoices are NOT created for non-parked accounts.",
+              "Offset-out-of-range behavior: no test for offset greater than total parked accounts (expected empty/zero-processed response or a specific error).",
+              "Ambiguous expected status codes: several scenarios allow multiple possible status codes (e.g., TC05, TC11) instead of asserting the exact code defined by the API contract.",
+              "500 / internal server errors: only 503 is covered; tests do not simulate DB exceptions or internal errors that should map to 500 and associated recovery behaviour.",
+              "Rate-limiting / throttling: no tests for burst requests or rate limits (e.g., 429 responses) or backoff behavior.",
+              "Explicit duplicate-submission idempotency: retry and concurrency are addressed, but there is no focused test that submits the exact same request twice back-to-back to prove de-dup handling.",
+              "Header validation edge-cases: empty/blank CreatedBy, oversized headers, or invalid characters are not tested.",
+              "Audit persistence checks missing: tests assert \"auditable\" but do not verify that audit records are persisted with correct fields (createdBy, reason, comment, timestamps) linked to invoices.",
+              "Overlapping-pagination concurrency: no explicit tests where concurrent requests run overlapping offset/limit ranges to ensure accounts are not processed twice."
+            ],
+            "recommendations": [
+              "Add strict response schema/contract tests: verify fields like processedCount, invoiceIds, skippedCount, per-account status and error details on both success and failure responses.",
+              "Add negative test to verify non-parked accounts are not invoiced (create controlled dataset and assert only parked accounts received invoices).",
+              "Add test for offset > total parked accounts to assert deterministic behaviour (e.g., 200 with zero processed and clear response payload).",
+              "Tighten expected status codes to the API contract: update scenarios to assert single expected statuses (e.g., 400 for validation errors, 401/403 for auth, 503/500 for server issues) rather than accepting multiple options.",
+              "Simulate internal server failures (500): inject DB or service exceptions and assert 500 responses, meaningful error payloads and graceful recovery behavior.",
+              "Introduce rate-limiting and throttling tests: submit bursts of requests to validate 429 behavior or configured throttling/backoff and ensure no data corruption under load.",
+              "Add explicit duplicate-submission test: post an identical request twice (no transient failure) and assert the second request is idempotent or handled without duplicate invoices.",
+              "Add detailed header validation tests: empty/whitespace CreatedBy, over-length X-Killbill-Reason/Comment and invalid characters should be validated and asserted to return appropriate 4xx responses.",
+              "Add audit-log verification tests: assert audit records are persisted with createdBy, reason, comment and link to generated invoices in the DB or audit store.",
+              "Add concurrency tests with overlapping offsets/limits: run concurrent jobs that intentionally overlap ranges and assert each parked account is invoiced exactly once.",
+              "Add performance/load tests with clear SLAs: automate load tests that verify response times, CPU/memory usage, and processing correctness for large volumes (10k+ accounts) and concurrent clients."
+            ],
+            "usage": {
+              "completion_tokens": 7709,
+              "prompt_tokens": 5207,
+              "total_tokens": 12916,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6720,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

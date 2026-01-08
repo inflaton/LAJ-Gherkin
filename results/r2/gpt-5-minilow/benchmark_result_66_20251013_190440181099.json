@@ -1,0 +1,100 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-13T19:04:40.181071",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:04:10.476614",
+    "benchmark_end_time": "2025-10-13T19:04:40.181067",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 29.704453,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: TC01 covers the happy path (204) and verifies the externalKey is updated.",
+              "Non-Existing Resource: TC04 and TC15 cover bundle-not-found cases (404) when bundles are missing.",
+              "Invalid Identifier Format: TC03 checks malformed bundleId format (400).",
+              "Required Headers: TC01, TC02 and Background address X-Killbill-CreatedBy presence and missing header error handling.",
+              "Request Body Validation: TC06, TC07, TC08 cover missing body, malformed JSON, and missing externalKey.",
+              "Conflict Handling: TC05 addresses externalKey already in use for the same account (400).",
+              "Optional Headers: TC14 verifies X-Killbill-Reason and X-Killbill-Comment handling.",
+              "Edge Cases for externalKey: TC09 (extra fields), TC10 (very long key), TC11 (empty key), TC19 (special characters), TC20 (leading/trailing spaces).",
+              "Authorization: TC12 covers missing/invalid auth token (401/403).",
+              "Service availability: TC13 covers dependent service/database unavailable (503).",
+              "Concurrency: TC17 tests concurrent updates and expected conflict behavior.",
+              "Performance/Load basics: TC16 and TC23 include large payload and response-time expectations.",
+              "Regression/Backward compatibility: TC18 and TC22 cover regression/legacy-client scenarios.",
+              "Unexpected headers: TC21 covers robustness to extra headers.",
+              "Documentation accessibility: TC24 verifies API docs availability and accessibility."
+            ],
+            "gaps": [
+              "Content-Type and Response Content-Type verification: While Background sets request Content-Type, there are no explicit tests asserting request rejection when Content-Type is missing/incorrect nor assertions on response Content-Type (story indicates produces application/json).",
+              "Exact success-body contract: The story mentions producing application/json but success is 204 (typically no body) \u2014 tests do not assert that the response body is empty or contains JSON; ambiguity is untested.",
+              "UUID pattern enforcement boundary: TC03 checks malformed id, but there is no explicit positive test that valid UUIDs matching the documented regex are accepted beyond using a sample valid id; no automated validation of pattern edge-cases (e.g., length, allowed characters).",
+              "Cross-account conflicts allowed/denied: The story specifies conflict within the same account; there is no test verifying that the same externalKey is allowed for bundles belonging to different accounts (expected behavior not explicitly tested).",
+              "Duplicate submission idempotency: No tests for repeated identical requests (replay/duplicate submission) and how duplicates are handled.",
+              "Partial update semantics: The guideline asks to verify partial updates are rejected unless allowed \u2014 there is no explicit test proving that only the externalKey field is permitted and other fields are ignored or rejected (TC09 checks extra fields but assumes success; it does not assert whether extra fields are stored or ignored).",
+              "Input validation beyond presence: No tests for invalid data types for externalKey (e.g., numeric, boolean), unicode normalization, or prohibited character sets beyond a single special-character test.",
+              "Header validation beyond presence: No tests for invalid values in X-Killbill-CreatedBy (e.g., overly long or binary), or ensuring X-Killbill-Reason is optional but when present is handled correctly (beyond existence).",
+              "Rate limiting / throttling: No tests for rate limiting or handling of many requests in a short time.",
+              "Caching behavior: No tests for caching headers (ETag, Cache-Control) \u2014 not typical for PUT but present in guidelines to consider.",
+              "Error body schema/content: Tests assert presence of an error message but do not validate standardized error schema/fields (error codes, machine-readable fields).",
+              "Security headers and audit trail: No tests to verify that the createdBy/reason/comment are persisted in audit logs or returned in relevant metadata."
+            ],
+            "recommendations": [
+              "Add tests to assert Content-Type handling: include a test sending the request without Content-Type or with an incorrect Content-Type and expect 400 (or appropriate) and a test asserting response Content-Type when an error body is returned and that success (204) has an empty body.",
+              "Clarify and test success contract: decide whether 204 must have no body or produce application/json; add tests to assert the chosen behavior.",
+              "Add cross-account conflict test: create bundles in two different accounts with same externalKey and verify update is allowed for different accounts (or assert intended behavior).",
+              "Add duplicate-submission/idempotency tests: send the same request twice and verify idempotency or appropriate error handling.",
+              "Add stricter partial-update tests: send body with other bundle fields (e.g., accountId, createdDate) and assert they are ignored/rejected and only externalKey is considered.",
+              "Add input-type and normalization tests: try numeric/boolean externalKey values, unicode normalization (combining characters), and multiple character-set cases to validate validation rules.",
+              "Add header validation tests: invalid/too-long X-Killbill-CreatedBy and behavior when X-Killbill-Reason or Comment exceed expected lengths.",
+              "Add automated assertions for error response schema: check error object fields, machine-readable error codes, and consistent messages for 400/404/503 cases.",
+              "Add rate-limiting and throttling tests (stress test) and verify server responses under burst traffic.",
+              "Add audit/logging checks in integration tests to verify X-Killbill-CreatedBy/Reason/Comment are recorded (if required by product).",
+              "Add tests to verify behavior under repeated concurrent updates with precise expected status codes (e.g., 409 vs 400) and validate which update ultimately persisted."
+            ],
+            "usage": {
+              "completion_tokens": 1498,
+              "prompt_tokens": 6051,
+              "total_tokens": 7549,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

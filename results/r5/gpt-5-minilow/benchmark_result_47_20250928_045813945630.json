@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-09-28T04:58:13.945598",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:57:56.870330",
+    "benchmark_end_time": "2025-09-28T04:58:13.945593",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 17.075263,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: The success scenario (TC01) verifies DELETE returns HTTP 204 and that the tenant cache is invalidated.",
+              "Non-Existent Resource: TC04 covers tenant-not-found (404).",
+              "Authorization/Authentication: TC02 and TC03 cover missing and invalid authentication (401).",
+              "Server Errors: TC05 and TC06 cover internal server error (500) and service unavailable (503).",
+              "Bad Request / Input Validation: TC07 and TC08 cover malformed requests and malicious header payloads (400/403), addressing invalid input handling.",
+              "Idempotency / Empty Resource: TC09 covers deleting when cache is already empty and confirms idempotence.",
+              "Concurrency / Race Conditions: TC10 addresses concurrent deletes and checks for race conditions and acceptable response times.",
+              "Regression: TC11 ensures a previously fixed bug does not recur.",
+              "Integration / Downstream Impact: TC12 verifies dependent services observe invalidation.",
+              "Partial State Handling: TC13 verifies mixed valid/expired entries are fully invalidated.",
+              "Timeout Handling: TC14 covers a long-running invalidation leading to gateway-timeout (504)."
+            ],
+            "gaps": [
+              "Content-Type and Response Headers: The story states the endpoint 'Produces: application/json' but tests do not assert response Content-Type or other headers (e.g., Cache-Control, ETag).",
+              "Authorization vs. Authentication Distinction: Tests cover missing/invalid authentication (401) but do not explicitly test forbidden/authorization scenarios (403) for authenticated but unauthorized admin contexts or role-based access control.",
+              "Response Body Contract for Errors: Error scenarios assert presence of an error message but do not validate error payload schema/fields (error codes, error type, timestamp, tenant id) or consistent JSON structure.",
+              "Soft Delete Semantics / Persistence Verification: There's no test to verify whether invalidation is transient vs persisted (i.e., if system uses soft deletes or marks entries), or to validate backend storage state post-invalidation.",
+              "Rate Limiting / Throttling: No tests verify behavior under high-frequency requests beyond TC10 (which focuses on concurrency correctness and performance), nor tests for rate-limit responses (e.g., 429).",
+              "Edge Request Variations: No tests for unexpected request bodies (even though request body is N/A), unsupported HTTP methods on the endpoint (e.g., POST/PUT), or query parameter handling/ignoring.",
+              "Observability / Logging: No tests verify that appropriate audit/log entries are created for tenant-level cache invalidation (important for admin operations).",
+              "Negative integration cases: Dependent services observing stale data is covered positively (TC12) but not the case where dependent services fail to refresh or produce inconsistent results after invalidation.",
+              "Multi-tenant Isolation: Tests assume a 'current tenant context' but do not explicitly validate that invalidation affects only the current tenant and not others (cross-tenant safety)."
+            ],
+            "recommendations": [
+              "Assert Response Headers and Content-Type: Add checks that successful (204) responses include the expected Content-Type and that error responses return a consistent JSON error schema.",
+              "Add Authorization (403) Tests: Add scenarios where an authenticated user lacks admin privileges and should receive 403 Forbidden.",
+              "Validate Error Payload Schema: Create tests that verify structure and fields of error responses for >=400 status codes (error code, message, tenant id/reference).",
+              "Test Multi-Tenant Isolation: Add tests to ensure invalidation only clears cache for the targeted tenant and does not affect other tenants' caches.",
+              "Rate Limiting and Throttling Tests: Add tests for high-frequency request bursts that expect 429 or other rate-limit behavior and retry/backoff behavior.",
+              "Verify Soft vs Hard Invalidation: Add tests to check backend storage/state after invalidation to confirm whether entries are removed, marked stale, or otherwise handled.",
+              "Unsupported Methods and Input Variations: Add tests for unsupported HTTP methods (e.g., POST/PUT) returning 405, and for unexpected payloads/body types to ensure consistent handling.",
+              "Observability / Auditing: Add tests that confirm audit logs/metrics are produced for admin-initiated cache invalidation.",
+              "Dependent Service Failure Modes: Extend TC12 with negative integration tests where dependent services fail to refresh, to ensure the system signals or handles stale data appropriately."
+            ],
+            "usage": {
+              "completion_tokens": 1215,
+              "prompt_tokens": 3389,
+              "total_tokens": 4604,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

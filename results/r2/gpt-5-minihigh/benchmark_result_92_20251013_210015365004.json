@@ -1,0 +1,99 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-13T21:00:15.364978",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T20:57:19.528068",
+    "benchmark_end_time": "2025-10-13T21:00:15.364974",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 175.836906,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid deletion (remove all custom fields) is covered (TC01) with 204 and empty body verification.",
+              "Selective deletion of specified custom fields is covered (TC02) with subset removal and 204.",
+              "Edge cases: single custom field and no-custom-field invoice item are covered (TC03, TC04).",
+              "Header handling: required X-Killbill-CreatedBy presence and missing-header negative case are covered (TC06, TC09); optional headers X-Killbill-Reason and X-Killbill-Comment are exercised (TC05) and long-comment boundary is checked (TC16).",
+              "Path and query parameter validation: invalid invoiceItemId format (TC07), malformed customField values (TC10), duplicate IDs (TC18), mixed valid/invalid UUIDs (TC17) are tested.",
+              "Non-existent resource case (404) is covered (TC08).",
+              "Authentication failure is covered (expired/invalid token -> 401) (TC19).",
+              "Robustness/scale: large number of customField IDs (TC12) and heavy-load performance expectation (TC13) are included.",
+              "Failure modes: dependent service unavailable scenario is included (TC14) expecting 503 or appropriate error.",
+              "Security: SQL/command injection attempt in customField is covered (TC15).",
+              "Unexpected query parameters tolerated is covered (TC11).",
+              "Regression header parsing variations are covered (TC20).",
+              "Response semantics: tests assert 204 for success and appropriate 4xx/5xx codes for invalid inputs and failures, aligning with story acceptance criteria."
+            ],
+            "gaps": [
+              "Concurrency/race conditions: no explicit tests for simultaneous deletes or race conditions where two clients delete overlapping sets concurrently.",
+              "Idempotency/repeat-delete semantics: no test asserting behavior when DELETE is called repeatedly for the same invoice item (what the API should return on subsequent calls).",
+              "Soft-delete vs hard-delete semantics and persistence: no tests verify whether custom fields are soft-deleted (flagged) or permanently removed, or whether recovery is possible.",
+              "Audit logging and side-effects: no tests verify that X-Killbill-CreatedBy, Reason, Comment are recorded in audit logs or DB change history.",
+              "Content-Type and error response schema: tests check presence/absence of body and status codes but do not assert Content-Type headers or standardized error JSON structure (fields like code/message).",
+              "customField collectionFormat and encoding: tests do not explicitly validate the required collectionFormat=multi behavior vs alternate encodings (comma-separated), nor URL-encoding edge cases.",
+              "Behavior for valid UUIDs not associated with the invoice item: no scenario tests how the API handles UUIDs that are syntactically valid but not present on that invoice item.",
+              "Authorization roles/permissions (403): only invalid/expired token (401) is covered; no tests for forbidden/insufficient-permissions (403) behavior.",
+              "Rate limiting and throttling: no tests for API rate limits or throttling responses (e.g., 429).",
+              "Database consistency after partial failures or retries: no tests assert transactional behavior or final DB state after partial failures.",
+              "Boundary tests for other headers: only long comment is tested; X-Killbill-CreatedBy and X-Killbill-Reason length/character validation is not covered.",
+              "Exact contract for 204 with \"Produces: application/json\": tests assert empty body but do not validate whether Content-Type header or other produce-contract expectations are required/observed."
+            ],
+            "recommendations": [
+              "Add idempotency tests: call DELETE twice for the same invoiceItemId and assert second-call behavior is defined and consistent with API contract (204 vs 404 vs no-op).",
+              "Add explicit concurrency tests: simulate two or more concurrent DELETE requests removing overlapping customField sets and verify no data corruption, deterministic final state, and acceptable responses for all clients.",
+              "Add soft-delete verification: test whether removed custom fields are soft-deleted (e.g., still present with deleted flag) or permanently removed; include recovery/undelete tests if soft-delete is supported.",
+              "Add audit/logging checks: after delete requests with X-Killbill-CreatedBy/Reason/Comment, assert that an audit entry exists with matching metadata (via DB check or audit API).",
+              "Assert Content-Type and error response schema: verify error responses include application/json Content-Type and conform to the project error schema (code/message/fields), and clarify 204 contract for headers.",
+              "Explicitly test customField collection format and encoding: send multiple customField values as repeated query parameters (customField=id1&customField=id2), test comma-separated variants if supported, and verify correct parsing and URL-encoding handling.",
+              "Define and test behavior for valid-but-unrelated UUIDs: add scenario(s) where customField UUIDs are valid but not associated with the invoice item and assert whether API ignores them or returns an error (and codify expected behavior).",
+              "Add authorization role/permission tests: create callers with insufficient privileges and assert 403 Forbidden is returned where applicable, and expand 401 tests for missing auth.",
+              "Add rate-limiting & throttling tests: fire bursts of DELETE requests to validate throttling behavior and proper 429 or backoff behavior.",
+              "Add DB consistency and retry tests: simulate partial downstream failure during delete and verify transactional integrity and final consistent state after retries.",
+              "Expand header boundary tests: verify max-length and invalid-character handling for X-Killbill-CreatedBy and X-Killbill-Reason in addition to X-Killbill-Comment.",
+              "Clarify and assert 204 produce-contract: decide and test whether 204 responses must/must-not include Content-Type or other headers, and ensure tests match API contract."
+            ],
+            "usage": {
+              "completion_tokens": 7347,
+              "prompt_tokens": 5523,
+              "total_tokens": 12870,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6144,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

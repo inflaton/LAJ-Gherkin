@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "84_2025-10-13T10:28:03.888426",
+    "jira_id": "84",
+    "jira_title": "Implement/Test API: GET /1.0/kb/customFields/search/{searchKey} - Search custom fields",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:26:40.392847",
+    "benchmark_end_time": "2025-10-13T10:28:03.888417",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 83.49557,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "84_qe_sup-gpt4.1_agent-gpt4.1_1748921406.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "GET Valid Request: Happy-path retrieval with only searchKey returns 200 and a JSON array of matching CustomField objects (TC01, TC22, TC27).",
+              "Empty Response: No matches and offset-beyond-range return 200 with empty arrays (TC06, TC09).",
+              "Pagination: limit/offset paging, page-to-page progression, small/large page sizes, and with audit combined are exercised (TC02, TC07, TC08, TC09, TC28, TC29).",
+              "Query Parameters: Audit enum values FULL/MINIMAL/NONE validated; bad values and malformed/negative limit/offset produce 400; unsupported params ignored (TC03\u2013TC05, TC10\u2013TC14).",
+              "Authorization: Missing/invalid auth yield 401 (TC15, TC16).",
+              "Robustness and errors: Backend 503 and unsupported method 405 covered (TC17, TC30).",
+              "Input robustness: Special characters, whitespace, long keys, and Unicode handled without crashes/XSS (TC18, TC25\u2013TC27).",
+              "Performance/Concurrency (extra): Stress and concurrent access behave correctly (TC19, TC20)."
+            ],
+            "gaps": [
+              "Caching Behavior: No checks for ETag/If-None-Match, Last-Modified/If-Modified-Since, Cache-Control, or 304 Not Modified.",
+              "Rate Limiting: No scenarios for throttling/429 with Retry-After under burst traffic.",
+              "Authorization depth: No 403 Forbidden case for valid auth without sufficient permissions/roles.",
+              "Content negotiation/headers: No assertions on Content-Type: application/json or Accept handling; no verification of charset.",
+              "Defaults when omitted: No explicit verification that omitted limit/offset/audit use defaults (limit=100, offset=0, audit=NONE) with datasets large enough to prove behavior.",
+              "Response schema: No validation against the CustomField definition (required fields/types) or audit payload shape for FULL vs MINIMAL vs NONE.",
+              "Offset validation (type): Missing test for non-integer offset (e.g., offset=abc) -> 400.",
+              "URL encoding: Special-character searchKey is used raw but not tested with proper percent-encoding in the path and correct server decoding.",
+              "Deterministic ordering: Pagination tests do not assert stable sort/order across pages to avoid duplicates/gaps between requests.",
+              "Error payload contract: Tests check for presence of an error message but not the standardized error schema/fields and error response Content-Type.",
+              "Boundary extremes: No tests for int64 extremes/overflow for limit/offset or server-side maximum clamp behavior.",
+              "SearchKey rules: Ambiguous expectations for empty/whitespace keys (TC21/TC25) reduce verifiability; expected status/result should be fixed per spec."
+            ],
+            "recommendations": [
+              "Add caching scenarios: initial GET -> capture ETag, re-GET with If-None-Match -> expect 304; similarly for Last-Modified/If-Modified-Since; assert Cache-Control presence.",
+              "Introduce rate limiting tests: fire a burst exceeding limits -> expect 429 with Retry-After; confirm normal behavior below thresholds.",
+              "Add 403 scenario: valid token lacking required scope/role receives 403 with standard error body.",
+              "Assert headers: verify Content-Type: application/json; optionally test Accept negotiation; ensure charset is correct.",
+              "Verify defaults: with >100 matches, call without query params and assert array length is 100, offset is 0, and audit fields are absent (audit defaults to NONE).",
+              "Schema validation: validate each item against the CustomField schema (required fields/types); for audit=FULL/MINIMAL ensure correct fields present/absent; for NONE ensure no audit block.",
+              "Add non-integer offset test: offset=abc -> 400 with clear error code/message.",
+              "Test URL encoding: use a searchKey requiring percent-encoding (e.g., spaces, slashes, UTF-8) and assert server decodes and matches correctly.",
+              "Stability across pages: assert a deterministic sort (document the field) and verify no overlaps/gaps between consecutive pages.",
+              "Standardize error responses: assert error response schema (fields like code, message), Content-Type, and consistent HTTP status mapping for each validation error.",
+              "Boundary tests: probe extreme values (limit/offset near int64 bounds, excessively large limit) and expected behavior (400 or clamped).",
+              "Clarify and lock behavior for empty/whitespace searchKey: update tests to assert a single expected status (200 with empty results or 400), matching the API spec."
+            ],
+            "usage": {
+              "completion_tokens": 4623,
+              "prompt_tokens": 5878,
+              "total_tokens": 10501,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3648,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

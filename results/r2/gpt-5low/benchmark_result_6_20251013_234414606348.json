@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-13T23:44:14.606320",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:43:51.724547",
+    "benchmark_end_time": "2025-10-13T23:44:14.606316",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 22.881769,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT - Valid Request: Multiple success scenarios validate 204 update behavior with required and optional headers (TC01, TC02, TC03, TC04, TC24).",
+              "PUT - Non-Existing Resource: Proper 400 handling when account does not exist (TC07).",
+              "PUT - Concurrency Issues: Concurrent updates with data consistency asserted (TC25).",
+              "Input Validation: UUID format invalid -> 400 (TC06); missing body -> 400 (TC09); malformed JSON -> 400 (TC10); invalid schema -> 400 (TC11); mixed valid/invalid objects -> 400 (TC18).",
+              "Headers: Required X-Killbill-CreatedBy enforced (TC08); optional Reason/Comment supported (TC02); unsupported headers ignored (TC05).",
+              "Security/Validation Hardening: SQLi and XSS payloads rejected (TC20, TC21); duplicate field names rejected (TC23); extra properties ignored (TC17); max lengths accepted (TC16).",
+              "Operational/Failure Modes: 401 for missing auth (TC12); 503 service down (TC13); 502 dependency failure (TC14); 504 timeout (TC19); 413 large payload limit handling (TC26).",
+              "Integration/Auditability: Audit log recorded (TC27); external reporting consistency (TC28).",
+              "Edge Cases: Empty array semantics covered (removes all fields) (TC15); large arrays handled (TC04)."
+            ],
+            "gaps": [
+              "PUT - Partial Update rules/atomicity: No test asserts that partial updates are rejected or that the operation is atomic (i.e., no changes applied if any object is invalid). TC18 reports invalid items but does not verify no partial persistence.",
+              "Idempotency of PUT: No scenario verifies that sending the same payload repeatedly results in the same state and response (no duplicates or drift).",
+              "Response headers/content-type: The story notes produces application/json; tests don\u2019t verify Content-Type/Accept behavior (especially on 204 vs error responses) or absence of body for 204.",
+              "UUID pattern realism: Positive-path examples use non-UUID literals like \"valid-uuid-1234-...\"; no test validates a correctly formatted UUID against the documented pattern.",
+              "Error contract consistency: The story explicitly lists 400 for invalid accountId or malformed body; tests include 502/503/504/413 without asserting error body schema or headers (e.g., correlation ID), and do not confirm correct 400 error payload schema for spec-listed cases.",
+              "Atomic removal semantics: TC15 assumes empty array removes all fields; the story does not specify this behavior. Missing a test tied to explicit requirement or product decision for this behavior.",
+              "Concurrency control headers/versioning: No scenarios for optimistic concurrency (e.g., If-Match/ETag) or last-writer-wins policy if applicable.",
+              "Rate limiting/throttling: No test for 429 or behavior under burst traffic beyond correctness (TC25 focuses on success/consistency, not throttling).",
+              "Audit/trace headers: While audit log integration is tested, there is no verification that Reason/Comment propagate into audit records when supplied.",
+              "Negative header validation: No tests for invalid types/oversized values in X-Killbill-* headers or disallowed characters."
+            ],
+            "recommendations": [
+              "Add an atomicity test: craft a payload with one invalid CustomField and assert the API returns 400 and that no changes were applied to any custom field for the account.",
+              "Add PUT idempotency tests: send the same payload multiple times and verify repeated 204s with no duplicate or unintended changes.",
+              "Validate response headers: assert Content-Type for error responses, absence of body for 204, and any standard headers (e.g., correlation/request ID) if required by API standards.",
+              "Use real RFC-4122 UUIDs in positive paths and add a test that a valid UUID passes the documented pattern check.",
+              "Align error contract: for 400 cases (invalid accountId, malformed body), assert error schema fields (code, message, details). Optionally scope or remove non-specified 5xx/413 tests or add assertions to meet documented error contract.",
+              "Clarify and formalize empty array behavior with product/engineers; if intended to remove all fields, keep TC15 and add explicit post-condition verification. If not, add a test expecting 400 or no-op per spec.",
+              "Add concurrency control tests if supported: ETag/If-Match precondition failures (412) or last-write-wins scenarios documented; otherwise document that such controls are not supported.",
+              "Add rate limiting tests: burst PUTs to trigger 429 and verify Retry-After behavior, if the platform enforces throttling.",
+              "Extend audit validation: when Reason/Comment are provided, assert they appear in audit logs and/or response headers as designed.",
+              "Harden header validation: add tests for overly long X-Killbill-* values, invalid characters, and ensure proper 400 responses with descriptive messages."
+            ],
+            "usage": {
+              "completion_tokens": 1832,
+              "prompt_tokens": 6919,
+              "total_tokens": 8751,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

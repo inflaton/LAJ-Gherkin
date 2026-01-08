@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "81_2025-10-15T18:41:19.177553",
+    "jira_id": "81",
+    "jira_title": "Implement/Test API: GET /1.0/kb/customFields/pagination - List custom fields",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T18:38:29.450082",
+    "benchmark_end_time": "2025-10-15T18:41:19.177549",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 169.727467,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "81_qe_sup-gpt4.1_agent-gpt4.1_1748921187.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: Successful retrieval with defaults and explicit combinations returns 200 and a JSON array of CustomField objects with schema checks (TC01, TC02, TC06, TC17, TC18, TC24).",
+              "Empty Response: System returns 200 with an empty array when no custom fields exist (TC07).",
+              "Pagination: Offset/limit semantics verified across default, combined, partial inputs, large datasets, and regression for correctness; concurrency requests return correct subsets (TC02, TC06, TC17, TC18, TC20, TC21, TC22).",
+              "Query Parameters: Audit values FULL/MINIMAL/NONE validated; invalid audit and pagination parameters handled with >=400; unsupported params ignored; boundary/extreme values and injection attempt covered (TC03\u2013TC05, TC11, TC08\u2013TC10, TC15, TC14, TC16).",
+              "Authorization and error handling: 401 for missing/invalid token; 503 for service down; timeout handling with 504/503 (TC12, TC13, TC19).",
+              "Response schema: Required fields per CustomField definition and documented JSON schema validated (TC01, TC24)."
+            ],
+            "gaps": [
+              "Caching Behavior: No checks for ETag, Cache-Control, Last-Modified, or conditional requests (If-None-Match/If-Modified-Since).",
+              "Rate Limiting: No scenarios that verify throttling behavior (e.g., 429 Too Many Requests) or rate-limit headers under burst traffic.",
+              "Content-Type and negotiation: No assertion that Content-Type is application/json per Produces, and no tests for Accept header handling/406 Not Acceptable.",
+              "Default audit behavior: Missing verification that omitting audit defaults to NONE (i.e., audit fields absent by default in TC01).",
+              "Pagination edge cases: No tests for offset beyond total records (expect empty array), last-page remainder, page-by-page navigation without overlaps/gaps, or stable deterministic ordering across sequential pages.",
+              "Authorization 403: No scenario for authenticated but forbidden user/tenant returning 403.",
+              "Type validation: No tests for non-integer/decimal/string values for offset/limit, or whitespace-only values; overflow handling lacks deterministic expected outcome.",
+              "Response headers (optional platform conventions): No verification of any pagination-related headers if the API provides them."
+            ],
+            "recommendations": [
+              "Assert headers and content negotiation: Verify Content-Type: application/json for success responses and test Accept negotiation (e.g., Accept: application/xml -> 406).",
+              "Add caching tests: Capture ETag/Last-Modified on first GET; re-GET with If-None-Match/If-Modified-Since expecting 304; confirm Cache-Control presence and that cache keys vary by offset/limit/audit.",
+              "Add rate-limiting tests: Send burst traffic to check for 429 and rate-limit headers (or explicitly verify behavior if rate limiting is not expected).",
+              "Verify default parameters: Compare no-parameter call to explicit offset=0, limit=100, audit=NONE; confirm audit info is absent by default.",
+              "Expand pagination coverage: Iterate pages end-to-end, ensure no duplicates/omissions, test offset beyond total -> empty array, validate last page returns remainder < limit, and assert stable ordering across pages.",
+              "Add authorization-depth test: Use a valid token lacking required permissions/tenant to expect 403 Forbidden.",
+              "Strengthen validation: Add offset=abc, limit=10.5, whitespace inputs, and audit case-sensitivity (full vs FULL) with expected 400 and clear error messages.",
+              "Make boundary behavior deterministic: Define acceptable max limit/offset and update TC16 to assert a specific status code and message (e.g., 400 with validation error) rather than ambiguous 200 or 400.",
+              "If applicable to the platform, verify pagination headers (e.g., next/prev/total) or Kill Bill-specific pagination headers to complement body assertions."
+            ],
+            "usage": {
+              "completion_tokens": 7561,
+              "prompt_tokens": 4979,
+              "total_tokens": 12540,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6720,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-09-28T04:55:10.887709",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:54:54.158781",
+    "benchmark_end_time": "2025-09-28T04:55:10.887705",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 16.728924,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple successful deletion scenarios (TC01, TC02, TC12, TC13, TC17, TC18) validate correct 204 behavior for typical and edge-case emails.",
+              "Input Validation: Invalid accountId format and invalid email format are tested (TC05, TC06).",
+              "Non-Existent Resource Handling: Deleting a non-existent account and deleting a non-existent email are covered with expected 404s (TC03, TC04, TC09).",
+              "Authorization: Unauthorized access using an invalid token is covered (TC10) \u2014 verifies 401 handling.",
+              "Required/Optional Headers: Presence and absence of required header X-Killbill-CreatedBy is tested (TC01, TC07). Optional headers X-Killbill-Reason and X-Killbill-Comment are exercised (TC02).",
+              "Concurrency: Race condition behavior for concurrent deletes is covered (TC15).",
+              "Error Handling / Dependence Failures: Service unavailable scenario is covered (TC11) with expected 503.",
+              "Security / Injection: XSS/injection in email parameter is tested (TC16).",
+              "Performance & Resilience: Response time threshold check and transient network retry behavior are included (TC14, TC19).",
+              "Regression & Compatibility: Regression cases for uppercase emails and legacy client header are present (TC17, TC18).",
+              "Extra/Unsupported Parameters: Behavior with extra query parameters is exercised (TC08)."
+            ],
+            "gaps": [
+              "Soft Delete vs Permanent Delete: There are no tests that assert whether deletion is soft (marked deleted) or hard (completely removed) and whether deleted emails can be recovered or are retained in an audit/log.",
+              "Response Body Content on Success: The acceptance criteria mentions application/json produced; tests only assert 204 (no content) and do not validate any response headers or body content (e.g., confirmation payload or audit metadata).",
+              "Headers Validation beyond CreatedBy: No tests validate header value constraints (e.g., max length) for X-Killbill-CreatedBy, X-Killbill-Reason, X-Killbill-Comment or how missing optional headers are treated beyond successful delete.",
+              "Rate Limiting / Throttling: There are no tests for consecutive rapid requests beyond the concurrency scenario to validate rate-limiting behavior.",
+              "Caching / HTTP Semantics: No tests for caching headers, ETag, Cache-Control, or other HTTP semantics relevant to idempotency and caching.",
+              "HTTP 4xx Variants: Tests check 400/401/404/503 but do not explicitly cover malformed URL encoding edge-cases (e.g., percent-encoded emails, reserved characters in path) or 403 (forbidden) scenarios where an authenticated user lacks permission.",
+              "Large-scale / Stress Scenarios: Aside from a single concurrency test and response time threshold, there are no stress/load tests verifying behavior under sustained high volume.",
+              "Audit/Logging/Immutability: No tests assert that deletion actions are recorded in audit logs (headers include creator/reason/comment), or that audit trails are returned or accessible if required by product policy."
+            ],
+            "recommendations": [
+              "Add tests to verify soft-delete semantics vs permanent deletion: check database state or API read endpoints after delete to ensure expected retention or removal and whether an audit record exists.",
+              "Validate response headers and any JSON body presence/format where applicable (the story mentions application/json); assert Content-Type, and any audit metadata or location headers if returned.",
+              "Add tests for header validation limits and edge cases: long CreatedBy/Reason/Comment values, missing optional headers, and invalid header characters to ensure proper validation and error messaging.",
+              "Include tests for URL encoding and reserved characters in the email path parameter (percent-encoding, plus signs, slashes if allowed) and confirm correct 400/404 behavior.",
+              "Introduce rate-limiting and throttling tests: send many requests in quick succession and assert 429 or other expected behavior (or confirm the system tolerates the rate).",
+              "Add caching/HTTP semantics tests: verify presence/absence of caching headers, idempotency guarantees, and behavior when ETag/If-Match headers are used (if applicable).",
+              "Expand negative auth tests to include 403 (authenticated but unauthorized) if the system supports role-based access control.",
+              "Add stress/load tests beyond single concurrency test to validate stability under sustained concurrent deletes and measure error rates and latency under load.",
+              "Add assertions for audit/logging side-effects where product policy requires traceability (e.g., ensure deletion recorded with CreatedBy/Reason/Comment)."
+            ],
+            "usage": {
+              "completion_tokens": 1157,
+              "prompt_tokens": 5675,
+              "total_tokens": 6832,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

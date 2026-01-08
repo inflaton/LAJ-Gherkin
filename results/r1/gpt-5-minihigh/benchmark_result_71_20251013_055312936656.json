@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "71_2025-10-13T05:53:12.936631",
+    "jira_id": "71",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/versions - Retrieve a list of catalog versions",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:51:09.336795",
+    "benchmark_end_time": "2025-10-13T05:53:12.936627",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 57,
+    "average_generation_time_seconds": 123.599832,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 57,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "71_qe_sup-gpt4.1_agent-gpt4.1_1748920634.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 57,
+            "covered": [
+              "Valid requests (happy path): TC01 and TC02 verify successful retrieval (global and tenant/account-specific) with 200 and application/json.",
+              "Empty responses: TC03 and TC13 validate behavior when no catalog versions exist (empty JSON array, no stack trace).",
+              "Query-parameter validation: TC02, TC04, TC05, TC09, TC12, TC16, TC17, TC18 cover valid/invalid accountId, non-existent accountId, empty/malformed input, extra/unsupported params ignored, mixed-case handling, and SQL-injection attempts.",
+              "Authentication/Authorization (authentication): TC06 and TC07 check missing and expired/invalid tokens return 401.",
+              "Error handling for several failure modes: TC08 (service unavailable 503), TC19 (malformed JSON -> 500), TC11 (slow downstream -> 504/timeouts) and invalid input -> 400 scenarios are present.",
+              "Content correctness: TC01/TC20 assert response is a JSON array of strings and verify ISO 8601 date-time format and absence of HTML.",
+              "Performance & concurrency: TC10 tests a large dataset (10,000 items) with a response-time SLA, and TC15 exercises 100 concurrent requests."
+            ],
+            "gaps": [
+              "Pagination: No tests verify paging/limit/offset/continuation token behavior or that the API gracefully handles paged access for large result sets.",
+              "Caching behavior / conditional GET: No tests for Cache-Control, ETag, Last-Modified, If-None-Match / 304 Not Modified, or other caching headers and semantics.",
+              "Rate limiting / throttling: No explicit tests that trigger/verify 429 responses, Retry-After headers, or backoff behavior; TC15 exercises concurrency but does not assert throttling behavior.",
+              "Authorization granularity (403 / tenant isolation): Tests cover authentication (401) but not authorization scenarios where an authenticated user lacks permission (403) or tenant isolation failures.",
+              "Content negotiation / Accept header handling: No tests for Accept header variations (e.g., unsupported media types -> 406) or verifying the API respects Accept.",
+              "Ordering / determinism / de-duplication: No tests assert expected ordering of returned dates, deduplication rules, or deterministic response across calls.",
+              "Error response schema & headers: While some error codes are tested, there is no validation of a consistent error JSON schema, presence of error codes/messages fields, or absence of sensitive headers/stack traces in error responses beyond TC12/TC13."
+            ],
+            "recommendations": [
+              "Add pagination tests: if the API supports or may need paging, add tests for limit/offset/page-size, next/prev links, consistency across pages and total counts; otherwise assert explicit \"no-pagination\" behavior in the contract.",
+              "Add caching/conditional GET tests: assert presence and correctness of Cache-Control/ETag/Last-Modified headers; test If-None-Match/If-Modified-Since to receive 304 when appropriate and validate cache expiration behavior.",
+              "Add rate-limiting/throttling tests: simulate bursts and sustained high-RPS to verify 429 responses, Retry-After header semantics, and graceful degradation/backoff behavior; include tests for client-side retry guidance.",
+              "Add authorization/tenant-isolation tests: verify that authenticated users without correct tenant scope/role receive 403, and that tenant isolation prevents cross-tenant data exposure.",
+              "Add content-negotiation tests: send different Accept headers (including unsupported types) and verify correct responses or 406 behavior; assert Content-Type on success and errors.",
+              "Add determinism and data-integrity tests: assert sort order (if part of the contract), duplicate handling, timezone/offset normalization for ISO 8601 strings, and consistent results across repeated calls.",
+              "Validate error response schema and sensitive-data handling: define and test a stable error JSON schema (fields like code/message), ensure no stack traces or internal details leak, and verify appropriate HTTP headers on error responses.",
+              "Add boundary and resilience tests: test extremely large result sets beyond 10k, verify streaming/chunking behavior or max response size, and add DB-failure simulations to validate 500-level handling."
+            ],
+            "usage": {
+              "completion_tokens": 6579,
+              "prompt_tokens": 4525,
+              "total_tokens": 11104,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5696,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

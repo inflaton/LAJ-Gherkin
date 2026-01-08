@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "82_2025-09-28T10:05:43.370444",
+    "jira_id": "82",
+    "jira_title": "Implement/Test API: GET /1.0/kb/customFields/{customFieldId}/auditLogsWithHistory - Retrieve custom field audit logs with history by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:04:20.330455",
+    "benchmark_end_time": "2025-09-28T10:05:43.370439",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 83.039984,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "82_qe_sup-gpt4.1_agent-gpt4.1_1748921240.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Request: Successful 200 with JSON array of AuditLog objects and Content-Type asserted (TC01).",
+              "Empty Response: 200 with empty array when no logs exist (TC02, TC12).",
+              "Authorization: 401 for missing/invalid token is validated (TC06, TC07).",
+              "Error Scenarios per story: 404 when custom field or its associated account is not found (TC03, TC04).",
+              "Input Validation/Path Robustness: Invalid UUID (400), missing id (400/404), extra path segment (404), spaces in path (400/404), SQLi payload safely handled without leakage (TC05, TC09, TC10, TC15, TC17).",
+              "System Failure Handling: Service/database outage returns 503 with safe message (TC08).",
+              "Performance/Scalability: Large result set and concurrency performance validated (TC11, TC14).",
+              "Backward Compatibility: Older User-Agent still returns valid JSON (TC13)."
+            ],
+            "gaps": [
+              "Caching Behavior: No checks for ETag/Last-Modified or Cache-Control headers; no conditional GET (304) coverage.",
+              "Rate Limiting: No scenarios validating throttling/429 or Retry-After under burst traffic.",
+              "Pagination: Not addressed. If the endpoint paginates large histories, there are no page/size/next-link tests. If it does not, no test asserts absence of pagination controls.",
+              "Query Parameters: No tests to ensure unexpected query params are ignored or rejected (the endpoint defines none).",
+              "Authorization Depth: No 403/insufficient-permissions scenario if RBAC applies.",
+              "WithHistory Semantics: Tests assert generic AuditLog schema but do not verify presence of history details expected from the withHistory variant (e.g., prior values/versions/change details).",
+              "Error Contract: Negative tests check messages but do not validate standardized error schema (fields like errorCode, message, type).",
+              "Result Ordering: No assertion that audit logs are returned in a deterministic order (e.g., reverse chronological).",
+              "Path Variant: No explicit test for trailing slash /auditLogsWithHistory/ behavior."
+            ],
+            "recommendations": [
+              "Add caching tests: assert ETag/Cache-Control headers on 200; send If-None-Match/If-Modified-Since to verify 304 behavior if supported.",
+              "Introduce rate limiting scenarios: burst requests to a single id; expect 200 or 429 with Retry-After as per contract.",
+              "Clarify pagination support. If supported, add tests for page/size, bounds, and navigation links; if not, add a test asserting all logs are returned and document non-paginated behavior.",
+              "Add a 403 authorization scenario for authenticated but unauthorized users (role lacking permission).",
+              "Strengthen withHistory validation: assert that each AuditLog entry includes expected historical details (e.g., changeType, previousValue/newValue or equivalent history fields).",
+              "Validate a consistent error response schema across 400/404/503, including required fields and no stack traces.",
+              "Assert ordering (e.g., createdDate descending) and that ties are deterministic.",
+              "Add a test for trailing slash /auditLogsWithHistory/ to ensure predictable 404/301/308 behavior per API guidelines.",
+              "Add a test with an extraneous query param (e.g., ?foo=bar) to confirm it is rejected with 400 or ignored as specified."
+            ],
+            "usage": {
+              "completion_tokens": 4132,
+              "prompt_tokens": 4430,
+              "total_tokens": 8562,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3392,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

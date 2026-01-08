@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-10-13T04:14:35.994634",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:14:11.555483",
+    "benchmark_end_time": "2025-10-13T04:14:35.994631",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 24.439148,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC13, TC14) verify successful deletion of all or specific custom fields and expected 204 responses.",
+              "Empty Response / No-data: TC04 and TC06 cover deleting from accounts with no custom fields and deleting using a non-existent account id (returns 204).",
+              "Path Parameter Validation: TC05 validates invalid accountId format (UUID pattern) producing 400.",
+              "Query Parameter Validation: TC02, TC08, TC13, TC14 exercise query parameter usage, invalid customField UUIDs (TC08), duplicate IDs (TC14), and large lists (TC13).",
+              "Required Header Validation: TC07 verifies missing required X-Killbill-CreatedBy header (expected 400).",
+              "Optional Headers: TC03 covers the optional X-Killbill-Reason and X-Killbill-Comment headers.",
+              "Error Conditions: TC11 and TC12 simulate backend/system errors and network timeout resulting in 5xx/504 behavior.",
+              "Authorization: TC10 covers unauthorized access (401/403) scenarios.",
+              "Concurrency & Regression: TC15 addresses repeated deletes (idempotency) and TC16 addresses concurrent load/performance.",
+              "Integration / Data Consistency: TC17 verifies deletion is reflected in dependent services.",
+              "Security: TC19 and TC20 test SQL injection / XSS attempts in path and query."
+            ],
+            "gaps": [
+              "Produces / Response Content-Type: The story notes \"Produces: application/json\" but there is no test verifying response Content-Type or that 204 responses include/omit expected headers.",
+              "Audit / Metadata Logging: No tests assert that deletion is recorded/audited (e.g., createdBy, reason, comment persisted in audit logs or event store).",
+              "Soft Delete vs Hard Delete Semantics: No tests verify whether deletion is soft (deleted flag) vs permanent and any related recoverability behavior.",
+              "Partial Failure Atomicity: While TC11/TC12 test failures, there is no explicit test ensuring partial completion does not occur when some customField IDs succeed and others fail (atomicity / transactional behavior).",
+              "Query param edge cases: No test for empty customField parameter (e.g., customField= with no value) or customField parameter present but empty list semantics.",
+              "Response body / error payload schema: Error scenarios check for error messages but there is no assertion on error response structure/schema (JSON keys, codes).",
+              "Produces mismatch for 204: Story indicates \"Produces: application/json\" but tests do not assert expected behavior when 204 is returned (should be no body) or whether Content-Type is present.",
+              "Rate Limiting / Throttling: Although TC16 stresses concurrency, there are no tests for rate limiting responses (429) or throttling behavior.",
+              "Timeout / Retry semantics: TC12 checks timeout/504 but does not assert whether any retry behavior or idempotency guarantees are provided by the API.",
+              "Non-UUID path injection variants: TC05/TC19 cover invalid formats and SQL injection, but there is no test for other malformed encodings (very long accountId strings) that could trigger different server behavior."
+            ],
+            "recommendations": [
+              "Add assertions for response headers and content-type (Content-Type, Cache-Control, ETag) including behavior for 204 responses to ensure adherence to \"Produces: application/json\" expectation.",
+              "Add tests to verify that deletion operations are audited (record createdBy, reason, comment) \u2014 either via API-visible audit endpoints or verifying persistence in DB/messaging/event logs.",
+              "Add an atomicity test where some customField IDs are valid and others cause failures to ensure no partial deletes occur (transaction roll-back behavior), or explicitly test documented behavior if partial success is intended.",
+              "Add a test for empty/blank customField parameter (customField=) and for explicit empty arrays to confirm server interpretation (treat as all vs none).",
+              "Add schema validation tests for error responses to assert consistent JSON error structure and machine-readable error codes.",
+              "Add tests for very long/malformed accountId and customField values (excessive length) to detect potential DoS or input-handling bugs.",
+              "Add rate-limiting tests (429) if the API enforces throttling separately from performance under load, and explicit retry/idempotency tests for network failures.",
+              "Clarify and test soft vs hard delete semantics: add tests to verify whether deleted custom fields are recoverable or remain referenced by other services, and check dependent-service behavior more thoroughly after deletion."
+            ],
+            "usage": {
+              "completion_tokens": 1212,
+              "prompt_tokens": 5440,
+              "total_tokens": 6652,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

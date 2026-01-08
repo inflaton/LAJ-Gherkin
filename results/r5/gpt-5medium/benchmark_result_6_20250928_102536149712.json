@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-09-28T10:25:36.149685",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:24:22.977458",
+    "benchmark_end_time": "2025-09-28T10:25:36.149680",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 73.172222,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "PUT Valid Request: Multiple success paths verify 204 and that data is updated (TC01\u2013TC04, TC16).",
+              "Required headers: X-Killbill-CreatedBy required and enforced (TC01\u2013TC04, TC08). Optional headers accepted (TC02). Unsupported headers ignored (TC05).",
+              "Request body validation: Missing body (TC09), malformed JSON (TC10), and invalid CustomField schema (TC11) return 400.",
+              "Path parameter validation: Invalid UUID format returns 400 (TC06). Non-existent account handled (TC07).",
+              "Edge/size cases: Large arrays (TC04), near payload limit including 413 path (TC26), empty array behavior (TC15), max field lengths (TC16).",
+              "Security negatives: SQL injection and XSS payloads rejected (TC20, TC21).",
+              "Operational errors: 401 unauthorized (TC12), 503 service down (TC13), 502 dependency failure (TC14), 504 timeout (TC19).",
+              "Integration side-effects: Audit logging and external reporting updated (TC27, TC28).",
+              "Performance/concurrency breadth: Concurrent requests across multiple accounts complete with 204 and consistency (TC25).",
+              "Regression checks: Duplicate field names rejected (TC23)."
+            ],
+            "gaps": [
+              "PUT guideline - Partial Update behavior not explicitly validated. No test clarifies whether PUT replaces the entire customFields set or supports partial updates; TC15/TC17 assert behaviors not stated in the story.",
+              "Concurrency on the same resource is untested. No scenarios for two or more simultaneous PUTs to the same account to detect race conditions, lost updates, or expected conflict handling (e.g., 409).",
+              "Idempotency is not covered. No scenario verifies that repeating the same PUT with identical payload yields the same 204 result without additional side effects.",
+              "Content negotiation missing. No tests for 415 Unsupported Media Type when Content-Type is absent/non-JSON, or 406 when Accept requests an unsupported type.",
+              "Error contract not validated. Tests check for messages but not the standard error schema shape (e.g., code/type/message/requestId).",
+              "Header value validation/persistence gaps. No constraints tested for X-Killbill-CreatedBy value (length/charset), and no verification that X-Killbill-Reason/Comment are persisted into audit logs.",
+              "Ambiguity on non-existing account status. TC07 expects 400; requirement does not clarify 400 vs 404 for well-formed but non-existent accountId.",
+              "Schema strictness ambiguity. TC17 assumes extra CustomField properties are ignored with 204; if the schema disallows additionalProperties, the expected outcome should be 400.",
+              "204 response semantics not validated. No checks that 204 responses have no body and appropriate headers (e.g., absence of Content-Type).",
+              "Optimistic locking/ETag not covered. If supported, no tests for If-Match/version to prevent lost updates.",
+              "Authorization depth: 403 (authenticated but insufficient permissions) not covered.",
+              "Transactional integrity for mixed valid/invalid payloads: TC18 asserts 400 but does not verify no partial writes occurred."
+            ],
+            "recommendations": [
+              "Add scenarios to lock down update semantics: one where the payload omits existing fields to confirm whether they are removed (full replacement) or left unchanged (partial update). Ensure behavior matches requirements and document it.",
+              "Create same-account concurrency tests: two concurrent PUTs with different payloads; assert final state, conflict behavior (e.g., 409), and atomicity. If optimistic locking is supported, include If-Match/ETag version checks.",
+              "Add idempotency test: execute the same valid PUT twice; verify 204 both times and unchanged state/audit behavior as expected.",
+              "Add media type tests: 415 when Content-Type is missing or not application/json; 406 when Accept requests an unsupported type; verify error response Content-Type is application/json.",
+              "Validate standard error schema fields (code/type/message/requestId) across 4xx/5xx cases, not just presence of a message.",
+              "Verify header constraints and persistence: boundary tests for X-Killbill-CreatedBy length/charset and that X-Killbill-Reason/Comment are captured in audit logs.",
+              "Clarify and test the expected status for non-existent but well-formed accountId (400 vs 404); align TC07 with the agreed contract.",
+              "Align schema handling for extra properties: if additionalProperties=false, expect 400 and include a negative test; if they are ignored, assert that explicitly in requirements.",
+              "Assert correct 204 semantics: no response body and no Content-Type header; for error responses, assert Content-Type application/json.",
+              "Add a test to ensure no partial writes on invalid batch (TC18): verify DB state remains unchanged when any item fails validation.",
+              "Include a 403 authorization scenario for authenticated users lacking permission to modify custom fields."
+            ],
+            "usage": {
+              "completion_tokens": 4888,
+              "prompt_tokens": 6919,
+              "total_tokens": 11807,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3840,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

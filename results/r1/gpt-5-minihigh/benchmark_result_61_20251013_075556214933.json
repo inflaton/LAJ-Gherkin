@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "61_2025-10-13T07:55:56.214904",
+    "jira_id": "61",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles/pagination - List bundles",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T07:54:08.988715",
+    "benchmark_end_time": "2025-10-13T07:55:56.214900",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 107.226185,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "61_qe_sup-gpt4.1_agent-gpt4.1_1748919955.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid requests: Multiple success scenarios (TC01, TC02, TC03, TC04, TC05, TC19, TC20, TC21) validate default behavior, explicit offset/limit, and audit levels.",
+              "Empty responses: TC06 and TC07 verify behavior when no bundles exist or offset is beyond total (empty JSON array + 200).",
+              "Pagination basics and limits: TC01, TC02, TC05 validate default limit (up to 100), explicit offset/limit, returned counts and starting positions; TC07 covers offset beyond total; TC16/TC11 cover integer boundary and excessive limit cases.",
+              "Query parameter validation: Negative values (TC08, TC09), invalid audit (TC10), unexpected extra params (TC15), SQL-injection attempt (TC14), and integer-boundary checks (TC16) are exercised.",
+              "Authorization and error handling: TC12 covers missing/invalid token (401); TC13 and TC22 cover dependency failure/timeout (503/504); several TC\u2019s assert proper 4xx handling for invalid parameters (TC08, TC09, TC10, TC11).",
+              "Performance & Security: TC17 and TC18 address response-time expectations under load; TC14 addresses injection attack resilience; regression tests TC19/TC20 check previously fixed behaviors/backwards compatibility."
+            ],
+            "gaps": [
+              "Caching behavior: No tests assert Content-Type, Cache-Control, ETag, or conditional GET behavior (If-None-Match -> 304).",
+              "Rate limiting / throttling: No tests for 429 responses or handling of client rate limits (burst requests, Retry-After header).",
+              "Schema validation: No tests validate that each returned object strictly conforms to the #/definitions/Bundle schema (required fields, types, nested objects).",
+              "Parameter type and edge-case validation: Missing tests for non-integer/ malformed types (e.g., offset=abc, limit=1.1), limit=0 (minimum allowed), and offset equal exactly to total count (boundary vs beyond).",
+              "Permission/authorization granularity: No tests for 403 Forbidden (valid token but insufficient permissions/roles) or separate handling of expired vs malformed tokens.",
+              "Pagination ordering/continuity: No tests ensuring deterministic ordering across pages (no duplicates/missing items when iterating pages) and consistency when concurrent writes occur.",
+              "Content negotiation: No tests for Accept header behavior or responses when non-JSON Accept headers are requested."
+            ],
+            "recommendations": [
+              "Add tests asserting response headers: Content-Type: application/json, Cache-Control, ETag and a conditional GET test (If-None-Match -> expect 304 when unchanged).",
+              "Add rate-limiting tests: send burst requests to confirm 429 behavior and presence/semantics of Retry-After header (or documented alternative).",
+              "Introduce strict JSON schema checks against #/definitions/Bundle for multiple scenarios (single item, many items, nulls/optional fields) to ensure structural compliance.",
+              "Add parameter-type validation tests: offset=abc, limit=abc, offset=1.1, limit=0 and verify clear 4xx responses with explanatory error messages.",
+              "Add permission variation tests: 403 Forbidden for valid credentials lacking privileges, and distinguish expired vs malformed tokens (401 vs 403 as applicable).",
+              "Add pagination continuity tests: create a known ordered dataset and iterate pages verifying deterministic ordering, no overlap, and no missing items across adjacent pages; include a test where offset == total to assert empty array behavior.",
+              "Clarify and test audit parameter semantics (case-sensitivity and permitted values) and include a test for audit=NONE explicit vs omitted param equivalence.",
+              "Define and assert a server-side maximum limit (documented max page size) and add focused tests for values around that maximum (e.g., max, max+1) with explicit expected error and message."
+            ],
+            "usage": {
+              "completion_tokens": 6463,
+              "prompt_tokens": 4636,
+              "total_tokens": 11099,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5632,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

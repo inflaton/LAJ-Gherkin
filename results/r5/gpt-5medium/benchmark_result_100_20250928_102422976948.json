@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-09-28T10:24:22.976918",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:21:54.877271",
+    "benchmark_end_time": "2025-09-28T10:24:22.976915",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 148.099644,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "DELETE/Valid Deletion: Multiple scenarios validate successful deletion of all custom fields and specific IDs with 204 and empty body (TC01, TC02, TC03, TC04, TC06, TC07, TC10, TC15, TC19, TC20, TC21, TC23).",
+              "DELETE/Non-Existent Resource: 404 when paymentId does not exist (TC09).",
+              "Request validation aligned to story: 400 for invalid paymentId format (TC08); required header X-Killbill-CreatedBy enforced (TC11); optional headers Reason/Comment supported (TC03).",
+              "Query parameter behavior: Absent customField removes all (TC01); multi-valued customField works (TC02, TC06, TC07); non-existent customField IDs cause no-op with 204 (TC10); large lists handled (TC15); malformed customField yields 400 (TC13, TC16).",
+              "Authentication/Authorization (cross-cutting): 401 unauthorized when token invalid (TC12).",
+              "Resilience/operability (cross-cutting): 503 when service unavailable (TC14); performance under load validated (TC19); integration with audit log present (TC21)."
+            ],
+            "gaps": [
+              "DELETE/Concurrency: No scenarios for simultaneous deletions or delete-while-update race conditions.",
+              "DELETE/Soft Deletes: Behavior (hard vs soft delete) not verified; no checks that fields are permanently removed vs flagged.",
+              "Idempotency: No scenario deleting the same specific customField IDs twice to confirm consistent 204 and no errors.",
+              "Mixed existing and non-existing customField IDs in one request: Not covered (e.g., cf1 exists, cf999 does not) with expected 204 and only existing removed.",
+              "Duplicate customField IDs in query: No test to ensure deduplication/no error.",
+              "Ambiguous expectation in dependent service failure: TC22 allows 204 or 503; expected behavior should be deterministic.",
+              "Empty or blank customField parameter values (e.g., customField=) not covered; expected validation should be defined."
+            ],
+            "recommendations": [
+              "Add concurrency tests: (1) Two clients delete overlapping sets concurrently and both receive correct outcomes; (2) Delete while another client adds a field; verify final state and responses.",
+              "Verify deletion semantics (soft vs hard): After deletion, attempt to fetch custom fields to ensure they are not retrievable; if soft delete is intended, assert audit/flags accordingly.",
+              "Add idempotency test: Delete cf1, then repeat the same DELETE with customField=cf1; expect 204 both times and no errors.",
+              "Add mixed-ID test: customField includes existing and non-existing IDs; expect 204 and removal of only existing IDs.",
+              "Add duplicate-ID test: customField=cf1&customField=cf1 should succeed with 204 and behave as a single deletion.",
+              "Make TC22 deterministic: Define and assert a single expected status when the audit log service is down (e.g., main operation succeeds with 204 while audit failure is logged).",
+              "Add validation for empty parameter values: customField= (empty) should return 400 with a clear error.",
+              "Clarify handling of unexpected query parameters (TC05): Decide whether to ignore or reject with 400, and assert accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 4687,
+              "prompt_tokens": 6120,
+              "total_tokens": 10807,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3968,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

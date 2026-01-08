@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-15T01:50:28.274705",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T01:50:14.628224",
+    "benchmark_end_time": "2025-10-15T01:50:28.274701",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 13.646477,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01-TC04, TC18, TC24, TC23) verify the happy-path behavior and optional parameters (requestedDate, pluginProperty, reason, comment).",
+              "Query Parameters: requestedDate variants (future, scheduled, past) and pluginProperty formats (valid array, many values, invalid format) are covered (TC02, TC03, TC13, TC19, TC20).",
+              "Headers: Required and optional headers handling is covered (valid X-Killbill-CreatedBy, missing header error, X-Killbill-Reason, X-Killbill-Comment, legacy format, whitespace/case variants) (TC01, TC07, TC04, TC24, TC26).",
+              "Error Handling: Not-found and invalid-bundle-id scenarios are present (TC05, TC06).",
+              "State Validation: Attempts to resume bundles in invalid states are covered (already active, cancelled) (TC08, TC09).",
+              "Authorization: Unauthorized/invalid token case is included (TC10).",
+              "Concurrency: Concurrent request behavior is addressed (TC21).",
+              "Robustness / Edge Cases: Security tests (SQL injection, XSS), unexpected/extra parameters, very large inputs for headers and pluginProperty, transient network retry, dependency failure, service degradation, and performance under load are included (TC11, TC12, TC13, TC14, TC15, TC16, TC17, TC22, TC25).",
+              "PUT Method guidance: Non-existing resource handling and concurrency/race conditions are explicitly tested (TC05, TC21)."
+            ],
+            "gaps": [
+              "Response Content-Type / Body Expectations: The API spec notes 'produces: application/json' but many tests expect 204 with no body; there are no explicit checks for response Content-Type, or for empty JSON body vs empty body when 204 is returned.",
+              "ETag / Caching Behavior: No tests cover caching headers (ETag, Cache-Control) or related semantics.",
+              "Rate Limiting / Throttling: Although performance under load is present (TC22), there are no explicit tests for rate limiting behavior (429 responses) or throttling policies.",
+              "Request validation specifics: While invalid bundleId format and pluginProperty format are tested, there is no test asserting enforcement of the bundleId UUID pattern constraints beyond one invalid-string example, nor tests for boundary/malformed query parameter formats (e.g., malformed date string formats, timezone variations).",
+              "Audit/logging verifications are shallow: TC04 asserts reason/comment recorded in audit log but no negative/partial audit scenarios or verification of exact audit contents/format are present.",
+              "Content Negotiation / Accept headers: No tests for Accept header handling or mismatch behavior.",
+              "HTTP method handling: No negative tests asserting that other HTTP methods (GET/POST/DELETE/PATCH) on this endpoint are rejected with appropriate status codes (405).",
+              "Duplicate submission idempotency semantics: There's concurrency testing but no explicit duplicate request idempotency or deduplication tests (e.g., repeated identical requests with same idempotency key).",
+              "Database state invariants: No tests verify side-effects at DB transaction boundaries in failure cases (e.g., partial resume leading to inconsistent subscription states)."
+            ],
+            "recommendations": [
+              "Add explicit tests for response headers and body semantics: verify Content-Type on success and on error, and confirm that 204 responses contain no body while 4xx/5xx responses return JSON error payloads.",
+              "Add tests for caching behavior: check presence/absence and correct values for ETag and Cache-Control headers where applicable.",
+              "Introduce rate-limiting/ throttling tests: simulate burst traffic to assert 429 responses or documented rate-limiting behavior.",
+              "Expand validation coverage for query parameters: include malformed date formats, timezone edge cases, maximum/minimum lengths for pluginProperty elements and verify pattern enforcement for bundleId beyond a single invalid example.",
+              "Add tests for Accept / Content negotiation and for unsupported HTTP methods returning 405 to ensure correct method handling.",
+              "Add idempotency / duplicate submission tests: repeated identical requests (with and without idempotency keys) to ensure either idempotent behavior or correct duplicate handling.",
+              "Improve audit/log verification: add assertions on audit log entries' exact content, timestamps, and author fields for both success and failure scenarios.",
+              "Add transactional integrity tests: simulate partial failures (e.g., failure resuming one subscription in a bundle) to ensure either full rollback or documented partial-state behavior and verify DB consistency.",
+              "Add boundary tests for pluginProperty limits and clear expected behavior (explicit limit, error code and message) rather than accepting either 204 or 400; assert one behavior per test so failures are deterministic."
+            ],
+            "usage": {
+              "completion_tokens": 1127,
+              "prompt_tokens": 6265,
+              "total_tokens": 7392,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

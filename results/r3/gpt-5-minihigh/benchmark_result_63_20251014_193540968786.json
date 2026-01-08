@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-14T19:35:40.968756",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:34:54.306294",
+    "benchmark_end_time": "2025-10-14T19:35:40.968752",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 46.662458,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid PUT success paths: basic pause and combinations of optional headers/parameters are covered (TC01-TC05, TC23, TC26) with expected 204 responses.",
+              "requestedDate handling: scheduling a future pause and validation of past/malformed dates are tested (TC02, TC05, TC17, TC18).",
+              "pluginProperty coverage: valid usage, large arrays, malformed input, and special character handling are included (TC03, TC05, TC16, TC19, TC24).",
+              "Header validation: required X-Killbill-CreatedBy, missing header, reason/comment recorded in audit logs, and header XSS checks are present (TC01, TC04, TC05, TC10, TC14).",
+              "Path parameter and existence checks: invalid UUID format, SQL injection attempt, non-existent bundle, and empty-database not-found cases are tested (TC06, TC07, TC13, TC20).",
+              "Error scenarios: invalid state and already-paused conditions produce 400, missing resource 404, unauthorized 401, service unavailable 503, and plugin dependency failures 502 are covered (TC08, TC09, TC11, TC12, TC25).",
+              "Concurrency and race conditions: concurrent pause requests are explicitly tested (TC21).",
+              "Performance/load testing: bulk pause under load and average response time expectation are included (TC22).",
+              "Regression and integration checks: pausing does not affect unrelated bundles and downstream data consistency is validated (TC23, TC26).",
+              "Accessibility: API documentation accessibility check is included (TC27)."
+            ],
+            "gaps": [
+              "Produced media type and response headers are not asserted. The spec states Produces application/json but tests do not validate Content-Type or consistent error response headers (including for 204 and error responses).",
+              "Scheduled pause execution is not verified end-to-end. Tests check that a bundle is scheduled to pause on requestedDate but do not advance time or validate that subscriptions are actually paused at the scheduled time or remain active until then.",
+              "Authorization granularity is incomplete: there is a 401 unauthorized test, but no test for 403 Forbidden (authenticated user without sufficient permissions) or variations in permission roles.",
+              "Server-side 500 internal error scenarios are not covered (for example, a database failure or unexpected exception producing 500 and how the API surfaces that error).",
+              "Rate limiting and throttling behavior (429) is not tested; TC22 covers load/performance but does not assert rate-limiting behavior or backoff handling.",
+              "Idempotency and duplicate-submission semantics are unclear and not explicitly tested. Repeated identical PUT requests behavior should be defined and tested (are repeats 204, 400, or 409?).",
+              "Subscription-level granularity is not exhaustively validated. There is a check that active subscriptions are paused, but no explicit tests verifying that non-active subscriptions (canceled, already paused) remain unchanged and that only active ones transition.",
+              "PluginProperty boundary cases are incomplete: tests cover large arrays and malformed types but not edge cases like empty key, empty value, missing equals sign, encoding/URL-encoded values, or explicit max-length limits.",
+              "Audit/log verification is superficial: tests assert that reason/comment are recorded but do not validate audit record fields such as createdBy, timestamp, correlation id, or full audit schema.",
+              "Error response payload schema is not consistently validated across statuses. Tests check presence of error messages but do not assert a consistent error model or fields (error code, message, details).",
+              "Content negotiation and unsupported media type behavior (Accept header variations, 415 responses) are not tested."
+            ],
+            "recommendations": [
+              "Add assertions for response headers and media type. For 204 verify that the response is empty but that error responses include Content-Type: application/json and conform to the API error schema.",
+              "Add time-based tests for requestedDate behavior. Use time-mocking or a scheduler test harness to advance clock and assert that subscriptions pause exactly at the requestedDate and remain active before it.",
+              "Add authorization role tests including 403 Forbidden for authenticated users without pause permission, and tests for token-expiry and insufficient-scopes scenarios.",
+              "Simulate server failures to validate 500 handling and system behavior under backend errors. Ensure the API returns a stable error schema and consider retries or compensating action tests.",
+              "Develop rate-limiting tests that hit the endpoint above allowed thresholds and assert 429 responses and proper Retry-After headers; extend performance tests to explore throttling behavior under realistic traffic patterns.",
+              "Clarify and test idempotency semantics. Add repeated-request tests to define expected behavior (idempotent 204 vs explicit error) and assert consistent results under retries.",
+              "Add subscription-state granularity tests that verify only active subscriptions transition to paused while canceled or already paused subscriptions are unaffected; include tests that enumerate and assert each subscription status before and after pause.",
+              "Expand pluginProperty tests to cover edge cases (empty key, empty value, missing =, URL encoded values), maximum per-property length, and total payload size limits. Assert clear error messages for invalid pluginProperty formats.",
+              "Enhance audit log tests to validate audit record contents: createdBy, reason, comment, timestamp, operation id. Consider log correlation tests when multiple concurrent requests occur.",
+              "Standardize and assert error response schema across all error paths. Add contract tests for error payload fields (code, message, details) and for localization if applicable.",
+              "Add content-negotiation tests for Accept header handling and unsupported media types, and validate behavior when clients request different response formats.",
+              "Update the acceptance criteria to specify idempotency and scheduled-execution expectations so tests have a definitive oracle."
+            ],
+            "usage": {
+              "completion_tokens": 6887,
+              "prompt_tokens": 6254,
+              "total_tokens": 13141,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5696,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

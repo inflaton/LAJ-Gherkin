@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-09-28T05:06:57.441861",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:06:41.758956",
+    "benchmark_end_time": "2025-09-28T05:06:57.441858",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 15.682902,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid PUT request: TC01 covers the canonical successful operation (PUT with no body -> 204) matching the story's success acceptance criteria.",
+              "Idempotency / Already in rotation: TC02 verifies calling PUT when host already in rotation still returns 204 and preserves state.",
+              "Authentication/Authorization negative paths: TC03 (401) and TC04 (403) cover unauthorized and insufficient-permission responses.",
+              "Service availability: TC05 covers service unreachable / 503 behaviour.",
+              "Method correctness: TC06 covers wrong HTTP method -> 405.",
+              "Tolerant input handling: TC07 and TC08 test handling of unexpected payloads and extra headers while still succeeding with 204.",
+              "Operational considerations: TC10 (degraded performance / timeout) and TC13 (network interruption + retry) address reliability/timeouts and transient failures.",
+              "Concurrency/race conditions: TC14 tests concurrent PUTs to detect race conditions when multiple admins act simultaneously.",
+              "Regression and security checks: TC11 ensures a previously fixed bug remains fixed; TC12 addresses injection attempts in headers (security resilience)."
+            ],
+            "gaps": [
+              "Response headers / Content-Type: The story notes \"Produces: application/json\" (even though 204 is empty). No scenario asserts required response headers (Content-Type, caching, or other headers) or verifies empty body semantics with headers.",
+              "Formal acceptance of \"Produces application/json\": There is no test validating that responses include the expected JSON content-type for error responses (or handling of 204 with no body).",
+              "Generic 4xx/5xx coverage: The story requires responding with >=400 on errors; tests cover some errors (401/403/503) but are missing scenarios for other common error codes (400 Bad Request, 404 Not Found, 500 Internal Server Error) and server-side failures like DB errors producing 500.",
+              "Rate limiting / Throttling: No explicit tests for rate limiting or how repeated requests in short time are handled (guideline requirement).",
+              "Header validation and required headers beyond auth: Tests assume auth as the only required header; there's no explicit test for other required headers (e.g., client id, correlation id) or malformed headers beyond injection case.",
+              "Timeout and retry detailed behavior: TC10 and TC13 mention timeouts/retries conceptually, but there is no concrete assertion of retry backoff behavior, idempotency semantics under repeated retries, or exact timeout thresholds beyond a single example (<2s).",
+              "Logging/audit/correlation: No tests verify that the operation is logged/audited or that correlation IDs are propagated for operational traceability.",
+              "Negative payload validation: While PUT is defined with no request body, there is no test asserting the server rejects disallowed payload fields with an explicit error (TC07 accepts non-empty body and expects 204). If the API should reject payloads, this is not covered."
+            ],
+            "recommendations": [
+              "Add assertions for response headers: Create tests that verify Content-Type (application/json) for error responses and appropriate headers (e.g., Content-Length for 204, Cache-Control, ETag if applicable). Also assert an empty body is actually empty when 204 is returned.",
+              "Cover additional error codes and server failures: Add tests for 400 (malformed requests if applicable), 404 (if endpoint path/versioning mismatch), and 500 (simulate server/db failure) to meet \">=400 on error\" requirement comprehensively.",
+              "Rate limiting and throttling tests: Add scenarios hammering the endpoint to assert correct rate-limit responses (429) or graceful degradation per policy.",
+              "Clarify and test payload policy: Decide whether non-empty bodies should be accepted (as current tests assume) or rejected. If the API must reject payloads, add a TC asserting a 4xx response on non-empty body. If accepted, add validation tests for unexpected fields or large payloads to ensure robust behavior.",
+              "Detailed timeout/retry behavior: Expand TC10/TC13 into defined tests asserting exact timeout thresholds, retry semantics (idempotency), and backoff behavior to make operational expectations testable.",
+              "Audit/log/correlation tests: Add tests ensuring appropriate audit logs are emitted or correlation IDs propagated (or at least returned/traced in error responses) to meet operational requirements.",
+              "Expand header validation: Add tests for required headers beyond authentication (if any), malformed headers, and header size limits.",
+              "Explicit concurrency verification: In addition to TC14, add tests that assert there are no partial state transitions (e.g., verify atomicity by reading host state concurrently while concurrent PUTs run)."
+            ],
+            "usage": {
+              "completion_tokens": 1227,
+              "prompt_tokens": 3274,
+              "total_tokens": 4501,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

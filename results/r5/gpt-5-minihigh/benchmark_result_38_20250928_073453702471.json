@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "38_2025-09-28T07:34:53.702421",
+    "jira_id": "38",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/emails/{accountEmailId}/auditLogsWithHistory - Retrieve account email audit logs with history by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:34:05.074357",
+    "benchmark_end_time": "2025-09-28T07:34:53.702415",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 48.628058,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "38_qe_sup-gpt4.1_agent-gpt4.1_1748918465.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid Request: TC01 (with TC16) verifies a successful 200 response, Content-Type \"application/json\", and that the response is an array of AuditLog objects (checks presence of id, changeType, changedBy, changeDate, history).",
+              "Empty / No-data Responses: TC02 verifies an existing accountEmail with no audit logs returns an empty JSON array; TC18 and TC19 cover empty/partially populated DB states leading to 404 where appropriate.",
+              "Non-existent resources & input validation: TC03 and TC04 cover 404 responses for missing account/accountEmail; TC05 and TC06 validate invalid UUID formats returning 400.",
+              "Authorization (authentication) checks: TC07 and TC08 validate missing/invalid authentication tokens yield 401 Unauthorized.",
+              "Service and downstream error handling: TC09 (503 Service Unavailable) and TC12 (504 Gateway Timeout) exercise service/unavailable and downstream timeouts.",
+              "Query parameter robustness: TC10 verifies the endpoint tolerates extra/unknown query parameters and still returns 200.",
+              "Large dataset & performance: TC11 tests behavior with >1000 audit logs and asserts response contains many records and an example response-time expectation (< 2s).",
+              "Security tests: TC13 (SQL injection) and TC14 (XSS) validate input sanitization / rejection of malicious path values (expect 400).",
+              "Ordering & regression: TC15 asserts audit logs are returned ordered by changeDate descending.",
+              "Schema / backward compatibility: TC16 checks the response matches the AuditLog schema (#/definitions/AuditLog).",
+              "Content header check and API contract: TC01 explicitly checks Content-Type and TC16 covers schema-level contract validation for the AuditLog object."
+            ],
+            "gaps": [
+              "Pagination: No tests exercise paging parameters (limit/offset/page tokens) or verify stable cross-page ordering and response metadata \u2014 the large-data test expects >1000 items in a single response instead of asserting pagination behavior.",
+              "Rate limiting / throttling: There are no tests simulating bursts of requests to validate 429 responses, Retry-After headers, or server throttling behavior.",
+              "Caching behavior: No tests for caching headers (ETag, Last-Modified, Cache-Control) or conditional GET behavior (304 Not Modified).",
+              "Authorization granularity / permissions: Missing tests for authenticated-but-forbidden scenarios (403) or role/scope-based access restrictions (e.g., valid token without permission to view another account\u2019s data).",
+              "Mismatched resource association: No test where accountEmailId exists but belongs to a different accountId (should be treated as not found or handled explicitly).",
+              "HTTP method & content negotiation: No tests for method not allowed (e.g., POST/PUT to this endpoint -> 405) or Accept header variations / content negotiation edge-cases.",
+              "Internal server error handling (500): No tests that simulate server-side errors (e.g., DB failure) returning 500 and a safe error payload.",
+              "Concurrency / consistency: No tests for concurrent requests or race conditions that might affect ordering or history aggregation.",
+              "Field-level validation for nested history: TC01 checks presence of history field and TC16 checks schema, but there are no focused tests validating nested history entries (types, required fields, empty history arrays, nulls).",
+              "Rate-limit & caching header verification: While error codes for service/unavailable are tested, the presence and correctness of headers related to rate-limiting and caching are not validated."
+            ],
+            "recommendations": [
+              "Add pagination tests: If the API supports paging, add scenarios for limit/offset or page-token usage, validate page sizes, total counts (if provided), and stable ordering across pages; if the API does not support paging, document and test behavior for very large responses (streaming, truncation, or error).",
+              "Add rate-limiting tests: Simulate high request rates to validate 429 responses and Retry-After headers; include tests for client behavior when throttled.",
+              "Add caching tests: Validate ETag and Cache-Control headers, implement conditional GET tests that assert 304 Not Modified where appropriate, and verify Last-Modified semantics if available.",
+              "Add authorization-permission tests: Create scenarios for forbidden access (403) with valid tokens lacking necessary scopes/roles, expired tokens, and tokens with limited scope to verify granular access control.",
+              "Add resource-association negative test: Test a valid accountEmailId that belongs to a different accountId to ensure the API returns the correct error (commonly 404) and does not leak data.",
+              "Add HTTP method and content negotiation tests: Verify that unsupported methods return 405 and that Accept header variations are handled correctly (or return 406 if not supported).",
+              "Add internal server error simulations: Introduce tests that simulate database failures or unhandled exceptions to assert consistent 500 responses and user-friendly error messages; ensure logging/monitoring hooks are exercised in test environments.",
+              "Add concurrency tests: Simulate concurrent requests (reads during writes or multiple clients reading large histories) to validate consistency, ordering guarantees, and absence of race conditions.",
+              "Enhance nested history/schema checks: Expand schema tests to validate the structure, types, and boundaries of nested history entries (e.g., arrays length limits, required fields inside history objects, null handling).",
+              "Broaden security testing: Expand injection tests to cover more vectors and encodings (parameter fuzzing, path-encoded payloads, header-based attacks), and include automated security scans (OWASP-style).",
+              "Add performance and monitoring checks for large responses: Extend TC11 to include resource usage checks and define acceptable SLAs; if pagination is added, test performance across paged queries.",
+              "Add contract/consumer tests: Implement automated OpenAPI/contract tests to validate the response against #/definitions/AuditLog on every change and include CI gating for schema regressions."
+            ],
+            "usage": {
+              "completion_tokens": 7048,
+              "prompt_tokens": 5014,
+              "total_tokens": 12062,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

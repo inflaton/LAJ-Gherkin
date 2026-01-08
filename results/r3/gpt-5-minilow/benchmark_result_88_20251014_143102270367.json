@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-14T14:31:02.270339",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:29:56.137234",
+    "benchmark_end_time": "2025-10-14T14:31:02.270334",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 66.1331,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple success scenarios (full removal, partial removal via tagDef, no-op when tagDef empty) cover expected successful DELETE behavior and the 204 response requirement.",
+              "Empty Response: Scenario covers invoice items with no tags and asserts an empty response body and 204.",
+              "Query Parameters: Many permutations are covered \u2014 valid tagDef, empty tagDef, malformed tagDef, very large tagDef lists, extra/unexpected query parameters.",
+              "Header Handling: Required X-Killbill-CreatedBy header presence and absence are tested; optional headers X-Killbill-Reason and X-Killbill-Comment are tested, including special character / XSS payload cases.",
+              "Error Responses: Invalid invoiceItemId format (400) and non-existent invoice item (404) are covered as specified in the story.",
+              "Authentication: Invalid/expired token scenario (401) is present.",
+              "Service Unavailability: Service down/unreachable scenario (503) is present.",
+              "Concurrency/Performance: High-concurrency performance test is included to surface race conditions and throughput issues.",
+              "Integration/Regression: Tests for dependent service unavailability (audit logging) and a regression case for special characters in comments are present."
+            ],
+            "gaps": [
+              "Authorization granularity: No explicit test for forbidden/insufficient-permissions (403) \u2014 e.g., authenticated user without permission to modify tags.",
+              "Soft-delete semantics: No tests verify whether tag removals are soft-deleted (audit trail, historical visibility) versus hard-deleted; acceptance notes mention audit/integration but not soft-delete behavior verification.",
+              "Race conditions for concurrent conflicting operations: TC17 covers high concurrency broadly but lacks specific conflict scenarios \u2014 e.g., simultaneous delete and add of the same tag, or delete by two users leading to expected idempotency/consistency checks.",
+              "Rate limiting/throttling: No focused tests for rate limiting responses (e.g., 429) or behavior under sustained high request rates beyond a single performance scenario.",
+              "Caching / HTTP semantics: No tests for caching headers (ETag, Cache-Control) or conditional requests behavior \u2014 even if less applicable to DELETE, responses might still include headers.",
+              "Response body schema for errors: Tests assert presence of error messages, but there is no verification of structured error schema/fields (code, type, message, timestamp) to ensure consistent API contract.",
+              "Boundary conditions for query length/URL length: TC14 mentions large number of tagDef values but there is no explicit test for URL length limits or server handling of query-string size limits, which can produce 414 or 413.",
+              "Idempotency semantics: No explicit tests confirming that repeated identical DELETE requests remain idempotent (204 each time) or return an appropriate status.",
+              "Logging/audit verification: While integration-unavailable is covered, there is no positive test that audit logging entries are created when available (i.e., end-to-end audit verification).",
+              "Negative tests for malformed headers beyond X-Killbill-CreatedBy missing/XSS: e.g., excessively long header values, non-UTF8, or prohibited characters not covered."
+            ],
+            "recommendations": [
+              "Add an authenticated-but-forbidden (403) test to validate authorization/ACL behavior for users lacking tag-modify permission.",
+              "Add soft-delete / audit verification tests: when audit logging is available, assert that an audit record is created with createdBy/reason/comment and that tag history can be retrieved if soft-deletes are expected.",
+              "Expand concurrency tests with conflict scenarios: simulate simultaneous add+delete and two concurrent deletes to validate idempotency, locking, and lack of data corruption.",
+              "Add explicit rate-limiting tests (sustained high request rate) to assert 429 or other throttling behavior and ensure graceful degradation.",
+              "Add tests for response and request size limits: exercise very large tagDef lists to trigger and assert 413/414 and document system limits.",
+              "Verify error response schema: assert structured error fields (code/type/message) and consistency across 400/401/404/500 responses.",
+              "Add idempotency tests: repeat the same DELETE and assert consistent, documented behavior (e.g., subsequent deletes still return 204 or a specific status).",
+              "Add positive audit/logging integration test to ensure dependent services record deletion events when available (complements TC19 which covers unavailability).",
+              "Include tests for malformed/oversized headers and non-UTF8 payloads to harden header validation (complements XSS tests).",
+              "Document which HTTP headers (Cache-Control/ETag) are expected on DELETE responses and add tests if applicable; if not applicable, add a negative assertion that cache headers are not present to avoid client confusion."
+            ],
+            "usage": {
+              "completion_tokens": 1179,
+              "prompt_tokens": 5394,
+              "total_tokens": 6573,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

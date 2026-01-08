@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "65_2025-10-14T22:05:25.914309",
+    "jira_id": "65",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/block - Block a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T22:03:54.387036",
+    "benchmark_end_time": "2025-10-14T22:05:25.914304",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 91.527268,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "65_qe_sup-gpt4.1_agent-gpt4.1_1748920218.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST - Valid Payload: TC01, TC02, TC03, TC04, TC15 cover successful creation with required-only and full combinations (headers + query params) returning 201 and a JSON array of BlockingState.",
+              "POST - Invalid Payload: TC08 (malformed body), TC10 (missing body), TC06 (invalid UUID path param), TC11 (invalid requestedDate), and TC09 (missing required header) validate 400-class errors.",
+              "POST - Large Payloads/Boundary Values: TC13, TC14, TC16 exercise min/max and large field lengths, with expected 201 or 400 if limits are exceeded.",
+              "Validation depth: UUID pattern, date format, required header presence, and pluginProperty as multi-valued query param are positively validated (TC01\u2013TC04, TC11).",
+              "Server error/unavailability handling: TC17 (503) and TC28 (dependency error 502/503) cover non-2xx responses beyond validation errors.",
+              "404 Not Found handling: TC05 (empty system) and TC07 (non-existent bundleId) validate proper 404 behavior.",
+              "Authorization: TC18 covers 401 for invalid/missing authentication token.",
+              "Resilience/Concurrency: TC21 (retry after transient network error) and TC22 (concurrent POSTs) validate robustness under network and parallel conditions.",
+              "Contract/Schema assertions: Multiple scenarios assert the response is a JSON array of BlockingState and include expected fields (e.g., effectiveDate in TC02)."
+            ],
+            "gaps": [
+              "POST - Duplicate Submission: No scenario verifies behavior when the same BlockingState is submitted twice (e.g., idempotency/deduplication or 409 Conflict).",
+              "Server Error Handling (500): No explicit simulation of internal server errors (e.g., DB failure) returning 500.",
+              "Content negotiation and media type: No assertions on response Content-Type=application/json for 201 responses; no tests for 415 when Content-Type is missing/wrong; no 406 for unsupported Accept header.",
+              "Ambiguous expectation in TC12: Step says \"HTTP 201 or ignores extra parameters\"; the expected result must be deterministic (either strict 400 for unknown params or documented ignore with 201).",
+              "PluginProperty negative cases: No tests for invalid types (non-string), empty values, percent-encoding, repeated keys, or unknown plugin properties behavior.",
+              "requestedDate semantics: No coverage for past vs future dates, timezone/edge boundaries, default behavior when omitted (effective now/today), or invalid calendar dates (e.g., 2025-02-30).",
+              "Header validation depth: Missing X-Killbill-CreatedBy should deterministically yield 400 (not 401); no tests for extreme lengths/Unicode in headers or sanitization for header inputs.",
+              "Response contract depth: No checks for array cardinality (e.g., single created state), exact field mirroring from request, or presence/absence of headers like Location (if applicable).",
+              "Authorization 403: No scenario for authenticated user lacking permission resulting in 403.",
+              "Rate limiting/throttling: No test for 429 or throttling behavior under bursts (useful under performance/concurrency tests)."
+            ],
+            "recommendations": [
+              "Add a duplicate submission scenario: send the same BlockingState twice (including retry patterns) and assert expected behavior (idempotency with dedupe or explicit 409 Conflict).",
+              "Introduce a 500 Internal Server Error test by simulating a backend/database failure and verify consistent error schema.",
+              "Add content negotiation tests: assert response Content-Type=application/json on 201; send requests with missing/incorrect Content-Type to expect 415; send unsupported Accept to expect 406.",
+              "Make TC12 deterministic: define whether unknown headers/query params are ignored (documented) or rejected with 400, and assert accordingly.",
+              "Expand pluginProperty coverage: test invalid types, empty string values, repeated query keys (collectionFormat=multi), URL-encoded values, and behavior for unknown plugin properties.",
+              "Cover requestedDate edge cases: past and future dates, timezone boundaries, and default behavior when requestedDate is omitted (effective date = today/now). Include invalid calendar dates.",
+              "Split TC09: one test for missing X-Killbill-CreatedBy expecting 400; keep TC18 for 401 authentication failures. Add tests for oversized/Unicode header values and sanitization.",
+              "Enhance response contract checks: verify the array contains the created BlockingState, fields match the request (stateName/service/booleans/effectiveDate), and any expected headers (e.g., Location) if part of the API contract.",
+              "Add an authorization test for 403 Forbidden to cover insufficient privileges with valid authentication.",
+              "Consider rate limiting tests under load (429 or retry-after) to complement performance and concurrency scenarios."
+            ],
+            "usage": {
+              "completion_tokens": 4603,
+              "prompt_tokens": 7893,
+              "total_tokens": 12496,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3584,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

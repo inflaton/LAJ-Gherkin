@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "74_2025-10-13T14:34:35.818062",
+    "jira_id": "74",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/plan - Retrieve plan for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T14:31:55.858700",
+    "benchmark_end_time": "2025-10-13T14:34:35.818058",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 159.959358,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "74_qe_sup-gpt4.1_agent-gpt4.1_1748920805.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Happy paths validate 200 and a Plan object when both subscriptionId and requestedDate are provided (TC01), plus permutations with only one or neither parameter (TC02, TC03, TC04).",
+              "Query Parameters: Broad coverage of valid, invalid, and mixed parameter combinations, including malformed UUID/date and extra parameters handling (TC05, TC06, TC07, TC08, TC14).",
+              "Error Handling: Not-found (404), invalid inputs (400), dependency failure (503), and data-integrity conflicts (409/500) are exercised (TC07, TC05, TC06, TC08, TC10, TC12).",
+              "Empty/No Data: Scenarios for no matching plan and an empty database are present (TC03, TC04, TC11).",
+              "Authorization: Unauthorized access is tested and returns 401 (TC09).",
+              "Boundary Conditions: Date at plan start/end boundaries is validated (TC13).",
+              "Security Hardening: Injection attempts in both parameters are rejected (TC17, TC18).",
+              "Non-functional and Regression: Performance under normal and concurrent load, regression fix verification, and backward compatibility are included (TC15, TC16, TC19, TC20)."
+            ],
+            "gaps": [
+              "Caching Behavior: No scenarios verify ETag/Last-Modified, Cache-Control, or 304 Not Modified with If-None-Match/If-Modified-Since.",
+              "Rate Limiting: No tests to validate throttling behavior or 429 Too Many Requests with Retry-After; concurrency tests do not assert rate-limit responses.",
+              "Media Type and Negotiation: The story states produces application/json, but tests do not assert Content-Type header or behavior when Accept is unsupported (e.g., 406).",
+              "Schema Validation: Response is only asserted as a \"valid JSON Plan object\" without validating against the Plan schema (#/definitions/Plan) or required fields.",
+              "Ambiguous Outcomes: TC03, TC04, and TC11 allow multiple possible outcomes (e.g., 200 or 404, default plan or empty object), reducing determinism and making regressions harder to catch.",
+              "Missing case: Existing subscriptionId with requestedDate outside any effective period is not covered (should return a clear not-found or defined default behavior).",
+              "Authorization Depth: No scenario for authenticated but unauthorized user (403) if the API differentiates between missing credentials and insufficient privileges.",
+              "Input Normalization: No tests for repeated query params, URL-encoded values, or trimming/case sensitivity for parameter names.",
+              "Temporal Edge Cases: No tests for tricky but well-formed dates (e.g., 2025-02-29, DST boundaries) to ensure correct date parsing beyond format validation."
+            ],
+            "recommendations": [
+              "Add caching scenarios: return responses with ETag/Last-Modified and Cache-Control; send If-None-Match/If-Modified-Since to assert 304 Not Modified behavior.",
+              "Add rate limiting tests: burst requests to trigger 429 Too Many Requests and assert Retry-After and rate-limit headers; also verify normal bursts do not throttle.",
+              "Assert media type: verify Content-Type: application/json on success and test Accept negotiation (e.g., Accept: text/plain -> 406 or documented behavior).",
+              "Validate response schema: assert the Plan object conforms to #/definitions/Plan (required fields, types, enums) rather than only \"valid JSON\".",
+              "Make outcomes deterministic: refine TC03, TC04, and TC11 to a single expected status and body per product decision (e.g., 400 when neither parameter is present, or define the default plan behavior).",
+              "Add a negative case where subscriptionId is valid but requestedDate falls outside any active plan; assert a clear, single expected response (e.g., 404 with reason).",
+              "Extend authorization coverage with a 403 scenario for authenticated but unauthorized users if applicable to this API.",
+              "Add input normalization tests: repeated subscriptionId/requestedDate parameters, URL-encoded values, leading/trailing whitespace, and case sensitivity handling for query parameter names.",
+              "Include additional temporal edge cases: leap day, DST boundaries, very old/future dates, and ensure inclusivity rules for start/end dates are consistent across time zones."
+            ],
+            "usage": {
+              "completion_tokens": 8008,
+              "prompt_tokens": 4829,
+              "total_tokens": 12837,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

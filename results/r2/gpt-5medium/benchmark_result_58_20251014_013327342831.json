@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "58_2025-10-14T01:33:27.342800",
+    "jira_id": "58",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/customFields - Remove custom fields from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T01:32:07.583894",
+    "benchmark_end_time": "2025-10-14T01:33:27.342796",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 79.758902,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "58_qe_sup-gpt4.1_agent-gpt4.1_1748919726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "Valid Deletion: Covered via TC01, TC02, TC03, TC04, TC05, TC10, TC18, TC20, TC21 with 204 responses and correct state verification (including delete-all when customField is omitted).",
+              "Non-Existent Resource: Covered via TC07 (bundle not found) and TC23 (empty database) returning 404.",
+              "Concurrency: Covered via TC16 with simultaneous DELETE requests for the same field; verifies correct final state.",
+              "Header Validation: Required header enforced (TC08); optional headers accepted (TC04); boundary tests for X-Killbill-Comment (TC20, TC21); malicious header input handled safely (TC14).",
+              "Path/Query Parameter Validation: Invalid bundleId formats (TC06, TC22); invalid/empty customField values (TC09, TC19); multi-valued customField supported (TC03); unsupported query params ignored (TC11).",
+              "Error Handling/Service Resilience: 401 Unauthorized for bad/expired token (TC13); 503/504 for service outage/degradation (TC12, TC24).",
+              "Data Consistency and Isolation: Post-delete GET checks validate state (TC01\u2013TC03, TC05); unrelated bundles unaffected (TC17); DB consistency verified (TC25).",
+              "Performance: Large-scale deletion within SLA (TC15)."
+            ],
+            "gaps": [
+              "Soft Deletes: No scenario verifies whether deletions are soft vs hard (e.g., audit markers/history, recoverability).",
+              "Idempotency: No scenario repeats the same DELETE to confirm subsequent calls remain safe and return consistent status (e.g., second call 204 with no change).",
+              "Mixed valid/invalid customField IDs in one request: No test defining expected behavior (atomic failure vs partial success) when combining valid UUIDs with malformed/non-existent IDs.",
+              "Duplicate customField IDs: No test for handling duplicate query parameters (same UUID repeated) and expected outcome (ignored vs error).",
+              "Required header edge cases: No test for X-Killbill-CreatedBy being blank/whitespace, overly long, or invalid character set.",
+              "Optional header X-Killbill-Reason: No boundary/invalid-character tests similar to Comment; no Unicode coverage.",
+              "Response contract: The spec says produces application/json; tests do not assert Content-Type or validate error payload schema/fields on 4xx/5xx.",
+              "Concurrency breadth: No race scenario between delete-all and targeted delete, or multiple concurrent bulk deletes to prove final state guarantees under contention.",
+              "Server error handling (500): No explicit DB/application failure path to validate 500 mapping and payload."
+            ],
+            "recommendations": [
+              "Add idempotency tests: repeat DELETE for the same target (single field and all fields); expect second call to be 204 and state unchanged.",
+              "Add mixed-ID tests: include valid, non-existent, and malformed customField values in one request; document and assert atomicity or partial-success contract.",
+              "Add duplicate-parameter test: send the same customField UUID multiple times; assert defined behavior (ignored duplicates vs error).",
+              "Clarify and test deletion semantics: if soft delete/audit is expected, verify audit logs/history and recoverability; if hard delete, assert absence and no soft-delete markers.",
+              "Extend header validation: test X-Killbill-CreatedBy blank/whitespace/overlong; add boundary and Unicode cases for X-Killbill-Reason.",
+              "Assert response contract: on 4xx/5xx, check Content-Type: application/json and validate canonical error schema (code, message, details).",
+              "Broaden concurrency coverage: race between delete-all and subset deletion; concurrent bulk deletions; verify final state determinism and no data corruption.",
+              "Introduce server-failure simulation to elicit 500 Internal Server Error (e.g., DB failure) and verify correct status and payload."
+            ],
+            "usage": {
+              "completion_tokens": 3966,
+              "prompt_tokens": 6309,
+              "total_tokens": 10275,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3136,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "8_2025-10-14T01:42:29.033472",
+    "jira_id": "8",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/block - Retrieve blocking states for account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T01:40:44.960539",
+    "benchmark_end_time": "2025-10-14T01:42:29.033468",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 70,
+    "average_generation_time_seconds": 104.072929,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 70,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "8_qe_sup-gpt4.1_agent-gpt4.1_1748916319.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 70,
+            "covered": [
+              "Valid Request: Multiple happy-path scenarios without filters and with filters (types, services, audit FULL/MINIMAL/NONE).",
+              "Empty Response: Covered for accounts with no blocking states, non-existent account, and empty database (all returning 200 with empty array).",
+              "Query Parameters: Covered valid combinations (single and combined filters), invalid values (types, audit), unsupported params ignored, and injection attempt handled.",
+              "Authorization: Covered 401 for missing and invalid tokens.",
+              "Error Handling (story-specific): 400 for invalid accountId format as required by the story.",
+              "Resilience/Performance: Large data volume, dependency/service unavailable (503), timeout behavior, and concurrency handled."
+            ],
+            "gaps": [
+              "Pagination: No scenarios verifying pagination behavior for large datasets (or confirming that the endpoint is intentionally unpaginated).",
+              "Rate Limiting: No scenarios to verify throttling/429 behavior when many requests are sent in a short interval.",
+              "Caching Behavior: No checks for ETag/Last-Modified and Cache-Control headers or conditional GET (If-None-Match -> 304).",
+              "Response Headers: No explicit assertion that Content-Type is application/json as per Produces; no Accept negotiation checks.",
+              "Query Params - multi-value types: No test for multiple blockingStateTypes in collectionFormat=multi (e.g., ACCOUNT and SUBSCRIPTION_BUNDLE together).",
+              "Query Params - unknown service value: No scenario verifying that an unknown service name results in a 200 with an empty array (since services are free-form strings).",
+              "Authorization breadth: No 403 Forbidden case for authenticated but unauthorized users/roles."
+            ],
+            "recommendations": [
+              "Add pagination tests: if supported, verify page/limit, total counts, and navigation links; if not supported, add a test to assert full result set without pagination even for large datasets.",
+              "Add rate limiting tests: burst requests to validate 429 Too Many Requests and presence/format of Retry-After header (or confirm no throttling per design).",
+              "Add caching tests: validate ETag/Last-Modified and Cache-Control on successful responses; send conditional GET with If-None-Match and expect 304 when unchanged.",
+              "Assert headers: verify Content-Type: application/json on success; optionally test Accept negotiation (e.g., request text/plain -> 406) if applicable.",
+              "Cover multi-value blockingStateTypes: e.g., blockingStateTypes=ACCOUNT&blockingStateTypes=SUBSCRIPTION_BUNDLE and verify both types are filtered correctly.",
+              "Add scenario for unknown blockingStateSvcs value returning 200 with an empty array (no error).",
+              "Add a 403 Forbidden test for an authenticated user lacking required permissions.",
+              "Optionally harden schema checks: assert key fields on BlockingState (e.g., type enum, service string, dates format, booleans) and audit block presence/absence for FULL/MINIMAL/NONE, and include an explicit audit=NONE test in addition to the default omission."
+            ],
+            "usage": {
+              "completion_tokens": 4292,
+              "prompt_tokens": 6188,
+              "total_tokens": 10480,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3648,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

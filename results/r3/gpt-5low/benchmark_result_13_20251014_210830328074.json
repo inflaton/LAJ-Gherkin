@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-14T21:08:30.328045",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:07:50.905643",
+    "benchmark_end_time": "2025-10-14T21:08:30.328041",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 39.422398,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE - Valid Deletion: Multiple success paths returning 204, including default behavior and exhaustive boolean query parameter combinations (TC01\u2013TC07, TC19\u2013TC20).",
+              "DELETE - Non-Existent Resource: Idempotent behavior validated with 204 for non-existent and already-closed accounts (TC11\u2013TC12).",
+              "DELETE - Concurrency: Basic concurrency covered via concurrent closures across multiple accounts and idempotent retry after transient failure (TC17\u2013TC18).",
+              "DELETE - Soft Deletes: Verifies account is marked closed (not hard-deleted) and downstream cleanup according to defaults/flags (TC01, TC03\u2013TC05).",
+              "Input validation: UUID pattern invalid => 400; SQL injection => 400 (TC08, TC15).",
+              "Headers: Required header enforced (400 on missing X-Killbill-CreatedBy); optional headers tolerated, including XSS sanitized (TC09, TC16, TC20).",
+              "Security/Authorization: 401 for missing/invalid auth (TC10).",
+              "Server error handling: 500 on database unavailable (TC14).",
+              "Unsupported query params are ignored without failing the operation (TC13).",
+              "Performance/scale: Large data processing and concurrent requests within acceptable time (TC07, TC18)."
+            ],
+            "gaps": [
+              "DELETE - Concurrency (same resource race): No scenario where two clients simultaneously close the same account to assert idempotent 204s and no duplicate side effects (e.g., subscriptions cancelled once, invoices written off once).",
+              "DELETE - Soft delete verification depth: Lacks post-conditions asserting the account is unusable afterward (e.g., subsequent POST/PUT/GET operations rejected) and that audit trail records X-Killbill-CreatedBy/Reason/Comment.",
+              "Response semantics: No checks that 204 responses have an empty body and appropriate headers; for error paths, no validation of Content-Type=application/json and error schema consistency.",
+              "Query parameter validation: No tests for non-boolean values on boolean flags (e.g., cancelAllSubscriptions=abc) to ensure 400 with clear validation errors.",
+              "Authorization nuance: No 403 Forbidden scenario for authenticated user lacking permission/role.",
+              "DELETE - Concurrency cancellation ordering: No test ensuring that related side effects are atomic/consistent when combining writeOffUnpaidInvoices and itemAdjustUnpaidInvoices under concurrent execution.",
+              "Observability: No verification of idempotency keys or request correlation (if applicable) and no metrics/logging assertions."
+            ],
+            "recommendations": [
+              "Add a race-condition scenario closing the same account concurrently from multiple clients; assert both requests return 204 and only a single set of side effects occurs (subscriptions cancelled once, invoices written off/adjusted once).",
+              "Extend soft-delete checks: After 204, attempt follow-up operations (e.g., create subscription, pay invoice, reopen if supported) and assert they fail appropriately; verify audit entries persisted for CreatedBy/Reason/Comment.",
+              "Validate response compliance: Assert 204 has no body and expected headers; for 4xx/5xx, assert Content-Type=application/json and a stable error shape (code, message, details).",
+              "Add negative validation for query params: send non-boolean values (true/false variants, numeric, arbitrary strings) and ensure 400 with clear error messages per parameter.",
+              "Introduce a 403 test: authenticated user without close-account permission receives 403.",
+              "Test atomicity/consistency under concurrency when using combinations of writeOffUnpaidInvoices and itemAdjustUnpaidInvoices to ensure no partial application or double processing.",
+              "Optionally add observability checks (if supported): idempotency keys, request-ids, and expected logs/metrics for close operations."
+            ],
+            "usage": {
+              "completion_tokens": 2147,
+              "prompt_tokens": 6316,
+              "total_tokens": 8463,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1344,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-10-13T18:59:26.250602",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:58:55.750085",
+    "benchmark_end_time": "2025-10-13T18:59:26.250596",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 30.500511,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple positive scenarios (single credit, multiple credits, invoice-specific credit, CBA creation) cover successful creation and expected 201 responses (TC01, TC02, TC03, TC07).",
+              "Query parameters: autoCommit and pluginProperty query-parameter behaviors are exercised (TC04, TC05).",
+              "Headers: Required header X-Killbill-CreatedBy is tested, plus optional reason/comment headers (TC06, TC10).",
+              "Request Validation: Malformed JSON, missing required fields, invalid accountId format, unsupported currency, invalid pluginProperty type, empty body are covered (TC11, TC12, TC14, TC15, TC16, TC21).",
+              "Error handling: Account or invoice not found and system unavailable are covered (TC08, TC09, TC17).",
+              "Security: Basic injection/XSS cases are included (TC19, TC20).",
+              "Edge/limit cases: Large payloads, maximum items, timeouts and stress behaviours are addressed (TC23, TC24, TC25, TC34).",
+              "State/Integration/Regression: Various account states, plugin integration errors and unavailability, idempotency/duplicate handling, backward compatibility and performance under load are included (TC26, TC27, TC28, TC29, TC30, TC31, TC32, TC33)."
+            ],
+            "gaps": [
+              "Response schema and Content-Type enforcement: While many success scenarios assert 201 and include checks for response content, there is no explicit, systematic validation against the InvoiceItem schema (types, required fields presence) or Content-Type header (application/json) in all success/error paths.",
+              "Consistent Location/headers checks: Only TC01 asserts the Location header. Other success scenarios that could create resources (e.g., multi-create, invoice-specific create, autoCommit flows) do not consistently assert Location or other standard REST headers.",
+              "Definitive behavior for positive amount inputs: TC13 allows either 201 or 400; the story describes amounts should be negative or treated as such but tests do not lock down expected canonical behavior. This ambiguity reduces clear coverage of acceptance criterion about negative amounts handling.",
+              "Idempotency header/mechanism: TC30 checks duplicate creation on retry but there is no test for explicit idempotency mechanisms or headers (e.g., Idempotency-Key) to validate how retries are detected and handled by the API.",
+              "HTTP Authorization semantics: Tests include 403 for insufficient permissions (TC18) but do not check 401 vs 403 behaviors, token expiry, or unauthenticated access paths.",
+              "Server error (500) and database failure simulation: Guidelines ask to simulate server/database errors; tests include service unavailable (503) and plugin errors (400/500) but do not explicitly cover internal server errors or DB failures producing 500 responses.",
+              "Rate limiting and throttling: Performance tests examine load and response time, but there are no explicit rate-limiting or throttling tests (e.g., assert 429 when limit exceeded).",
+              "Caching headers and related behavior: No tests validate caching headers (ETag, Cache-Control) \u2014 while less common for POST, some clients or intermediaries may expect relevant headers on error responses or Location responses.",
+              "Pagination and GET-related behaviors: The POST story does not require pagination, but the standard GET guidelines include pagination and caching \u2014 any downstream GETs used for verification (e.g., fetching created credits) are not covered for pagination or caching.",
+              "Internationalization/locale and currency edge cases: Unsupported currency is tested, but boundary cases like currency with different decimal rules, locale formatting, or very small/large amounts are not covered."
+            ],
+            "recommendations": [
+              "Add explicit schema validation tests: For success (201) and error responses validate Content-Type: application/json and assert response body strictly matches the InvoiceItem JSON schema (types, required fields, field formats like UUIDs).",
+              "Assert Location and standard headers consistently: For all success scenarios that create resources (including multi-create, autoCommit, invoice-specific), assert presence and correctness of Location header and any other relevant headers.",
+              "Clarify and lock expected behavior for positive amounts: Update acceptance criteria to state whether positive amounts should be converted to negative, rejected, or accepted and then add tests asserting that exact behavior (remove TC13 ambiguity).",
+              "Test idempotency explicitly: Add tests that use a concrete idempotency mechanism (if available) such as an Idempotency-Key header, verifying repeated requests don't create duplicates and return consistent responses/status codes.",
+              "Expand auth tests: Add tests for unauthenticated requests (expect 401), expired/invalid tokens, and role-based access checks to cover both 401 and 403 cases.",
+              "Simulate server/database failures: Add tests that mock DB failures or internal errors to assert 500 responses and ensure proper error messages/logging.",
+              "Add rate-limiting tests: Create tests that exceed request quotas to validate 429 responses and backoff behavior; complement with performance tests already present.",
+              "Include caching and GET verification: If GET endpoints are used to verify created resources, add tests for caching headers (ETag, Cache-Control) and verify clients can use them appropriately. Also add pagination tests for those GETs where applicable.",
+              "Add more currency/amount edge cases: Test very small/large negative values, currencies with differing decimal places, and rounding behavior.",
+              "Document and test pluginProperty format variants: Add explicit tests for pluginProperty provided via query string vs request form, and validate server-side parsing (including empty arrays, repeated params, and invalid types)."
+            ],
+            "usage": {
+              "completion_tokens": 1366,
+              "prompt_tokens": 8287,
+              "total_tokens": 9653,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

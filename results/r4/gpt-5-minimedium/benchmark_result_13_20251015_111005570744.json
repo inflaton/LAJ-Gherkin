@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-15T11:10:05.570714",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:09:46.591904",
+    "benchmark_end_time": "2025-10-15T11:10:05.570705",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 18.978801,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple success scenarios (TC01\u2013TC05, TC11, TC12, TC20) verify 204 responses and account marked closed (soft-delete behavior).",
+              "Query Parameters: Extensive coverage of optional boolean query parameters (all-true, all-false, single-true, pairwise combinations, extra unsupported param ignored - TC02\u2013TC05, TC13).",
+              "Idempotency / Non-Existent Resource: Idempotency checks for already closed and non-existent accounts returning 204 (TC11, TC12).",
+              "Input Validation & Security: Invalid UUID format, SQL injection payload, and XSS header cases covered (TC08, TC15, TC16).",
+              "Headers & Auth: Required header missing and authentication failure scenarios covered (TC09, TC10).",
+              "Error Handling: System error (DB unavailable) covered with expected 500 response (TC14).",
+              "Performance / Scale: Large volume processing and concurrent closures covered (TC07, TC18).",
+              "Resilience / Retry: Transient network retry and idempotency on retry covered (TC17).",
+              "Regression & Back-compatibility: Regression tests for unpaid invoice handling and backward compatibility with minimal headers covered (TC19, TC20).",
+              "Accessibility: Documentation / error response accessibility scenario included (TC21)."
+            ],
+            "gaps": [
+              "Invalid query parameter types/values: No tests for malformed boolean values (e.g., cancelAllSubscriptions=notABool) or variations in boolean representations (True/true/1).",
+              "Partial-failure / transactional behavior: No scenarios that simulate failures in downstream cleanup (e.g., subscription cancellation fails, invoice write-off fails) to verify overall response, rollback, or compensating behavior.",
+              "Operation atomicity under concurrent conflicting requests: Concurrent deletes of the same account (race between two deletes) are not explicitly tested \u2014 TC18 covers concurrency across different accounts but not races on the same resource.",
+              "Response headers and content-type assertions: Tests do not assert produced content-type, caching headers, or presence/absence of body for 204 responses (the story states \"Produces: application/json\").",
+              "Error payload schema and message consistency: While some tests check for an error message, there is no test asserting structured error schema, error codes, or consistent messaging across error cases.",
+              "Limits and throttling: No tests for rate limiting, throttling, or behavior under request spikes beyond functional concurrency checks.",
+              "Boundary / header validation: No tests for header value validation (length, characters) other than XSS; e.g., very long X-Killbill-Reason or createdBy values.",
+              "Timeouts/long-running cleanup: No explicit tests for long-running cleanup operations timing out or being processed asynchronously (and how API reports that to clients).",
+              "Soft-delete verification details: Tests mark account as closed but do not verify which fields are changed (closed_at, status flag) or whether account remains queryable/readable as expected after soft-delete."
+            ],
+            "recommendations": [
+              "Add tests for invalid/malformed query parameter values and types (e.g., cancelAllSubscriptions=abc, cancelAllSubscriptions=1/TRUE) to assert 400 or defined behavior.",
+              "Introduce partial-failure scenarios where downstream operations fail (mock subscriptions service to return errors) and verify whether the DELETE returns 500, 207-like partial status, or performs compensating actions; assert transactional guarantees.",
+              "Add a race-condition test where two concurrent DELETEs target the same account to verify atomicity and idempotency under conflict.",
+              "Assert response headers and content-type for both success (204) and error responses (400/500) to match \"Produces: application/json\" and to ensure consistent API contracts.",
+              "Define and test an error response schema (fields, codes, messages) and validate against it for 400/401/500 cases.",
+              "Add rate-limiting / throttling tests (spike tests) and verify proper 429 responses or graceful degradation if applicable.",
+              "Add header validation tests for length/encoding limits (very long X-Killbill-Reason, non-UTF characters) and ensure proper sanitization and rejection rules.",
+              "Add tests for long-running cleanup behavior (timeouts, async processing): for example, simulate invoice-service slowness and validate client-facing behavior/timeouts.",
+              "Extend soft-delete assertions to validate specific DB fields (status flags, closed_at timestamp) and that read endpoints behave correctly after closure."
+            ],
+            "usage": {
+              "completion_tokens": 2155,
+              "prompt_tokens": 6316,
+              "total_tokens": 8471,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

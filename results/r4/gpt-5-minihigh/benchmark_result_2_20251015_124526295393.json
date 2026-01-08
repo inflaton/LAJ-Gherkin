@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-10-15T12:45:26.295365",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:44:22.355760",
+    "benchmark_end_time": "2025-10-15T12:45:26.295361",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 63.939601,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid POST requests and success responses (201) are well covered (TC01, TC02, TC03, TC04, TC05, TC18, TC24). Database association is asserted in multiple scenarios.",
+              "Request body validation: empty array, malformed body (non-array), malformed UUIDs, non-existent tag-definition IDs, unexpected extra fields are covered (TC07, TC08, TC09, TC10, TC17).",
+              "Path and header validation: missing/invalid accountId, missing required header X-Killbill-CreatedBy, and optional headers handling are covered (TC11, TC12, TC13, TC14, TC03).",
+              "Authorization and authentication negative case (401) is covered (TC15).",
+              "Error handling for dependency/service failure is covered (TC16 -> 503).",
+              "Duplicate detection and concurrency: duplicate IDs in payload and concurrent requests are addressed (TC19, TC21), including DB-level duplicate prevention expectations.",
+              "Boundary and performance: large payload boundary (100 IDs) and a simple latency/performance check are present (TC18, TC20).",
+              "Query parameters handling for POST (ignored limit/offset/sort) is explicitly tested (TC06).",
+              "Security and regression checks: header injection and special-character regression tests are included (TC22, TC23)."
+            ],
+            "gaps": [
+              "Response headers and content-type assertions are missing: tests do not explicitly assert response Content-Type = application/json or other response headers (e.g., Cache-Control, ETag), nor do they validate \"produces: application/json\".",
+              "Response body schema validation is superficial: scenarios assert \"JSON array of Tag objects\" but do not validate Tag object fields (tagId, tagDefinitionId, objectType, objectId/accountId, createdBy, createdDate) or types/values and do not verify that createdBy matches X-Killbill-CreatedBy.",
+              "500 Internal Server Error / generic server error handling is not explicitly tested (only 503 dependency failure is present).",
+              "Authorization nuance (authenticated but unauthorized) is not covered: no test asserting 403 Forbidden when a user lacks permission.",
+              "Content-Type validation for requests is missing: no tests for missing or incorrect Content-Type header (e.g., expecting 415 Unsupported Media Type for non-JSON).",
+              "Transactional/atomic behavior not tested: no explicit test for mixed valid + invalid tag IDs in one request to confirm all-or-nothing semantics (partial success vs rollback).",
+              "Rate limiting and throttling behavior (429) is not tested; concurrency TC21 exists but rate-limit edge cases are absent.",
+              "Idempotency across repeated identical POST requests is not explicitly tested (sequential duplicate POSTs and their effects on DB state).",
+              "Large-payload limits beyond the 100-ID test are not covered (e.g., server limits, 413 Payload Too Large), nor are chunked/streamed payload scenarios.",
+              "Error response format consistency is not validated: tests do not assert standard error body shape/fields for different error codes.",
+              "Header length/sanitization limits beyond one injection test are not covered (e.g., very long X-Killbill-CreatedBy), and storage/escaping of header values is not asserted.",
+              "Edge cases around account lifecycle (tagging deleted/closed accounts) or tagging other object types are not present."
+            ],
+            "recommendations": [
+              "Add strict schema assertions for successful responses: validate each returned Tag object contains expected fields (tagId, tagDefinitionId, objectType, objectId/accountId, createdBy, createdDate) with correct types and values; assert createdBy equals X-Killbill-CreatedBy and objectId equals the path accountId.",
+              "Assert response headers: check Content-Type is application/json and, where applicable, other headers (Content-Length, Cache-Control). Even if caching is not expected for POST, explicitly assert no inappropriate caching headers are present.",
+              "Add tests for authenticated-but-unauthorized users (expect 403) to cover permission boundary cases.",
+              "Add tests for incorrect or missing request Content-Type header (e.g., no Content-Type or text/plain) and expect appropriate 4xx (415) behavior.",
+              "Test transactional behavior for mixed payloads: send a payload with some valid and some invalid/non-existent tag-definition IDs and assert whether the operation is atomic (all succeed) or rolled back; verify DB state after failure.",
+              "Add a 500-level server error simulation test (e.g., database exception) to verify consistent 5xx handling and error payload format in addition to the 503 dependency test.",
+              "Add rate-limiting/throttling tests (rapid repeated requests) to confirm behavior under load and expected HTTP codes (429) or throttling responses.",
+              "Add idempotency tests by issuing repeated identical POST requests sequentially and asserting no duplicate tags are created in DB; combine with cleanup to verify deterministic results.",
+              "Add tests for exceeding payload limits (e.g., >1000 IDs) to exercise server limits and expect proper failure modes (timeouts, 413), and test chunked/streamed payloads if supported.",
+              "Standardize and assert error response schema across all error scenarios (400/401/403/404/415/429/5xx) to make error handling predictable for clients.",
+              "Increase header-sanitization tests: validate long header values, encoding/escaping, and that stored/returned values do not reflect un-sanitized script content; prefer explicit assertions that response bodies do not contain injected content.",
+              "Add lifecycle/edge-case tests: tagging deleted/suspended accounts, and tests that cover tagging of other object types if API supports them; ensure behavior is correct and documented."
+            ],
+            "usage": {
+              "completion_tokens": 5860,
+              "prompt_tokens": 6410,
+              "total_tokens": 12270,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4672,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

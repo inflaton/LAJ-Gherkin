@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-15T13:52:31.464740",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:51:36.516104",
+    "benchmark_end_time": "2025-10-15T13:52:31.464734",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 54.94863,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT > Valid Request: Multiple success paths return 204 and verify bundle resumes or is scheduled (TC01, TC02, TC03, TC04, TC18).",
+              "PUT > Non-Existing Resource: 404 when bundle does not exist (TC05) and when using random UUID (TC05).",
+              "PUT > Concurrency Issues: Concurrent requests behavior covered with first 204 and subsequent 400/409 (TC21).",
+              "Input Validation: Path param UUID format invalid -> 400 (TC06); required header missing -> 400 (TC07); invalid state -> 400 (TC08, TC09); requestedDate past -> 400 (TC20); pluginProperty wrong type -> 400 (TC19); extra params ignored (TC11).",
+              "Headers/Metadata: Required X-Killbill-CreatedBy present (TC01); optional Reason/Comment audited (TC04); header whitespace/case variations handled (TC26); header length boundaries (TC12).",
+              "Query Parameters: requestedDate in future schedules (TC02); pluginProperty accepted and processed (TC03, TC04); large number of pluginProperty values and limit handling (TC13).",
+              "Authorization/Errors: Unauthorized/invalid user -> 401/403 (TC10); dependency failure -> 500 (TC14); plugin timeout -> 504 (TC25).",
+              "Resilience/Perf: Retry after transient failure (TC15); performance under load (TC22).",
+              "Security: SQL injection attempt harmless (TC16); XSS in comment safely handled (TC17).",
+              "Audit: Reason/Comment recorded (TC04)."
+            ],
+            "gaps": [
+              "PUT > Partial Update guideline: No scenario for behavior when a request body is mistakenly provided (should be rejected or ignored), given this endpoint has no body.",
+              "Response headers/content: Story says produces application/json, but 204 typically has no body; no tests assert Content-Type or absence of body for 204 responses.",
+              "requestedDate format validation: No scenario for invalid date format, timezone offsets, or boundary like today vs tenant timezone.",
+              "pluginProperty encoding/format: No scenario for multi-value query style (collectionFormat=multi, e.g., pluginProperty=a&pluginProperty=b), URL-encoding, or invalid key=value parsing.",
+              "Idempotency semantics: No scenario verifying that repeating the same resume call after success is safely idempotent (consistent status or no duplicate side effects).",
+              "State transition verification depth: Tests assert bundle becomes active, but no verification that all paused subscriptions within the bundle transitioned and no non-paused ones were altered for mixed states.",
+              "Error model: No assertions of structured error payload shape/schema for 4xx/5xx (fields like code, message).",
+              "Audit coverage breadth: Only tests success audit logging; no test that audit entries are created on failures where applicable (e.g., validation errors).",
+              "Header constraints: No explicit tests for invalid characters/encoding in headers (UTF-8, emoji) or overly long header rejection behavior.",
+              "Rate limiting/throttling: Under high concurrency or load, no assertion for 429 behavior if applicable to this endpoint."
+            ],
+            "recommendations": [
+              "Add a scenario sending a non-empty JSON body to this PUT and assert expected behavior (400 Bad Request or ignored with 204), to satisfy PUT Partial Update guideline.",
+              "Add tests asserting response headers for 204: Content-Type absent or appropriate, Content-Length=0; and confirm no body is returned despite produces application/json.",
+              "Add requestedDate negative tests: invalid format (e.g., 2025-13-40), timezone offset handling (e.g., 2025-01-01T00:00:00-05:00 if allowed), and same-day boundary per tenant timezone.",
+              "Add pluginProperty multi format tests using repeated query params (pluginProperty=a=1&pluginProperty=b=2), including URL-encoding and invalid key-value pairs, and assert 400 vs ignore rules.",
+              "Add idempotency test: call resume twice on the same paused bundle; verify first returns 204 and second returns stable, documented status (204, 400, or 409) with no duplicate side effects.",
+              "Deepen state assertions: For a bundle with mixed subscription states, verify only paused subscriptions resume and others remain unchanged.",
+              "Standardize error schema checks: Validate error payload contains expected fields (e.g., type/code/message) for 400/401/403/404/409/500/504.",
+              "Extend audit tests to verify presence/absence of audit entries on error responses when headers are provided, per audit policy.",
+              "Add header robustness tests for encoding and invalid characters, and explicit rejection/limits behavior (e.g., 431 Request Header Fields Too Large if applicable).",
+              "Optionally add 429 scenarios under stress to confirm throttling behavior, if the platform enforces rate limits on PUT endpoints."
+            ],
+            "usage": {
+              "completion_tokens": 1742,
+              "prompt_tokens": 6265,
+              "total_tokens": 8007,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-10-13T20:25:41.364242",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T20:24:55.220740",
+    "benchmark_end_time": "2025-10-13T20:25:41.364238",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 46.143498,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Successful update (happy path) with HTTP 204 and DB verification (TC01, TC02, TC23).",
+              "Header validation: required header missing (X-Killbill-CreatedBy) and optional headers Reason/Comment behavior (TC02, TC03, TC24, TC26).",
+              "Path parameter validation: invalid UUID formats for paymentId and paymentTransactionId (TC04, TC05).",
+              "Resource-not-found handling: non-existent payment or transaction and empty DB behaviour (HTTP 404) (TC06, TC07, TC12).",
+              "Request body validation: missing body, malformed JSON, and inconsistent/invalid state data leading to 400 (TC08, TC09, TC10).",
+              "Security tests: SQL injection and XSS payload handling (TC18, TC19).",
+              "Concurrency and race conditions: concurrent updates on same transaction (TC17).",
+              "Timeouts and degraded-dependency behaviour: backend timeout/service-unavailable handling and resilience (TC16, TC22).",
+              "Performance and load: high-load behaviour and average response time check (TC21).",
+              "Edge-case value handling: maximum / minimum allowed field values and unsupported extra fields are ignored (TC13, TC14, TC15).",
+              "Request variations: extra query parameters ignored, header whitespace/case variations handled (TC25, TC26).",
+              "Mismatched IDs: paymentId vs paymentTransactionId mismatch behaviour (TC27).",
+              "Regression and accessibility checks: previously problematic state regression test and API docs accessibility (TC20, TC28)."
+            ],
+            "gaps": [
+              "Partial-update semantics not explicitly specified or tested: the Jira story/schemas don't clarify whether partial AdminPayment payloads should be rejected or merged; tests assume acceptance (TC23) but no test asserts rejection if partial updates are disallowed.",
+              "Idempotency / duplicate-submission behaviour for PUT is not covered (no explicit test for repeated identical requests and side-effects).",
+              "Response payload and header contract verification is thin: tests assert HTTP status and DB side-effects and presence of an error message, but do not assert that error responses and successful responses follow the documented 'Produces: application/json' media type or a defined error JSON schema (including Content-Type and exact error structure).",
+              "Audit/logging persistence of header values (X-Killbill-CreatedBy, X-Killbill-Reason, X-Killbill-Comment) is not asserted \u2014 the story notes these headers but tests don't verify they are recorded in audit trails or change logs.",
+              "Detailed AdminPayment schema field validation is incomplete: there are tests for invalid state transitions and malformed JSON, but not for type validation (e.g., numeric ranges, enum constraints on state names), missing required fields inside AdminPayment (beyond missing body), or field-level format checks.",
+              "No explicit tests for role/permission granularity beyond 'unauthorized' (401): missing tests for authenticated-but-not-admin (403) and other RBAC cases.",
+              "Rate limiting / throttling and abuse scenarios aren't explicitly covered (performance TC21 stresses load but does not assert rate-limiting behaviour nor 429 responses).",
+              "Transactional integrity across related entities is not fully asserted \u2014 e.g., atomicity/rollback if update to payment state succeeds but a downstream write fails (TC22 touches degraded service but not transactional rollback guarantees).",
+              "Large payload tests (very large JSON bodies) and resource exhaustion checks are missing (important for PUT).",
+              "Validation of server behavior when 'Produces: application/json' contradicts 204 No Content: no tests assert that the server does not include an unexpected body or incorrect Content-Type for 204 responses."
+            ],
+            "recommendations": [
+              "Add explicit tests for partial-update semantics: one test should send a partial AdminPayment body and assert that the server either accepts it and documents merged behavior or rejects it with a clear 4xx and schema-validation message (match the API contract).",
+              "Add idempotency/duplicate-submission tests: send the same PUT twice and assert the second request does not produce unintended side-effects and returns the expected status (204 or appropriate idempotent response).",
+              "Assert HTTP Content-Type and error response schema: for errors (4xx/5xx) and success (even 204), add checks for Content-Type application/json where applicable, and validate the JSON error structure (error code, message, fields).",
+              "Add tests verifying audit/logging of X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment: confirm header values are persisted in change logs or returned in an audit endpoint.",
+              "Expand AdminPayment field-level validation tests: cover invalid data types, numeric range violations, missing required fields inside the AdminPayment object, and enum constraints for state names.",
+              "Add RBAC tests for authenticated-but-not-admin users (expect 403 Forbidden) to ensure proper role checks beyond unauthenticated 401 tests.",
+              "Add rate-limiting / throttling tests that expect 429 Too Many Requests when limits are exceeded, and verify retry headers if applicable.",
+              "Add transactional integrity tests: simulate downstream failure mid-update and assert atomic rollback or compensating behavior to maintain consistency between payment and transaction state.",
+              "Add very large payload / stress tests for oversized request bodies and assert proper error handling (413 Payload Too Large or graceful handling), and ensure no truncation of stored values beyond those tested in max-value cases.",
+              "Clarify and test the 204 vs application/json contract: add tests ensuring 204 responses contain no body and appropriate headers, and any successful or error JSON follows the documented contract."
+            ],
+            "usage": {
+              "completion_tokens": 2708,
+              "prompt_tokens": 6337,
+              "total_tokens": 9045,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1536,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

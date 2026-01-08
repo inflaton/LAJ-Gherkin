@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-09-28T05:03:56.028529",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:03:37.061203",
+    "benchmark_end_time": "2025-09-28T05:03:56.028524",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 18.967321,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: Multiple successful scenarios (TC01, TC02, TC04, TC05, TC26) verify successful transfers with minimal and full payloads and optional params.",
+              "Optional Query/Header Parameters: TC02, TC03, TC04, TC05 exercise requestedDate, billingPolicy, pluginProperty, X-Killbill-Reason and X-Killbill-Comment behavior.",
+              "Billing Policy Variants: TC03 explicitly exercises START_OF_TERM, END_OF_TERM, IMMEDIATE.",
+              "Validation (many cases): TC08, TC09, TC10, TC12 address invalid bundleId, invalid requestedDate, invalid billingPolicy, missing required body; TC15/TC16 cover some security validation scenarios.",
+              "Empty/Not Found States: TC06, TC07, TC22, TC23 check bundle/account not found and empty DB states (404 handling).",
+              "Authorization: TC13 covers unauthorized access (401).",
+              "Server Error Handling: TC14 and TC24 cover service unavailable and internal server error cases.",
+              "Edge Cases: TC18, TC19, TC20, TC21 cover empty pluginProperty array, extra params, large payloads, and header length limits.",
+              "Regression: TC25 ensures business rule preventing transfer to same account is validated.",
+              "Concurrency/Performance: TC27\u2013TC30 cover performance under normal/peak/concurrent/repeated calls.",
+              "Response expectations: Several scenarios assert response status codes (201/4xx/5xx) and presence/correctness of Location header (TC01, TC02)."
+            ],
+            "gaps": [
+              "Duplicate Submission / Idempotency: No explicit tests for duplicate submissions or how duplicate/ replayed POSTs are handled (e.g., second identical POST should be rejected or be idempotent).",
+              "Payload Schema / Response Body Detailed Validation: While success is asserted, there are no explicit tests validating full Bundle schema fields beyond association to target account (e.g., verifying specific fields, types, and produced JSON content-type).",
+              "Content-Type & Response Headers beyond Location: Caching headers (ETag, Cache-Control), Content-Type, and other relevant response headers are not asserted.",
+              "Rate Limiting / Throttling: No tests for rate limiting or throttling behavior under high request rates (distinct from performance latency tests).",
+              "Duplicate/Conflicting Concurrent Transfers: Concurrency tests exist (TC29) but there is no focused test for race conditions when multiple requests attempt to transfer the same bundle simultaneously and expected conflict handling (e.g., 409).",
+              "Malformed JSON / Invalid Body Structure: Tests for malformed JSON payloads (syntax errors) are missing.",
+              "Authorization Scopes/Permissions: TC13 checks 401 but there are no tests for insufficient permissions (403) or role-based access control variants.",
+              "Boundary validation for numeric/UUID sizes and maximum field lengths beyond headers: Header length is tested (TC21) but not body fields (accountId length) or pluginProperty entry length/format validation beyond XSS and large count.",
+              "Logging/audit header semantics: The effect/validation of X-Killbill-CreatedBy (beyond presence) and X-Killbill-Reason/Comment semantics are not asserted (e.g., recorded in audit trail).",
+              "HTTP 413 behavior is only suggested (TC20) but not deterministic: there's no explicit test that triggers a 413 and verifies server behavior for oversized bodies."
+            ],
+            "recommendations": [
+              "Add duplicate submission/idempotency tests: submit the same transfer request twice and assert whether second request returns 409 or is idempotent (201 with same resource) according to product intent.",
+              "Add malformed JSON and invalid body-structure tests to ensure 400 responses for syntactically invalid payloads and missing required fields inside a present body.",
+              "Add detailed response-body schema assertions on successful transfers: verify key Bundle fields, types and values (bundleId, accountId, subscriptions list, effective dates) and Content-Type header is application/json.",
+              "Add tests for race conditions when multiple requests try to transfer the same bundle concurrently that expect consistent conflict handling (e.g., one success + others 409) and assert no data corruption.",
+              "Add explicit rate-limiting/throttling tests: burst requests to validate 429 or configured rate-limit behavior in addition to performance latency tests.",
+              "Add tests verifying caching and header behavior where applicable (even if POST typically not cached): assert Location, Content-Type, and ensure no unintended caching headers; if any GET endpoints related to bundle listing are impacted, add ETag/Cache-Control tests there.",
+              "Add permission/authorization scope tests: differentiate 401 (no auth) from 403 (authenticated but not authorized) if the system enforces RBAC.",
+              "Add tests that deterministically trigger 413 (oversized payload) and verify server response and error message, plus tests that validate maximum allowed lengths for body fields (accountId, pluginProperty entries).",
+              "Add auditing/side-effect validation: confirm X-Killbill-CreatedBy, X-Killbill-Reason and Comment are recorded in audit logs or resource metadata when applicable.",
+              "Expand security validation: more injection patterns and encoding checks for pluginProperty and other free-text fields, and verify input sanitization behavior rather than only returning 400 in generic cases."
+            ],
+            "usage": {
+              "completion_tokens": 1360,
+              "prompt_tokens": 7734,
+              "total_tokens": 9094,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

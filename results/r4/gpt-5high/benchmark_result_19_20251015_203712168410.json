@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "19_2025-10-15T20:37:12.168383",
+    "jira_id": "19",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/search/{searchKey} - Search accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T20:35:03.813074",
+    "benchmark_end_time": "2025-10-15T20:37:12.168380",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 128.355306,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "19_qe_sup-gpt4.1_agent-gpt4.1_1748917082.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Happy-path searches with only the required path param and with each optional query param (including combinations) return JSON arrays of matching Account objects.",
+              "Empty Response: Scenarios cover no matches and empty database returning 200 with empty array.",
+              "Pagination: offset and limit tested individually and together, including large dataset handling and page boundaries.",
+              "Query Parameters: Broad validation of valid/invalid values for booleans, enums, and integers; extra/unexpected parameters are ignored.",
+              "Authorization: Missing and invalid auth token return 401.",
+              "Error Handling/Resiliency: 400 for invalid search key/pagination; 502/503 when dependent services fail; 503 when API is down; 504 timeout path covered.",
+              "Security: SQL injection and XSS attempts are rejected (400/422) and database integrity is asserted.",
+              "Balance/CBA and Audit options: Presence/absence of balance and CBA validated; audit=FULL and audit=MINIMAL validated; behavior when both balance flags are true covered.",
+              "Regression/Compatibility: Empty searchKey rejected (400); backward compatibility with path-only requests confirmed.",
+              "Performance/Load: Large limit with 10k+ matches and concurrent requests validated for acceptable performance."
+            ],
+            "gaps": [
+              "Rate Limiting: No scenarios to trigger/verify throttling (e.g., 429 Too Many Requests, Retry-After headers).",
+              "Caching Behavior: No checks for ETag/Last-Modified, Cache-Control, or conditional GET (If-None-Match/If-Modified-Since).",
+              "Defaults Verification: No explicit assertions that default offset=0 and limit=100 are applied when omitted; no explicit test for audit=NONE when set explicitly.",
+              "Response Headers: Content-Type=application/json and Accept/content negotiation not asserted.",
+              "Result Ordering: Tests assume a deterministic order for pagination (e.g., \"first page\", \"second matching account\") without a defined sort, risking flaky tests.",
+              "Boundary Values: Missing tests for limit=0, very large limit (beyond allowed max), extremely large offset (beyond total matches), and boolean/enums case-insensitivity (e.g., true/TRUE, audit=none).",
+              "URL Encoding/i18n: No tests for URL-encoded characters, spaces, or Unicode search keys (e.g., \"john doe\", \"Jos\u00e9\").",
+              "403 Forbidden: No scenario for authenticated users lacking permissions (if RBAC applies).",
+              "Schema Contract: No validation against the Account schema (#/definitions/Account) or structured audit fields for FULL vs MINIMAL; error payload schema not validated.",
+              "Produces Contract: \"Produces: application/json\" is implied but not validated via headers."
+            ],
+            "recommendations": [
+              "Add rate-limiting scenarios to provoke 429 and assert Retry-After and any rate-limit headers.",
+              "Add caching scenarios: assert ETag/Cache-Control on initial GET; follow-up GET with If-None-Match expecting 304; validate cache directives.",
+              "Verify defaults explicitly: without offset/limit ensure page starts at 0 and returns at most 100; compare with explicit offset=0&limit=100; add audit=NONE to confirm parity with default.",
+              "Assert response headers: Content-Type=application/json; optionally test Accept header behavior.",
+              "Avoid order assumptions in pagination assertions: assert set membership or define/verify a sort order agreed with the API contract.",
+              "Add boundary tests: limit=0 (expected behavior), limit above server max (truncation or 400), very large offset returning empty array, boolean/enums case-insensitivity handling.",
+              "Add URL-encoding and i18n tests: encoded spaces (%20), plus signs, reserved characters, and Unicode search keys; ensure proper decoding and matching.",
+              "If RBAC applies, add a 403 Forbidden scenario for insufficient permissions with valid authentication.",
+              "Introduce schema validation against #/definitions/Account and assert audit field sets for FULL vs MINIMAL; also validate a consistent error response schema (code/message/details).",
+              "Validate the Produces contract by asserting Content-Type and absence of unexpected fields; optionally check that unknown fields are not returned.",
+              "Consider a test clarifying behavior when balance/audit dependencies fail: either return 5xx as today or degrade gracefully by omitting those fields and still returning accounts (documented expectation)."
+            ],
+            "usage": {
+              "completion_tokens": 6739,
+              "prompt_tokens": 6048,
+              "total_tokens": 12787,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

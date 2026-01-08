@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-14T17:30:20.927958",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T17:27:33.210043",
+    "benchmark_end_time": "2025-10-14T17:30:20.927952",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 167.717909,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Successful deletion behavior: Scenarios cover removing all custom fields (no customField param), removing a subset by IDs, single-field deletion, and deleting when no custom fields exist (TC01, TC02, TC03, TC04).",
+              "Header handling: Required and optional headers are exercised, including presence, absence, unusual formatting and long comment values (TC05, TC06, TC09, TC16, TC20).",
+              "Path and query validation: Invalid invoiceItemId format (400), non-existent invoice item (404), malformed customField values, duplicate IDs and very large ID lists are tested (TC07, TC08, TC10, TC12, TC17, TC18).",
+              "Response codes and bodies: Success (204) and error responses (400, 401, 404, 503) are asserted across multiple scenarios; success responses verify empty body where applicable (TC01..TC20).",
+              "Security and input validation: Injection attempts and invalid auth tokens are covered (TC15, TC19).",
+              "Resilience and scale: Heavy-load and dependent-service-unavailable scenarios are included (TC13, TC14).",
+              "Unexpected parameters: Handling of extra/unexpected query parameters is tested (TC11).",
+              "Edge cases: Duplicate customField IDs and large-number handling validated (TC12, TC18)."
+            ],
+            "gaps": [
+              "Concurrency and race conditions: No scenarios simulate concurrent deletes or race conditions where fields are removed/modified between operations (DELETE concurrency).",
+              "Soft-delete semantics: No tests verify whether deletions are soft (logical) vs hard (physical) or whether deleted data remains in history/audit logs.",
+              "Idempotency/retry behavior: No explicit tests for repeated identical DELETE requests to validate second-call behavior (expected 204 vs 404 must be defined).",
+              "Authorization vs authentication: While invalid/expired token (401) is covered, there are no tests for authenticated-but-unauthorized users (403) or for tenant/account ownership checks.",
+              "Response headers and content-type: Tests assert status and body but do not validate response headers (e.g., Content-Type: application/json) or consistent header behavior on error responses.",
+              "Partial-delete semantics ambiguous: The suite assumes erroring on mixed valid/invalid customField lists (TC17) but the API contract is not explicitly validated for all-or-nothing vs partial-success behavior (no tests for IDs that exist but belong to other invoice items).",
+              "Edge-case query values: No tests for an explicitly empty customField parameter (e.g., customField=), URL-encoded edge cases, or malformed but syntactically allowed values.",
+              "Rate limiting and throttling: No tests exist to validate API behavior under rapid repeated requests (rate limiting / 429 scenarios).",
+              "Error response schema: No verification that error responses follow a consistent JSON schema (fields, codes, error structure).",
+              "Audit logging: No tests confirm that X-Killbill-CreatedBy/X-Killbill-Reason/X-Killbill-Comment values are recorded in audit/change history."
+            ],
+            "recommendations": [
+              "Add concurrency tests that perform simultaneous DELETE requests for the same invoiceItemId to detect race conditions and verify deterministic outcomes (define expected behavior: which request succeeds/which fails).",
+              "Add idempotency tests: send the same DELETE request twice and assert the expected second-call behavior per API contract (204 or 404) and document it in acceptance criteria.",
+              "Add soft-delete verification: test retrieval/audit endpoints or DB state after deletion to confirm whether custom fields are soft-deleted and whether they remain in history.",
+              "Add authorization tests for 403 scenarios: authenticated users without proper permissions, cross-tenant attempts, and verify correct error codes/messages.",
+              "Assert response headers: add checks for Content-Type (application/json) on errors and confirm any required response headers are present and correctly formatted.",
+              "Clarify and test partial-delete behavior: determine and codify expected behavior when some requested customField IDs do not exist or belong to other resources, then add tests for those cases.",
+              "Add tests for empty or edge customField query values and URL-encoding edge cases (customField=, repeated empty values, whitespace, etc.).",
+              "Add rate-limiting/throttling tests that exercise the endpoint at scale and verify expected 429 or configured throttling behavior.",
+              "Add tests to verify audit/logging of X-Killbill-* header values appear in change history or audit records.",
+              "Add error-schema validation tests to ensure all error responses conform to a stable JSON structure (code, message, type, fields)."
+            ],
+            "usage": {
+              "completion_tokens": 8073,
+              "prompt_tokens": 5523,
+              "total_tokens": 13596,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

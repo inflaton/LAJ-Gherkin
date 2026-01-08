@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "98_2025-10-14T20:26:44.127407",
+    "jira_id": "98",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/customFields - Add custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:24:40.692118",
+    "benchmark_end_time": "2025-10-14T20:26:44.127403",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 123.435285,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "98_qe_sup-gpt4.1_agent-gpt4.1_1748922413.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid POST payload (happy path): multiple scenarios (TC01, TC02, TC03, TC04, TC05) verify HTTP 201 and response body contains created CustomField objects.",
+              "Header handling: required header X-Killbill-CreatedBy presence and missing header behavior covered (TC01, TC02, TC09). Optional headers X-Killbill-Reason and X-Killbill-Comment covered (TC02).",
+              "Input validation and error cases: malformed JSON (TC08), missing required CustomField properties (TC16), invalid paymentId format (TC10), non-existent paymentId -> 404 (TC11).",
+              "Edge cases and payload variants: empty array (TC07), extra/unexpected fields in payload (TC06), very large payload / payload-size behavior (TC15).",
+              "Security: SQL injection / XSS payloads tested for sanitization / rejection (TC14).",
+              "Concurrency and regression checks: concurrent requests (TC19), duplicate field-name regression tests (TC20).",
+              "Performance and resilience: normal and peak load performance and SLA tests (TC22, TC23), network timeout behavior (TC18), service-unavailable behavior (TC13).",
+              "Integration and persistence: verification that created fields persist and are retrievable (TC24), and cross-system consistency checks (TC25).",
+              "Response schema basics: response objects are asserted to include fieldName, fieldValue, objectType (TC01).",
+              "Miscellaneous: unsupported query-parameter handling (TC17), unicode handling (TC21), and accessibility of documentation (TC26)."
+            ],
+            "gaps": [
+              "Idempotency / duplicate-submission semantics: no explicit deterministic test for repeated identical POST requests (should clarify whether API is idempotent or allows duplicates and test accordingly).",
+              "Rate limiting / throttling: no tests asserting 429 behavior or Retry-After when request rate exceeds limits (rate-limit enforcement is not covered).",
+              "Response header verification: tests do not assert response headers (Content-Type, Location for created resource, CORS, or any audit-related headers).",
+              "Invalid Content-Type handling: no negative tests for requests with non-application/json Content-Type (e.g., expect 415 Unsupported Media Type or 400).",
+              "Server fault / 500 Internal Server Error handling: while 503 is covered (TC13), a generic 500/internal error via fault injection is not explicitly covered (consistency of error payload and monitoring hooks).",
+              "Schema/type constraints and business rules: missing tests for wrong data types (e.g., numeric in fieldName), max length limits, empty-string vs null handling, and allowed values for objectType (enumerations).",
+              "Batch atomicity / partial success: no explicit test for mix of valid and invalid items in a single array to assert whether operation is atomic (all-or-nothing) or partial success with per-item reporting.",
+              "Authorization semantics beyond auth-failure: 403 Forbidden (authenticated but not authorized / insufficient privileges) and role-based access control tests are not present.",
+              "Audit and metadata persistence verification: optional headers X-Killbill-Reason and X-Killbill-Comment are sent (TC02) but not verified as persisted in audit logs or metadata; server-generated metadata fields in the response (IDs, createdDate, audit info) are not asserted.",
+              "Limits per resource: tests do not validate maximum allowed number of custom fields per payment or business limits that might induce 4xx/413/409 responses."
+            ],
+            "recommendations": [
+              "Add an explicit idempotency / duplicate-submission test (e.g., TC27): send the same POST twice and assert the documented behavior: either deduplication (second request is no-op and returns 200/201 without creating duplicates) or explicit 409/duplicate error; verify DB contains a single set of entries if deduplication expected.",
+              "Add rate-limiting tests (e.g., TC28): push concurrent requests beyond allowed threshold and assert 429 Too Many Requests and presence of Retry-After header; include a test for graceful recovery after throttling window expires.",
+              "Add response-header assertions (e.g., TC29): verify Content-Type=application/json, and if API returns Location or other audit headers on create, assert correctness and format.",
+              "Add Content-Type negative tests (e.g., TC30): send requests with text/plain, missing Content-Type, or multipart and assert appropriate 415/400 error handling.",
+              "Add server-fault injection tests (e.g., TC31): simulate DB exceptions or downstream failures to verify consistent 500/structured error payloads and that no partial writes occur (or verify rollback behavior).",
+              "Add strong schema and type validation tests (e.g., TC32): attempt invalid data types for fieldName/fieldValue/objectType, overly long values, empty strings, and invalid objectType enumeration; assert 400 with clear validation messages.",
+              "Add batch-atomicity tests (e.g., TC33): submit an array with mixed valid and invalid CustomField objects and assert documented atomic behavior (either all succeed or none, with clear error reporting).",
+              "Add authorization-granularity tests (e.g., TC34): verify behavior when an authenticated user lacks required privileges (expect 403) and test expired tokens / scopes and role-based access where relevant.",
+              "Add audit-persistence tests (e.g., TC35): after POST with X-Killbill-Reason and X-Killbill-Comment, verify audit tables / GET endpoints include those values or that they appear in the audit log; verify server-generated metadata (id, createdDate) are present in response and persisted.",
+              "Add tests for resource limits and uniqueness constraints (e.g., TC36): create many custom fields until limit and assert expected 4xx/413/429/409 behavior; test unique constraints if business rules require unique fieldName per objectType/payment.",
+              "Make ambiguous expectations deterministic in acceptance criteria: replace \"201 or 400 depending on API strictness\" with the desired behavior so tests are assertive (e.g., decide if extra fields are ignored or rejected).",
+              "Where possible, add exact assertions for error payload structure and messages so automated verification is reliable (schema for error responses)."
+            ],
+            "usage": {
+              "completion_tokens": 7957,
+              "prompt_tokens": 6845,
+              "total_tokens": 14802,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6656,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

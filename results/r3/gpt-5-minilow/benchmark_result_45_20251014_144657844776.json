@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-14T14:46:57.844745",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:46:05.303312",
+    "benchmark_end_time": "2025-10-14T14:46:57.844738",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 52.541426,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Successful invalidation of all caches and a specific cache are covered (TC01, TC02).",
+              "Non-Existent Resource: Behavior when the requested cache does not exist is covered (TC03).",
+              "Invalid/Bad Input: Empty cacheName, oversized cacheName, special characters, previously problematic formats and mixed-case checks are covered (TC05, TC10, TC11, TC12, TC15).",
+              "Authorization: Unauthorized access scenario is included (TC06).",
+              "Server Errors: Internal server/cache-subsystem error scenario is included (TC07).",
+              "Edge/Operational Scenarios: No caches present (TC08), extra unsupported query parameters (TC09), performance with large number of caches (TC13), and concurrent invalidation requests (TC14) are covered."
+            ],
+            "gaps": [
+              "Soft Delete / Persistence Semantics: The story/guidelines mention deletion behaviors like soft deletes; no scenario verifies whether invalidation is soft (recoverable) vs permanent or verifies subsequent visibility of cache state beyond \u201cinvalidated.\u201d",
+              "Idempotency / Repeat Requests: No explicit test that repeated identical DELETE requests are idempotent (e.g., second call still returns 204 or appropriate error).",
+              "Response Headers / Content-Type: The acceptance criteria specify \u201cProduces: application/json\u201d but tests do not assert response headers (Content-Type) or other relevant headers (e.g., caching headers, retry-after on errors).",
+              "Exact Error Shape & Codes: Tests check for 400/401/403/500 but do not assert exact error payload structure, error codes/messages format, or HTTP problem details schema.",
+              "Rate Limiting / Throttling: Although concurrency is tested, there are no explicit tests for rate limiting behavior or throttling responses (e.g., 429).",
+              "Race Conditions with Concurrent Cache-Specific Deletes: Concurrency test covers all-cache invalidation but not race conditions for concurrent deletes of the same specific cache (e.g., one request invalidates, another requests the same cache simultaneously).",
+              "Authorization Scope / Roles: There is a generic unauthorized test, but no finer-grained tests for different admin roles/permissions or token scopes if applicable.",
+              "Validation of Query Parameter Parsing: No tests for whitespace-only cacheName values, missing equal sign variants, multiple cacheName params, or percent-encoding edge cases beyond one special-chars example."
+            ],
+            "recommendations": [
+              "Add idempotency tests: send the same DELETE twice for both \u201call caches\u201d and a specific cache and assert the second response behavior (204 or documented response) and that no additional side effects occur.",
+              "Assert response headers: add checks for Content-Type, any produced JSON error schema, and relevant headers (e.g., Cache-Control, Retry-After) especially since the API declares application/json in the story.",
+              "Add tests for soft-delete/persistence semantics: after invalidation, attempt to read or re-populate cache entries to confirm expected persistence/visibility behavior, or document that invalidation is ephemeral and add tests accordingly.",
+              "Add rate limiting tests: bombard the endpoint to validate throttling and expected 429 responses or that the system gracefully handles excessive calls.",
+              "Add concurrent specific-cache race tests: run parallel DELETE?cacheName=X requests and a concurrent read/populate to catch race conditions and ensure consistent results and stability.",
+              "Add more parameter-parsing edge cases: whitespace-only cacheName, multiple cacheName query params, missing value vs omitted param, and additional percent-encoding variants.",
+              "Verify error payloads precisely: assert error JSON schema, error codes, and messages to ensure clients can reliably parse failures.",
+              "Add role/permission tests if the system supports varied admin roles or token scopes to ensure only appropriately scoped actors can invalidate caches."
+            ],
+            "usage": {
+              "completion_tokens": 1119,
+              "prompt_tokens": 3739,
+              "total_tokens": 4858,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

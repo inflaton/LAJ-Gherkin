@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-15T11:08:41.940045",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:08:17.259640",
+    "benchmark_end_time": "2025-10-15T11:08:41.940041",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 24.680401,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01 (success) verifies a successful tenant-level cache invalidation returning HTTP 204.",
+              "Non-Existent Resource: TC04 tests behavior when tenant context does not exist (404).",
+              "Authorization - missing/invalid creds: TC02 and TC03 cover unauthenticated and invalid-auth cases returning 401.",
+              "Server Error Handling: TC05 (500) and TC06 (503) cover internal/service errors during invalidation.",
+              "Malformed Request Handling: TC07 covers unsupported parameters/payloads returning 400.",
+              "Security Input Validation: TC08 covers injection attempts in headers (400/403).",
+              "Idempotency / Empty State: TC09 ensures operation is idempotent and returns 204 when cache is already empty.",
+              "Concurrency / Performance: TC10 covers concurrent DELETEs and response time expectations.",
+              "Regression & Integration: TC11 and TC12 cover regression and dependent-service propagation of invalidation.",
+              "Partial State Handling: TC13 verifies mixed valid/expired entries are fully invalidated.",
+              "Timeout Handling: TC14 covers long-running invalidation resulting in a gateway timeout (504)."
+            ],
+            "gaps": [
+              "Authorization scope/roles (403): No scenario verifies an authenticated non-admin (insufficient-privilege) user is forbidden (403) vs 401 for unauthenticated \u2014 story implies admin-only operation.",
+              "Response contract / Content-Type: The story expects application/json; tests assert empty body for 204 but do not assert Content-Type or response media type for success and error responses.",
+              "Tenant isolation / multi-tenant safety: No explicit test verifying caches for other tenants are unchanged after invalidation (current-tenant-only effect).",
+              "Partial-failure / partial-success semantics: No test where some cache partitions for a tenant fail to invalidate (mixed success) and the API\u2019s combined error reporting/rollback behavior is validated.",
+              "Audit/logging/side-effects: No tests that verify audit logs, metrics, or administrative events are recorded for the operation.",
+              "Authorization edge-cases: malformed or missing tenant header vs invalid tenant identifier format are not covered (e.g., bad tenant-id syntax leading to 400).",
+              "Response body format for errors: Error payload schema/content (application/json error object shape) is not validated for 4xx/5xx responses.",
+              "Rate-limiting / throttling: No tests for repeated requests exceeding rate limits or server-side throttling behaviors.",
+              "Soft-delete semantics / persistence: No test covering whether cache invalidation is permanent or reversible (if applicable) or how soft-deletes are represented.",
+              "Concurrency race-details: TC10 covers concurrency at a high level but not subtle race conditions (e.g., simultaneous invalidation and cache write operations leading to lost invalidation)."
+            ],
+            "recommendations": [
+              "Add a 403 test case for an authenticated user without admin privileges to ensure role-based authorization is enforced and returns the correct status and error body.",
+              "Assert HTTP response headers and media type explicitly: add checks that successful and error responses include the expected Content-Type (application/json) and any other required headers (e.g., cache-control, request-id). Align the expected body (empty vs JSON) with the API contract in the story and update tests accordingly.",
+              "Add multi-tenant isolation tests: verify that invalidation only affects the current tenant and other tenants retain their cache contents after the operation.",
+              "Introduce partial-failure tests: simulate failure in some cache partitions or backends and assert API behavior (aggregate error code, partial success semantics, retries, or compensating actions).",
+              "Add audit/telemetry tests: verify that an invalidation event is logged/audited and relevant metrics are emitted so operators can trace admin actions.",
+              "Add tests for malformed tenant identifiers and tenant header validation to ensure 400 responses for invalid formats are handled consistently.",
+              "Define and validate error response schemas for 4xx/5xx responses (fields like code, message, details) and add tests to enforce the contract.",
+              "Include rate-limiting / throttling tests (burst requests) to validate behavior under rapid repeated calls and ensure graceful handling or proper 429 responses if applicable.",
+              "Expand concurrency tests to include simultaneous cache writes + deletes to uncover race conditions and ensure the operation is effectively atomic from client perspective.",
+              "Clarify expectations about soft-delete vs hard-delete for caches and add tests if the system supports recoverable cache states or retention policies."
+            ],
+            "usage": {
+              "completion_tokens": 2144,
+              "prompt_tokens": 3389,
+              "total_tokens": 5533,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

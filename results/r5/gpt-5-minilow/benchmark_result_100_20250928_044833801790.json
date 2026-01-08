@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-09-28T04:48:33.801764",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:48:20.683438",
+    "benchmark_end_time": "2025-09-28T04:48:33.801759",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 13.118321,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC06, TC07, TC10, TC15, TC20, TC23) verify successful deletions and expected 204 responses.",
+              "Path parameter validation: TC08 verifies invalid paymentId format resulting in 400.",
+              "Query parameter validation: TC02, TC05, TC06, TC07, TC10, TC13, TC16 cover valid lists, unexpected params, limits, single/multiple IDs, non-existent IDs, malformed IDs and mixed valid/invalid inputs.",
+              "Required and optional headers: TC11 verifies missing required header (X-Killbill-CreatedBy) and TC03 covers optional headers (X-Killbill-Reason, X-Killbill-Comment).",
+              "Authentication/Authorization: TC12 covers invalid auth token (401).",
+              "Error handling for non-existent resource: TC09 checks 404 for missing payment.",
+              "Service availability and degradation: TC14 and TC19 cover service unavailable and degraded performance scenarios.",
+              "Security input validation: TC17 and TC18 check XSS and SQL injection attempts in headers/query params.",
+              "Integration with dependent services: TC21 and TC22 cover audit log integration being available/unavailable."
+            ],
+            "gaps": [
+              "Concurrency / Race conditions: No scenarios test concurrent deletions or race conditions (e.g., two clients deleting the same custom field simultaneously).",
+              "Soft delete behavior: Story/guidelines mention soft deletes; tests do not verify whether deletion is soft (marked) vs hard (removed), or check visibility via subsequent GETs.",
+              "Response contract / Content-Type and body: Tests assert empty body and status codes but do not validate response headers (Content-Type, caching headers) or explicit application/json production when errors are returned.",
+              "Rate limiting and throttling: No tests for rate limiting, burst behavior, or repeated requests in short intervals.",
+              "Idempotency and duplicate requests: No explicit tests that repeated identical DELETE requests are handled idempotently (e.g., second DELETE returns 204 vs 404).",
+              "Pagination / large-list handling semantics: While tests cover large counts of customField IDs as query params (TC06, TC15), there is no guidance/validation for paginated responses because endpoint is DELETE \u2014 still need tests for server limits/acceptable query length and proper error on too-large query strings.",
+              "HTTP response codes nuance: Tests assume 204 on success; edge-behavior where audit service failure might cause 503 vs 204 is listed in TC22 but not asserted strictly; lack of tests verifying consistent behavior across dependent failures.",
+              "Input encoding and header validation: While malformed header X-Killbill-CreatedBy is tested for XSS, tests do not validate allowed character sets, max header length, or trimming behavior."
+            ],
+            "recommendations": [
+              "Add concurrency tests: simulate concurrent DELETE requests (two clients deleting overlapping custom fields) to verify atomicity, race handling, and idempotency (expected behavior documented).",
+              "Verify soft vs hard delete semantics: after deletion, perform GET on payment custom fields to assert whether fields are removed or marked deleted; add assertions for audit trail existence/contents if soft-deleted.",
+              "Validate response contract: add assertions for response headers (Content-Type, Content-Length), and for error responses ensure Content-Type: application/json and consistent error schema.",
+              "Rate limiting and throttling tests: add scenarios for rapid repeated DELETE requests to validate rate-limit headers and expected 429/handling.",
+              "Idempotency checks: add tests that repeat the same DELETE twice and assert second response behavior (204 or documented response) to ensure idempotent semantics.",
+              "Large query handling: add tests for server limits (e.g., very long query string beyond server/configured limit) expecting 413 or 400 and explicit error message; document max supported number of customField params.",
+              "Clarify and assert dependent-service failure behavior: replace ambiguous TC22 with two deterministic tests asserting whether audit log failure is tolerated (204) or causes 503 \u2014 align tests with agreed product behavior.",
+              "Header validation coverage: add tests for header length limits, allowed character sets, and trimming/normalization behavior for X-Killbill-CreatedBy and optional headers."
+            ],
+            "usage": {
+              "completion_tokens": 1150,
+              "prompt_tokens": 6120,
+              "total_tokens": 7270,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

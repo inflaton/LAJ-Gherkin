@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-15T01:50:41.354792",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T01:50:28.275910",
+    "benchmark_end_time": "2025-10-15T01:50:41.354785",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 13.078875,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01 and TC09/TC13/TC11 verify successful invalidation (HTTP 204) and idempotency/actual invalidation.",
+              "Error responses: TC02, TC03, TC04, TC05, TC06, TC07, TC08, TC14 cover a wide range of error codes (401, 404, 500, 503, 400, 504) as required by the story.",
+              "Authentication/Authorization: TC02 and TC03 validate missing and invalid auth handling.",
+              "Tenant existence: TC04 covers the non-existent tenant case (404).",
+              "Operational/edge cases: TC09 (already empty), TC13 (partially populated), TC10 (concurrent requests/performance), and TC14 (timeout/gateway timeout) cover several important operational edge cases.",
+              "Integration/regression: TC11 and TC12 ensure regression and dependent-service observation of invalidation."
+            ],
+            "gaps": [
+              "Content-Type / Response Body contract: The story notes \u201cProduces: application/json\u201d despite 204 expectation. Tests assert empty body but do not verify Content-Type header or the exact response body for non-204 responses (e.g., error payload structure).",
+              "Exact error payload schema: No tests validate the structure/fields of error responses (error codes/messages/fields), or consistent JSON error format.",
+              "Authorization granularity: Tests cover missing/invalid auth but not role/permission checks (e.g., authenticated non-admin user should get 403 vs 401).",
+              "Concurrency race conditions: TC10 tests concurrent DELETEs for performance and idempotency but does not explicitly test race conditions where another actor modifies/deletes related resources mid-operation (concurrency conflict semantics).",
+              "Soft delete semantics / persistence effects: No tests verify whether caches are soft-deleted vs hard-cleared, or the persistence/side-effects beyond dependent services (e.g., metrics, logs).",
+              "Rate limiting / throttling: No tests address rate limiting or behavior under extreme request burst beyond the single load/performance scenario.",
+              "Header/tenant-context variations: Background mentions tenant context via header or token, but there are no tests for different ways of specifying tenant context (header vs token vs missing tenant header leading to 4xx).",
+              "Response headers and caching headers: No tests assert relevant headers (Cache-Control, ETag, Retry-After on 503/429, Content-Type).",
+              "Negative/invalid inputs beyond extra params: TC07 handles extra params but there is no test for malformed header values, invalid tenant id formats, or unsupported HTTP methods (e.g., POST/GET to this endpoint)."
+            ],
+            "recommendations": [
+              "Validate response headers and body contract: add assertions for Content-Type on both 204 and error responses and define/verify the exact JSON error schema (fields, codes, messages).",
+              "Add role/permission tests: include cases for authenticated non-admin users (expect 403) and ensure admin-only access is enforced.",
+              "Explicit concurrency conflict tests: add scenarios where another process modifies or clears cache simultaneously to verify no race conditions or data corruption and define expected behavior (e.g., still 204 or 409).",
+              "Test tenant context variants and missing tenant identifier: add tests for specifying tenant via header vs token vs missing/ambiguous tenant context and expected 4xx behavior.",
+              "Rate limiting and throttling tests: include burst tests and verify appropriate 429 or throttling behavior and Retry-After header if applicable.",
+              "Error payload schema: create negative tests that validate the structure and fields of error responses for all >=400 codes to ensure clients can parse errors reliably.",
+              "Soft-delete/persistence checks: if cache system supports soft deletes or delayed invalidation, add tests that verify side-effects (metrics, logs, eventual consistency) and whether invalidation is immediate.",
+              "Unsupported methods and input validation: add tests to confirm unsupported HTTP methods return 405 and malformed header/tenant id formats result in 400."
+            ],
+            "usage": {
+              "completion_tokens": 1161,
+              "prompt_tokens": 3389,
+              "total_tokens": 4550,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-10-15T02:35:52.860040",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:32:53.158870",
+    "benchmark_end_time": "2025-10-15T02:35:52.860036",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 179.701166,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Payload: Multiple success scenarios (single and multiple tags, with/without optional headers) return 201 with a JSON array of Tag objects.",
+              "Validation: Required header X-Killbill-CreatedBy is enforced; optional X-Killbill-Reason and X-Killbill-Comment are supported.",
+              "Invalid Payload: Empty body, non-array body, unexpected object in array, malformed tag UUIDs all yield 400.",
+              "Path/ID Validation: Missing/invalid/malformed accountId scenarios return 400; non-existent account covered.",
+              "Authentication: 401 for missing/invalid authentication token is tested.",
+              "Large Payloads: Boundary case with 100 tag definition IDs is exercised.",
+              "Concurrency/Deduplication: Concurrent requests prevent duplicate tags; duplicate IDs in the same request are deduplicated.",
+              "Server Error Handling: Dependency outage returning 503 is covered.",
+              "Security: Header injection attempt is sanitized and not reflected.",
+              "Performance: Response-time expectation (<= 2 seconds) is included.",
+              "Backward compatibility: Explicit test using API version 1.0 retained."
+            ],
+            "gaps": [
+              "Response headers/content negotiation: No assertions for response Content-Type: application/json; no tests for 415 (wrong/missing Content-Type) or 406 (unacceptable Accept).",
+              "Server error breadth: No 500 Internal Server Error path (e.g., database failure), nor 502/504/timeouts.",
+              "Duplicate submission/idempotency: No test for replaying the same POST twice to confirm expected second-call status and idempotent behavior.",
+              "Atomicity with mixed validity: No scenario mixing valid and invalid tag IDs in a single request to verify all-or-nothing behavior and precise error messaging.",
+              "Authorization/permissions: No 403 Forbidden scenario for authenticated users lacking the add-tags permission.",
+              "Tag schema validation: Tag object fields from #/definitions/Tag are not asserted (e.g., id, tagDefinitionId, objectType, accountId, timestamps) nor that audit fields reflect CreatedBy/Reason/Comment.",
+              "Header value validation: No tests for blank/whitespace CreatedBy, very long Reason/Comment, or non-UTF-8/encoding issues.",
+              "Very large payload and limits: No tests near/exceeding maximum allowed array size and expected 413 Payload Too Large.",
+              "Existing tag re-add in same request: No scenario attempting to include a tag already present on the account to define expected outcome (ignore vs error).",
+              "Spec alignment: TC05 expects the response to include existing tags, but the story states the response should represent only the created tags; TC22 has non-deterministic expectation (\"400 or 201\"); TC06 introduces query parameters on POST without a spec statement\u2014should be clarified/removed.",
+              "Response metadata: No checks for standard headers (e.g., correlation/request id if applicable) or stable ordering of returned tags."
+            ],
+            "recommendations": [
+              "Assert response Content-Type: application/json and add tests for 415 when Content-Type is not application/json and 406 when Accept does not include application/json.",
+              "Add a 500 Internal Server Error simulation (e.g., database failure); consider also 502/504 and client timeout behavior.",
+              "Create idempotency tests: send the same POST twice to the same account; define expected second-call status (e.g., 200/204/409) and verify no duplicate tags are created.",
+              "Add a mixed-validity request (e.g., [\"valid-uuid\", \"bad-uuid\"]) to confirm atomicity (entire request rejected vs partial creation) and clear error messages.",
+              "Introduce a 403 Forbidden scenario where the caller is authenticated but lacks permission to add tags.",
+              "Validate Tag schema thoroughly: assert required fields (id, tagDefinitionId, objectType, accountId, createdDate) and that audit fields reflect X-Killbill-CreatedBy/Reason/Comment.",
+              "Test header value edge cases: blank/whitespace CreatedBy, very long Reason/Comment, and encoding/Unicode cases; define expected outcomes (400 vs truncation).",
+              "Exercise payload limits: test near the maximum supported tag count and an over-limit case expecting 413; also include mixes of duplicates and new IDs.",
+              "Clarify and correct scenarios: align TC05 with the spec (response includes only created tags unless requirements say otherwise); make TC22 deterministic; remove or explicitly justify TC06 if unknown query params must be ignored.",
+              "Add a scenario where a request includes a tag already on the account to define expected status and behavior (ignore vs error).",
+              "Augment performance/concurrency with explicit post-conditions (final tag count equals unique union, no race-induced errors) and sustained-load timing goals."
+            ],
+            "usage": {
+              "completion_tokens": 8608,
+              "prompt_tokens": 6410,
+              "total_tokens": 15018,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7616,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

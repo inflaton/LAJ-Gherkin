@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "59_2025-10-15T18:50:52.824982",
+    "jira_id": "59",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles - Retrieve a bundle by external key",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T18:47:44.807247",
+    "benchmark_end_time": "2025-10-15T18:50:52.824978",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 188.017731,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "59_qe_sup-gpt4.1_agent-gpt4.1_1748919811.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Happy path retrieval returns 200 with application/json and a JSON array containing the matching Bundle (TC01, TC30). Duplicates handled as an array when multiple bundles share the same externalKey (TC14).",
+              "Empty Response/Not Found: 404 when no bundle matches the key or the system has no bundles (TC08, TC16).",
+              "Query Parameters: Required externalKey enforced (TC07, TC29); includedDeleted semantics covered for true/false (TC02, TC06); audit enum values FULL/MINIMAL/NONE validated (TC03\u2013TC05); invalid values return 400 (TC09, TC10); unsupported params ignored (TC15); boundary and i18n inputs covered (max/min length, non-ASCII, unexpected/encoded input, SQLi/XSS) (TC19, TC20, TC23\u2013TC26).",
+              "Authorization: 401 for unauthenticated and 403 for insufficient permissions (TC11, TC12).",
+              "Error handling/resiliency: 503 for DB/service downtime (TC13, TC28); transient network retry recovers (TC21).",
+              "Performance and concurrency: Response-time threshold (TC17) and concurrent requests correctness (TC18).",
+              "Large dataset robustness: Correct retrieval with 10,000 bundles present (TC27).",
+              "Produces header: Content-Type application/json verified (TC01).",
+              "Security hardening: Inputs sanitized; no sensitive error leakage on malformed input (TC19, TC20, TC26).",
+              "Pagination: Not applicable for this endpoint (filter by externalKey returns a small array); tests appropriately focus on array semantics rather than page controls."
+            ],
+            "gaps": [
+              "Caching behavior: No scenarios validating ETag/If-None-Match, Last-Modified/If-Modified-Since, Cache-Control/Expires, or 304 Not Modified responses.",
+              "Rate limiting/throttling: No tests for 429 Too Many Requests or presence/semantics of X-RateLimit-* headers under burst traffic.",
+              "Default parameter behavior not explicitly verified: omitting audit should default to NONE (no audit fields) and omitting includedDeleted should exclude deleted bundles when querying a deleted key.",
+              "Combined parameter interactions: No scenario using includedDeleted=true together with audit=FULL/MINIMAL to validate combined behavior in the same response.",
+              "Error payload schema: Scenarios assert generic messages but do not validate the standardized error body structure for 4xx/5xx (e.g., fields like code, message, type).",
+              "Content negotiation: No tests for Accept header handling (e.g., Accept: application/json succeeds vs unsupported Accept yields 406)."
+            ],
+            "recommendations": [
+              "Add tests for caching: verify ETag and Cache-Control on successful responses; then send conditional GETs (If-None-Match/If-Modified-Since) to assert 304 and correct validator behavior.",
+              "Add rate-limiting tests: issue bursts to exceed limits and assert 429 with proper X-RateLimit-* and Retry-After headers; also verify no 429 under allowed thresholds.",
+              "Verify defaults when parameters are omitted: (a) audit omitted -> response contains no audit fields (defaults to NONE); (b) querying a deleted bundle with includedDeleted omitted -> 404 (defaults to false).",
+              "Add combined parameter scenarios: includedDeleted=true with audit=FULL and audit=MINIMAL to confirm both deletion state and audit payload co-exist as specified.",
+              "Validate a standard error schema for 400/401/403/404/503 responses (e.g., code, message, details), not just presence of a message.",
+              "Add content negotiation scenarios: Accept: application/json returns 200 with charset; unsupported Accept returns 406; verify no unexpected content types are served."
+            ],
+            "usage": {
+              "completion_tokens": 7339,
+              "prompt_tokens": 5485,
+              "total_tokens": 12824,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6528,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

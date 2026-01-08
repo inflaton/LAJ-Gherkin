@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-10-14T21:14:30.571689",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:13:40.728377",
+    "benchmark_end_time": "2025-10-14T21:14:30.571685",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 49.843308,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST - Valid Payload: Success cases for single/multiple tags, optional headers, existing/no existing tags, boundary of 100 IDs, and backward-compat version are exercised (TC01-05, TC18, TC24).",
+              "POST - Invalid Payload: Empty array, non-array body, extra unexpected elements, malformed UUIDs, and special characters are validated with proper 400s (TC07-09, TC17, TC23).",
+              "POST - Validation: Required header X-Killbill-CreatedBy presence is enforced (TC11); accountId path validation for missing/invalid/non-existent is covered (TC12-14); non-existent tag definition IDs handled (TC10); duplicate IDs in request handled without duplicating tags (TC19).",
+              "Authorization: Missing/invalid auth token returns 401 (TC15).",
+              "Server Error Handling: Dependency/service unavailable simulated with 503 (TC16).",
+              "Concurrency/Duplicates: Concurrent requests do not create duplicate tags (TC21).",
+              "Performance: Basic response-time expectation covered (TC20).",
+              "Non-functional/robustness: Ignoring irrelevant query params tested (TC06)."
+            ],
+            "gaps": [
+              "POST - Server Error Handling: No scenario for generic 500 Internal Server Error (e.g., database failure) distinct from 503 dependency outage.",
+              "Request/Response headers: No test asserting response Content-Type is application/json as specified; no test for 415 Unsupported Media Type when Content-Type is missing or incorrect on request.",
+              "Schema fidelity: Response body is asserted as an array of Tag objects, but no field-level schema validation against definitions/Tag (e.g., id, tagDefinitionId, objectType, audit fields).",
+              "Authorization/Permissions: No 403 Forbidden scenario for authenticated user lacking permission to add tags.",
+              "Duplicate submission/idempotency: No scenario for repeating the same POST sequentially (not concurrent) to ensure no duplicate tags are created and to verify expected status semantics.",
+              "Large payload limits: Only up to 100 IDs tested; no negative/boundary for exceeding max size (e.g., 413 Payload Too Large) or very large arrays to verify robustness.",
+              "Content negotiation: No tests for Accept header handling or defaulting when Accept is missing/invalid.",
+              "Input corner cases: No test for null/empty-string elements within the array, mixed valid/invalid UUIDs in the same request, or duplicate IDs that already exist on the account to verify idempotent union behavior and precise error messaging."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate a generic internal server error (e.g., database failure) and expect 500 with a clear error payload.",
+              "Validate headers: assert response Content-Type: application/json on 201/4xx/5xx; add tests for missing/incorrect request Content-Type to expect 415.",
+              "Augment schema checks: validate that each Tag object in the response matches the full Tag schema (required fields, types, and no unexpected fields).",
+              "Add a 403 Forbidden scenario for an authenticated user without the required permission to add tags.",
+              "Introduce an idempotency/duplicate submission test: send the same POST twice sequentially and verify no duplicate tags are created; define expected status code behavior (e.g., 201 then 200 or 201 both, depending on API contract).",
+              "Test upper-bound payloads: determine and exercise the documented/operational limit (e.g., thousands of IDs), and add a negative test expecting 413 or appropriate error when exceeding limits.",
+              "Add content negotiation tests for Accept header variations and default behavior.",
+              "Extend validation cases: include null or empty string elements in the array, a mix of valid and invalid UUIDs in one request (verify whole-request failure vs partial creation per contract), and adding tags that already exist on the account to ensure the response is the set-union without duplicates."
+            ],
+            "usage": {
+              "completion_tokens": 2043,
+              "prompt_tokens": 6410,
+              "total_tokens": 8453,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

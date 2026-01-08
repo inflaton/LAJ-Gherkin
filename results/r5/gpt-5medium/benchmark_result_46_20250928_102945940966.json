@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-09-28T10:29:45.940937",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:28:53.399429",
+    "benchmark_end_time": "2025-09-28T10:29:45.940933",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 52.541504,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "DELETE: Valid operation returns 204 with empty body and asserts account-level cache invalidation (TC01, TC09, TC17, TC19).",
+              "DELETE: Non-existent resource returns 404 (TC02, TC16, TC18).",
+              "Input validation: 400 for invalid accountId formats including regression and malicious inputs (TC03, TC10, TC12, TC14, TC15).",
+              "Authorization: 401 for unauthenticated or invalid/expired credentials (TC05, TC06).",
+              "Method handling: 405 for unsupported HTTP method (GET) (TC11).",
+              "Resilience: 503 for dependency/service unavailability or degraded performance (TC07, TC08).",
+              "Concurrency/Performance: concurrent DELETEs across multiple accounts with response time SLA (TC13).",
+              "Robustness: missing accountId path segment (404) and extraneous query parameter ignored (TC04, TC09).",
+              "Retry behavior: transient network failure with successful retry (TC17)."
+            ],
+            "gaps": [
+              "Idempotency: Repeat DELETE on the same account should be safe and still return 204 (not covered).",
+              "Concurrency on the same resource: Simultaneous DELETEs for the same account to detect races/ordering issues (not covered).",
+              "Authorization 403: Authenticated but non-admin/insufficient scope should receive 403 (only 401 cases covered).",
+              "Response headers/content negotiation: Validate Content-Type=application/json on error responses and absence of body/headers for 204; verify Accept handling.",
+              "Error body schema: Validate standardized JSON error fields (e.g., code, message, type) rather than only generic messages.",
+              "Rate limiting/throttling: Behavior under burst DELETE requests and presence of rate-limit headers (e.g., Retry-After) not tested.",
+              "Objective verification of cache invalidation: No follow-up observable check (e.g., subsequent read shows cache miss/ETag change) to prove caches were cleared.",
+              "Server error path: 500 Internal Server Error not simulated.",
+              "Unsupported methods breadth: Only GET is tested; POST/PUT/PATCH should also return 405.",
+              "Input boundary variants: Whitespace-padded IDs, uppercase UUIDs, URL-encoded valid UUIDs, and empty string as accountId (distinct from missing path) not covered.",
+              "Request body handling: Ensure any body sent with DELETE is ignored or rejected per API contract."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: call DELETE twice on the same valid account; expect 204 both times and no side effects.",
+              "Add same-account concurrency tests (parallel DELETEs on one account) to confirm consistent outcomes and absence of race conditions.",
+              "Introduce a 403 scenario for an authenticated user without admin privileges/insufficient scope.",
+              "Assert headers: for 4xx/5xx, Content-Type=application/json; for 204, no response body and appropriate headers; include Accept header variations.",
+              "Validate a canonical error schema (fields like code, message, status) for 400/404/503.",
+              "Add rate limiting tests: rapid burst of DELETEs; verify correct status and rate-limit headers.",
+              "Prove cache invalidation with an observable check (e.g., perform a subsequent read that reflects a cache miss or updated ETag/Last-Modified).",
+              "Simulate server-side failure to validate 500 handling and error payload.",
+              "Extend 405 coverage to POST, PUT, and PATCH on the same path.",
+              "Add boundary input cases (uppercase UUID, trimmed/whitespace, empty string, fully URL-encoded UUID) and a test ensuring any DELETE request body is ignored or rejected per spec."
+            ],
+            "usage": {
+              "completion_tokens": 3795,
+              "prompt_tokens": 4640,
+              "total_tokens": 8435,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3008,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

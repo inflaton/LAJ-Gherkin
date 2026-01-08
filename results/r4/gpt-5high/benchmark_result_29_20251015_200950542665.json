@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-10-15T20:09:50.542628",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T20:07:56.180411",
+    "benchmark_end_time": "2025-10-15T20:09:50.542623",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 114.362212,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT - Valid Request: Success paths verify the default payment method is updated correctly, including clearing the prior default (TC01, TC02, TC03, TC04, TC05, TC20).",
+              "PUT - Non-Existing Resource: Proper 404 handling for missing account/payment method and method not belonging to the account (TC08, TC09, TC10, TC21).",
+              "PUT - Concurrency Issues: Concurrent requests result in a single default and system consistency (TC22).",
+              "Input Validation: UUID format validation (invalid, min/max, substrings) and required header presence/absence (TC06, TC07, TC16, TC23, TC11).",
+              "Security Validation: Injection attempt in header is rejected (TC19).",
+              "Query Parameters: payAllUnpaidInvoices default false and true flows, empty pluginProperty, multiple pluginProperty entries, and tolerance of unknown parameters (TC01, TC02, TC05, TC03, TC15, TC24, TC14).",
+              "Headers: Optional X-Killbill-Reason and X-Killbill-Comment handled and audited (TC04).",
+              "Authorization/Availability: Unauthorized (401), service unavailable (503), and timeout/slow downstream behavior (503/504) covered (TC12, TC13, TC18).",
+              "Performance/Scalability: Large unpaid invoice set processed within acceptable limits (TC17).",
+              "Error Semantics: 400 for invalid IDs and 404 for not found as per story (TC06, TC07, TC08, TC09, TC10, TC21)."
+            ],
+            "gaps": [
+              "PUT Idempotency: Repeating the same request (setting an already-default method) should be verified to return 204 with no extra side effects (no duplicate audit/payment attempts).",
+              "Combined query parameters: Scenario exercising both payAllUnpaidInvoices=true and multiple pluginProperty values in the same request is missing.",
+              "Query param validation: Invalid boolean values (e.g., payAllUnpaidInvoices=abc/1/TRUE) and malformed pluginProperty values are not tested.",
+              "Response semantics: No assertion that 204 responses have an empty body and appropriate headers; story states produces application/json, but 204 typically has no body\u2014this should be clarified and validated. Also verify error responses return application/json with structured error payload.",
+              "Audit completeness: CreatedBy persistence in audit logs is not explicitly asserted (only reason/comment are checked).",
+              "Plugin failure mapping: Behavior when the payment plugin rejects/throws errors is not covered (expected mapping to 4xx/5xx such as 422/400/502).",
+              "Authorization granularity: 403 Forbidden for authenticated but not authorized users is not tested.",
+              "Robust security tests on query parameters: Injection/special characters within pluginProperty and other query params not covered.",
+              "Server error handling: Generic 500 Internal Server Error (e.g., DB failure) path is not exercised."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: send the same PUT twice with the same paymentMethodId; assert 204 both times, no duplicate audit entries, and no repeated invoice payment attempts.",
+              "Add a scenario combining payAllUnpaidInvoices=true with multiple pluginProperty entries to confirm both are honored together.",
+              "Introduce negative query param tests: payAllUnpaidInvoices with invalid/case-variant values and malformed pluginProperty; expect 400 or defined behavior.",
+              "Assert response semantics: verify 204 has no body; confirm headers (e.g., Content-Type) are compliant with the contract; ensure error responses are JSON and include structured fields.",
+              "Expand audit tests to verify X-Killbill-CreatedBy is persisted and retrievable via audit logs for the operation.",
+              "Simulate plugin-level failures (validation error, transport error) and verify correct HTTP status mapping (e.g., 422/400/502) and error payloads.",
+              "Add a 403 Forbidden test for authenticated users lacking permissions to change payment methods, if applicable.",
+              "Add security tests for query parameter/pluginProperty values with special characters/encoding and injection patterns to ensure proper sanitization.",
+              "Include a 500 Internal Server Error simulation (e.g., DB outage) to validate generic server error handling and error contract."
+            ],
+            "usage": {
+              "completion_tokens": 6857,
+              "prompt_tokens": 6898,
+              "total_tokens": 13755,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5952,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

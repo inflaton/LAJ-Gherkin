@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-09-28T05:25:24.563030",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:24:51.333233",
+    "benchmark_end_time": "2025-09-28T05:25:24.563026",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 33.229793,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Required header X-Killbill-CreatedBy is validated (TC01, TC03, TC04).",
+              "Optional headers X-Killbill-Reason and X-Killbill-Comment are exercised (TC02).",
+              "Successful creation happy paths returning 201, JSON Account body and Location header (TC01, TC02, TC03, TC11, TC16).",
+              "Malformed JSON and missing/invalid account fields produce 400 (TC05, TC06, TC12).",
+              "Extra/unsupported fields are tolerated/ignored (TC07).",
+              "Header type validation covered (invalid X-Killbill-CreatedBy -> 400) (TC08).",
+              "Authentication/authorization negative path covered (401) (TC09).",
+              "Service/dependency failure handling is covered (database unavailable -> 503) (TC10).",
+              "Large payload / boundary size tested (TC11).",
+              "Duplicate submission is considered (TC13) \u2014 scenario exists to verify duplicate handling policy.",
+              "Timeout and network failure simulation included (TC14).",
+              "Security input validation (XSS/SQL injection) scenario present (TC15).",
+              "Robustness around unexpected headers and partial inputs are tested (TC17, TC16).",
+              "Concurrency/performance via concurrent creates and regression/integration checks (TC18, TC19, TC20)."
+            ],
+            "gaps": [
+              "Content-Type and Accept header handling are not explicitly tested (e.g., missing/incorrect Content-Type should be rejected; server should produce application/json).",
+              "Explicit validation of specific Account fields (e.g., email format, numeric ranges, max lengths for individual fields) is not present \u2014 only generic malformed/missing tests exist.",
+              "Precise assertions about response schema fields (presence of account id, createdAt, expected fields and types) are not specified.",
+              "Location header format and correctness (e.g., /1.0/kb/accounts/{accountId}) is asserted only generically; no test to validate the Location URL structure or that the ID is present and well-formed.",
+              "Deterministic duplicate handling behavior is ambiguous: TC13 allows 201 or 409 but there is no test asserting the expected policy or idempotency mechanisms (e.g., idempotency-key).",
+              "No explicit test for 500 Internal Server Error or generic unhandled server errors (only 503 is present).",
+              "No tests for empty or whitespace X-Killbill-CreatedBy header value (edge-case header validation).",
+              "No authorization role/permission tests (403 forbidden) \u2014 only 401 token missing/invalid is covered.",
+              "No tests for rate limiting/throttling or API quota behavior.",
+              "No tests for content negotiation (Accept header variations) or caching headers (ETag/Cache-Control) for POST-produced resources.",
+              "No tests asserting behavior under concurrent duplicate submissions leading to race conditions and unique-constraint violations (possible 409)."
+            ],
+            "recommendations": [
+              "Add explicit tests for Content-Type and Accept handling: missing Content-Type, wrong Content-Type (e.g., text/plain) should result in 415 or 400 as per API contract; responses should have Content-Type: application/json.",
+              "Add field-level validation tests: invalid email formats, out-of-range numeric fields, invalid enum values, field length violations (both too short and too long) with expected 400 responses and clear validation messages.",
+              "Add schema-level assertions on the response Account object: verify presence and types of id, externalKey, email, currency, createdDate/createdBy etc., and that fields match the request (where applicable).",
+              "Tighten duplicate-handling tests: decide and assert the expected policy (create-on-duplicate vs 409). If idempotency is supported, add tests for idempotency-key header and repeated submissions producing the same resource (idempotent) instead of duplicates.",
+              "Add tests for Location header format: parse the Location value, assert it contains the API base path and a valid UUID/ID, and follow-up GET to verify the created resource (TC20 partially covers this \u2014 extend to validate ID format).",
+              "Include tests for 500 Internal Server Error and other server-side failures beyond 503 to ensure consistent error handling and logging.",
+              "Add header edge-case tests: empty or whitespace X-Killbill-CreatedBy, very long header values, and invalid types for optional headers to confirm validation behavior.",
+              "Add authorization role/permission tests that ensure authenticated but unauthorized users receive 403 when appropriate.",
+              "Add rate-limiting/throttling tests (burst requests) to validate the system\u2019s behavior under heavy load and to detect 429 responses.",
+              "Add concurrency tests that focus on race conditions for duplicates (e.g., two concurrent requests with identical unique fields) and assert consistent outcome (one created + one 409 or both 201 with same id depending on policy).",
+              "Add content negotiation and caching checks if applicable: ensure Accept header variations are handled and consider whether ETag/Cache-Control should be present for POST responses or subsequent GETs."
+            ],
+            "usage": {
+              "completion_tokens": 2019,
+              "prompt_tokens": 4821,
+              "total_tokens": 6840,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

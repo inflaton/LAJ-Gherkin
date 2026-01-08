@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "56_2025-10-15T01:21:56.673521",
+    "jira_id": "56",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/customFields - Add custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T01:19:04.144257",
+    "benchmark_end_time": "2025-10-15T01:21:56.673516",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 172.529259,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "56_qe_sup-gpt4.1_agent-gpt4.1_1748919557.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "POST > Valid Payload: Multiple success paths return HTTP 201 with a JSON array matching the request (TC01, TC02, TC03, TC04, TC13, TC17, TC19).",
+              "Headers: Required X-Killbill-CreatedBy validated (present and missing -> 400). Optional X-Killbill-Reason/Comment exercised (TC02, TC07).",
+              "Path Param Validation: Invalid bundleId format -> 400; non-existent bundle -> 404 (TC05, TC06).",
+              "Body Validation: Malformed JSON -> 400; empty body -> 400; empty array -> 400; schema errors -> 400; duplicate names -> 400; unsupported fields -> 400 (TC08, TC09, TC10, TC11, TC12, TC18).",
+              "Pre-existing vs none: Adds fields whether bundle has existing custom fields or none (TC03, TC04).",
+              "Non-functional: Large payload within limits (TC17), concurrency/performance (TC22).",
+              "Auth/Resiliency: 401 unauthorized (TC14), 503 service/dependency outage (TC15, TC20), client timeout handling (TC16).",
+              "Security: SQL injection and XSS inputs handled/sanitized without leaking information (TC23, TC24)."
+            ],
+            "gaps": [
+              "Duplicate Submission: No scenario verifies behavior when the same POST payload is submitted twice (idempotency/duplication handling).",
+              "Large Payloads (beyond limits): No test for exceeding system limits (e.g., expect 413 Payload Too Large or 400) and ensuring no partial writes.",
+              "Server Error Handling: No simulation of 500 Internal Server Error (e.g., database failure).",
+              "Content Negotiation/Headers: No test for 415 Unsupported Media Type when Content-Type is not application/json; no check that response Content-Type is application/json; no Accept header handling.",
+              "Batch Atomicity: No scenario with a mixed array (some valid, some invalid) to confirm all-or-nothing vs partial creation semantics.",
+              "Field-level Validation: No tests for incorrect data types, null/blank values, min/max lengths, allowed character sets, or case-insensitive uniqueness against existing fields.",
+              "Persistence Verification: No follow-up GET to confirm fields were actually stored and match values returned by POST.",
+              "Specification clarity: TC21 is non-deterministic (case sensitivity); expected behavior is not asserted."
+            ],
+            "recommendations": [
+              "Add duplicate submission tests: resend the exact same payload (with and without any supported idempotency key) and assert expected behavior (e.g., deduplication, 409, or repeated 201 without duplicates).",
+              "Add negative large-payload tests beyond documented/system limits to validate correct error (413/400), no partial writes, and clear error messaging.",
+              "Introduce a forced 500 scenario (e.g., DB failure) to validate server error handling and consistent error response format.",
+              "Add content negotiation tests: send wrong Content-Type to assert 415; set Accept headers; assert response Content-Type is application/json as per spec.",
+              "Add atomicity tests with mixed valid/invalid CustomField items to verify whether the operation is transactional (reject all) or allows partial success, and document the expected behavior.",
+              "Expand schema validation tests: wrong data types, null/blank names/values, max length and allowed characters, overly long headers (CreatedBy/Reason/Comment), and case-insensitive uniqueness against existing fields.",
+              "Add persistence checks by performing a follow-up GET of bundle custom fields to verify the POST results are stored correctly.",
+              "Make TC21 explicit: define the expected outcome for field names differing only by case and assert that behavior; add a test for duplicates by case against pre-existing fields."
+            ],
+            "usage": {
+              "completion_tokens": 6949,
+              "prompt_tokens": 6302,
+              "total_tokens": 13251,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6144,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

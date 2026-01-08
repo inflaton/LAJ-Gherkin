@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-14T14:50:09.972352",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:49:24.286781",
+    "benchmark_end_time": "2025-10-14T14:50:09.972346",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 45.685565,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid PUT request success: TC01 and TC02 validate successful 204 responses (host moved to/in rotation) for expected states.",
+              "Idempotency / duplicate effects: TC02 (already in rotation) and TC11 (regression) cover repeated PUT behavior and that repeated calls do not break state.",
+              "Authentication and authorization errors: TC03 (401) and TC04 (403) cover missing/invalid credentials and insufficient privileges.",
+              "Service/unavailable and method errors: TC05 (503) and TC06 (405) cover endpoint unavailability and wrong HTTP method handling.",
+              "Robustness to unexpected inputs: TC07 (non-empty body) and TC08 (extra headers) assert the endpoint tolerates unexpected payloads/headers and still returns 204.",
+              "Operational scenarios: TC10 (degraded performance / timeout) and TC13 (network interruption + retry) cover behavior under transient operational issues/timeouts.",
+              "Concurrency and race conditions: TC14 exercises concurrent PUTs to detect race conditions when multiple clients request the same operation.",
+              "Security surface tests: TC12 addresses injection attempts in headers to ensure no obvious injection vulnerability manifesting in response codes/state."
+            ],
+            "gaps": [
+              "Content-Type / Response media type: The Jira story indicates \"Produces: application/json\" but the Gherkin tests assert an empty body and do not verify response Content-Type header or JSON body format when errors occur.",
+              "Non-existing resource / host identifier: Story and tests assume a host exists; there is no scenario for attempting to put \"a non-existing host\" back into rotation or supplying a host identifier (if applicable).",
+              "Input validation and schema checks: There is no negative test that validates malformed request bodies beyond \"non-empty\" \u2014 e.g., malformed JSON, unexpected but structured payloads, or headers with invalid formats and how they\u2019re validated.",
+              "Explicit server error (>=500) handling and failure modes: While TC05 covers 503, there are no tests simulating internal server errors (500) or database failures to exercise server-side error handling as per standard guidelines.",
+              "Content of error responses: Error scenarios assert status codes and that an error message exists but do not validate structure/fields of error JSON (e.g., error code, message, timestamp) or Content-Type on error responses.",
+              "Partial update semantics: PUT guidelines mention partial update expectations; tests do not assert whether partial or unsupported updates are rejected or how partial payloads are handled (even if the endpoint is supposed to have no body).",
+              "Rate limiting / throttling: There are no tests for rate limiting or behavior under high-frequency calls beyond TC14\u2019s concurrency success case; abuse/throttle behavior is untested.",
+              "Caching / headers: No tests verify caching-related headers (ETag, Cache-Control) or other operational headers that may be relevant for healthcheck/admin endpoints.",
+              "Clear success response body expectations: Tests expect empty body on 204, but story also says \"Produces: application/json\" \u2014 this contradiction is not resolved by tests."
+            ],
+            "recommendations": [
+              "Add assertions for response headers (Content-Type) on both success and error responses. If 204 is used, assert that no Content-Type or body is present; if the API is expected to return JSON even for some responses, add explicit JSON body checks.",
+              "Introduce a test for non-existing host or invalid target identifier (if the API can accept a host identifier) to validate the endpoint behavior when the target does not exist (expect 4xx, e.g., 404 or 400).",
+              "Add malformed payload tests: send malformed JSON, overly large payloads, and structured but invalid payloads to assert the server returns appropriate 4xx errors or ignores the body per API contract.",
+              "Simulate internal failures: add tests that force server-side errors (e.g., database down, exceptions) to verify 5xx responses and that errors are >=400 as per acceptance criteria.",
+              "Define and test the exact error response schema: create tests that validate the structure and fields of error responses (JSON keys, message codes) so clients can reliably parse errors.",
+              "Clarify and test behavior for partial update semantics: if the endpoint must reject payloads altering particular fields, add explicit tests to assert rejection or acceptance rules.",
+              "Add rate limiting / throttling tests: verify API responses when the endpoint is called at high rates (e.g., 429) or ensure it gracefully handles burst traffic beyond configured limits.",
+              "Add caching-related tests if applicable: assert ETag, Cache-Control, or other headers if the endpoint is expected to advertise caching semantics, or assert their absence if it should not be cached.",
+              "Resolve the 204 vs Produces: application/json contradiction in the acceptance criteria and reflect the resolution in tests (either assert empty body and no Content-Type for 204, or assert an explicit JSON body and Content-Type)."
+            ],
+            "usage": {
+              "completion_tokens": 1274,
+              "prompt_tokens": 3274,
+              "total_tokens": 4548,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

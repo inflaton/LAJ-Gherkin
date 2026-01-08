@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-13T13:33:43.433954",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T13:30:53.735853",
+    "benchmark_end_time": "2025-10-13T13:33:43.433950",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 169.698097,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE - Valid Deletion: Multiple success cases return 204 and verify the account is soft-closed and side effects are applied per flags.",
+              "DELETE - Non-Existent Resource: Scenarios cover non-existent and already-closed accounts returning 204 (idempotent) as per API contract.",
+              "DELETE - Soft Deletes: Tests assert the account is marked as closed in the database.",
+              "DELETE - Concurrency/Idempotency: Concurrent deletions across different accounts (TC18) and retry after transient failure (TC17) demonstrate idempotency.",
+              "Query Parameters: Defaults, all-true/all-false, single-flag, and pairwise combinations are exercised; unsupported query param is ignored.",
+              "Validation: Invalid accountId format (UUID) and SQL-injection payload yield 400 with an error message.",
+              "Headers: Required X-Killbill-CreatedBy header is enforced (400 when missing); optional headers behavior exercised, including XSS sanitization in Comment.",
+              "Authorization: Missing/invalid authentication returns 401.",
+              "Server Error Handling: Database outage simulated returns 500.",
+              "Performance: Large-volume processing and concurrent requests validated within acceptable time."
+            ],
+            "gaps": [
+              "DELETE - Concurrency on the same account is not covered (simultaneous DELETEs by multiple users on one account).",
+              "Query parameter validation for booleans (invalid values like yes/1/TRUE, null, repeated parameters) is not tested.",
+              "Response headers/contract are not verified (e.g., Content-Type application/json for 4xx/5xx; 204 responses should have no body).",
+              "Authorization/permissions (403 for authenticated user lacking scope/role) not tested.",
+              "Atomicity/consistency of side effects not covered (e.g., cancel subscriptions succeeds but invoice write-off fails).",
+              "Explicit default behavior checks are weak in single-flag scenarios (generic step \u201cother default actions\u201d instead of concrete assertions).",
+              "Handling of a DELETE request with a body is not specified/tested (should be rejected or ignored per contract).",
+              "Idempotency under rapid duplicate DELETEs on the same account not explicitly tested beyond the \u201calready closed\u201d case.",
+              "Error response schema is not validated (standard fields/codes in error body).",
+              "Case sensitivity and whitespace tolerance in query parameter names/values and header values are not exercised."
+            ],
+            "recommendations": [
+              "Add a scenario for two concurrent DELETEs against the same account; expect both 204 and side effects executed exactly once.",
+              "Introduce a Scenario Outline to validate boolean query parameters with invalid values (yes/1/TRUE/mixed case/null) and repeated params; expect 400 or defined coercion.",
+              "Assert response headers: Content-Type is application/json for 4xx/5xx; 204 responses have an empty body.",
+              "If RBAC applies, add a 403 Forbidden test for an authenticated user lacking permission.",
+              "Add failure-injection tests to verify atomicity/rollback or clearly defined partial-failure behavior across side effects.",
+              "Replace generic \u201cother default actions should occur\u201d with explicit checks for each defaulted flag in single-flag tests.",
+              "Add a test sending a body with DELETE to confirm whether it is rejected (400/415) or ignored.",
+              "Strengthen idempotency by issuing rapid duplicate DELETEs for the same account and verifying final state and audit entries occur once.",
+              "Validate a consistent error response schema (fields and codes) for 400/401/500 responses.",
+              "Refactor TC04/TC05 into separate scenarios or a Scenario Outline, and ensure per-scenario data isolation to avoid state bleed.",
+              "Clarify and pin behavior for unknown query parameters (ignore vs 400) and add a test accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 8279,
+              "prompt_tokens": 6316,
+              "total_tokens": 14595,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7488,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

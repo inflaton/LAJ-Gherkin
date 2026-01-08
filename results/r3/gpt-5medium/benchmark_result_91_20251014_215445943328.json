@@ -1,0 +1,97 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-14T21:54:45.943299",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:53:34.733401",
+    "benchmark_end_time": "2025-10-14T21:54:45.943295",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 71.209894,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "PUT Valid Request: Multiple success scenarios (with required header only, with optional headers, with/without existing custom fields) verify 204 and DB persistence.",
+              "PUT Non-Existing Resource: 404 for unknown invoiceItemId and empty DB states covered.",
+              "Input Validation: 400 for invalid UUID format, malformed JSON, empty body, unsupported fields.",
+              "Headers: Required X-Killbill-CreatedBy presence validated (400 when missing); optional Reason/Comment covered.",
+              "Security: 401 for missing/invalid auth covered.",
+              "Large Payloads: Max/near-max payload and 413 handling considered.",
+              "Resilience: 500 (DB down), 503 (dependent service down), and 504 (timeout) covered.",
+              "Idempotency: Repeated identical PUT requests remain consistent and return 204.",
+              "State Variations: No prior fields vs existing fields; empty vs partially populated DB.",
+              "Edge/Negative: Unexpected query param; SQL injection payloads rejected (400/422).",
+              "Performance: Parallel updates across many items and single large-payload timing validated."
+            ],
+            "gaps": [
+              "PUT Partial Update semantics: No tests define whether PUT replaces all custom fields vs merges; behavior for omitted fields, duplicates, or clearing via empty array is not covered.",
+              "Concurrency on same resource: No scenarios for simultaneous updates to the same invoice item (race conditions, last-write-wins, optimistic locking).",
+              "Content-Type/Accept headers: No tests for missing or incorrect Content-Type (e.g., text/plain) or Accept negotiation.",
+              "Header value validation: No tests for CreatedBy/Reason/Comment being empty strings, overly long, or containing special/Unicode characters; max length and charset constraints untested.",
+              "Error contract: Tests don\u2019t assert structured error schema (code, type, message, details) or correlation IDs; only generic messages checked.",
+              "CustomField schema depth: No validation for invalid data types per field, nulls, max lengths, reserved/duplicate keys, or Unicode handling.",
+              "Atomicity for arrays: No scenario with mixed valid/invalid CustomField entries to verify all-or-nothing behavior and per-item error reporting.",
+              "Authorization 403: No coverage for authenticated but unauthorized user (insufficient permissions/tenant mismatch).",
+              "Rate limiting: No scenario for 429 Too Many Requests or retry headers.",
+              "Response headers: No verification of headers on 204 (e.g., Content-Type presence/absence), or consistency with \"produces: application/json\".",
+              "Data integrity scope: No explicit check that only the targeted invoice item is affected and other items remain unchanged beyond regression note.",
+              "Idempotency nuance: No test for reordering array elements, duplicate field entries, or replay after server error."
+            ],
+            "recommendations": [
+              "Define and test PUT semantics: add scenarios for full replacement vs merge, including sending a subset and an empty array to confirm clear/delete behavior.",
+              "Add same-resource concurrency tests: parallel PUTs by different users to the same invoice item; assert expected conflict handling or last-write rules; include optimistic locking if supported.",
+              "Validate HTTP headers: tests for missing/wrong Content-Type and Accept; assert proper 415/406 or 400 as applicable.",
+              "Strengthen header value validation: empty, whitespace-only, long, special/Unicode values for CreatedBy/Reason/Comment; assert limits and sanitization.",
+              "Assert standardized error schema and response headers: verify error body fields (code, message, details) and presence of correlation/request-id; validate Content-Type behavior for 204.",
+              "Expand CustomField schema tests: wrong types, nulls, over-length keys/values, reserved names, duplicates, Unicode/emoji, and SQLi/XSS coverage with specific rejection paths.",
+              "Test array atomicity: submit mixed valid/invalid entries and confirm transactional behavior (all fail) or documented partial acceptance with per-item errors.",
+              "Add authorization 403 scenarios: authenticated user lacking permission or cross-tenant access to ensure correct denial.",
+              "Introduce rate limiting tests: burst requests to trigger 429 and verify Retry-After headers.",
+              "Data integrity tests: verify no side effects on other invoice items and unrelated invoice data after updates; assert audit records created with CreatedBy/Reason/Comment.",
+              "Idempotency edge cases: resend same request after transient 5xx; reorder array items; include duplicate entries; ensure consistent final state.",
+              "Clarify and test for response contract on success: confirm body is empty for 204 and whether any headers (e.g., Location, ETag) are expected or explicitly absent."
+            ],
+            "usage": {
+              "completion_tokens": 3138,
+              "prompt_tokens": 6450,
+              "total_tokens": 9588,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2176,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

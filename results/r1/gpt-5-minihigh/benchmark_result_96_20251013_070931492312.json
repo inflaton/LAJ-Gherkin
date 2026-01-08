@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-10-13T07:09:31.492286",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T07:07:25.723868",
+    "benchmark_end_time": "2025-10-13T07:09:31.492282",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 125.768414,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Core success flows: removing all tags (no tagDef), removing a single tag, and removing multiple tags are covered (TC01, TC02, TC03) and assert 204 + removal.",
+              "Header handling: required X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment are exercised (TC04, TC08).",
+              "Path parameter validation: invalid UUID format and non-existent paymentId are tested (TC06 -> 400, TC07 -> 404).",
+              "Query parameter validation and edge cases: tagDef absence, single, multi (multi param format), invalid UUID, injection attempts, not-present-on-payment, unexpected extra param, and large numbers are covered (TC01, TC02, TC03, TC09, TC13, TC10, TC14, TC15).",
+              "Success semantics: 204 No Content + empty response body is asserted in multiple success scenarios (TC01-05, TC10).",
+              "Security and input validation: unauthorized access and input-injection are tested (TC11, TC13).",
+              "Resilience: service-unavailable and timeout conditions are included (TC12 -> 503, TC22 -> 504).",
+              "Concurrency and performance: concurrent deletion and high-volume/latency expectations are covered (TC16, TC17).",
+              "Integration and data consistency: audit logging, subsequent GET verification, regression and backward-compatibility checks are present (TC20, TC21, TC18, TC19).",
+              "Idempotency is implicitly covered: deleting a tag not present returns 204 (TC10), which supports idempotent semantics."
+            ],
+            "gaps": [
+              "Response header validation (Content-Type / produces application/json) is not asserted; the acceptance criteria specifies \"produces: application/json\" but tests don\u2019t check response Content-Type or other response headers (Cache-Control, ETag).",
+              "Soft-delete vs hard-delete semantics are not validated (no checks that records are flagged vs removed from DB / secondary queries).",
+              "Authorization granularity / permission checks are incomplete: tests include 401 but do not cover 403 (authenticated but forbidden / insufficient privileges) or role-based access scenarios.",
+              "500 Internal Server Error and standardized server error payloads are not explicitly covered (only 503 and 504 are present).",
+              "Mixed tagDef lists (combination of present, absent and invalid tagDefs in the same request) are not tested; expected behavior for mixed inputs is ambiguous.",
+              "Duplicate tagDef parameters and alternate collection formats (e.g., comma-separated values vs multi-param) are not tested.",
+              "Rate limiting / throttling behavior (429 etc.) is not covered; standard guidelines expect burst/rate behaviour tests.",
+              "Caching behaviour (ETag, Cache-Control) and related header semantics are not tested.",
+              "Error-response schema and content-type are not validated beyond \u201ccontains an error message\u201d \u2014 no assertion on structured JSON error fields, codes, or schema.",
+              "Performance/concurrency tests lack defined pass/fail thresholds, environment/harness details, and explicit assertions about atomicity when concurrent requests target same tags."
+            ],
+            "recommendations": [
+              "Add explicit assertions for response headers: verify Content-Type (application/json) for applicable responses and check Cache-Control / ETag behavior where relevant (and explicitly document expected behavior for 204 responses).",
+              "Add tests for soft-delete semantics if applicable: verify DB state (deleted flag vs deletion), retention for audit, and visibility via GET endpoints.",
+              "Add authorization/permission tests to cover 403 Forbidden cases and role-based access control (authenticated but unauthorized users).",
+              "Include 500 Internal Server Error test(s) and validate the standardized error JSON schema (error code, message, stack/id fields) for all 4xx/5xx responses.",
+              "Add tests for mixed tagDef inputs (present + absent + invalid) and assert deterministic, documented behavior (e.g., remove present ones and ignore absent ones, or fail the whole request).",
+              "Test duplicate tagDef parameters and alternate collection formats (comma-separated, url-encoded lists) to ensure collection parsing matches the API contract.",
+              "Implement rate-limiting tests (burst and sustained loads) to validate 429 behaviour and that clients receive proper retry/backoff guidance.",
+              "Formalize performance/load tests: define the environment, tools, thresholds (e.g., 95th percentile < 500ms), and run reproducible load tests; make assertions on error-rate and latency.",
+              "Tighten concurrency tests to include explicit assertions on atomicity and final DB state (e.g., both concurrent requests return acceptable statuses and there are no lost updates or inconsistent tags).",
+              "Validate error response schema and content-type for error responses (structure, fields, and localization of messages) and add automated checks for audit-log entries (fields: user, reason, comment, timestamp) to ensure logging completeness."
+            ],
+            "usage": {
+              "completion_tokens": 7041,
+              "prompt_tokens": 5560,
+              "total_tokens": 12601,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6016,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

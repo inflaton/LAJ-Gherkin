@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-14T20:44:22.729316",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:43:43.277486",
+    "benchmark_end_time": "2025-10-14T20:44:22.729313",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 39.451827,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple success paths return 204 and verify fields are actually removed (all fields, subsets, single field, none).",
+              "Non-Existent Resource: 404 when invoice item does not exist.",
+              "Input Validation: 400 for invalid invoiceItemId format and malformed customField IDs; mixed valid/invalid IDs handled.",
+              "Headers: Required X-Killbill-CreatedBy enforced (400 when missing); optional headers Reason/Comment accepted; robustness to header formatting; long Comment accepted.",
+              "Authorization: 401 for expired/invalid token.",
+              "Large Input: Many customField IDs supported.",
+              "Robustness: Duplicate customField IDs tolerated; extra query params do not break deletion.",
+              "Operational Resilience: Service unavailability returns 503; performance under load validated; SQL injection attempt rejected."
+            ],
+            "gaps": [
+              "Concurrency: No scenarios for simultaneous deletions or race conditions (e.g., two clients deleting same fields/item).",
+              "Idempotency/Repeat Operations: No test for deleting specific fields that were already removed in a prior request (should remain 204 and be no-op).",
+              "Non-existent customField IDs: Behavior unspecified/untested when provided UUIDs are well-formed but do not belong to the invoice item (currently only malformed or mixed invalid formats are tested).",
+              "Authorization 403: No scenario for authenticated user lacking permission/role to delete custom fields.",
+              "Soft Deletes: No explicit verification whether deletion is soft vs hard (if applicable) and audit trail behavior.",
+              "Error Contract: No validation of error response schema/fields for 400/404/503; only message presence checked.",
+              "Response Headers: No checks for Content-Type or absence thereof on 204, nor for standard headers (e.g., correlation/request IDs) if required by API standards.",
+              "Header Limits/Validation: No negative test for exceeding maximum header sizes (e.g., Comment too long) or invalid characters in headers.",
+              "Rate Limiting/Throttling: No test for 429 under burst deletes, if enforced."
+            ],
+            "recommendations": [
+              "Add concurrency tests: parallel DELETEs on the same invoice item and overlapping customField subsets; assert consistent final state and appropriate status codes.",
+              "Add idempotency tests: repeat the same DELETE (all fields and subset) and expect 204 with no side effects.",
+              "Add scenario for well-formed but non-existent customField IDs: define expected behavior (ignore and 204 vs 400/404) and test it.",
+              "Include a 403 Forbidden scenario for an authenticated user without sufficient permissions.",
+              "Clarify and test soft-delete vs hard-delete behavior and verify audit entries are recorded as expected.",
+              "Validate error response schema: status, code, message, and requestId fields for 400/404/503; not just message presence.",
+              "Assert response headers: for 204 ensure empty body and appropriate Content-Type (or absence) per API spec; include any standard headers required.",
+              "Add negative header validation: X-Killbill-Comment exceeding max length or containing invalid characters should return proper error.",
+              "If applicable, add rate limiting tests to verify 429 and Retry-After behavior under bursts."
+            ],
+            "usage": {
+              "completion_tokens": 1512,
+              "prompt_tokens": 5523,
+              "total_tokens": 7035,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 832,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

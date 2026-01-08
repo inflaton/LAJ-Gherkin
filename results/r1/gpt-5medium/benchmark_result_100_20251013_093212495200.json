@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-13T09:32:12.495170",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:31:21.481295",
+    "benchmark_end_time": "2025-10-13T09:32:12.495165",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 51.01387,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "DELETE Valid Deletion: Success paths covered for removing all fields, specific fields via multi customField params, optional headers, empty set (idempotent when none exist), large lists (100/1000), and empty 204 responses.",
+              "DELETE Non-Existent Resource: 404 for unknown paymentId and 400 for invalid UUID format are exercised.",
+              "Input validation and security: Required X-Killbill-CreatedBy enforced (400 when missing), invalid customField formats (400), partial invalid mix (400), non-existent customField IDs (no-op 204), extra unexpected query param handling, XSS/SQLi attempts rejected.",
+              "Authorization and resilience: 401 for invalid token, 503 when service unavailable, performance under load, and basic integration with audit log service (happy path)."
+            ],
+            "gaps": [
+              "DELETE Concurrency: No scenarios for simultaneous deletes or race conditions (e.g., two clients deleting same fields, or delete during concurrent updates).",
+              "DELETE Soft Deletes: No explicit verification of soft vs hard delete semantics; tests don\u2019t assert post-conditions via a GET (e.g., fields no longer retrievable) or audit trail semantics beyond existence.",
+              "Idempotency repeat-call behavior: No test that repeating the exact same DELETE request returns the same status (e.g., 204 both times) and remains a no-op.",
+              "Deterministic error codes: Some tests allow ambiguous outcomes (e.g., 400 or 422 for invalid header; 204 or 503 when audit log unavailable) rather than asserting a single, specified behavior.",
+              "Query parameter edge cases: No coverage for duplicate customField IDs in the query, mixture of valid and non-existent IDs in one call (e.g., cf1 and cf999 together), or order-independence of processing.",
+              "Error response schema/headers: Tests assert presence of an error message but do not validate error model structure (code, message, type) or headers.",
+              "Response headers/content negotiation: Success path notes Produces: application/json, but tests don\u2019t validate headers for 204 responses (e.g., absence of Content-Type, Content-Length=0) or consistent behavior.",
+              "Authorization depth: No 403 Forbidden scenario for authenticated but unauthorized principals (if applicable to this API\u2019s RBAC/tenant model).",
+              "Rate limiting/throttling: No tests for many rapid DELETE requests and expected responses/headers (if enforced)."
+            ],
+            "recommendations": [
+              "Add concurrency scenarios: parallel DELETEs on the same payment/customFields; verify consistent outcomes (e.g., one succeeds, others are idempotent 204) and no partial/duplicated side effects.",
+              "Clarify and test soft-delete semantics: add follow-up GET to confirm fields are not returned; verify audit entries include deletion details; if soft delete, assert recoverability or flags; if hard delete, assert permanent removal.",
+              "Add explicit idempotency test: perform the same DELETE twice (with and without customField params) and assert identical 204 responses and stable state.",
+              "Make error handling deterministic: replace ambiguous expectations (400 or 422; 204 or 503) with a single, documented status per case and assert it.",
+              "Expand query param edge cases: duplicate IDs in the query, mix of valid and non-existent IDs in the same request (define whether to ignore non-existent vs fail), and verify order-independence.",
+              "Validate error response schema and headers: assert structured error payload fields and consistent content-type for error responses.",
+              "Validate response headers for 204: assert no response body and appropriate headers (e.g., no Content-Type, Content-Length=0).",
+              "Add authorization depth: include a 403 Forbidden scenario for authenticated users lacking permissions (if RBAC applies).",
+              "Consider rate limiting and robustness tests: burst deletes and verify expected status/headers if throttling is implemented."
+            ],
+            "usage": {
+              "completion_tokens": 3869,
+              "prompt_tokens": 6120,
+              "total_tokens": 9989,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3008,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

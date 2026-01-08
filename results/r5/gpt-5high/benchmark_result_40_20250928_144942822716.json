@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "40_2025-09-28T14:49:42.822693",
+    "jira_id": "40",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{childAccountId}/transferCredit - Move a given child credit to the parent level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T14:47:04.441778",
+    "benchmark_end_time": "2025-09-28T14:49:42.822689",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 158.380911,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "40_qe_sup-gpt4.1_agent-gpt4.1_1748918568.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT Valid Request: Success path verified with 204 and correct side effects on balances (TC01, TC02, TC08).",
+              "Non-Existing Resource: 404 covered for missing child, missing parent, and empty DB (TC04, TC05, TC12).",
+              "Validation Errors: 400 for insufficient credit, malformed UUID, missing/invalid CreatedBy, and malicious header payloads (TC03, TC06, TC07, TC11, TC15).",
+              "Concurrency Issues: Only one of concurrent transfers succeeds; sequential double-transfer guarded (TC14, TC16).",
+              "Authorization: 401/403 for unauthenticated/unauthorized requests (TC10).",
+              "Service Availability: 503 when API is unavailable (TC09).",
+              "Headers Behavior: Optional Reason/Comment audited; extra unsupported headers ignored (TC02, TC08).",
+              "Non-functional: Performance under high account volume within thresholds (TC13)."
+            ],
+            "gaps": [
+              "Transfer semantics not explicit: with no amount parameter, tests should assert full-balance transfer (child post-balance exactly 0); TC01 wording is ambiguous.",
+              "No verification of 204 response shape: tests don\u2019t assert absence of body and appropriate headers despite story stating Produces: application/json.",
+              "Atomicity on failures not asserted: error cases (e.g., TC03, TC06, TC07) don\u2019t verify that balances remain unchanged after a failed request.",
+              "Parent linkage edge case missing: child exists but has no parent assigned (null/empty parentId) not covered.",
+              "Cross-constraints not covered: currency or tenant mismatches between child and parent not tested.",
+              "Internal server error (500) path not tested (e.g., simulated DB failure).",
+              "Unsupported method behavior (405 with Allow header) not covered.",
+              "Spec alignment: some tests expect 422, but story specifies 400/404 only; mismatch not reconciled."
+            ],
+            "recommendations": [
+              "Clarify and assert full-balance transfer semantics: update TC01 to check child balance becomes 0 and parent increases by the exact pre-transfer credit.",
+              "Add assertions for 204 responses: verify no response body and sensible headers (Content-Length: 0; Content-Type absent or application/json if present).",
+              "Extend negative scenarios to assert state immutability: after 4xx/5xx, confirm both balances are unchanged.",
+              "Add a scenario where the child has no parent assigned to validate correct 4xx response and message.",
+              "Add scenarios for currency/tenant mismatches and expect a validation error (likely 400).",
+              "Introduce a test simulating backend/DB failure to validate 500 handling and error payload shape.",
+              "Add a method-negotiation test to ensure unsupported HTTP methods return 405 with an Allow header.",
+              "Align tests with the story\u2019s status codes: replace 422 expectations with 400 unless the API officially supports 422."
+            ],
+            "usage": {
+              "completion_tokens": 6710,
+              "prompt_tokens": 4953,
+              "total_tokens": 11663,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-13T08:00:36.107162",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T07:59:04.248309",
+    "benchmark_end_time": "2025-10-13T08:00:36.107158",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 91.858849,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Happy path (TC01, TC14): valid PUT updates externalKey and returns 204; request/response success behavior is explicitly tested.",
+              "Required header validation (TC02): X-Killbill-CreatedBy required is tested.",
+              "Path parameter validation (TC03) and non-existent resource (TC04, TC15): malformed bundleId and 404 scenarios covered.",
+              "Input validation: malformed JSON (TC07), missing body (TC06), missing externalKey (TC08), empty externalKey (TC11) are covered.",
+              "Conflict handling: duplicate externalKey within same account (TC05) is tested.",
+              "Request body robustness: extra fields tolerated (TC09), long externalKey boundary (TC10), special characters (TC19), leading/trailing spaces (TC20) are present as edge cases.",
+              "Security/auth (TC12): unauthorized/missing/invalid auth token scenario covered.",
+              "Integration failure (TC13): dependent service/database unavailable is covered (503 scenario).",
+              "Concurrency (TC17): concurrent updates to same bundle are considered.",
+              "Performance/regression/ops: large payload (TC16), response time under load (TC23), regression and backward compatibility checks (TC18, TC22), unexpected header handling (TC21), accessibility of docs (TC24) are included."
+            ],
+            "gaps": [
+              "Content-Type enforcement: there is no test that omits or uses an incorrect Content-Type header (consumes: application/json is required by the spec).",
+              "Response headers and error payload schema: tests do not assert response Content-Type or validate the structure/schema of error JSON responses (codes/messages fields).",
+              "Partial-update semantics / side effects: no test verifies that only externalKey changes and that other bundle fields remain unchanged (or that attempts to update other fields are rejected).",
+              "Account-scoped uniqueness: missing test that renaming to an externalKey that exists in a different account is allowed (spec states conflict is per account).",
+              "Idempotency / rename-to-same-value: no test for renaming a bundle to the same externalKey (expected idempotent behavior not defined).",
+              "Exact conflict status code: concurrency and duplicate scenarios allow ambiguous expected codes (204/400/409). Tests should assert the exact intended code (e.g., 409 for conflicts) rather than multiple options.",
+              "Header value validation and audit persistence: no tests validate that X-Killbill-CreatedBy is non-empty or that X-Killbill-Reason / X-Killbill-Comment are recorded in audit/logs.",
+              "Server-error coverage: 5xx generic errors (500) and their handling/retry behavior are not covered (only 503 simulated).",
+              "Rate limiting / throttling: no tests for rate limiting or behavior under high request rates beyond concurrency test.",
+              "Boundary/validation completeness: limits for externalKey (exact max length, allowed character set) are ambiguous in tests (TC10/TC19/TC20 use \"204 or 400\"). Tests should assert precise acceptance rules."
+            ],
+            "recommendations": [
+              "Add tests for Content-Type enforcement: send requests without Content-Type or with incorrect Content-Type and assert 400 / proper error message.",
+              "Add assertions for response headers and error JSON schema: verify Content-Type is application/json for errors and validate error fields (code, message, details).",
+              "Add partial-update tests: attempt to change other Bundle fields in the same payload and assert they are rejected (or unchanged) to confirm the API only updates externalKey.",
+              "Add account-scoped uniqueness tests: create the same externalKey on a different account and assert rename succeeds (to validate uniqueness is per account).",
+              "Add idempotency test: rename to the same externalKey and assert the expected behavior (either 204 no-op or specific response) and make it deterministic in acceptance criteria.",
+              "Clarify and assert exact status codes for conflict/concurrency (prefer 409 Conflict) and update ambiguous scenarios (remove \"204 or 400\" style expectations), then add tests asserting the chosen behavior.",
+              "Add tests to validate header values: empty X-Killbill-CreatedBy, excessively long CreatedBy, and that Reason/Comment are persisted in audit/event logs if required.",
+              "Add server-error (5xx) tests including 500 Internal Server Error simulation and verify graceful error messaging/monitoring hooks.",
+              "Introduce rate-limiting / throttling tests to validate behavior under burst traffic and ensure appropriate 429 or throttling responses as applicable.",
+              "Tighten boundary tests for externalKey: define and test exact max/min lengths and allowed character set (and convert TC10/TC19/TC20 into deterministic pass/fail tests).",
+              "Add a test for renaming when the target externalKey is in use by the same bundle (rename-to-self) and for duplicate submissions (idempotent retries).",
+              "Add post-update verification tests for side effects: ensure other bundle attributes remain unchanged and (if required) audit trail entries include CreatedBy/Reason/Comment."
+            ],
+            "usage": {
+              "completion_tokens": 6428,
+              "prompt_tokens": 6051,
+              "total_tokens": 12479,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5376,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

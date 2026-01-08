@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "5_2025-10-14T19:53:07.273507",
+    "jira_id": "5",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/customFields - Add custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:51:52.295733",
+    "benchmark_end_time": "2025-10-14T19:53:07.273500",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 74.977767,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "5_qe_sup-gpt4.1_agent-gpt4.1_1748916088.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid payloads: Multiple happy-path scenarios (TC01\u2013TC05, TC13, TC29) cover creating custom fields with required and optional headers and with accounts that have/no existing custom fields.",
+              "Invalid payloads & validation: Malformed JSON, empty body, missing required fields, unsupported fields, duplicate names in payload, incorrect data types, empty array and null values are tested (TC08, TC09, TC11, TC12, TC26, TC27, TC28, TC30).",
+              "Header & authentication checks: Required header missing (X-Killbill-CreatedBy \u2014 TC07) and unauthorized/missing token (TC16) are included.",
+              "Path parameter & resource existence: Invalid UUID format (TC06) and non-existent account (TC10) are covered.",
+              "Large payload handling: Boundary and exceeding payload size tests exist (TC14, TC15).",
+              "Security: SQL injection and XSS payload tests are present (TC18, TC19).",
+              "Resilience & error handling: Service-unavailable (TC17), transient-network retry (TC20) and an integration-inconsistency scenario (TC25) are present.",
+              "Performance & concurrency: Normal and peak-load scenarios (TC21, TC22) exercise response time and concurrent processing behavior.",
+              "Regression & backward compatibility: Regression and compatibility checks are included (TC23, TC24)."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency: No explicit tests for repeated submissions across separate requests (idempotency or conflict behavior such as 409).",
+              "Internal server error (500) handling: There is a 503 test, but no explicit simulation of a 500 (DB failure, unhandled exception) to validate server-error handling and appropriate responses/logging.",
+              "Rate limiting / throttling: No tests exercise high request rates to verify throttling (429) or Retry-After behavior.",
+              "Strict response schema & headers validation: Tests assert \"JSON array matching the request\" but do not validate the full /definitions/CustomField schema (server-generated fields such as id, objectType/objectId, timestamps) or response headers (Content-Type, audit headers).",
+              "Authorization granularity (403): Missing tests for valid credentials with insufficient permissions (403) \u2014 only missing/invalid token (401) is covered.",
+              "Ambiguous expectations: Some scenarios are underspecified (e.g., TC10 expects 400 for non-existent account \u2014 API may return 404; TC30 allows 201 or 400 for nulls). These need deterministic expected outcomes.",
+              "Concurrency conflict semantics: TC22 checks concurrent success and no corruption, but there is no explicit check for race conditions when two requests attempt to create the same custom-field name concurrently (conflict resolution).",
+              "Payload-size semantics: TC15 expects 400 for payload too large; typical API semantics may expect 413 \u2014 the exact code is not asserted per API contract."
+            ],
+            "recommendations": [
+              "Add idempotency / duplicate-submission tests: submit identical CustomField payloads in separate requests and assert the API contract (idempotent, 409 conflict, or duplicate creation) and that no unintended duplicates persist.",
+              "Add 500 Internal Server Error simulation: mock DB or service failures to assert 500 responses (or documented alternative) and validate error message format, logging, and monitoring hooks.",
+              "Add rate-limiting / throttling tests: flood the endpoint to verify throttling behavior, response codes (429) and Retry-After headers.",
+              "Add strict schema & header assertions: validate response JSON against /definitions/CustomField (presence and format of id, objectId/objectType == ACCOUNT, createdBy, createdDate) and assert response headers like Content-Type: application/json.",
+              "Add authorization-scope tests: verify valid tokens with insufficient privileges return 403 and that only authorized principals can add custom fields to a given account.",
+              "Clarify & make deterministic ambiguous tests: update TC10 and TC30 to state exact expected status codes and response bodies according to API spec (e.g., 404 vs 400, deterministic handling of nulls).",
+              "Add concurrency-conflict tests: specifically test concurrent creation of the same custom-field name to validate locking/deduplication and expected conflict behavior.",
+              "Adjust payload-too-large expectations: assert the exact status code (413 vs 400) per API contract and include tests for chunked/partial uploads if supported.",
+              "Add tests for optional header persistence/audit: assert that X-Killbill-Reason and X-Killbill-Comment are stored/visible in audit metadata if the API promises that, and verify createdBy is persisted.",
+              "Add tests for response consistency and error payload structure: ensure error responses use a consistent schema and include machine-readable error codes/messages for clients."
+            ],
+            "usage": {
+              "completion_tokens": 5995,
+              "prompt_tokens": 6650,
+              "total_tokens": 12645,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4992,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

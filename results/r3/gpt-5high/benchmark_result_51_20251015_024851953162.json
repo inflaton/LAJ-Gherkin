@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-15T02:48:51.953111",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:46:29.218944",
+    "benchmark_end_time": "2025-10-15T02:48:51.953107",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 142.734163,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Payload: Successful transfers with minimum and complete inputs returning 201, Bundle JSON in new state, and Location header (TC01, TC02).",
+              "Billing Policy: All allowed values exercised (START_OF_TERM, END_OF_TERM, IMMEDIATE) with success responses (TC03) and invalid value rejected with 400 (TC10).",
+              "requestedDate: Valid date applied and reflected in effective transfer date; invalid format rejected with 400 (TC04, TC09).",
+              "pluginProperty: Multi-valued usage, empty array handling, and large payload boundary covered; malicious input rejected (TC05, TC16, TC18, TC20).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional Reason/Comment accepted and boundary lengths validated (TC01/02/11/21).",
+              "Not Found Scenarios: 404 for non-existent bundle or target account across various DB states (TC06, TC07, TC22, TC23).",
+              "Invalid Payloads: Invalid bundleId format 400; missing body 400; security input validation for SQLi/XSS 400 (TC08, TC12, TC15, TC16).",
+              "Authorization/Authentication: 401 for invalid/missing auth token (TC13).",
+              "Server Error Handling: 503 dependency unavailable and 500 internal error paths validated (TC14, TC24).",
+              "Resilience/Performance: Retry after transient failure succeeds; response time under normal/peak loads; concurrent requests and resource utilization tested (TC17, TC27\u2013TC30)."
+            ],
+            "gaps": [
+              "Duplicate Submission: No scenario for submitting the same transfer twice (same bundleId/accountId) and expected behavior (e.g., idempotency, 409 conflict, or safe no-op).",
+              "Default Billing Policy: Missing assertion that omitting billingPolicy applies the documented default END_OF_TERM and yields expected transfer semantics.",
+              "Target accountId validation: No explicit 400 for invalid/non-UUID, empty, or null accountId when body is present but malformed (only missing body is covered).",
+              "Malformed JSON/Content-Type: No test for invalid JSON body or incorrect Content-Type leading to 400/415; also no assertion that response Content-Type is application/json as documented.",
+              "Authorization 403: No scenario for authenticated user lacking permission to transfer (forbidden).",
+              "pluginProperty encoding: No explicit verification of collectionFormat=multi semantics (repeated query keys) versus comma-separated encoding.",
+              "requestedDate default: No check of behavior when requestedDate is omitted (e.g., defaults to today/system clock).",
+              "Concurrency on the same bundle: No test for two simultaneous transfers of the same bundle leading to conflict/serialization control (e.g., one succeeds, one 409).",
+              "Post-transfer state verification: No follow-up check that the source account no longer lists the bundle and the target does (consistency across reads)."
+            ],
+            "recommendations": [
+              "Add a duplicate submission test: send the same POST twice and assert defined behavior (idempotency via key, 409 conflict, or same Location with no duplicate effects).",
+              "Verify default billingPolicy: omit billingPolicy and assert END_OF_TERM semantics (e.g., effective billing/transfer date aligns with default).",
+              "Expand accountId validation: tests for non-UUID, empty string, null, and missing accountId field in a non-empty body should return 400.",
+              "Add malformed body/content negotiation tests: invalid JSON payload -> 400; wrong/missing Content-Type -> 415; assert response Content-Type is application/json.",
+              "Introduce authorization negative: authenticated user without transfer permission should receive 403 Forbidden.",
+              "Clarify pluginProperty encoding: explicitly pass pluginProperty as repeated parameters (pluginProperty=a&pluginProperty=b) and assert both are honored.",
+              "Test requestedDate defaulting: omit requestedDate and assert effective date uses the system clock per Background.",
+              "Add concurrency/conflict test on the same bundle: simulate two transfers in parallel and assert proper conflict handling or serialization.",
+              "Add post-conditions verification: follow the Location header and/or GET account bundles to ensure the bundle moved from source to target and no residual links remain."
+            ],
+            "usage": {
+              "completion_tokens": 6839,
+              "prompt_tokens": 7734,
+              "total_tokens": 14573,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5952,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

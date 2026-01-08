@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-09-28T05:41:47.302633",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:41:05.452738",
+    "benchmark_end_time": "2025-09-28T05:41:47.302629",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 41.849891,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC05) verify successful deletion and 204 responses for full and partial tag removal.",
+              "Required Header Validation: TC10 verifies missing X-Killbill-CreatedBy; TC03 verifies presence of optional headers (Reason/Comment).",
+              "Path Parameter Validation: TC09 covers invalid invoiceItemId format (400); TC08 covers non-existent invoice item (404).",
+              "Query Parameters: A broad set of tagDef behaviors are tested \u2014 absent (TC01), subset (TC02), empty (TC06), malformed UUIDs (TC13), very large list (TC14), extra/unexpected params (TC07), partially specified arrays (TC16).",
+              "Idempotency / Empty State: TC04 covers deletion when invoice item has no tags (idempotent behavior).",
+              "Authentication/Authorization: TC11 covers invalid/expired token (401).",
+              "Error Handling for Service Availability: TC12 covers 503 when service is unavailable.",
+              "Security / Input Validation: TC15 covers XSS/injection attempts in headers; TC13/TC16 handle malformed tagDef inputs.",
+              "Concurrency & Performance: TC17 addresses high concurrency/race condition concerns.",
+              "Integration & Regression: TC19 addresses dependent-service unavailability and TC18 checks regression for special characters in comments.",
+              "Accessibility & Documentation: TC20 checks that API docs and error messages are accessible."
+            ],
+            "gaps": [
+              "Produces / Content-Type: The story specifies \"Produces: application/json\" but no scenario asserts response Content-Type headers (for success or error responses).",
+              "Collection format for tagDef: Tests do not explicitly cover different collection encodings (e.g., repeated tagDef params ?tagDef=uuid1&tagDef=uuid2 vs CSV ?tagDef=uuid1,uuid2) and how the server parses them.",
+              "403 / Permission model: There is coverage for 401 (invalid token) but no tests for forbidden/authorization failures (403) where credentials are valid but insufficient privileges.",
+              "Soft-delete / downstream state verification: There is no explicit test verifying whether tag definitions remain intact, only the invoice item\u2013tag associations; no explicit verification of audit/log entries for a successful delete (TC19 mentions audit service unavailability but does not assert audit entries when available).",
+              "Rate limiting / throttling: No tests exercise API rate limits (429) or behavior under repeated bursts beyond a single concurrency/performance scenario.",
+              "Response body / Error schema: Tests assert presence of an error message text for 4xx/5xx but do not assert a structured error schema (fields, codes, consistent JSON error object).",
+              "Duplicate and boundary inputs: No tests for duplicate tag IDs in tagDef, maximum allowed tagDef count handling beyond TC14, or maximum query string / URL length leading to 413. TC14 mentions 413 outcome but no explicit assert of URL-length/limit behavior.",
+              "Precise concurrency conflict cases: TC17 is broad (performance) but there is no focused scenario for race conditions on overlapping deletes that might produce partial success/failure or require optimistic locking handling.",
+              "Caching behavior / headers: While caching is less applicable for DELETE, the acceptance notes \u201cProduces: application/json\u201d and there is no assertion about cache-control/ETag or verification that DELETE responses do not incorrectly enable caching."
+            ],
+            "recommendations": [
+              "Assert response headers (Content-Type and appropriate cache-related headers) for both success (204) and error responses (4xx/5xx) to satisfy \"Produces: application/json\" and avoid cache leaks.",
+              "Add explicit tests for tagDef collection formats: repeated params, CSV, and encoded array forms to ensure the server parses all supported client encodings correctly.",
+              "Add authorization/permission tests that result in 403 (valid token but insufficient privileges) to cover role-based access control.",
+              "Add tests to verify audit/log entries are created when tags are removed (happy path) and to validate behavior when audit logging is unavailable \u2014 assert whether operation still succeeds and whether an audit retry or error is recorded.",
+              "Include rate-limiting tests: rapid repeated requests to verify 429 responses or other throttling behavior and ensure tests cover acceptable degraded behavior.",
+              "Add structured error-schema assertions for 4xx/5xx responses (e.g., JSON object with fields like code, message, parameters) to ensure clients can reliably parse errors.",
+              "Add tests for duplicate tag IDs in tagDef and for boundary conditions (very large numbers of tag IDs and very long query strings) that explicitly assert 413 vs successful behavior, not just allow either outcome.",
+              "Create focused concurrency tests for conflicting deletes (e.g., two requests remove overlapping but not identical tag sets simultaneously) and assert final tag state and absence of corruption.",
+              "If the system implements soft deletes, add tests to confirm whether tag associations are soft-deleted (and can be restored) or hard-deleted; assert expected downstream effects (search/indexing, counters)."
+            ],
+            "usage": {
+              "completion_tokens": 2327,
+              "prompt_tokens": 5394,
+              "total_tokens": 7721,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

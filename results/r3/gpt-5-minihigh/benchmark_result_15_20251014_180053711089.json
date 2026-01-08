@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-10-14T18:00:53.711058",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T17:58:05.341657",
+    "benchmark_end_time": "2025-10-14T18:00:53.711053",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 168.369396,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid payload creation: TC01/TC02/TC03/TC11/TC16 exercise successful creations (minimum, full, optional headers, large/boundary payloads) and assert 201 + response body + Location header.",
+              "Required/optional headers: TC02, TC03, TC04 and TC08 validate presence, absence and basic header type validation for X-Killbill-CreatedBy and inclusion of X-Killbill-Reason/X-Killbill-Comment.",
+              "Invalid payload handling: TC05, TC06 and TC12 cover malformed JSON, missing required fields and empty payload -> 400 responses.",
+              "Extra fields tolerance: TC07 verifies extra/unsupported fields are ignored and resource is still created.",
+              "Authorization: TC09 verifies missing/invalid auth produces 401 unauthorized.",
+              "Service / dependency errors and timeouts: TC10 (database unavailable -> 503) and TC14 (network delay -> 504) cover dependency failure handling.",
+              "Duplicate submission: TC13 addresses duplicate-create behavior and documents ambiguous handling (201 vs 409), at least exercising the branch.",
+              "Security input validation: TC15 tests malicious inputs (XSS/SQL injection) in text fields.",
+              "Concurrency & performance: TC18 covers multiple concurrent creations and response timing expectations.",
+              "Integration/retrieval: TC20 validates Location header extraction and that a subsequent GET returns 200 and matches the created account."
+            ],
+            "gaps": [
+              "Request Content-Type handling: no explicit tests for missing/incorrect Content-Type (e.g., expect 415 Unsupported Media Type) or for response Content-Type header (response \u201cproduces: application/json\u201d is not asserted).",
+              "HTTP 5xx coverage is partial: 503/504 covered but there is no explicit test for generic 500 Internal Server Error and its error payload format.",
+              "Field-level validation specifics are missing: no tests for email format, numeric ranges, enums, pattern constraints, or explicit string length/format boundary cases beyond the large-payload boundary test.",
+              "Duplicate handling is ambiguous: TC13 allows 201 or 409 but there is no test asserting the system's defined duplicate policy (i.e., deterministic expectation and downstream behavior).",
+              "Location header semantics: tests do not validate Location header format (absolute vs relative), that it contains the resource id, or that the returned object id matches the Location URL.",
+              "Idempotency and race-conditions for uniqueness: concurrency test exists but lacks checks for race-induced duplicates (e.g., whether concurrent identical requests create multiple accounts vs one + 409s).",
+              "Rate limiting and throttling: no tests for throttling behavior or 429 responses under burst traffic.",
+              "Header edge-cases: missing tests for empty header values, extremely long header values, non-UTF-8 encodings, or invalid types for optional headers (X-Killbill-Reason/Comment beyond TC08 which only checks CreatedBy type).",
+              "Authorization granularity: no tests for 403 Forbidden (authenticated but unauthorized), token expiry, or role/scope based access control.",
+              "Response schema strictness: tests validate response contains created object but do not assert full schema compliance (auto-generated fields like id, timestamps, field types, absence of disallowed fields)."
+            ],
+            "recommendations": [
+              "Add tests for Content-Type handling: missing/incorrect request Content-Type (expect 415 or API-specific error) and assert response Content-Type is application/json.",
+              "Add a test simulating an internal server error (500) to verify error code and error payload schema.",
+              "Introduce field-level validation tests based on Account schema: email format validation, numeric/range checks, enum values, pattern/regex constraints and explicit length boundary tests (min/max).",
+              "Define and codify the duplicate-account policy (create vs conflict). Implement deterministic tests that assert the expected behavior (e.g., expect 409 with specific error body or idempotent 200/201 with existing id).",
+              "Validate Location header semantics: assert it is a well-formed URL (absolute or agreed relative format), contains the new account id, and matches the id in the returned JSON object.",
+              "Extend concurrency tests to cover race conditions for unique constraints: send simultaneous identical payloads and assert expected outcome (single create + 409s or deduped behavior).",
+              "Add rate-limiting tests (burst traffic) to verify throttling and 429 responses and check behavior under sustained load.",
+              "Add header edge-case tests: empty/very long header values, invalid charset/encoding, and invalid types for optional headers (Reason/Comment).",
+              "Add authorization granularity tests: 403 Forbidden for lack of permission, token expiry, and role/scope checks where applicable.",
+              "Tighten response schema assertions: validate returned Account against the Contract/Account schema (required and auto-generated fields present with correct types, no unexpected fields), and assert Location/response payload consistency."
+            ],
+            "usage": {
+              "completion_tokens": 5635,
+              "prompt_tokens": 4821,
+              "total_tokens": 10456,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4608,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

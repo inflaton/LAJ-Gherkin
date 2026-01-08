@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-13T09:08:14.573476",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:07:43.360435",
+    "benchmark_end_time": "2025-10-13T09:08:14.573470",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 31.213035,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "POST - Valid Payload: Happy-path scenarios for single and multiple tag additions return 201 with Tag objects associated to the invoice item (TC01, TC02, TC03, TC04, TC05, TC22).",
+              "POST - Invalid Payload: Malformed JSON, empty array, null/empty entries, extra fields, invalid tag UUIDs, and missing required header return appropriate 400s (TC06, TC09, TC10, TC11, TC12, TC24).",
+              "POST - Validation: Path UUID format validation (400), not-found invoice item (404), and optional headers handling are verified (TC03, TC07, TC08, TC15).",
+              "POST - Duplicate Submission/Idempotency behavior: Duplicate UUIDs in the same request and re-adding an existing tag do not create duplicates while still succeeding (TC13, TC20).",
+              "POST - Large Payloads: Very large arrays are exercised with expectation of 201 or 413 (TC19).",
+              "POST - Server Error Handling: Dependency/service down (503) and timeout (504) scenarios covered (TC17, TC21, TC25).",
+              "Security/Authorization: Unauthorized access returns 401 (TC16).",
+              "State variations and limits: Existing tags, no tags, partially populated DB, and maximum tags reached (400) are covered (TC04, TC05, TC22, TC23)."
+            ],
+            "gaps": [
+              "POST - Server Error Handling: No explicit 500 Internal Server Error scenario (e.g., database failure during tag creation).",
+              "Content negotiation/headers: No checks for response Content-Type=application/json on success/errors; no test for unsupported media type (415) when Content-Type is missing/incorrect; no test for Accept header handling (406).",
+              "Idempotent retry across requests: No scenario verifying behavior when the exact same POST is retried (e.g., due to client retry) ensuring no duplicate tags and consistent status code.",
+              "Authorization breadth: 403 Forbidden (authenticated but insufficient permissions/role) not covered.",
+              "Observability/response structure: No schema validation of Tag object fields beyond tagDefinitionId/association (e.g., id, objectType, createdDate) as per definitions/contract.",
+              "Headers boundary validation: No tests for overly long or invalid X-Killbill-Reason/Comment values, though optional, to confirm validation rules/limits.",
+              "Rate limiting/throttling: High-frequency POSTs behavior not tested (if applicable)."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate an internal server fault returning 500 (e.g., database failure during insert) and verify proper error payload.",
+              "Add content negotiation tests: 1) Missing/incorrect Content-Type returns 415, 2) Unsupported Accept returns 406, and assert Content-Type=application/json in successful/error responses.",
+              "Introduce an idempotent retry test: Perform the same POST twice in succession and verify no duplicate tags and expected status semantics (e.g., 201 then 200/201 per API contract).",
+              "Add a 403 Forbidden scenario for authenticated users lacking permission to add tags.",
+              "Augment response validation: Validate full Tag schema (required fields, types, and values) and ensure the array contains only the created/existing unique tags.",
+              "Add boundary tests for optional headers (Reason/Comment) including max length and disallowed characters, ensuring proper 400 responses when invalid.",
+              "If applicable, include a rate limiting test to ensure the API returns appropriate status (e.g., 429) under burst conditions and proper Retry-After headers."
+            ],
+            "usage": {
+              "completion_tokens": 1985,
+              "prompt_tokens": 6738,
+              "total_tokens": 8723,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-09-28T04:44:41.653163",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:44:21.871291",
+    "benchmark_end_time": "2025-09-28T04:44:41.653160",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 19.781869,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC13, TC14) verify successful deletion of all or specific custom fields and response 204.",
+              "Empty Response: TC01, TC04 and TC06 validate empty response body and subsequent GET returning empty list when appropriate.",
+              "Query Parameters: Tests cover omitted customField (delete-all), multiple customField values, duplicates, extra unsupported params, invalid customField UUIDs, and very large lists (TC01, TC02, TC08, TC09, TC13, TC14).",
+              "Path Parameter Validation: TC05 and security tests (TC19) check invalid accountId formats and injection attempts resulting in 400.",
+              "Header Validation: Required header missing is tested (TC07); optional headers presence and behavior tested (TC03).",
+              "Non-Existent Resource: TC06 explicitly covers deletion for a valid-but-nonexistent accountId and expects 204 (idempotent behavior).",
+              "Authorization: Unauthorized access is covered (TC10) expecting 401/403 responses.",
+              "Error Handling & Resilience: System failure (TC11) and network timeout (TC12) are covered with expected 500/504 behaviors.",
+              "Concurrency & Performance: Concurrency/race conditions and peak-load performance tested (TC16).",
+              "Regression & Idempotency: Regression case for re-deleting an already deleted custom field is present (TC15).",
+              "Integration / Consistency: Post-deletion consistency with dependent services is covered (TC17).",
+              "State Variations: Partial-population and edge states covered (TC18).",
+              "Security - Input Validation: XSS in customField param covered (TC20)."
+            ],
+            "gaps": [
+              "Soft Delete vs Permanent Delete: No scenario verifies whether deletion is soft (flagged/deleted-at) vs hard (physically removed) or how \u201cdeleted\u201d records are represented for other operations.",
+              "Content-Type and Response Headers: Tests do not assert response Content-Type (application/json) or other headers (e.g., caching headers, ETag) even though the story mentions producing application/json in success; response header validation is missing.",
+              "Audit / Change Tracking: No tests validate that X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment are recorded in audit logs or history (beyond the presence of headers and successful 204).",
+              "Partial failure atomicity: No explicit test verifies atomicity when some customField IDs are valid and others are invalid (e.g., partial success should roll back or fail wholly).",
+              "Input constraints and limits: Although large lists are tested (TC13), there is no explicit test for server-side limits (e.g., max query length, rejection with 413 or 400) or behavior when query exceeds allowed length.",
+              "Content of error responses: Tests check that errors occur but do not assert structured error schema (error codes, fields, consistent JSON error format).",
+              "Rate limiting / Throttling: No tests for rate limiting; the standard guidelines list this for GET but applies to API stability under load.",
+              "Caching Behavior: No tests for caching headers or behavior of cached GET after delete (stale data / cache invalidation)."
+            ],
+            "recommendations": [
+              "Add tests to distinguish soft vs hard deletes: verify whether deleted custom fields remain queryable via admin endpoints or flagged with deleted metadata, and that dependent services respect the soft-delete state.",
+              "Assert response headers: add checks for Content-Type: application/json (when applicable), and any relevant caching headers (Cache-Control, ETag) and Link headers if present.",
+              "Audit log verification: add scenarios that validate deletion metadata is recorded (CreatedBy, Reason, Comment) in audit/change history tables or audit endpoints.",
+              "Atomicity tests: add cases where the customField list includes both valid and invalid IDs and assert whether the operation is atomic (all-or-nothing) and that appropriate error details are returned.",
+              "Limits and large payload edge cases: add explicit tests for server limits (max query length, max number of IDs) and expected errors (413/400) if exceeded.",
+              "Error response schema: add assertions that error responses follow a consistent JSON schema containing machine-readable error code, message, and optionally field-level errors.",
+              "Cache invalidation tests: after deletion, verify any caches are invalidated by checking dependent GET responses or cache headers, to avoid stale reads.",
+              "Rate limiting / throttling: include tests that simulate many requests to validate rate-limiting behavior and correct status codes (e.g., 429) if limits are enforced."
+            ],
+            "usage": {
+              "completion_tokens": 1355,
+              "prompt_tokens": 5440,
+              "total_tokens": 6795,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 384,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-15T12:33:23.339291",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:32:03.509911",
+    "benchmark_end_time": "2025-10-15T12:33:23.339287",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 79.829376,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid deletion paths and optional-parameter behavior: default, all-true, all-false, single-parameter, and pairwise combinations are exercised (TC01\u2013TC05, TC19, TC20).",
+              "Path parameter validation and security: invalid UUID format and SQL injection in accountId are tested (TC08, TC15).",
+              "Header handling and authentication: required header presence/missing header and missing/invalid authentication are validated; XSS in header values is tested (TC09, TC10, TC16).",
+              "Idempotency and non-existent/already-closed semantics: already closed and non-existent account cases return 204 and are treated idempotently (TC11, TC12).",
+              "Error handling and server faults: simulated DB unavailability producing 500 is covered (TC14); 400 responses for invalid input are present (TC08, TC15).",
+              "Performance, scale and resilience: large-volume processing and concurrency (1000 items) and concurrent closures are included, plus transient network retry behavior (TC07, TC17, TC18).",
+              "Unsupported/extra parameters ignored: extra query parameters are ignored and do not affect outcome (TC13).",
+              "Soft-delete semantics: database flag/marking of account-as-closed verified (TC01, TC06).",
+              "Accessibility and documentation: API docs and error response readability/accessibility tested (TC21)."
+            ],
+            "gaps": [
+              "Content-Type and response payload assertions: the Jira story says \"Produces: application/json\" but tests do not assert Content-Type for error responses or explicitly verify 204 responses have empty bodies or consistent response formatting.",
+              "Query-parameter validation negatives: no tests for malformed/invalid boolean values (e.g., cancelAllSubscriptions=abc, cancelAllSubscriptions=1), empty parameters, or type coercion behavior.",
+              "Authorization granularity / permissions (403): tests cover unauthenticated (401) but not authenticated-but-forbidden (403) scenarios or role-based access control.",
+              "Concurrent deletion race conditions on the same account: tests include concurrency across multiple accounts but not simultaneous DELETEs against the same account to exercise locking/race conditions.",
+              "Partial-failure / transactional integrity: there are no tests that simulate dependent-service partial failures (e.g., subscription service fails while invoice write-off succeeds) to verify atomicity or documented rollback/compensating behavior.",
+              "Audit/logging of headers: no assertions that X-Killbill-CreatedBy / X-Killbill-Reason / X-Killbill-Comment are persisted to audit logs or stored with the account closure.",
+              "Asynchronous processing / eventual consistency: where actions may run asynchronously (e.g., write-off processed later), tests do not verify completion of background jobs or final eventual state.",
+              "Rate limiting and throttling: no tests exercise high request bursts / rate limit behavior (429 handling) for DELETE.",
+              "Input boundary and header-length tests: extremely long header values, very long accountId values, or non-ASCII characters are not fuzzed/validated.",
+              "HTTP method compliance: unsupported HTTP methods (e.g., POST/GET to the endpoint) and resulting 405 responses are not tested.",
+              "Consistent error schema validation: tests assert presence of error messages in some cases but do not validate a consistent error response schema (code, message, field, etc.)."
+            ],
+            "recommendations": [
+              "Assert response Content-Type and payload: add checks that error responses are application/json and validate that 204 responses have no body (or validate the documented response contract).",
+              "Add negative tests for query parameters: send malformed boolean values, empty values, and non-boolean types for cancelAllSubscriptions, writeOffUnpaidInvoices, itemAdjustUnpaidInvoices, removeFutureNotifications and assert 400 with clear error messages.",
+              "Add permission/role tests: simulate an authenticated user without sufficient permissions and assert 403 Forbidden with appropriate error details.",
+              "Add same-account concurrency tests: run multiple concurrent DELETE requests against the same account to exercise race conditions and verify consistent outcome and no data corruption.",
+              "Simulate partial dependent-service failures: mock failures in subscriptions/invoice services while other operations succeed to verify atomic behavior or documented compensating logic; assert final state or correct error status and rollback behavior.",
+              "Verify audit and persistence of headers: add tests that close an account and then assert X-Killbill-CreatedBy, Reason and Comment are recorded in audit tables or closure metadata and are sanitized as needed.",
+              "If actions are asynchronous, add end-to-end tests that poll or observe background job completion and validate eventual state (invoices written off, subscriptions cancelled).",
+              "Add rate-limiting and throttling tests: validate behavior under burst traffic and assert 429 or other configured throttling behavior as applicable.",
+              "Add boundary/fuzz tests for headers and path parameters: test very large header values, non-ASCII inputs, and unusually long accountId values to validate input validation and limits.",
+              "Add HTTP method tests: verify unsupported methods return 405 Method Not Allowed and include allowed methods in Allow header.",
+              "Define and assert a consistent error response schema across failure scenarios and add tests validating that schema (fields, types, and helpful messages)."
+            ],
+            "usage": {
+              "completion_tokens": 7802,
+              "prompt_tokens": 6316,
+              "total_tokens": 14118,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6720,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

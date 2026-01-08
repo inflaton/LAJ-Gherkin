@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "9_2025-10-13T13:07:41.482928",
+    "jira_id": "9",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/block - Block an account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T13:03:18.601428",
+    "benchmark_end_time": "2025-10-13T13:07:41.482924",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 262.881496,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "9_qe_sup-gpt4.1_agent-gpt4.1_1748916388.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Valid Payload: Multiple success paths create blocking states with 201 and return a JSON array of BlockingState objects (minimal and with all optional params/headers).",
+              "Query Parameters: requestedDate and pluginProperty handled across combinations, including empty array and ignoring unknown params.",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment accepted.",
+              "Validation: Invalid accountId format -> 400; malformed/missing body -> 400; hostile inputs (SQLi/malicious payload) rejected.",
+              "Not Found: Non-existent account -> 404.",
+              "Authorization: Unauthorized requests -> 401.",
+              "Server Error Handling: Upstream/system failures (DB/plugin) -> 503.",
+              "Large Payloads: Near-limit payload successfully processed.",
+              "Boundary Testing: BlockingState string field min/max lengths validated.",
+              "Integration: pluginProperty can trigger plugin interaction; plugin outage handled.",
+              "Performance/Resilience: Slow downstream still within timeout; high concurrency scenarios exercised.",
+              "Regression/Compatibility: Duplicate-entry regression covered; backward compatibility verified."
+            ],
+            "gaps": [
+              "Duplicate Submission: No explicit test for reposting the same payload (with/without an idempotency key) to ensure deduplication or defined behavior (e.g., 201 with same entity or 409).",
+              "Body Schema Validation Depth: Missing tests for required fields within BlockingState (e.g., service/stateName/flags), invalid enum values, or illegal field combinations.",
+              "requestedDate Validation: No tests for invalid formats (e.g., 2024-13-01), impossible dates, timezone handling, or past/future semantics.",
+              "pluginProperty Encoding/Validation: Not verifying collectionFormat=multi (pluginProperty=prop1&pluginProperty=prop2), handling of comma-separated values, duplicates, or wrong types.",
+              "Response Headers/Content Negotiation: No assertions for response Content-Type=application/json; no 415 Unsupported Media Type when Content-Type is missing/wrong; no 406 for unsupported Accept.",
+              "Authorization Depth: No 403 Forbidden scenario for authenticated users lacking permission.",
+              "Server Error Variants: No coverage for generic 500 Internal Server Error (distinct from 503), or gateway/timeouts like 502/504.",
+              "Partial/Component Blocking Semantics: Story mentions blocking parts (e.g., subscriptions/bundles); no scenarios validating flags or scope in BlockingState to ensure partial blocking behaves correctly.",
+              "Response Schema Conformance: No explicit validation that each BlockingState in the response matches the documented schema (types, required fields, formats)."
+            ],
+            "recommendations": [
+              "Add duplicate submission tests: send the same POST twice without and with an idempotency key; define and assert expected behavior (201 with same entity, 409, or idempotent replay).",
+              "Add BlockingState schema validation scenarios: omit required fields, use invalid enum values/boolean combinations, and assert 400 with clear error messages.",
+              "Add requestedDate negative tests: invalid format (e.g., 2024-13-01), invalid dates, timezone strings (e.g., 2024-07-01T00:00:00Z) if only date is allowed, and past/future semantics.",
+              "Verify pluginProperty encoding: test pluginProperty=prop1&pluginProperty=prop2 (multi) vs comma-separated; include invalid types (single string, numbers) and duplicates; assert expected handling.",
+              "Assert response headers: verify Content-Type=application/json on 201/4xx/5xx; add 415 when Content-Type is missing/not JSON and 406 when Accept is unsupported.",
+              "Add 403 Forbidden scenario: authenticated user without sufficient privileges receives 403 with appropriate error body.",
+              "Add server error variants: simulate generic 500 Internal Server Error and gateway/timeout cases (502/504) to confirm correct mapping and messaging.",
+              "Test partial/component blocking semantics: use BlockingState fields that target specific aspects (e.g., blockBilling/blockEntitlement) and verify only intended parts are blocked.",
+              "Validate response schema: assert that each returned BlockingState includes required fields and correct data types/values; fail if extra/unknown fields are present.",
+              "Optional: Add idempotency key behavior tests if supported by the API (e.g., X-Killbill-Idempotency-Key) to prevent accidental duplicates."
+            ],
+            "usage": {
+              "completion_tokens": 10329,
+              "prompt_tokens": 7115,
+              "total_tokens": 17444,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 9408,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

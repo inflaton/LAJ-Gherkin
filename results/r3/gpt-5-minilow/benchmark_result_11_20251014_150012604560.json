@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "11_2025-10-14T15:00:12.604531",
+    "jira_id": "11",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId} - Retrieve an account by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:59:39.027322",
+    "benchmark_end_time": "2025-10-14T15:00:12.604527",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 33.577205,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "11_qe_sup-gpt4.1_agent-gpt4.1_1748916542.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01, TC02, TC03, TC04, TC05, TC06, TC27-33) validate successful GET behavior for various combinations of query parameters and expected response contents.",
+              "Empty Response / No Data: TC07 covers the case when no accounts exist and expects 404 / account not found handling.",
+              "Query Parameters: Many combinations are exercised \u2014 boolean flags (true/false/missing), audit values (FULL, MINIMAL, NONE via TC24), invalid values (TC25), partial/malformed param (TC23), unexpected extra params (TC15) \u2014 including conflicting combinations (TC32) and maximal combinations (TC06, TC33).",
+              "Authorization: Missing and invalid auth are explicitly tested (TC10, TC11) verifying 401 responses.",
+              "Input Validation & Error Handling: Malformed accountId format (TC09), injection attempts (TC13), and XSS attempts (TC14) are included and expect 400 with no sensitive leakage.",
+              "Edge & Resilience Scenarios: Service unavailable (TC12), transient network retry (TC26), timeout behavior (TC16), large payload handling (TC17), and concurrent requests (TC18) are present.",
+              "Backward Compatibility & Regression: Backward-compatibility header testing (TC19) and a regression test for a previously fixed bug (TC22) are included.",
+              "Partial / degraded dependent services: TC20 covers behavior when dependent balance service is degraded (partial/206 behavior)."
+            ],
+            "gaps": [
+              "Pagination: No tests exercise pagination or large-list traversal/pagination headers even though GET guidelines call this out (relevant when related resources lists might be paged).",
+              "Rate Limiting / Throttling: There are concurrency tests (TC18) but no tests for rate limiting responses (e.g., 429) or behavior when many rapid requests exceed limits.",
+              "Caching Behavior: No scenarios validate caching headers (ETag, Last-Modified, Cache-Control) or conditional requests (If-None-Match / 304 responses).",
+              "Cache / Freshness Semantics: No tests for validating stale/validated data using ETag/If-Modified-Since flows.",
+              "Response Headers / Content-Type Strictness: Tests assert response body contents but do not assert presence/correctness of content-type, content-length, or other relevant response headers (e.g., Vary).",
+              "Performance / Load: While TC16 (timeout) and TC17 (large payload) exist, there are no sustained load or rate-based performance tests verifying SLA beyond single-timeouts or single large responses.",
+              "Authorization Granularity: 401 is covered, but there are no tests for 403 (forbidden) or role-based access control differences if applicable.",
+              "Pagination + Large Dataset Interaction with Query Flags: No tests combine large/paginated datasets with query parameters (balance/CBA/audit) to validate server behavior under compound loads."
+            ],
+            "recommendations": [
+              "Add pagination tests: even if this endpoint typically returns a single Account, include tests that validate server behavior when related embedded collections are large or when API conventions return paged sub-resources (validate paging headers and parameters).",
+              "Add rate limiting tests: craft a test to send many requests in quick succession to verify 429 responses and any Retry-After header behavior. Include a recovery test after rate limit window.",
+              "Add caching and conditional request tests: verify ETag and Cache-Control headers, and conditional GET behavior (If-None-Match -> expect 304 when unchanged).",
+              "Validate response headers: add assertions for Content-Type, Content-Length (or size limits), Vary, and any security headers (e.g., Strict-Transport-Security, X-Content-Type-Options) as applicable.",
+              "Add role/permission tests: if API supports RBAC, add scenarios that exercise 403 Forbidden for authenticated but unauthorized callers and confirm correct error details.",
+              "Combine large dataset/pagination with query flags: test account retrieval where included related collections are large and require pagination while also requesting balance/CBA/audit to ensure stable behavior and response consistency.",
+              "Add explicit rate/performance smoke tests: sustained concurrent requests to verify SLA and to complement TC16/TC17 which are single-request scenarios."
+            ],
+            "usage": {
+              "completion_tokens": 1089,
+              "prompt_tokens": 6177,
+              "total_tokens": 7266,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

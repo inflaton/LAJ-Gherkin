@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-09-28T09:02:45.205314",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:01:37.050683",
+    "benchmark_end_time": "2025-09-28T09:02:45.205310",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 68.154627,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Valid Deletion: Success paths covered for removing all fields (no query) and specific fields (multi query params).",
+              "DELETE Non-Existent Resource: 404 for unknown paymentId is covered.",
+              "Input Validation: 400 for invalid paymentId format and invalid customField UUIDs, including mixed valid/invalid inputs.",
+              "Headers: Required X-Killbill-CreatedBy covered (success and missing -> 400); optional X-Killbill-Reason and X-Killbill-Comment covered.",
+              "Authorization: 401 for invalid auth token covered.",
+              "Empty Response: 204 with empty body on success is asserted.",
+              "Query Parameters: Multi-value handling, none provided (delete all), single value, non-existent IDs, and very large lists are covered.",
+              "Reliability/Resilience: Service unavailable (503) covered; performance under load covered.",
+              "Security Hardening: XSS in header and SQL injection-like input in query rejected.",
+              "Integration: Audit log available/unavailable behavior considered.",
+              "Regression: Prior defect scenario explicitly tested."
+            ],
+            "gaps": [
+              "DELETE Concurrency: No scenarios for simultaneous deletes or updates to the same payment custom fields (race conditions, lost updates).",
+              "Soft Delete vs Hard Delete: No verification of deletion semantics per guideline (e.g., confirm not soft-deleted unless specified).",
+              "Response Headers: Story indicates produces application/json; tests don\u2019t assert response headers on 204 (e.g., Content-Type, no body).",
+              "Idempotency: No test that repeating the same DELETE yields consistent results (e.g., second call returns 204 or appropriate code without side effects).",
+              "Server Error Handling: No simulation of 500 Internal Server Error (e.g., database failure) distinct from 503 service unavailable.",
+              "Rate Limiting/Throttling: No tests for burst deletes and appropriate responses/headers."
+            ],
+            "recommendations": [
+              "Add concurrency scenarios: (a) two clients delete the same set of fields at the same time; (b) one deletes while another adds/updates a custom field. Verify final state and deterministic response codes.",
+              "Clarify and test deletion semantics: Verify that fields are permanently removed (hard delete) or, if soft delete is expected, that they are flagged accordingly and not returned by subsequent GETs.",
+              "Assert response headers: On 204 ensure expected headers are present/absent (e.g., Content-Type per spec, no body).",
+              "Add idempotency test: Invoke the same DELETE twice; verify the second call\u2019s status (ideally still 204) and no errors.",
+              "Add a 500 error simulation (e.g., force DB failure) to verify error mapping and body structure.",
+              "Consider rate limiting tests: send multiple rapid DELETE requests and verify correct handling (status codes/Retry-After headers if applicable).",
+              "Add a mixed existence case: request deletion of a set with some existing and some non-existent UUIDs; verify specified behavior (partial success vs strict validation)."
+            ],
+            "usage": {
+              "completion_tokens": 1925,
+              "prompt_tokens": 6120,
+              "total_tokens": 8045,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

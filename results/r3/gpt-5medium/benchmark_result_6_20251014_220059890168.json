@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-14T22:00:59.890116",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:59:32.159398",
+    "benchmark_end_time": "2025-10-14T22:00:59.890111",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 87.730713,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "PUT Valid Request: Multiple success paths (with required header, with optional headers, no existing fields, large arrays, empty array semantics) return 204 and verify DB updates.",
+              "Non-Existing Resource: Attempt to modify a non-existent account returns client error (tested as 400).",
+              "Header handling: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment handled; unsupported headers ignored.",
+              "Request body validation: Missing body, malformed JSON, invalid CustomField schema, mixed valid/invalid items are handled with 400.",
+              "Path parameter validation: Invalid UUID format returns 400.",
+              "Security validation: SQL injection and XSS payloads rejected.",
+              "Authorization: Missing/invalid auth token returns 401.",
+              "Server and dependency failures: 503 (service down), 502 (dependency failure), 504 (timeout) covered; transient error retry covered.",
+              "Payload constraints: Large payload near limit returns 204 or 413 as appropriate.",
+              "Data integrity and integration: Audit log and external reporting system updates verified.",
+              "Regression cases: Duplicate custom field names rejected; backward compatibility path covered.",
+              "Edge behaviors: Empty array removes all fields; extra properties in CustomField ignored; max field lengths accepted.",
+              "Concurrency (partial): Concurrent requests across multiple accounts maintain consistency."
+            ],
+            "gaps": [
+              "PUT Partial Update semantics: No scenario clarifies whether PUT replaces the entire custom field set vs allowing partial updates (subset provided). Add scenarios to assert behavior when only some existing fields are sent (should remaining fields be preserved or removed?).",
+              "Concurrency on the same resource: No tests for simultaneous updates to the same account (race conditions, last-write-wins, transactional integrity, or optimistic locking/If-Match).",
+              "Idempotency: No test verifies that repeating the exact same PUT request yields the same result without side effects.",
+              "Content negotiation and media type errors: No scenario for unsupported or missing Content-Type (e.g., text/plain) resulting in 415 Unsupported Media Type.",
+              "204 response contract: No checks that a 204 response has no body and that response headers (e.g., Content-Type) are correct/absent per spec despite \u201cproduces: application/json\u201d.",
+              "Internal server error: No explicit 500 scenario (e.g., database failure) distinct from dependency or availability errors.",
+              "Error response schema: Tests assert presence of messages but don\u2019t validate a consistent error structure (code, type, message, requestId).",
+              "Header value validation: No boundary/character-set tests for X-Killbill-CreatedBy/Reason/Comment (very long values, Unicode, forbidden characters).",
+              "Business limits on array cardinality: Large count tested (100), but no explicit max-items limit validation if the API enforces one.",
+              "Non-existent account status code clarity: Story doesn\u2019t specify status for non-existent but valid UUID; tests assume 400. Clarify spec and align tests (e.g., 404 vs 400)."
+            ],
+            "recommendations": [
+              "Add partial vs full-replacement scenarios: update a subset of fields and assert whether unspecified existing fields are retained or removed as per API contract; add a negative case if partial updates aren\u2019t allowed.",
+              "Introduce same-account concurrency tests: two or more simultaneous PUTs on the same account; verify final state deterministically (e.g., last-write-wins) and absence of partial writes.",
+              "Add idempotency tests: send identical PUT requests multiple times and verify stable 204 response and unchanged final state.",
+              "Add media type validation: send non-JSON or missing Content-Type and expect 415; verify application/json is required.",
+              "Verify 204 response contract: assert empty body and correct/absent Content-Type; if the API declares produces: application/json, clarify and reconcile with 204 semantics.",
+              "Add explicit 500 Internal Server Error simulation (e.g., DB outage) and validate error handling distinct from 502/503/504.",
+              "Validate error payload schema consistently (fields like errorCode, message, type, requestId) across 4xx/5xx responses.",
+              "Extend header validation with boundary cases: extremely long, Unicode, and invalid characters for X-Killbill-* headers.",
+              "If applicable, define and test the maximum number of CustomField objects allowed; add cases for at-limit and over-limit counts.",
+              "Clarify and align status code for non-existent but valid accountId (404 vs 400) in both spec and tests; update TC07 accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 3961,
+              "prompt_tokens": 6919,
+              "total_tokens": 10880,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3008,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

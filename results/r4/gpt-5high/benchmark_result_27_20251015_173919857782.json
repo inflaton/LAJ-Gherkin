@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "27_2025-10-15T17:39:19.857702",
+    "jira_id": "27",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/paymentMethods - Add a payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T17:36:12.726558",
+    "benchmark_end_time": "2025-10-15T17:39:19.857692",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 187.131134,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "27_qe_sup-gpt4.1_agent-gpt4.1_1748917729.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST - Valid Payload: Multiple 201 success paths including minimal and maximal payloads; response body PaymentMethod verified; Location header checked.",
+              "POST - Query Parameters: isDefault, payAllUnpaidInvoices, controlPluginName (multi), pluginProperty (multi), and combined usage covered; unexpected params ignored.",
+              "Headers: Required X-Killbill-CreatedBy present; optional X-Killbill-Reason and X-Killbill-Comment exercised; missing required header returns 400.",
+              "Input Validation: Malformed JSON (400), missing fields (400), invalid accountId format (400), 404 for non-existent account, security inputs (SQLi/XSS) rejected.",
+              "Server Error Handling: 503 when plugin service unavailable; 500 on inconsistent plugin data.",
+              "Authorization: 401 for invalid/missing auth token.",
+              "Concurrency/Idempotency Behavior: Network-failure retry avoids duplicates; concurrent POSTs processed without duplicates.",
+              "Non-functional: Performance under normal/peak load; timeout behavior; integration and backward-compatibility; regression for empty pluginProperty."
+            ],
+            "gaps": [
+              "Duplicate submission semantics not explicitly tested (same POST replayed without idempotency key): expected behavior (201 vs 409 vs safe dedupe) unclear.",
+              "Query parameter type validation gaps: invalid booleans (e.g., isDefault=abc), malformed pluginProperty formats, unknown controlPluginName behavior.",
+              "Content negotiation and media type: missing tests for absent/incorrect Content-Type (415), unsupported Accept (406), and verifying response Content-Type application/json.",
+              "Rate limiting/throttling: no scenarios for 429 or server behavior under burst POSTs.",
+              "Backend failure beyond plugins: no simulation of database outage/transaction rollback leading to 500 with proper error body.",
+              "Default behavior when params omitted: not asserting that isDefault defaults to false (does not change current default), payAllUnpaidInvoices not attempted when absent, and no control plugins invoked when not provided.",
+              "Authorization depth: no 403 test for authenticated user lacking permission/role.",
+              "Persistence verification: no follow-up GET to Location to confirm resource exists and fields are persisted correctly.",
+              "Payload size error path: no 413 Payload Too Large coverage for exceeding limits.",
+              "Body schema leniency: no test for unknown/extra fields in PaymentMethod body (ignore vs 400) and standard error response schema validation."
+            ],
+            "recommendations": [
+              "Add explicit duplicate submission tests: immediate replay of identical POST with/without an idempotency mechanism; define and assert expected status (201/200/409).",
+              "Expand negative query param tests: non-boolean values for isDefault/payAllUnpaidInvoices, invalid/malformed pluginProperty entries, and unknown controlPluginName outcomes.",
+              "Add media-type/content-negotiation tests: missing/wrong Content-Type -> 415; unsupported Accept -> 406; assert response Content-Type is application/json on 201/4xx/5xx.",
+              "Introduce rate-limiting scenarios: burst POSTs yielding 429 and proper Retry-After handling if applicable.",
+              "Simulate database/transaction failures to assert 500 handling and no partial writes.",
+              "Assert defaults when params are omitted: isDefault=false leaves existing default unchanged; no invoice payment attempted when payAllUnpaidInvoices is absent; no control plugins invoked when not specified.",
+              "Include a 403 Forbidden scenario for authenticated but unauthorized principals.",
+              "After 201, perform GET on the Location URL to validate persistence and field integrity.",
+              "Test 413 behavior by exceeding documented payload limits and confirm safe rejection without side effects.",
+              "Validate handling of unknown/extra fields in the request body and verify standard error schema (code, message, details) in 4xx/5xx responses."
+            ],
+            "usage": {
+              "completion_tokens": 6617,
+              "prompt_tokens": 7438,
+              "total_tokens": 14055,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-10-13T18:57:22.529883",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:57:03.151100",
+    "benchmark_end_time": "2025-10-13T18:57:22.529878",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 19.378778,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple successful scenarios cover the happy path (required header only, optional headers, variations of CBA values, multiple transactions, regression cases).",
+              "Header Validation: Required header (X-Killbill-CreatedBy) present/absent/empty/null/whitespace and optional headers (X-Killbill-Reason, X-Killbill-Comment) are exercised, including XSS and SQL injection payload checks.",
+              "Path Parameter Validation: Tests cover non-existent accountId, invalid format (non-UUID), overly long accountId (boundary), and empty DB case.",
+              "HTTP Semantics: Success behavior (204 No Content) and error behaviors for invalid inputs (400) and service unavailable (503) are covered; unsupported method (405) is tested.",
+              "Concurrency & Robustness: High concurrency, transient network errors with retry policy, and service downtime scenarios are included.",
+              "Performance: Response-time targets under normal and peak loads are specified as test scenarios.",
+              "Security: Malicious header payloads and XSS attempts are included and expect no leakage of internals.",
+              "Unexpected inputs: Extra unsupported headers and unexpected query parameters are tested to verify tolerant behavior."
+            ],
+            "gaps": [
+              "Authorization/Authentication negative tests: Background assumes a valid authentication token but there are no scenarios for missing/invalid/expired tokens returning 401/403.",
+              "Response headers / Content-Type: The story mentions produces application/json but there is no test verifying Content-Type or other response headers for error responses or 204 semantics (e.g., no body, correct headers).",
+              "Explicit validation of optional-header value formats: Tests use optional headers but do not validate handling of malformed optional header values (e.g., overly long reason/comment).",
+              "Input validation error codes variety: Only 400 is asserted for many invalid cases; the story allows 400 for invalid account ID but other invalid inputs (e.g., malicious payloads) expect 400 or 422 \u2014 these distinctions are not fully asserted consistently.",
+              "Rate limiting / throttling: Standard guideline items like rate-limiting behavior are not covered (aside from concurrency tests which focus on correctness/time, not throttling responses).",
+              "Retry policy details: TC13 assumes a client retry policy but does not assert server-side idempotence or side-effect semantics under retries (e.g., ensure rebalances are not applied multiple times).",
+              "Logging/audit: No tests verify that required audit headers (CreatedBy, Reason, Comment) are recorded in logs or persisted for audit trails.",
+              "Database-level failures: Server error handling (500) for DB failures or partial failures during rebalance is not explicitly covered."
+            ],
+            "recommendations": [
+              "Add negative auth tests: scenarios where the auth token is missing, expired, or unauthorized user attempts the operation, asserting 401/403 and no side effects.",
+              "Assert response headers and content-type: For both 204 and error responses, verify Content-Type, and for errors validate error payload JSON structure (code/message) and absence of body for 204.",
+              "Cover optional-header validation: Add tests for overly long X-Killbill-Reason and X-Killbill-Comment, invalid characters, and ensure proper status codes (400/422) and no leakage of internals.",
+              "Idempotence/retry safety: Add tests that assert running the same PUT multiple times (retries) does not create duplicate side effects and that server handles idempotent semantics or returns safe status codes.",
+              "Rate-limiting/throttling: Add tests to verify behavior when requests exceed rate limits (expected 429 or configured behavior) and that concurrency tests observe throttling if applicable.",
+              "Server error simulation: Add tests simulating DB or downstream failures resulting in 500 responses and ensure partial work is rolled back or compensated.",
+              "Audit/logging verification: Add tests (integration) that verify CreatedBy/Reason/Comment are persisted to audit logs or change records when provided.",
+              "Clarify error-code expectations: For security/malformed inputs define and assert specific expected error codes (400 vs 422) so tests validate the intended API contract rather than allow multiple possible codes."
+            ],
+            "usage": {
+              "completion_tokens": 1124,
+              "prompt_tokens": 5515,
+              "total_tokens": 6639,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "3_2025-10-15T16:27:48.771567",
+    "jira_id": "3",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/tags - Remove tags from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:26:26.097719",
+    "benchmark_end_time": "2025-10-15T16:27:48.771563",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 82.673844,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "3_qe_sup-gpt4.1_agent-gpt4.1_1748915976.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE/Valid Deletion: Single, multiple, all-tags, and empty tagDef array cases return 204 and verify database state (TC01\u2013TC05, TC11, TC13, TC19, TC20).",
+              "DELETE/Non-Existent Resource: Non-existent accountId and invalid UUID format return 400 (TC06, TC07).",
+              "Input Validation (query params): Invalid/malformed tagDef and mixed valid/invalid tagDefs return 400 (TC08, TC14, TC18).",
+              "Headers: Required X-Killbill-CreatedBy enforced (400 when missing) and optional Reason/Comment accepted (TC04, TC09, TC19).",
+              "Authorization: Unauthenticated/unauthorized requests return 401/403 (TC15).",
+              "Server Error Handling: Service unavailable returns appropriate 5xx (TC12).",
+              "Idempotency/Resilience: Removing non-existing tags returns 204 (TC05) and retry after transient failure succeeds (TC16).",
+              "Scalability: Large number of tagDef UUIDs handled successfully (TC13)."
+            ],
+            "gaps": [
+              "DELETE/Concurrency on same resource: No scenario where two users concurrently delete the same tag(s) on the same account to expose race conditions and verify idempotent outcomes.",
+              "Soft delete semantics: No explicit assertion that tags are permanently removed (not soft-deleted) and/or that audit entries are created as expected.",
+              "AUTO_PAY_OFF positive path: No scenario confirming successful removal of AUTO_PAY_OFF when a default payment method exists (story-specific rule).",
+              "Partial applicability: No case where all provided tagDef UUIDs are valid but only some are applied to the account; expected behavior (204 vs 400) is untested.",
+              "No-tagDef with no tags: Missing scenario where no tagDef is provided and the account already has no tags (should still return 204).",
+              "Response headers: No checks for correct headers on 204 (e.g., absence of Content-Type/body despite spec saying produces application/json).",
+              "Duplicate tagDef values: No test ensuring duplicates in tagDef query are handled idempotently without errors.",
+              "Header value validation: No test for empty/whitespace X-Killbill-CreatedBy or unusual characters."
+            ],
+            "recommendations": [
+              "Add a same-account concurrency test: fire two concurrent DELETEs for identical tagDef(s) on the same account; assert both complete without conflict, final state has tags removed, and responses are 204.",
+              "Verify deletion semantics: after deletion, confirm tags are not soft-deleted (e.g., not merely flagged) and, if applicable, validate audit entries capture CreatedBy/Reason/Comment.",
+              "Add positive AUTO_PAY_OFF scenario where the account has a default payment method; expect 204 and tag removed.",
+              "Add scenario where provided tagDefs are valid but only some are present on the account; confirm expected outcome (likely 204 with removal of applicable tags, no error for absent ones).",
+              "Add scenario for no tagDef on an account with no tags to ensure 204 and no side effects.",
+              "Assert response headers for 204: no body and either no Content-Type or a compliant header; ensure no JSON payload is returned.",
+              "Test duplicate tagDef query values to ensure they are ignored or deduplicated and operation remains idempotent.",
+              "Add validation for X-Killbill-CreatedBy edge cases (empty string, whitespace-only, overly long, non-ASCII) and expected error responses."
+            ],
+            "usage": {
+              "completion_tokens": 3631,
+              "prompt_tokens": 5684,
+              "total_tokens": 9315,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2880,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

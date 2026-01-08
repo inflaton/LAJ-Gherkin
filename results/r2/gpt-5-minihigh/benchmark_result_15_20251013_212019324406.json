@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-10-13T21:20:19.324378",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T21:18:53.388847",
+    "benchmark_end_time": "2025-10-13T21:20:19.324374",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 85.935527,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Core success path: multiple scenarios (TC01/TC02/TC03/TC16/TC11) verify successful creation returns 201, response body contains an Account JSON object, and Location header is present.",
+              "Header handling: required X-Killbill-CreatedBy presence and missing-header error are tested (TC03, TC04); optional headers X-Killbill-Reason and X-Killbill-Comment are exercised (TC02).",
+              "Invalid payload handling: malformed JSON, missing required fields and empty payload are covered (TC05, TC06, TC12) producing 400 errors.",
+              "Extra fields tolerance: unsupported/extra fields are tested to be ignored and still create account (TC07).",
+              "Authentication/authorization negative case: missing/invalid token is tested (TC09 -> 401).",
+              "Server failure and resilience: database unavailable and dependency failure simulated (TC10 -> 503); slow network / timeout simulated (TC14 -> 504).",
+              "Duplicate and boundary conditions: duplicate-submission policy covered as an ambiguous outcome (TC13) and maximum field sizes/boundary large payload tested (TC11).",
+              "Security and validation: XSS/SQL-injection attempts are considered (TC15).",
+              "Concurrency and performance: concurrent creation and performance expectations covered (TC18); regression and integration retrieval verification covered (TC19, TC20)."
+            ],
+            "gaps": [
+              "No explicit tests for request Content-Type validation (e.g., missing or non-application/json -> 415 Unsupported Media Type).",
+              "Response content headers and format not asserted: tests do not explicitly verify response Content-Type is application/json or validate the response against the Account JSON schema (field types/formats).",
+              "Field-level validation gaps: specific validation rules (e.g., email format, currency codes, numeric ranges, max lengths per field) are not covered.",
+              "500 Internal Server Error / unexpected server exception flows are not covered (only 503 and 504 are present).",
+              "Duplicate handling is ambiguous: TC13 allows either 201 or 409 but tests do not assert a deterministic policy or verify atomic deduplication behavior under race conditions.",
+              "Idempotency and race-condition edge cases: TC18 covers concurrency performance but not deterministic race conditions that could create duplicates (e.g., two concurrent requests for same unique key).",
+              "Authorization granularity: no tests for forbidden/insufficient-permission scenarios (403) or role-based access controls beyond a missing/invalid token 401 test.",
+              "Rate limiting and throttling: no tests assert server behavior under request throttling (e.g., 429 responses).",
+              "Payload-size enforcement and related error codes: there is no test for server returning 413 Payload Too Large when exceeding server limits or for malformed Content-Length handling.",
+              "Location header contract details not asserted: tests check that Location exists and can be used (TC20) but do not validate pattern/format (e.g., /1.0/kb/accounts/{accountId}) or that the ID in Location exactly matches the ID in the response body in all success cases."
+            ],
+            "recommendations": [
+              "Add Content-Type validation tests: send requests with missing or non-application/json Content-Type and assert 415 Unsupported Media Type and clear error messages.",
+              "Validate response headers and schema: assert response Content-Type is application/json and validate the response body against the canonical Account JSON schema (types, required fields, formats such as email).",
+              "Add field-level validation tests: create negative tests for invalid email formats, invalid currency codes, out-of-range numeric values, and max-length violations per the Account schema.",
+              "Cover 500/internal errors: inject or simulate uncaught server exceptions to ensure API returns a consistent error format (500) and useful diagnostics for clients.",
+              "Make duplicate handling deterministic: decide on expected behavior (409 vs idempotent 201) and add tests that assert the chosen policy; include concurrent duplicate-creation tests that verify atomicity and no double-creation.",
+              "Add idempotency and race-condition tests: attempt to create the same unique account concurrently and verify single creation or correct conflict/error response.",
+              "Expand authorization tests: add role-based scenarios and forbidden (403) tests for authenticated but unauthorized users and validate audit headers where applicable.",
+              "Add rate-limiting / throttling tests: verify server behavior under high request rates and assert 429 or backoff behavior as per policy.",
+              "Test payload size enforcement: create tests to exceed server-enforced payload limits and confirm 413 responses and graceful error handling; verify very large header values are handled safely.",
+              "Tighten Location header checks and consistency: assert Location URL pattern, assert the returned ID matches response body and can be used to GET the same resource in every success test; include negative test if Location points to a non-existent or malformed URL."
+            ],
+            "usage": {
+              "completion_tokens": 5044,
+              "prompt_tokens": 4821,
+              "total_tokens": 9865,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4032,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

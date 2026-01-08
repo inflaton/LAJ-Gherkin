@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "58_2025-10-14T22:40:39.246171",
+    "jira_id": "58",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/customFields - Remove custom fields from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T22:39:16.753676",
+    "benchmark_end_time": "2025-10-14T22:40:39.246166",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 91,
+    "average_generation_time_seconds": 82.49249,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 91,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "58_qe_sup-gpt4.1_agent-gpt4.1_1748919726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 91,
+            "covered": [
+              "DELETE Method - Valid Deletion: TC01\u2013TC05, TC10, TC11, TC18, TC20\u2013TC21 validate successful deletion for all, single, and multiple custom fields, including bundles with no fields and ignoring unsupported params.",
+              "DELETE Method - Non-Existent Resource: TC07 and TC23 validate 404 when the bundle does not exist (including empty DB state).",
+              "DELETE Method - Concurrency: TC16 covers simultaneous DELETEs for the same bundle/field returning correct 204 responses and consistent remaining data.",
+              "Headers Handling: Required X-Killbill-CreatedBy covered (TC01\u2013TC05, TC08), optional X-Killbill-Reason and X-Killbill-Comment covered (TC04, TC20\u2013TC21), and malicious header handling covered (TC14).",
+              "Query Parameters: Absence removes all (TC01); multi-value via collectionFormat=multi (TC03); invalid, empty, and extraneous params handled (TC09, TC11, TC19).",
+              "Path Parameter Validation: Invalid/truncated UUIDs elicit 400 (TC06, TC22); nonexistent bundle 404 (TC07, TC23).",
+              "Authorization/Security: 401 for invalid/expired token (TC13); injection resilience in headers (TC14).",
+              "Error Handling (Service/Integration): Service unavailable and degraded dependencies return 503/504 with messages (TC12, TC24).",
+              "Performance/Scalability: Large-volume deletion (1000 fields) within latency SLO (TC15).",
+              "Data Consistency/Regression: Unrelated bundles unaffected and post-conditions verified via GET and DB consistency check (TC17, TC25)."
+            ],
+            "gaps": [
+              "DELETE Method - Soft Deletes: No scenario verifies whether deletions are soft vs hard (e.g., tombstone state) or validates audit trails tied to CreatedBy/Reason/Comment.",
+              "Idempotency (repeat deletes): No explicit test for sending the exact same DELETE twice sequentially to confirm stable 204 and no side effects.",
+              "Mixed validity in customField list: No scenario where request includes a mix of valid and invalid customField IDs to define atomicity (all-or-nothing vs best-effort).",
+              "500 Internal Server Error: No coverage for unexpected server-side failures (e.g., DB exception) and corresponding behavior/rollback.",
+              "Authorization 403: No scenario for authenticated user lacking permission/role to delete, to distinguish 401 vs 403.",
+              "Duplicate customField parameters: No test ensures duplicates are handled idempotently (no error, no double-processing).",
+              "Response headers/content negotiation: No checks for Content-Type on error responses or that 204 returns no body despite advertised produces=application/json.",
+              "Concurrency variant: No scenario where one client removes all fields while another concurrently removes a subset to ensure deterministic outcomes and correct status codes."
+            ],
+            "recommendations": [
+              "Add a soft-vs-hard delete verification scenario: confirm that deleted fields do not appear via GET and, if applicable, validate audit log entries created using X-Killbill-CreatedBy/Reason/Comment.",
+              "Add idempotency test: issue the same DELETE twice (for all fields and for a specific field) and assert both return 204 with no unintended effects.",
+              "Add mixed-validity test: DELETE with customField=[valid, invalid] to define/verify transactional behavior (fail all with 400 or succeed on valid only).",
+              "Introduce a 500-path test by simulating a server/DB exception during deletion and assert proper error code, message, and no partial deletions.",
+              "Add a 403 Forbidden scenario for an authenticated user without delete permissions to cover authorization policy.",
+              "Test duplicate customField query params (e.g., customField=<cf1>&customField=<cf1>) to ensure idempotent handling and 204.",
+              "Validate response headers: confirm 204 responses have no body and error responses include Content-Type: application/json with structured error payload.",
+              "Expand concurrency coverage: one client deletes all custom fields while another deletes a subset concurrently; verify final state, status codes, and absence of race-induced inconsistencies."
+            ],
+            "usage": {
+              "completion_tokens": 3509,
+              "prompt_tokens": 6309,
+              "total_tokens": 9818,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2624,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

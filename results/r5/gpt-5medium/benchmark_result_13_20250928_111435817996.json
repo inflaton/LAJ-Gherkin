@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-09-28T11:14:35.817973",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:13:19.278308",
+    "benchmark_end_time": "2025-09-28T11:14:35.817969",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 76.539661,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Valid Deletion: Multiple scenarios verify 204 on successful account closure, including default behavior and side effects (TC01, TC02, TC03).",
+              "Query Parameters: Thorough coverage of all flags, defaults, single toggles, pairwise combinations, and all-true/false cases (TC01\u2013TC05).",
+              "Soft Deletes: Tests assert the account is marked as closed rather than permanently removed (TC01, TC06).",
+              "Non-Existent/Already Closed Resource: Idempotent 204 for non-existent and already closed accounts (TC11, TC12).",
+              "Header Validation: Required X-Killbill-CreatedBy present for success; 400 when missing; optional Reason/Comment accepted (TC01 background, TC09).",
+              "Path Param Validation: Invalid UUID format returns 400; SQL injection blocked (TC08, TC15).",
+              "AuthN: 401 for missing/invalid authentication (TC10).",
+              "Server Error Handling: 500 when the database is unavailable (TC14).",
+              "Security Hardening: XSS in headers sanitized; SQLi attempts rejected (TC15, TC16).",
+              "Idempotency and Reliability: Retries after transient failure and re-delete operations remain safe (TC11, TC17).",
+              "Performance/Scale: Large data volume and concurrent deletions across different accounts (TC07, TC18).",
+              "Backward Compatibility: Works with only required headers (TC20)."
+            ],
+            "gaps": [
+              "Concurrency on the same resource: No explicit test where two clients concurrently delete the same account, asserting only one set of side effects occurs and subsequent attempts are no-op 204 with no duplicate cancellations/adjustments.",
+              "Validation of query parameter types/values: No scenarios for non-boolean values (e.g., cancelAllSubscriptions=foo), mixed-case booleans, or duplicate query params; expected 400 vs coercion behavior untested.",
+              "Response headers/content negotiation: Story states Produces: application/json; tests do not verify Content-Type for success/error responses, nor Accept handling.",
+              "Audit trail verification: CreatedBy/Reason/Comment headers are not asserted to be persisted in audit logs/events.",
+              "Behavior with unpaid invoices when not writing off/adjusting: No scenario where unpaid invoices exist and both writeOffUnpaidInvoices and itemAdjustUnpaidInvoices are false, ensuring closure still succeeds without side effects.",
+              "Authorization 403: No scenario for authenticated but unauthorized user (permission denied).",
+              "Spec alignment for unknown parameters: A test assumes extra params are ignored (TC13) but the story does not specify this behavior; clarify and assert according to spec."
+            ],
+            "recommendations": [
+              "Add a same-account concurrency test: fire two DELETEs for the same account simultaneously; assert only one execution performs side effects, both return 204, and data integrity is maintained.",
+              "Add query param robustness tests: invalid values (foo), mixed-case true/false, duplicate params; define and validate expected outcomes (400 or normalization).",
+              "Verify response headers: assert Content-Type: application/json on errors; clarify and test headers for 204 (typically no body). Optionally test Accept header handling.",
+              "Add audit assertions: after a successful DELETE, verify audit logs/events include X-Killbill-CreatedBy, and optionally Reason/Comment.",
+              "Cover unpaid invoices without write-off/adjust: ensure account still closes and no invoice mutations occur when writeOffUnpaidInvoices=false and itemAdjustUnpaidInvoices=false.",
+              "Add a 403 Forbidden scenario for an authenticated user lacking permission to close accounts.",
+              "Clarify and align behavior for unknown query params with the spec; if ignoring is intended, document it; otherwise, add a 400 test for unsupported parameters."
+            ],
+            "usage": {
+              "completion_tokens": 3995,
+              "prompt_tokens": 6316,
+              "total_tokens": 10311,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3200,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "73_2025-10-14T04:50:46.461262",
+    "jira_id": "73",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/availableBasePlans - Retrieve available base plans",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T04:48:22.253935",
+    "benchmark_end_time": "2025-10-14T04:50:46.461257",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 144.207322,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "73_qe_sup-gpt4.1_agent-gpt4.1_1748920767.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: TC01 and TC02 verify 200 OK with application/json and a JSON array of PlanDetail objects, with and without the optional accountId.",
+              "Empty Response: TC03 and TC14 cover the empty-catalog case returning 200 and an empty array.",
+              "Query Parameters: TC02 (valid accountId), TC04 (non-existent accountId), TC05 (invalid UUID), TC08 (unsupported params ignored), plus negative security inputs in TC12/TC13 (SQLi/XSS) demonstrate robust parameter handling.",
+              "Authorization: TC06 validates 401 for missing/invalid auth tokens.",
+              "Error Handling per story: TC07 (503 service unavailable) and TC17 (504 timeout) cover >=400 error responses for backend issues.",
+              "Produces/application/json and schema presence: Multiple scenarios assert Content-Type: application/json and that each PlanDetail contains required fields.",
+              "Performance/Scale: TC09\u2013TC11 validate response times under load and large payload handling."
+            ],
+            "gaps": [
+              "Pagination: No tests verifying pagination behavior. If unsupported, add an explicit scenario asserting absence of pagination headers and full list returned; if supported, add limit/offset/page tests and boundary cases.",
+              "Caching Behavior: No validation of ETag/Last-Modified and Cache-Control headers, nor conditional GET (If-None-Match/If-Modified-Since) leading to 304 Not Modified.",
+              "Rate Limiting/Throttling: No scenarios for burst traffic resulting in 429 Too Many Requests and Retry-After headers. Concurrency tests (TC10) do not assert throttling behavior.",
+              "Authorization (403): No scenario for authenticated-but-forbidden access (e.g., wrong tenant or insufficient permissions) expecting 403 with a structured error.",
+              "Content Negotiation: No tests for Accept header handling (e.g., unsupported Accept -> 406 Not Acceptable).",
+              "500 Internal Server Error: No coverage for unexpected errors returning 500 with safe, structured error body.",
+              "Error response contract: Tests do not assert that error responses use application/json and conform to a standard error schema (code, message, details, requestId).",
+              "Ambiguous behavior for non-existent accountId (TC04): Expected outcome (200 with default/empty vs 404) is not clarified in the story; needs specification and targeted test.",
+              "Scope/clarity issues: TC15 (backward compatibility), TC16 (206 Partial Content), and TC18 (accessibility phrasing for JSON) are ambiguous/out-of-scope for this endpoint without clearer acceptance criteria."
+            ],
+            "recommendations": [
+              "Add pagination coverage: limit/offset/page/size happy paths, boundaries, and out-of-range behavior; or assert explicitly that pagination is not supported (no Link/Next headers) and full list is returned.",
+              "Add caching tests: verify Cache-Control and ETag headers; perform a conditional GET with If-None-Match to receive 304; optionally validate Last-Modified/If-Modified-Since.",
+              "Add rate limiting tests: simulate bursts to elicit 429 Too Many Requests and verify Retry-After; ensure normal traffic remains 200.",
+              "Add 403 authorization test: authenticated user lacking tenant permission or using an accountId from another tenant should receive 403 with a structured error body.",
+              "Add content negotiation tests: Accept: application/json -> 200; unsupported Accept (e.g., text/xml) -> 406; ensure error responses also return application/json.",
+              "Add server error scenario: force an unexpected backend failure to return 500 with a safe, standardized error payload (no stack traces).",
+              "Strengthen schema validation: validate PlanDetail against the formal schema (types, required fields, enums), not just presence of fields; fail on unexpected properties if the contract requires.",
+              "Clarify and adjust TC04: decide expected behavior for a non-existent accountId (200 default/empty vs 404) and update the test accordingly; add a cross-tenant isolation check if applicable.",
+              "Refine TC16: avoid 206 unless range requests are used; define expected behavior for degraded dependencies (fallback to default catalog with 200 vs surface 503) and assert it.",
+              "Make performance SLAs explicit: define and assert concrete thresholds (e.g., p95 < 1s under normal load; p95 < X ms for 100 concurrent requests)."
+            ],
+            "usage": {
+              "completion_tokens": 6805,
+              "prompt_tokens": 4138,
+              "total_tokens": 10943,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5888,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

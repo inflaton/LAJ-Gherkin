@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-10-13T23:38:44.642948",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:38:23.110629",
+    "benchmark_end_time": "2025-10-13T23:38:44.642944",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 21.532315,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "DELETE - Valid Deletion: 204 with empty body when removing all or specific custom fields (TC01, TC02, TC03, TC04, TC13, TC14, TC18).",
+              "DELETE - Non-Existent Resource: Idempotent behavior returning 204 when account does not exist (TC06).",
+              "DELETE - Concurrency: High-concurrency successful deletions with consistent 204s (TC16) and idempotent re-deletion (TC15).",
+              "Required/Optional Headers: Required X-Killbill-CreatedBy enforced (TC01, TC02) and negative for missing header (TC07); optional Reason/Comment supported (TC03).",
+              "Path/Query Validation: Invalid accountId => 400 (TC05, TC19); invalid customField UUID => 400 (TC08, TC20); multi-valued query format exercised (A&B) (TC02); duplicates tolerated (TC14); extra query params ignored (TC09).",
+              "Success Contract: Response body empty on 204 and follow-up GET reflects deletion (TC01, TC02, TC04).",
+              "Error Handling: Unauthorized/forbidden access (TC10), backend failure 500 (TC11), network timeout/504 (TC12).",
+              "Security: SQLi/XSS attempts rejected (TC19, TC20)."
+            ],
+            "gaps": [
+              "Soft Deletes: No tests verify soft-delete semantics (e.g., audit/history shows deleted state vs hard removal).",
+              "Unknown customField IDs: No scenario for deleting IDs that do not belong to the account or do not exist; expected idempotent 204 or specific error is unverified.",
+              "Mixed validity in query: No test where some customField IDs are valid and some invalid to confirm whole-request validation vs partial success.",
+              "Response headers: No assertions for response headers (e.g., Content-Type on 204 should typically be absent; story states produces application/json but 204 has no body).",
+              "Authorization specificity: 401 vs 403 distinction not asserted precisely with clear preconditions (TC10 allows either).",
+              "Concurrency race realism: No scenario where two users delete overlapping subsets and final state is validated for correctness/idempotency beyond performance SLA.",
+              "AccountId validation edges: No tests for valid UUID variants (uppercase/lowercase, hyphenated vs canonical) to ensure acceptance of all compliant formats."
+            ],
+            "recommendations": [
+              "Add a scenario to validate soft-delete vs hard-delete behavior (e.g., verify audit logs/history endpoint or deleted flag if applicable).",
+              "Add tests for unknown/not-owned customField IDs: all unknown, and a mix of known + unknown, asserting expected status (likely 204 idempotent) and resulting state.",
+              "Add a mixed-validity test: include one invalid UUID among valid customField IDs and assert whether the API rejects the request with 400 or ignores invalids; document expected behavior.",
+              "Assert response headers: for 204 ensure no Content-Type/body; if server sends headers, verify they align with API contract (produces application/json not applicable for 204 body).",
+              "Split authorization tests to explicitly cover 401 (no/invalid auth) vs 403 (authenticated but no permission) with clear setups.",
+              "Add a true race-condition scenario: two users delete intersecting sets concurrently; verify final custom fields set is empty or as expected and that both calls return 204.",
+              "Include positive UUID format edges (uppercase UUID, canonical vs different hyphenation if accepted) to confirm parser behavior per documented pattern."
+            ],
+            "usage": {
+              "completion_tokens": 1654,
+              "prompt_tokens": 5440,
+              "total_tokens": 7094,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

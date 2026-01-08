@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "99_2025-10-15T15:29:23.895315",
+    "jira_id": "99",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoicePayments/{paymentId}/customFields - Modify custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:27:40.808094",
+    "benchmark_end_time": "2025-10-15T15:29:23.895309",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 103.087215,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "99_qe_sup-gpt4.1_agent-gpt4.1_1748922485.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT - Valid Request: TC01, TC02, TC03 verify 204 updates with valid payloads (with/without optional headers, with/without existing custom fields). TC17 validates persistence via subsequent GET.",
+              "PUT - Non-Existing Resource: TC06 covers 404 when paymentId exists in correct format but not found.",
+              "Input validation and error handling: TC05 (invalid UUID format -> 400), TC08/TC09 (missing/malformed body -> 400), TC10 (invalid CustomField schema -> 400), TC07 (missing required X-Killbill-CreatedBy -> 400).",
+              "Authorization and server errors: TC11 (401 unauthorized) and TC12 (500 dependency failure) included.",
+              "Edge and performance: TC14 (large number of fields), TC15 (max value lengths), TC20 (large payload), TC19 (concurrent requests performance).",
+              "Security hardening: TC13 (injection attempt) ensures invalid input is rejected."
+            ],
+            "gaps": [
+              "PUT - Partial Update semantics: No explicit test to confirm whether PUT fully replaces the customFields set or supports partial/merge updates; expected behavior is not asserted.",
+              "PUT - Concurrency race conditions: TC19 does concurrency but doesn\u2019t target concurrent updates to the same paymentId or assert conflict/last-write-wins behavior (e.g., via ETag/If-Match or versioning).",
+              "Ambiguous assertions: TC04, TC16, TC18 allow multiple outcomes (e.g., \u201cremoved or remain unchanged\u201d, \u201c204 or 400\u201d), which weakens acceptance value; tests must assert a single expected outcome and resulting state.",
+              "Content negotiation and headers: No test for Content-Type enforcement (application/json) or 415 on wrong/missing Content-Type; no checks for Accept header behavior or response headers on errors. Also no assertion that 204 responses have an empty body.",
+              "Idempotency: No scenario proving that repeating the exact same PUT yields the same state and the same status code (no duplicates introduced).",
+              "Audit trail persistence: No validation that X-Killbill-CreatedBy/Reason/Comment are captured in audit logs/history for the update.",
+              "Schema strictness and boundary cases: No test for arrays containing null elements, empty strings, invalid/extra properties with a single, asserted outcome; maximum allowed number of custom fields vs. rejection (e.g., 413) is not defined/tested.",
+              "UUID/path parameter edge cases: No tests for subtle formatting (leading/trailing spaces, uppercase UUIDs) or path normalization."
+            ],
+            "recommendations": [
+              "Define and add a scenario for PUT semantics: either assert full-replacement of the customFields collection (including behavior when sending a subset/empty array) or, if partial updates are allowed, assert precise merge rules and affected fields.",
+              "Strengthen concurrency testing by issuing concurrent PUTs to the same paymentId with conflicting payloads; assert final state and expected conflict handling (e.g., optimistic locking with If-Match -> 409/412, or defined last-write-wins).",
+              "Resolve ambiguity in TC04, TC16, TC18: replace \u201c204 or 400\u201d and \u201cremoved or unchanged\u201d with a single expected status and verifiable post-state (e.g., GET confirms removal or unchanged state; duplicates either rejected with 400 or deterministically de-duplicated).",
+              "Add idempotency scenario: send the same PUT payload twice and verify 204 and unchanged state with no duplicated custom fields.",
+              "Add content negotiation tests: wrong/missing Content-Type -> 415; assert response Content-Type for error responses; assert 204 responses have no body.",
+              "Add audit verification: after a successful PUT with CreatedBy/Reason/Comment, verify audit logs/history capture these values for the payment update.",
+              "Expand validation edges: test arrays with null elements, empty strings, unexpected properties (assert strict reject or ignore), and payloads exceeding max items/size (expect 400/413 as specified).",
+              "Add UUID/path robustness tests: leading/trailing whitespace, uppercase UUIDs, and normalization behavior with clear expected outcomes.",
+              "If applicable to authorization model, add a 403 Forbidden scenario for authenticated users lacking permissions, distinct from 401 Unauthorized."
+            ],
+            "usage": {
+              "completion_tokens": 4036,
+              "prompt_tokens": 5796,
+              "total_tokens": 9832,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3136,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

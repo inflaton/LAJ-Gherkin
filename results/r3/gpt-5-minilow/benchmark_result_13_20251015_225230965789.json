@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-15T22:52:30.965755",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T22:52:01.804225",
+    "benchmark_end_time": "2025-10-15T22:52:30.965749",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 29.161524,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple successful deletion scenarios (default, all-true, all-false, individual options, combinations) covering expected 204 responses.",
+              "Non-Existent / Idempotency: Non-existent account and already-closed-account behaviors are covered (idempotent 204).",
+              "Query Parameters: Extensive coverage of optional query parameters (true/false, combinations, extra/unsupported parameter ignored).",
+              "Header Validation: Tests include required header present and missing X-Killbill-CreatedBy negative case.",
+              "Authentication/Authorization: Tests for missing and invalid authentication return 401 are present.",
+              "Error Conditions: System error (DB unavailable) returned as 500 is covered.",
+              "Security: SQL injection in accountId and XSS in header values are covered.",
+              "Scale/Performance/Concurrency: High-volume processing and concurrent closures covered (1000 items test and 10 concurrent closures).",
+              "Timeout/Retry: Transient network failure and retry/idempotency test included.",
+              "Regression/Backward Compatibility: Regression tests for unpaid-invoice behavior and compatibility with minimal headers are present.",
+              "Accessibility & Documentation: A scenario verifies API documentation/error readability."
+            ],
+            "gaps": [
+              "Response Content-Type & Body: The story notes \"Produces: application/json\" while acceptance tests only assert 204 status; there are no checks for response headers (Content-Type) or response body behavior when non-204 responses are returned (e.g., error payload shape).",
+              "Header semantics: While X-Killbill-CreatedBy missing is tested, there is no positive test asserting X-Killbill-CreatedBy accepted value is recorded/audited, nor tests for optional headers (X-Killbill-Reason / X-Killbill-Comment) effect on server-side logging or persisted metadata beyond XSS sanitization.",
+              "Parameter default values and precedence: The suite exercises many combinations but does not explicitly test or assert the documented defaults for each optional parameter in isolation (e.g., confirm removeFutureNotifications defaults to true when omitted), nor interaction precedence between writeOffUnpaidInvoices and itemAdjustUnpaidInvoices in edge cases.",
+              "UUID pattern validation coverage: There is an invalid-format case and SQL injection, but no positive tests asserting the full accepted UUID pattern enforcement or boundary cases (uppercase/lowercase hex, braces, etc.).",
+              "Soft delete vs persistent state: The story implies closing (soft delete) but tests only assert \"marked as closed\" \u2014 no checks whether records are soft-deleted versus physically removed, nor if dependent resources retain references.",
+              "Rate limiting and throttling: No tests for excessive request rates or rate-limiting behavior.",
+              "Retry idempotency under partial failure: Timeout/retry is covered, but not finer-grained cases where partial side-effects occurred before failure (e.g., subscriptions cancelled but DB commit failed).",
+              "Monitoring/Logging/Audit: No assertions that the close action is logged/audited with header values (CreatedBy, Reason, Comment).",
+              "HTTP semantics: No tests for other relevant HTTP behaviors for DELETE (e.g., caching headers, ETag, conditional deletes using If-Match/If-None-Match)."
+            ],
+            "recommendations": [
+              "Add assertions for response headers and body schema on error responses (Content-Type: application/json and consistent error payload shape) and confirm that successful 204 responses do not produce unintended bodies.",
+              "Add tests that verify optional headers (X-Killbill-Reason and X-Killbill-Comment) are persisted/audited or appear in logs, and that X-Killbill-CreatedBy value is recorded for the operation.",
+              "Add explicit tests that verify each optional query parameter\u2019s documented default when omitted (e.g., removeFutureNotifications default true) and test precedence/interaction between writeOffUnpaidInvoices and itemAdjustUnpaidInvoices in edge cases.",
+              "Expand UUID validation tests to include border cases (valid but unusual representations, case sensitivity, leading/trailing whitespace) to ensure strict pattern enforcement.",
+              "Add tests to confirm whether account closure is a soft-delete: verify the closed flag, ability to restore, and whether related resources retain foreign keys or are removed.",
+              "Introduce rate-limiting/throttling tests and stress tests for very high request rates to validate 429 handling or graceful degradation.",
+              "Add tests for partial-failure idempotency: simulate cancellations or writes that succeed before a failure and assert final consistent state after retry/compensation.",
+              "Include checks for caching/conditional request behavior (ETag, Cache-Control) and for any allowed conditional DELETE semantics (If-Match), if applicable.",
+              "Add logging/audit verification where possible (e.g., logs contain operation with CreatedBy and Reason) to support traceability and security audits."
+            ],
+            "usage": {
+              "completion_tokens": 1261,
+              "prompt_tokens": 6316,
+              "total_tokens": 7577,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

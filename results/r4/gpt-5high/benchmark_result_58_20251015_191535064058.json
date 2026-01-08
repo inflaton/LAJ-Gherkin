@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "58_2025-10-15T19:15:35.064029",
+    "jira_id": "58",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/customFields - Remove custom fields from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:13:38.382613",
+    "benchmark_end_time": "2025-10-15T19:15:35.064025",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 116.681412,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "58_qe_sup-gpt4.1_agent-gpt4.1_1748919726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Method - Valid Deletion: Successful deletion for all, single, and multiple custom fields; deletion when none exist; optional headers handled; 204 and post-state verified (e.g., TC01\u2013TC05, TC10\u2013TC11, TC15, TC18, TC25).",
+              "DELETE Method - Non-Existent Resource: 404 for missing bundle and empty database states (TC07, TC23).",
+              "DELETE Method - Concurrency: Simultaneous deletes for same field behave correctly; practical idempotency via deleting absent fields (TC16, TC05, TC10).",
+              "Path/Query/Header Validation: UUID format checks for bundleId and customField; empty customField; missing required X-Killbill-CreatedBy (TC06, TC09, TC19, TC22, TC08).",
+              "Optional Headers: Acceptance of X-Killbill-Reason and X-Killbill-Comment; boundary tests for Comment length (TC04, TC20, TC21).",
+              "Error and Resiliency: Service unavailability and downstream degradation mapped to 503/504 with error messages (TC12, TC24).",
+              "Security/Authorization: 401 for invalid/expired token; header-injection attempt is rejected with no side effects (TC13, TC14).",
+              "Integration/Data Integrity: Isolation across bundles and DB consistency after deletion validated (TC17, TC25).",
+              "Query Parameter Semantics: Multi-valued customField supported; unknown query params ignored without side effects (TC03, TC11)."
+            ],
+            "gaps": [
+              "DELETE Method - Soft Deletes: Not validated whether deletions are soft vs hard; no audit/history verification of deleted fields.",
+              "Response headers/content negotiation: Story notes \"Produces: application/json\" but tests do not assert Content-Type on 4xx/5xx responses or that 204 responses have an empty body.",
+              "Authorization (Forbidden): No scenario for authenticated but unauthorized user resulting in 403.",
+              "Explicit idempotency: No test repeating the exact same DELETE twice (all-fields and subset) to confirm second call returns 204 with no additional changes.",
+              "Query parameter edge cases: No coverage for duplicate customField IDs in one request, mixed valid and invalid UUIDs together (expected 204 vs 400), very large multi-value lists, or unsupported CSV-style encoding behavior.",
+              "Auditing/traceability: No checks that CreatedBy/Reason/Comment are persisted to audit logs/history endpoints.",
+              "Concurrency variants: No scenario where one request deletes all fields while another deletes a subset concurrently; final state and status codes not asserted.",
+              "Rate limiting/throttling: No tests for burst DELETE requests and potential 429 handling (if applicable).",
+              "Standard error model: Error response schema (e.g., code, message, requestId/correlation) not validated."
+            ],
+            "recommendations": [
+              "Add soft-delete vs hard-delete validation or document N/A; if soft delete exists, assert deleted fields appear in history/audit while excluded from active listings.",
+              "Validate response semantics: ensure 204 has no body; assert Content-Type=application/json and error schema for 4xx/5xx.",
+              "Add a 403 Forbidden scenario for an authenticated but unauthorized user.",
+              "Add explicit idempotency tests: issue the same DELETE twice (all-fields and subset) and assert second call returns 204 with no further changes.",
+              "Extend query parameter tests: duplicate IDs, mixed valid+invalid UUIDs in one call (define expected outcome), very large lists, and confirm only collectionFormat=multi is supported (CSV rejected or documented).",
+              "Verify audit persistence by querying audit/history endpoints to confirm CreatedBy/Reason/Comment were recorded for the deletion.",
+              "Add concurrency variant where one request deletes all fields while another deletes a subset; assert consistent outcomes and no race conditions.",
+              "If applicable, add rate-limiting tests to verify 429 and Retry-After headers under high request rates.",
+              "Optionally add a negative-method test (405) and standardize error response structure assertions for consistency across 4xx/5xx."
+            ],
+            "usage": {
+              "completion_tokens": 7204,
+              "prompt_tokens": 6309,
+              "total_tokens": 13513,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6336,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

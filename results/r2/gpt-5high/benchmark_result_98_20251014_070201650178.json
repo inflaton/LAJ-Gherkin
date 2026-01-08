@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "98_2025-10-14T07:02:01.650148",
+    "jira_id": "98",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/customFields - Add custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:59:22.029483",
+    "benchmark_end_time": "2025-10-14T07:02:01.650143",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 159.62066,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "98_qe_sup-gpt4.1_agent-gpt4.1_1748922413.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "POST: Valid Payload - Happy path creates custom fields and returns HTTP 201 with a JSON array of created CustomField objects (TC01, TC03-05).",
+              "Headers - Required X-Killbill-CreatedBy is used and negative-tested for absence; optional X-Killbill-Reason and X-Killbill-Comment are exercised (TC02, TC09).",
+              "Validation - paymentId UUID format validation (400 on bad format) and 404 when payment not found (TC10, TC11).",
+              "Invalid Payload - Malformed JSON (400), missing required properties (400), and behavior with extra fields explored; input security via XSS/SQLi and unicode handling covered (TC06, TC08, TC14, TC16, TC21).",
+              "Large Payloads - Near-maximum request size behavior tested (201 or 413) (TC15).",
+              "Authorization - 401 for missing/invalid authentication token (TC12).",
+              "Resiliency and timeouts - Dependency down (503) and network timeout behavior (504) covered (TC13, TC18).",
+              "Concurrency and performance - Concurrent POSTs, normal/peak performance SLAs validated (TC19, TC22, TC23).",
+              "Integration - Persistence via GET and cross-system consistency verified (TC24, TC25).",
+              "Existing data behavior - Adding when custom fields already exist preserves existing fields (TC04)."
+            ],
+            "gaps": [
+              "Server Error Handling - No explicit simulation/assertion of 500 Internal Server Error (e.g., DB exception).",
+              "Duplicate Submission/Idempotency - No scenario for reposting the exact same payload (with/without an idempotency key) and expected behavior (dedupe, 409, or safe re-create).",
+              "Response headers and content negotiation - No assertion that response Content-Type is application/json as specified; no Accept negotiation or 406 checks; 415 Unsupported Media Type not tested when Content-Type is wrong/missing.",
+              "Validation depth - Missing tests for incorrect data types, overly long fieldName/fieldValue, invalid/unsupported objectType values, and handling of null vs empty strings/whitespace-only values.",
+              "Atomicity/partial success - Behavior when the JSON array mixes valid and invalid items is not tested (all-or-nothing vs partial create).",
+              "Authorization granularity - 403 Forbidden for authenticated but unauthorized users/roles not covered.",
+              "Ambiguity in outcomes - Several scenarios allow multiple outcomes (e.g., 201 or 400 in TC06, TC07, TC17, TC20, TC09); expected results should be deterministic per spec (e.g., empty body should be 400 since body is required).",
+              "Produces header - The spec states produces application/json but tests do not verify this header in responses.",
+              "Rate limiting/throttling - No scenarios for burst POSTs leading to 429 Too Many Requests (if applicable).",
+              "ObjectType correctness - No explicit assertion that objectType in the response is INVOICE_PAYMENT and that any mismatched objectType supplied in the request is ignored/overridden or rejected."
+            ],
+            "recommendations": [
+              "Make outcomes deterministic: Update TC06, TC07, TC17, TC20, and TC09 to assert a single expected status aligned with the spec (e.g., empty array => 400; unexpected/extra fields => 400; duplicate field names => defined behavior).",
+              "Add response header checks: Assert response Content-Type is application/json; add scenarios for Accept negotiation (406) and wrong/missing Content-Type (415).",
+              "Add duplicate submission/idempotency tests: Repost the identical payload rapidly (with and without an idempotency key, if supported) and assert expected behavior (dedupe, 409, or same 201 without duplicates).",
+              "Add 500 Internal Server Error simulation (e.g., forced DB exception) and verify correct error schema and headers.",
+              "Add 403 Forbidden scenario for authenticated but unauthorized users to differentiate from 401.",
+              "Extend validation tests: incorrect data types, overly long strings, invalid objectType enumeration, null vs empty strings/whitespace values; assert 400 with clear messages.",
+              "Test atomicity: Send an array containing a mix of valid and invalid CustomField objects and assert whether the operation is all-or-nothing (recommended) or supports partial success (define expected status and body).",
+              "Assert objectType semantics: Verify response objectType is INVOICE_PAYMENT and that server ignores/rejects any client-supplied mismatched objectType.",
+              "Optionally add rate-limiting tests (429) under burst traffic to validate throttling headers (e.g., Retry-After) if the platform enforces limits.",
+              "Verify produces requirement end-to-end: include Accept: application/json in requests and assert response headers and body match the documented media type."
+            ],
+            "usage": {
+              "completion_tokens": 7422,
+              "prompt_tokens": 6845,
+              "total_tokens": 14267,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

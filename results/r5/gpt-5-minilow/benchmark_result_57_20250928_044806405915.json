@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "57_2025-09-28T04:48:06.405889",
+    "jira_id": "57",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/customFields - Modify custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:47:46.905113",
+    "benchmark_end_time": "2025-09-28T04:48:06.405885",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 19.500772,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "57_qe_sup-gpt4.1_agent-gpt4.1_1748919636.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request (PUT): Multiple successful modification scenarios (TC01, TC02, TC13-15, TC22-25) verifying 204 and updates to bundle custom fields.",
+              "Required and optional headers: Tests cover presence of required header X-Killbill-CreatedBy (TC01) and optional headers X-Killbill-Reason and X-Killbill-Comment (TC02).",
+              "Request body validation: Tests cover valid JSON array payloads, empty array (removal) (TC03), malformed JSON (TC07), missing body (TC08), and unsupported extra fields in body (TC09).",
+              "Path parameter validation: Invalid bundleId format (TC04) -> 400, non-existent bundle -> 404 (TC05).",
+              "Authorization/Authentication: Unauthorized token scenario covered (TC10) returning 401.",
+              "Error handling for dependent services: Service unavailable (503) and inconsistent data/internal error (500) scenarios included (TC11, TC20).",
+              "Security input validation: SQL injection attempt detection (TC12).",
+              "Edge cases: Maximum count and max-length value tests (TC13, TC14), empty value (TC15), special characters (TC19).",
+              "State variations: Bundles with no existing custom fields, with existing custom fields, partially matching custom fields covered (TC22, TC23, TC24).",
+              "Performance and concurrency basics: Normal-load timing (TC17) and a 100-concurrent-requests stress scenario (TC18).",
+              "Resiliency: Retry on transient network failure (TC21).",
+              "Backward compatibility/regression: Older client compatibility and regression checks for special characters/previously fixed bugs (TC25, TC19)."
+            ],
+            "gaps": [
+              "PUT-specific concurrency/race conditions: No deterministic tests for race conditions or conflicting simultaneous updates that assert correct conflict resolution (e.g., lost updates, optimistic locking failures).",
+              "Idempotency / duplicate submission handling: No explicit test to verify behavior when the same PUT payload is submitted multiple times (duplicate submissions and idempotency semantics).",
+              "Precise schema / field-level validation: While malformed JSON and extra fields are tested, there are no explicit tests enumerating invalid data types or missing required fields inside individual CustomField objects (e.g., invalid field names, bad UUID formats for id fields, invalid date formats if any).",
+              "Large payload / very large arrays: No test for very large payloads (size limits, memory/timeouts) beyond \"maximum allowed custom fields\" which assumes a known max but does not exercise very large or boundary-overflow payloads.",
+              "Concurrency correctness under realistic race conditions: The 100 concurrent requests stress test (TC18) checks throughput but not correctness under write contention (interleaving updates verification).",
+              "Authorization scope / permission errors (403): Tests include unauthenticated (401) but not authenticated-but-forbidden (403) scenarios where the user lacks permission to modify the bundle.",
+              "Rate limiting / throttling: No tests for API rate limiting behavior (429) or throttling under burst traffic beyond performance scenarios.",
+              "Response headers / side-channel behavior: No tests verifying response headers (e.g., absence/presence of caching or audit headers, or returned location/ETag) and audit logging behavior.",
+              "Schema-contract details in success responses: The story says success returns 204; tests verify status but do not assert produced content-type or ensure that no body is returned or that expected headers (if any) are present."
+            ],
+            "recommendations": [
+              "Add deterministic concurrency tests that create conflicting updates (two or more clients updating overlapping sets of custom fields) and assert correct conflict resolution or proper error responses (e.g., 409 or well-documented behavior).",
+              "Add idempotency/duplicate-submission tests: submit the same PUT payload multiple times and verify behavior is safe and consistent (no duplicates, no side effects beyond first request).",
+              "Expand schema validation tests: create cases with invalid data types and missing required fields inside CustomField objects (invalid UUIDs, non-string values where strings expected, invalid name formats) to ensure server-side validation covers field-level errors.",
+              "Add large-payload and boundary tests: test arrays near and above documented limits, very large JSON bodies and observe performance and 413/4xx behaviors if limits exceeded.",
+              "Add authorization scope tests (403): verify authenticated users without proper permissions are denied with 403.",
+              "Add rate-limiting tests: simulate burst traffic to validate 429 handling and graceful degradation.",
+              "Improve correctness checks under concurrent load: combine performance concurrency tests with assertions about final persisted state to detect lost updates or inconsistent merges.",
+              "Add assertions about response headers and audit behavior: e.g., ensure no response body on 204, check any audit headers or correlation IDs, and validate API returns expected content-type or required audit headers."
+            ],
+            "usage": {
+              "completion_tokens": 1470,
+              "prompt_tokens": 6139,
+              "total_tokens": 7609,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 448,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

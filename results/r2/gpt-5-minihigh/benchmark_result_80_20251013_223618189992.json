@@ -1,0 +1,100 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-10-13T22:36:18.189954",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:33:47.667483",
+    "benchmark_end_time": "2025-10-13T22:36:18.189947",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 150.522464,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid payloads: single and multi-item credit creation, including invoice-specific adjustments (TC01, TC02, TC03).",
+              "Query parameters & headers: autoCommit=true, pluginProperty (multi), required header X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment covered (TC04, TC05, TC06, TC10).",
+              "Error handling for invalid payloads: malformed JSON, missing required fields, invalid accountId format, unsupported currency, invalid pluginProperty type, empty body (TC11, TC12, TC14, TC15, TC16, TC21).",
+              "Not-found handling: account or invoice not found returns 404 (TC08, TC09).",
+              "No-invoiceId behavior: creating CBA vs invoice-adjusting credits when invoiceId omitted (TC07).",
+              "Integration with plugins: normal flow, plugin unavailable, and plugin errors (TC05, TC28, TC29).",
+              "Security tests: SQL injection and XSS attempts are present (TC19, TC20).",
+              "Duplicate submission/idempotency/regression: tests for avoiding duplicate credits on retry (TC30).",
+              "Edge & state cases: extra unexpected fields, max items, large payloads, timeout, database empty vs account with existing items (TC22, TC23, TC24, TC25, TC26, TC27).",
+              "Performance & stress: response time under normal/peak load and resource utilization under stress included (TC32-TC34).",
+              "API docs/accessibility: presence and clarity of documentation tested (TC35)."
+            ],
+            "gaps": [
+              "autoCommit default behavior when omitted (default:false) is not asserted \u2014 there is a test for autoCommit=true but none verifying the default/false behavior.",
+              "Request body container enforcement: acceptance criteria require a JSON array of InvoiceItem objects but there is no explicit test ensuring single-object payload is rejected or accepted; array-vs-object validation is missing.",
+              "Positive amount handling is ambiguous in tests (TC13 allows 201 or 400). The story expects negative amounts or treatment as such; a deterministic test is missing.",
+              "Content-Type / Accept handling is not covered: no tests for missing/incorrect Content-Type (e.g., expecting 415) and response Content-Type header is not explicitly asserted.",
+              "Location header verification is weak: presence is asserted but there is no explicit test that the Location URL is correct and that a subsequent GET returns the created resource(s).",
+              "Server 500/Internal Server Error simulation (e.g., DB failure) is not explicitly tested; TC17 covers service unavailable (503) but not 500 errors from internal failures.",
+              "Concurrency/race conditions beyond retry idempotency are not covered \u2014 e.g., simultaneous requests modifying the same invoice to ensure no double-credits.",
+              "Cross-account payloads are not tested: no scenario for an array containing InvoiceItems for different accountIds (should be validated per API semantics).",
+              "Validation of allowed itemType values and strict rejection of unsupported itemType values is not present (explicit tests for CREDIT_ADJ vs CBA_ADJ and invalid types are missing).",
+              "Idempotency mechanism specifics are not tested: how duplicate detection is triggered (idempotency-key header) is undefined and untested.",
+              "Rate limiting/throttling tests are absent (standard guideline: rate limiting).",
+              "Response payload assertions for server-generated fields (e.g., invoiceItemId, createdDate, possibly generated invoiceId/CBA invoice) are not explicitly asserted in tests.",
+              "Deterministic mapping of plugin errors to specific HTTP status codes is ambiguous in tests (TC29 allows 400 or 500); expected behavior should be asserted."
+            ],
+            "recommendations": [
+              "Add a test that omits autoCommit (or sets autoCommit=false) and verifies the credit is created but not auto-committed; verify side-effects (invoice committed or not) via subsequent GETs.",
+              "Add tests that assert the request body must be a JSON array. Include: (a) a single-object body -> expect 400 if API requires an array, (b) an array with mixed container types -> expect 400.",
+              "Clarify expected system behavior for positive amounts and make TC13 deterministic: either assert the server converts positive amounts to negative and returns 201 (with negative amount in response) or assert the server rejects positive amounts with 400.",
+              "Add tests for Content-Type/Accept handling: missing or non-application/json Content-Type should produce a defined error (e.g., 415 or 400); also assert response Content-Type is application/json on success and errors.",
+              "Enhance Location header tests: assert format of Location URL(s), then perform a GET to the Location to validate the created resource and server-generated fields (ids, timestamps, invoiceId if generated).",
+              "Add tests to simulate internal server failures (database exceptions) to verify 500 Internal Server Error behavior and graceful error messages.",
+              "Add concurrency tests that issue multiple concurrent POSTs adjusting the same invoice to check for race conditions and ensure correct final balance and no duplicate credits.",
+              "Add a test for multi-item requests containing InvoiceItems with different accountIds to verify API behavior is correct (reject or handle accordingly) and produce a clear error if invalid.",
+              "Add explicit tests for itemType validation: valid values (CREDIT_ADJ, CBA_ADJ) and invalid values should be rejected with a clear 400 response.",
+              "If idempotency is supported, add tests for the idempotency mechanism (e.g., Idempotency-Key header): repeated requests with same key create only one resource and return the same resource/location.",
+              "Add rate-limiting tests (rapid repeated requests) to verify 429 or configured throttling behavior under load.",
+              "Add assertions for server-generated fields in the response payload (invoiceItemId, createdDate, itemType normalization, generated invoiceId when appropriate) to ensure the response schema is fully validated.",
+              "Make expected HTTP status codes for plugin-related failures deterministic in acceptance criteria and add tests asserting the exact mapping (e.g., 502/500/400 as agreed).",
+              "Tighten ambiguous test cases in the suite so each scenario asserts a single expected outcome (avoid tests that accept multiple possible HTTP codes unless explicitly allowed by the API contract)."
+            ],
+            "usage": {
+              "completion_tokens": 7788,
+              "prompt_tokens": 8287,
+              "total_tokens": 16075,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6464,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

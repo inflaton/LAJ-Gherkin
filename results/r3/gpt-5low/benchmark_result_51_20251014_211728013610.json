@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-14T21:17:28.013581",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:16:46.072397",
+    "benchmark_end_time": "2025-10-14T21:17:28.013577",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 41.94118,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST - Valid Payload: Multiple success scenarios (minimum fields, all optionals, different billingPolicy values) returning 201 with Bundle JSON and Location header.",
+              "POST - Invalid Payload/Validation: Extensive negative tests (invalid UUID for bundleId, invalid requestedDate, illegal billingPolicy, missing body, missing required header, SQL injection/XSS in inputs) returning 400.",
+              "Not Found Handling: 404 for non-existent bundle and/or target account, including empty/partially populated DB states.",
+              "Optional Parameters: requestedDate, billingPolicy, pluginProperty covered (valid, empty array, large number of entries).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional Reason/Comment exercised (including max length).",
+              "Response Semantics: Verifies Location header presence and that bundle is associated with target account post-transfer.",
+              "Server Error Handling: 503 (dependency unavailable) and 500 (inconsistent dependency data) covered.",
+              "Authorization: 401 unauthorized covered.",
+              "Resiliency: Retry on transient network failure covered with eventual success.",
+              "Performance/Load: Normal/peak SLA, concurrency, and resource utilization scenarios included.",
+              "Regression/Business Rules: Transfer to same account rejected (400).",
+              "Extra/Unexpected Parameters: Ensures they are ignored without failing."
+            ],
+            "gaps": [
+              "POST - Duplicate Submission: No scenario validating behavior when the same transfer request is submitted twice (e.g., idempotency/duplicate protection, 409 vs safe no-op).",
+              "Content-Type Handling: No test for incorrect or missing Content-Type (e.g., text/plain) resulting in 415 Unsupported Media Type.",
+              "Default Behavior Assertions: No explicit check that billingPolicy defaults to END_OF_TERM when omitted, and that requestedDate omission uses server default (e.g., now) with correct effective date/timezone handling.",
+              "AccountId Format Validation: No test for invalid target accountId format (e.g., non-UUID or malformed) returning 400 distinct from 404 not found.",
+              "Query Param Semantics: No test covering collectionFormat=multi semantics for pluginProperty at the HTTP layer (e.g., repeated query keys, ordering, URL encoding).",
+              "Authorization Depth: No coverage for 403 Forbidden (authenticated but not authorized) if role/permission checks apply.",
+              "Idempotency/Retry Safety: While transient retry is covered, there is no verification that a retried POST after an unknown outcome does not create inconsistent state (e.g., double transfer).",
+              "Boundary/Temporal Cases: No scenarios for requestedDate in the past/future, timezone boundaries (UTC vs tenant TZ), or end-of-month/DST edge cases.",
+              "Response Contract Rigor: No schema-level validation of the returned Bundle object fields beyond account association (e.g., required fields presence, immutability of bundleId, state transitions)."
+            ],
+            "recommendations": [
+              "Add duplicate submission scenarios: submit the same transfer twice (same bundleId/accountId, same requestedDate) and assert expected behavior (e.g., single transfer, 200/201 idempotent outcome or 409 Conflict) and no double side effects.",
+              "Add Content-Type tests: wrong or missing Content-Type should yield 415; also test invalid/malformed JSON (e.g., truncated body) returning 400.",
+              "Assert defaults: when billingPolicy is omitted, verify it defaults to END_OF_TERM; when requestedDate is omitted, assert effective date/time computed by server and timezone normalization.",
+              "Validate accountId format: add scenarios for malformed target accountId (non-UUID) returning 400, distinct from 404 for non-existent but well-formed IDs.",
+              "Exercise pluginProperty multi semantics: send repeated pluginProperty parameters (?pluginProperty=a&pluginProperty=b), include URL-encoded values, and assert they are parsed correctly and in expected order if ordering matters.",
+              "Extend authorization: add a 403 Forbidden scenario for authenticated users lacking permission/tenant access if applicable.",
+              "Strengthen idempotent retry: simulate timeout/unknown outcome and retry with identical request to confirm exactly-once transfer semantics and no duplicate effects.",
+              "Temporal boundaries: test requestedDate in past and future, tenant timezone edges (EoD, DST transitions), and ensure effective date applied per API contract.",
+              "Enhance response validation: validate full Bundle schema in responses (required fields present, bundleId unchanged, new accountId set, state and timestamps updated), and verify Location header is absolute and points to the transferred resource."
+            ],
+            "usage": {
+              "completion_tokens": 1965,
+              "prompt_tokens": 7734,
+              "total_tokens": 9699,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

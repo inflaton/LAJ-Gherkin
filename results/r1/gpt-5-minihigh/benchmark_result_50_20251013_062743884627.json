@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "50_2025-10-13T06:27:43.884600",
+    "jira_id": "50",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles/{bundleId} - Retrieve a bundle by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T06:26:02.875881",
+    "benchmark_end_time": "2025-10-13T06:27:43.884595",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 101.008714,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "50_qe_sup-gpt4.1_agent-gpt4.1_1748919117.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: TC01-TC04 and TC14 validate successful GET returns 200, Content-Type application/json and a Bundle object.",
+              "Audit parameter handling: TC01 (default NONE), TC02 (FULL), TC03 (MINIMAL), TC04 (NONE explicit) and TC10 (invalid audit value => 400) cover allowed/unsupported audit values and default behavior.",
+              "Path parameter validation and security: TC07 covers malformed UUID => 400 and TC15 covers XSS/injection attempt in bundleId.",
+              "Not-found / Empty DB: TC06 and TC11 verify 404 responses with \"Bundle not found\".",
+              "Authentication negative cases: TC08 and TC09 verify missing/invalid authentication results in 401 Unauthorized.",
+              "Unknown query parameters tolerance: TC05 verifies extra/unknown query params are tolerated and do not break the response.",
+              "Service resilience and error handling: TC12 (503 Service Unavailable), TC13 (timeout), and TC20 (transient 500 then retry => success) exercise robustness and retry behavior.",
+              "Large payload / performance: TC14 tests returning a large bundle and includes a response-time threshold requirement.",
+              "Concurrency: TC18 verifies multiple concurrent GETs return consistent 200 responses with correct bundle data.",
+              "Regression & backward compatibility: TC16 addresses case-sensitivity regression and TC17 checks structure compatibility with previous version.",
+              "Accessibility/readability: TC19 asserts the JSON response is well-structured and compatible with assistive technologies."
+            ],
+            "gaps": [
+              "Caching behavior: No tests assert presence or correctness of caching headers (ETag, Cache-Control, Last-Modified) or conditional GET behavior (If-None-Match => 304).",
+              "Rate limiting / throttling: No tests simulate bursts to verify 429 responses and Retry-After handling.",
+              "Authorization scope/permission (403): Tests cover 401 for missing/invalid tokens but not 403 Forbidden for a valid token lacking proper permissions or scope.",
+              "Detailed schema validation: \"valid Bundle object\" is asserted at a high level but there are no explicit JSON-schema level assertions for required fields, types, nested subscriptions, or audit record structure for FULL vs MINIMAL.",
+              "Error response metadata and content negotiation: Error responses are asserted by message but tests do not assert error Content-Type or structured error schema; Accept header / content-negotiation behavior is not tested.",
+              "HTTP method handling: No tests for incorrect methods (e.g., POST/PUT/DELETE => 405 Method Not Allowed + Allow header).",
+              "Pagination for nested lists: While pagination for single-resource GET is generally not applicable, if the Bundle contains large nested lists (subscriptions, events) there are no tests covering how nested collections are paginated or truncated.",
+              "Additional injection vectors: Only XSS in bundleId is tested; there are no SQL-injection or other payload-injection tests for query parameters or headers."
+            ],
+            "recommendations": [
+              "Add caching tests: assert responses include ETag and Cache-Control, then send conditional GETs (If-None-Match) to verify 304 Not Modified and reduced payloads.",
+              "Add rate-limiting tests: simulate bursts/concurrent requests to trigger throttling and assert 429 responses and presence of Retry-After header; include a test for graceful handling when rate limits are reached.",
+              "Add authorization-scope tests: create a valid token lacking read/list permissions and assert 403 Forbidden; test expired tokens and tokens with insufficient scopes.",
+              "Add strict JSON Schema validation tests for Bundle and audit payloads: verify required fields, types, nested subscription arrays, and that FULL vs MINIMAL audit responses include/exclude the expected audit fields and record counts.",
+              "Assert error response headers and schema: ensure error responses have Content-Type: application/json and conform to a standard error object (code, message, details), and that error messages for invalid audit or bundleId are explicit about allowed values.",
+              "Test incorrect HTTP methods: verify POST/PUT/DELETE to this endpoint return 405 Method Not Allowed and an Allow header listing GET.",
+              "If nested lists can be large, add pagination/streaming tests for lists inside Bundle: verify limit/offset or page tokens (if supported) and behavior when lists exceed thresholds.",
+              "Expand security tests beyond XSS: include SQL-injection style payloads and other malformed inputs in both path and query parameters; assert they are rejected and not executed/reflected.",
+              "Add Accept header tests and content negotiation: request application/xml or other Accept values and assert correct 406/200 behavior per API contract.",
+              "Make assertions more precise in existing tests: instead of \"valid Bundle object\" add explicit field-level checks (bundleId, accountId, subscriptions[], createdDate, etc.), and assert specific audit fields for FULL vs MINIMAL."
+            ],
+            "usage": {
+              "completion_tokens": 7079,
+              "prompt_tokens": 5249,
+              "total_tokens": 12328,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

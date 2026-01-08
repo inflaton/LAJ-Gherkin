@@ -1,0 +1,79 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "53_2025-09-28T15:25:12.805275",
+    "jira_id": "53",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/tags - Add tags to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T15:22:00.032022",
+    "benchmark_end_time": "2025-09-28T15:25:12.805270",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 192.773248,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "53_qe_sup-gpt4.1_agent-gpt4.1_1748919377.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST - Valid Payload: Multiple success paths with 201 and JSON array of Tag objects (single, multiple, empty list), optional headers handled, and DB persistence verified.",
+              "POST - Invalid Payload & Validation: Robust coverage for malformed/non-array/missing body, invalid tag definition UUIDs, invalid bundleId format, missing required X-Killbill-CreatedBy, and extra fields -> appropriate 400s.",
+              "POST - Large Payloads: Boundary (max) and exceeding-max cases covered with expected outcomes.",
+              "Server Resilience: 503 service unavailable, 504 timeout, and retry after transient network failure covered; malicious payload rejected.",
+              "Regression/Integration/Performance: Duplicate tags not re-created, GET verification of state, performance under normal/peak load, and tolerance of extra unsupported HTTP headers."
+            ],
+            "gaps": [
+              "Server Error Handling: No simulation/assertion of 500 Internal Server Error (e.g., unexpected DB exception).",
+              "Duplicate Submission/Idempotency: No explicit scenario sending the exact same POST twice to the same bundle to ensure no duplicate tags or unintended side effects; no concurrent same-bundle duplicate test.",
+              "Content Negotiation: No checks for response Content-Type application/json; no 415 Unsupported Media Type for wrong/missing Content-Type; no 406 Not Acceptable for unsupported Accept header.",
+              "Response Schema: No JSON schema validation of the Tag object against the referenced #/definitions/Tag (only partial field checks).",
+              "Body Element Validation: No tests for null/empty-string/non-string items inside the array; no explicit mixed-valid-and-invalid IDs case to confirm all-or-nothing semantics and no partial updates.",
+              "Authorization Semantics: 401 covered, but no 403 Forbidden scenario when credentials are valid but permissions are insufficient."
+            ],
+            "recommendations": [
+              "Add a 500 Internal Server Error test by simulating an unexpected DB/processing failure and asserting proper 5xx handling and error payload.",
+              "Add idempotency tests: send the identical POST payload twice to the same bundle and assert no duplicates and stable response; add concurrent same-bundle duplicate requests to ensure race-safe behavior.",
+              "Add content negotiation tests: assert response Content-Type application/json; send requests with incorrect/missing Content-Type -> expect 415; send unsupported Accept -> expect 406.",
+              "Validate response schema against the Tag definition (types, required fields, extras not present) using JSON schema validation.",
+              "Expand payload validation: include null, empty strings, non-UUID strings, and non-string types within the array; add a mixed valid/invalid IDs test and assert atomicity (no partial writes).",
+              "Add a 403 Forbidden scenario for a user lacking permissions to add tags, distinct from 401 (unauthenticated)."
+            ],
+            "usage": {
+              "completion_tokens": 7570,
+              "prompt_tokens": 6808,
+              "total_tokens": 14378,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6976,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

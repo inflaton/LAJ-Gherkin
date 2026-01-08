@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-13T12:56:24.772358",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T12:53:41.721847",
+    "benchmark_end_time": "2025-10-13T12:56:24.772355",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 163.050508,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE - Valid Deletion: Happy path returns 204 with empty body and host marked out of rotation (TC01, TC12).",
+              "DELETE - Non-Existent/Invalid State: Host already out of rotation and no hosts available return 409 (TC04, TC14).",
+              "DELETE - Concurrency: Concurrent DELETEs handled; first 204, subsequent 409/204 within defined limits (TC11).",
+              "DELETE - Soft Delete semantics: Logical status change verified by querying host status (TC12).",
+              "Authorization: 401 for missing/invalid credentials covered (TC02, TC03).",
+              "Validation/Robustness: Unexpected or malicious request body rejected (400) and extra query params tolerated without breaking behavior (TC08, TC09).",
+              "Method constraints: Unsupported method returns 405 (TC07).",
+              "Server error handling: 500 and 503 scenarios covered (TC06, TC05).",
+              "Security hardening: Injection attempts via headers handled (TC13).",
+              "Performance/SLA: Response-time checks under normal and concurrent load (TC10, TC11)."
+            ],
+            "gaps": [
+              "Authorization - Forbidden: No scenario where an authenticated but non-admin/insufficiently scoped user is denied with 403.",
+              "Content negotiation and headers: No explicit checks for Content-Type on error responses or Accept negotiation; ensure 204 has no body and appropriate headers, and 4xx/5xx return application/json as per Produces.",
+              "Idempotency (sequential): No explicit back-to-back DELETE calls verifying stable outcome (e.g., first 204 then 409 or repeat 204) and no unintended side effects.",
+              "Rate limiting/abuse: No coverage for throttling/429 behavior under burst DELETE requests (if enforced).",
+              "Unsupported media type: No test sending an inappropriate Content-Type with a body (expect 415 or 400).",
+              "Error payload schema: No validation that 4xx/5xx responses follow a consistent JSON structure (e.g., code, message, details)."
+            ],
+            "recommendations": [
+              "Add a 403 Forbidden scenario: valid token without admin role/scope should be rejected.",
+              "Add header/content-negotiation checks: assert no body (and appropriate headers) on 204; assert application/json Content-Type for 4xx/5xx; test Accept variants (e.g., application/xml) and verify expected behavior (406 or default to JSON).",
+              "Add sequential idempotency test: issue DELETE twice; verify first 204, second 409 (or repeat 204 if designed idempotently), and host remains out of rotation.",
+              "Add rate limiting test: burst of DELETEs to validate 429 Too Many Requests and presence of Retry-After if applicable.",
+              "Add unsupported media type test: DELETE with Content-Type such as application/xml and a body; expect 415 or 400.",
+              "Add error schema assertions: validate consistent JSON error structure across 400/401/405/409/500/503 responses.",
+              "Optionally, add a cluster-targeting check (if applicable): verify only the intended host is taken out of rotation while others remain healthy."
+            ],
+            "usage": {
+              "completion_tokens": 7784,
+              "prompt_tokens": 3433,
+              "total_tokens": 11217,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-14T19:26:59.550810",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:25:16.259959",
+    "benchmark_end_time": "2025-10-14T19:26:59.550805",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 103.290846,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid deletion (204) for successful close using default behavior (no query params) \u2014 TC01.",
+              "Comprehensive query-parameter combinations: all-true, all-false, each parameter individually true, and pairwise combinations \u2014 TC02, TC03, TC04, TC05.",
+              "Soft-delete semantics / mark-as-closed verified in DB \u2014 TC01, TC06.",
+              "Non-existent and already-closed idempotent behavior returning 204 \u2014 TC11, TC12.",
+              "Path parameter validation for malformed accountId (invalid UUID) returning 400 \u2014 TC08.",
+              "Required header enforcement for X-Killbill-CreatedBy (missing -> 400) \u2014 TC09.",
+              "Authentication handling for missing/invalid token returning 401 \u2014 TC10.",
+              "Extra/unsupported query parameters are ignored \u2014 TC13.",
+              "System/internal error handling (database unavailable -> 500) \u2014 TC14.",
+              "Security tests: SQL injection payload in accountId (400, no compromise) and XSS attempt in header values (sanitization) \u2014 TC15, TC16.",
+              "Retry/timeout and idempotency on transient network failures \u2014 TC17.",
+              "Performance/concurrency surface covered: large account with 1000 subs/invoices and concurrent closures (10 accounts) \u2014 TC07, TC18.",
+              "Regression and backward-compatibility checks for specific past-bug and minimal headers \u2014 TC19, TC20.",
+              "Accessibility / documentation checks for error readability \u2014 TC21."
+            ],
+            "gaps": [
+              "No explicit tests verifying the response Content-Type and response JSON schema for error responses (story says \"Produces: application/json\") \u2014 tests check status and side-effects but not headers/body schema.",
+              "No tests for invalid query-parameter values or types (e.g., cancelAllSubscriptions=foo, writeOffUnpaidInvoices=1, case sensitivity \"TRUE\"/\"False\") and how the API validates/parses them.",
+              "Optional headers (X-Killbill-Reason, X-Killbill-Comment) are not asserted for persistence/audit-recording or validated for length/format (only XSS on Comment is tested once).",
+              "No test for X-Killbill-CreatedBy present-but-empty (blank string or whitespace) to ensure the required header is validated beyond existence.",
+              "No 403 / authorization-permission tests (authenticated but unauthorized user) \u2014 only 401 is covered.",
+              "Concurrency race conditions on the same account are not covered (two or more concurrent deletes for the same account to detect race/duplicate side-effects).",
+              "Rate limiting / throttling behavior is not tested (high request rate and expected 429 handling).",
+              "Soft-delete visibility beyond \"marked as closed\" is not validated (e.g., subsequent GETs to confirm status, or checks that account data remains accessible where expected).",
+              "No tests asserting concrete performance SLAs or thresholds for large-batch processing (TC07/TC18 assert \"within acceptable response time\" but do not specify/verify a threshold).",
+              "Error-response contents are not validated for consistent error codes, structured fields (errorType, message, code), or localization; only presence of an error message is asserted in a few cases.",
+              "No tests for invalid or malformed header values other than XSS in Comment (e.g., extremely long Reason/CreatedBy strings, invalid characters).",
+              "No tests asserting correct behavior when boolean defaults are relied upon by clients that omit parameters (explicit verification of default values parsing beyond functional side-effects)."
+            ],
+            "recommendations": [
+              "Add explicit assertions for Content-Type and response body schema on error responses (400/401/403/500) to verify \"application/json\" and a consistent error structure.",
+              "Add tests for invalid query-parameter formats and types (e.g., cancelAllSubscriptions=foo, cancelAllSubscriptions=1, cancelAllSubscriptions=TRUE) and assert expected behaviour (400 with clear error or deterministic coercion).",
+              "Add tests that verify X-Killbill-Reason and X-Killbill-Comment are persisted (audit trail) and validate max length/sanitization; include additional XSS and encoding edge-cases for Reason as well as Comment.",
+              "Add a test for X-Killbill-CreatedBy present but empty/whitespace to ensure the header is validated and rejected if blank.",
+              "Add authorization-permission tests that exercise 403 (authenticated user lacks permission) in addition to 401 (unauthenticated), to fully cover auth scenarios.",
+              "Add concurrency/race-condition tests that send multiple concurrent DELETE requests for the same account and assert idempotency and single set of side-effects (e.g., only one billing cancellation/one write-off action).",
+              "Introduce rate-limiting tests by firing a burst of requests and verifying expected throttling behavior (429) or system-defined limits and graceful degradation.",
+              "Add follow-up checks after delete (GET /account/{id}) to confirm soft-delete visibility: status flag = closed, data still present where applicable.",
+              "Make TC07/TC18 measurable by asserting concrete performance thresholds (e.g., complete within X seconds) and capture metrics; add load tests with progressively larger counts to find breaking points.",
+              "Add structured error-content assertions (fields, codes) for each error scenario (invalid UUID, missing header, auth failure, internal error) so clients can depend on stable error contract.",
+              "Add tests for malformed/too-long header values and for unexpected characters to ensure robust header validation and to avoid logging/audit injection.",
+              "Explicitly test default parsing behavior for removeFutureNotifications (default=true) and others by verifying that omitting parameters yields the documented default values in side-effects and logs."
+            ],
+            "usage": {
+              "completion_tokens": 5979,
+              "prompt_tokens": 6316,
+              "total_tokens": 12295,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4800,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-15T12:40:39.639691",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:39:23.114144",
+    "benchmark_end_time": "2025-10-15T12:40:39.639686",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 76.525542,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid PUT operation: immediate pause and scheduled pause (requestedDate) are tested (TC01, TC02, TC05).",
+              "Optional parameters and headers: pluginProperty, X-Killbill-Reason, X-Killbill-Comment processing and audit logging are exercised (TC03, TC04, TC05).",
+              "Error handling and input validation: invalid bundleId format, non-existent bundle, invalid bundle states (already paused/canceled), malformed requestedDate and pluginProperty, SQL injection and XSS checks (TC06-TC09, TC13-TC19).",
+              "Authentication/authorization negative cases: missing createdBy header and unauthorized user covered (TC10, TC11).",
+              "Service and dependency failures: service unavailable and downstream plugin failure scenarios covered (TC12, TC25).",
+              "Concurrency and performance: concurrent pause requests and bulk pause load/performance checks (TC21, TC22).",
+              "Edge cases and robustness: extra unexpected parameters ignored, very large pluginProperty arrays, special-character handling in pluginProperty (TC15, TC16, TC24).",
+              "Regression and integration checks: pausing does not affect unrelated bundles and downstream consistency / integration validations (TC23, TC26).",
+              "Accessibility and documentation: API documentation accessibility check included (TC27)."
+            ],
+            "gaps": [
+              "403 Forbidden (authenticated but insufficient permissions) is not tested \u2014 only 401 unauthorized and missing-header cases are present.",
+              "Response headers and Content-Type assertions are missing: acceptance notes \"produces application/json\" but tests do not assert Content-Type for error responses nor clarify behavior for 204 (no content) vs JSON responses.",
+              "Transactional/atomic behavior on partial failures is not asserted: when a plugin or downstream service fails (TC25) there is no explicit test that DB state was rolled back or left consistent.",
+              "Subscription-scope verification is shallow: tests assert \"all active subscriptions paused\" but do not explicitly verify that non-active (canceled/inactive) subscriptions remain unchanged or validate subscription-level attributes/timestamps.",
+              "Rate limiting / throttling and 429 handling are not covered (the load tests do not validate throttling behavior or Retry-After headers).",
+              "500 Internal Server Error handling and safe error surfaces are not exercised (no test that simulates an internal server crash or DB failure producing 500).",
+              "Authentication token lifecycle and semantics are under-specified: tests use X-Killbill-CreatedBy and an \"unauthorized user\" but do not cover expired/malformed tokens or the Authorization header behavior vs X-Killbill-CreatedBy.",
+              "RequestedDate edge-cases (time zones, boundary conditions like \"now\", overlapping scheduled events) are not covered.",
+              "PluginProperty format permutations and limits are not fully covered: collection formats (multi vs csv), empty values, duplicate keys, encoding/charset and max-length boundaries are missing.",
+              "Error response schema/content is not validated: tests check presence of an error message but not consistent JSON schema (fields like code/message/details) and sanitization (no stack traces)."
+            ],
+            "recommendations": [
+              "Add a 403 test: an authenticated user lacking required permissions should receive 403 with a clear message and no state change.",
+              "Assert response headers and content types: verify that 204 responses contain no body, and that error responses use Content-Type: application/json and conform to the documented error schema.",
+              "Add transactional consistency tests: simulate plugin/downstream failures and assert the bundle/subscriptions remain in the pre-request state (or document and assert intended compensating behavior).",
+              "Add strict subscription-scope tests: verify only ACTIVE subscriptions transition to paused, and that canceled/inactive subscriptions remain unchanged; check subscription attributes (state, pause timestamp, billing flags).",
+              "Add rate-limiting tests that trigger throttling and validate 429 responses and Retry-After header behavior under sustained/rapid requests.",
+              "Add tests simulating internal server errors (500) \u2014 e.g., DB failure or unhandled exception \u2014 to validate safe client-facing errors and appropriate logging/metrics.",
+              "Cover authentication token scenarios: expired token, malformed token, missing Authorization header vs X-Killbill-CreatedBy, and ensure correct 401/403 semantics.",
+              "Expand requestedDate tests: timezone handling, \"now\" boundary conditions, equal-to-current-time behavior, and interactions with existing scheduled pause/unpause events.",
+              "Expand pluginProperty tests: exercise both collection formats (repeated query params and CSV), empty/duplicate keys, Unicode, and maximum sizes; assert validation errors and correct plugin invocation.",
+              "Validate error response schema and sanitization: assert standardized JSON fields (code/message/details), no internal stack traces returned, and consistent mapping between HTTP status and error codes.",
+              "Add more precise audit-log assertions: check createdBy, reason, comment, timestamp, and correlation IDs are recorded and propagated to downstream systems as appropriate."
+            ],
+            "usage": {
+              "completion_tokens": 7993,
+              "prompt_tokens": 6254,
+              "total_tokens": 14247,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6976,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-10-14T15:58:40.492210",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:57:56.488531",
+    "benchmark_end_time": "2025-10-14T15:58:40.492202",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 44.003671,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Deletion: Multiple success scenarios cover deleting all tags, single tag, multiple tags, and deletion when no tags exist (TC01-TC05, TC10).",
+              "Path parameter validation: Invalid format (non-UUID) and non-existent paymentId are tested (TC06, TC07).",
+              "Query parameters: Many variations covered \u2014 single tagDef, multiple tagDef, invalid tagDef format, injection attempt, extra unexpected parameter, large number of tagDefs (TC02, TC03, TC09, TC13, TC14, TC15).",
+              "Headers: Required header missing is tested; optional headers Reason and Comment are exercised; audit logging expectation is included (TC04, TC08, TC20).",
+              "Authorization: Unauthorized access scenario is present (TC11).",
+              "Error handling: Service unavailable and timeout scenarios covered (TC12, TC22).",
+              "Concurrency & Idempotency: Concurrent removal and repeated/no-op removal (tagDef not present) are covered (TC16, TC10).",
+              "Data consistency and regression: Post-removal consistency and regression checks present (TC21, TC18).",
+              "Performance: Load/performance check present (TC17).",
+              "Backward compatibility: Older client behaviour covered (TC19)."
+            ],
+            "gaps": [
+              "Produces / Content-Type verification: The story specifies \"Produces: application/json\" but there is no explicit check of Content-Type headers on success or error responses (even for empty 204 responses).",
+              "403 Forbidden / Authorization scope: There is a test for 401 unauthorized, but no scenario for authenticated but forbidden (403) or role/permission based access control.",
+              "500 Internal Server Error: There is a 503 / 504 coverage but no explicit test for generic 500 server errors (DB failure, unexpected exception) and how partial failures affect state.",
+              "Soft-delete semantics & audit state: If tags are soft-deleted, there are no tests asserting internal delete flags or recoverability; audit logging is checked but internal soft-delete behaviour is not validated (e.g., tag record retained but marked deleted).",
+              "Duplicate/ambiguous query params: No test for duplicate tagDef parameters (same ID repeated) or empty tagDef array/empty-value handling.",
+              "Malformed header values: No tests for invalid X-Killbill-CreatedBy/X-Killbill-Reason/X-Killbill-Comment formats or excessively long header values.",
+              "Rate limiting / throttling: Standard guidelines mention rate limiting; the suite has load/performance but not specific rate-limiting / throttling behavior tests.",
+              "Caching behaviour & headers: No tests for caching headers (ETag, Cache-Control) \u2014 even if less relevant for DELETE, API spec notes produces application/json and headers aren\u2019t validated.",
+              "Transaction atomicity / partial failures: No test for partial failure scenarios where some tags fail to delete (e.g., DB constraint) and the final atomic state is validated."
+            ],
+            "recommendations": [
+              "Add assertions for response headers (Content-Type) on both success and error responses to match \"Produces: application/json\" requirement, and verify empty-body 204 responses behave per spec.",
+              "Add a 403 Forbidden scenario to validate permission/role-based access control for authenticated but unauthorized users.",
+              "Introduce a test that simulates an internal server error (500) \u2014 e.g., mock a DB exception \u2014 and assert the system returns 500 and leaves data consistent or rolls back as required.",
+              "Add tests for soft-delete semantics if applicable: verify DB flags, ability to restore, and that audit entries reflect soft-deletion state.",
+              "Cover duplicate/ambiguous tagDef parameters and empty tagDef values (e.g., ?tagDef=&tagDef=uuid) to ensure deterministic handling.",
+              "Add negative tests for malformed or oversized header values (X-Killbill-CreatedBy, Reason, Comment) to ensure validation and proper error codes.",
+              "Add explicit rate-limiting / throttling tests (burst requests) to validate 429 responses or throttling behavior, separate from generic performance tests.",
+              "Add tests for transaction atomicity or partial failures: simulate partial DB failures to assert whether operation is atomic and the end state is correct.",
+              "Add checks for caching-related headers where applicable (ensure DELETE responses do not cause stale cache exposure) or explicitly assert presence/absence of caching headers as per API policy."
+            ],
+            "usage": {
+              "completion_tokens": 1879,
+              "prompt_tokens": 5560,
+              "total_tokens": 7439,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

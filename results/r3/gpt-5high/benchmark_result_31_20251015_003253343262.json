@@ -1,0 +1,79 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "31_2025-10-15T00:32:53.343223",
+    "jira_id": "31",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/payments - Trigger a payment (authorization, purchase or credit)",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T00:30:48.011591",
+    "benchmark_end_time": "2025-10-15T00:32:53.343218",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 125.331627,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "31_qe_sup-gpt4.1_agent-gpt4.1_1748917990.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: Multiple success scenarios verify 201 Created, Payment JSON in response, Location header, and Content-Type application/json; default vs explicit paymentMethodId handling; multi-value controlPluginName/pluginProperty (TC01, TC02, TC03, TC24).",
+              "Invalid Payload: Malformed body returns 400; missing required X-Killbill-CreatedBy header handled (400/401) (TC06, TC09).",
+              "Validation: UUID format for accountId (400), unsupported currency (400), boundary values for amount (min/max), and malicious input validation (400/422) (TC07, TC16, TC17, TC19, TC21).",
+              "Large Payloads: Very large PaymentTransaction and near-maximum values are exercised (TC05, TC17).",
+              "Error Handling (Story-specific): Gateway declined (402), account not found (404), control plugin aborted (422), gateway submission failure (502), unknown status/no response (503), and timeout (504) are all covered (TC08\u2013TC14, TC23)."
+            ],
+            "gaps": [
+              "Duplicate Submission: No dedicated idempotency/duplicate POST scenario (same payload or idempotency key) to prove no double charge and consistent response.",
+              "Server Error Handling: No simulation/assertion of a generic 500 Internal Server Error (e.g., database failure) as per POST guidelines.",
+              "Transaction Types: No explicit coverage per transactionType (authorization, purchase, credit) to validate type-specific behavior and responses.",
+              "Field-level Validation: Missing tests for absent required fields (e.g., missing amount, currency, or transactionType) and invalid types/precision (e.g., non-numeric amount, too many decimal places, negative amount for purchase).",
+              "Query Parameter Validation: No negative tests for invalid paymentMethodId format (non-UUID) or paymentMethodId that does not belong to the account.",
+              "Response Contract Depth: Limited assertions on the Payment object; no schema-level validation of required fields and types (e.g., paymentId, transactionId, status, amount, currency) and no strict check that Location matches the expected payments resource path."
+            ],
+            "recommendations": [
+              "Add an idempotency/duplicate submission scenario: repeat the same POST (with an Idempotency-Key if supported) and assert one payment is created and the response indicates a replay or same resource.",
+              "Simulate a 500 Internal Server Error (e.g., DB outage) and assert proper 500 mapping and error body.",
+              "Create a Scenario Outline to exercise each transactionType (authorization, purchase, credit), asserting expected status/state in the Payment/Transaction.",
+              "Expand validation negatives: omit each required field (amount, currency, transactionType) individually; use invalid numeric types/precision; use negative amount where not allowed.",
+              "Add query parameter negatives: invalid paymentMethodId format and a paymentMethodId not associated with the account should return a clear 4xx with an explanatory error.",
+              "Introduce JSON schema assertions for both request (PaymentTransaction) and response (Payment) to verify required fields, types, and enums; also assert Location header format (e.g., points to /1.0/kb/payments/{paymentId})."
+            ],
+            "usage": {
+              "completion_tokens": 7987,
+              "prompt_tokens": 8983,
+              "total_tokens": 16970,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7296,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

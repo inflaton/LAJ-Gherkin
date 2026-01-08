@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-14T14:25:35.528681",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:25:05.412055",
+    "benchmark_end_time": "2025-10-14T14:25:35.528675",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 30.11662,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Deletion: TC01 and related regression TC12 validate a successful DELETE and that the host is marked out of rotation (expected 204).",
+              "Authentication: TC02 and TC03 cover missing and invalid authentication cases (401 scenarios).",
+              "Idempotency / Non-existent resource: TC04 (host already out of rotation) and TC14 (no hosts in rotation) cover attempts to delete when there is nothing to act on (409 responses).",
+              "Service and system errors: TC05 (service down -> 503) and TC06 (internal error -> 500) cover error handling during operation.",
+              "Method validation: TC07 checks invalid HTTP method handling (405).",
+              "Request validation: TC09 checks behavior for an unexpected/non-empty or malicious request body (400).",
+              "Extra/ignored query params: TC08 validates behavior when extra parameters are provided (still returns 204 and proceeds).",
+              "Concurrency and performance: TC10 and TC11 provide performance expectations and concurrent request behavior (first wins, subsequent 409/204).",
+              "Security header injection: TC13 covers malicious header content and expects defensive handling (400/401)."
+            ],
+            "gaps": [
+              "Content-Type / Response format: The Jira story specifies the API \"Produces: application/json\", yet most success scenarios assert an empty body for 204 and there is no test asserting response Content-Type or response body for error responses consistently. There is no explicit check that error responses are application/json with a structured error payload.",
+              "Idempotency semantics specifics: While TC04/TC11 touch idempotency/concurrent behavior, there is no explicit test to assert strict idempotency semantics (e.g., repeated identical DELETE calls by same client should consistently return the same status after initial call).",
+              "Soft-delete vs permanent: No tests verify whether the host is soft-deleted (flag set) versus permanently removed, or whether the change is reversible (e.g., a subsequent PUT/POST to bring host back).",
+              "Authorization scope / roles / 403 handling: Tests cover unauthenticated (401) and invalid token (401) but do not cover authenticated users without proper privileges (403) or role-based access control.",
+              "Response headers and caching: No tests assert headers (e.g., Cache-Control, ETag) or other operational headers that could be important for admin APIs.",
+              "Audit / logging / side effects: No tests validate audit logs, metrics, or that downstream systems (load balancers / health monitors) observe the host as out of rotation.",
+              "Non-HTTP edge cases: No tests for malformed URLs, path casing, or variations in base URL."
+            ],
+            "recommendations": [
+              "Add assertions for response Content-Type and structured error payloads (application/json) for both success and error cases \u2014 ensure 204 responses still produce correct headers and error responses conform to JSON schema.",
+              "Add tests to explicitly verify idempotency: repeated DELETEs from same client produce deterministic results and documented status codes.",
+              "Add a test to verify soft-delete semantics (if applicable): check the host record flag, and whether it can be re-enabled, or whether deletion is reversible.",
+              "Add authorization role tests to cover 403 Forbidden where a valid token lacks admin privileges.",
+              "Add tests that assert relevant response headers (Cache-Control, ETag, Retry-After for 503 if applicable) and any security headers required by policy.",
+              "Add integration tests that verify side-effects: e.g., query the system / health status endpoint or downstream load-balancer simulation to confirm the host is observed out of rotation; check audit logs/metrics for the admin action.",
+              "Extend performance tests to include sustained load, rate-limiting and throttling behavior beyond the current single/short concurrency scenarios (verify graceful degradation and appropriate 429 or backoff behavior if present)."
+            ],
+            "usage": {
+              "completion_tokens": 1063,
+              "prompt_tokens": 3433,
+              "total_tokens": 4496,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-15T16:45:50.784935",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:44:31.556519",
+    "benchmark_end_time": "2025-10-15T16:45:50.784930",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 72,
+    "average_generation_time_seconds": 79.228411,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 72,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 72,
+            "covered": [
+              "PUT - Valid Request: Successful 204 with no body is validated (TC01), and idempotent behavior when already in rotation is covered (TC02).",
+              "PUT - Concurrency Issues: Race conditions and safety under concurrent requests are tested (TC14); retry idempotency after transient network failure is covered (TC13).",
+              "Authorization: Unauthorized and forbidden access paths return proper 401/403 (TC03, TC04, TC09).",
+              "Method Handling: Unsupported method returns 405 (TC06).",
+              "Operational Failure: Service unavailability returns 503 (TC05).",
+              "Resilience/Performance: Response-time expectation under load is asserted (TC10).",
+              "Security Hardening: Injection attempt in headers does not compromise the system (TC12)."
+            ],
+            "gaps": [
+              "PUT - Partial Update/Unexpected Payload: The endpoint is documented with no request body (N/A), but TC07 treats a non-empty body as acceptable and still expects 204. Per guideline, partial/extra fields should be rejected unless explicitly allowed.",
+              "PUT - Non-Existing Resource: No scenario when the target host cannot be determined/does not exist (e.g., no host registered, host disabled, or misconfigured). Expected behavior (404/409/412) is not defined or tested.",
+              "Media-Type and Headers Compliance: The story states Produces: application/json, but tests do not verify Content-Type on error responses nor Accept negotiation (e.g., 406 for unsupported Accept). For 204, tests should also confirm no Content-Type and Content-Length: 0.",
+              "Generic Server Error Handling: No test simulating unexpected internal failures (e.g., 500) to satisfy the story\u2019s requirement to return >=400 on errors.",
+              "Rate Limiting/Throttling: No coverage for burst behavior leading to 429 or explicit confirmation that the endpoint is not rate-limited.",
+              "HTTP Method Matrix Completeness: Only GET is checked for 405; OPTIONS/HEAD/POST/DELETE are not tested, and the Allow header is not validated on 405 responses.",
+              "Error Response Schema: Tests only check for \u201can error message\u201d but do not assert a consistent JSON error structure (code, message, details) in line with Produces: application/json."
+            ],
+            "recommendations": [
+              "Align unexpected payload behavior with the spec: either reject non-empty bodies with 400 and a JSON error, or explicitly document that bodies are ignored and assert no side effects when a body is present.",
+              "Add a scenario for non-existing/undeterminable host (e.g., system with no hosts or host disabled) and assert the correct 4xx/412 response as per product decision.",
+              "Validate response headers: for 204 ensure no Content-Type and Content-Length: 0; for error responses assert Content-Type: application/json and a stable error schema. Add Accept negotiation tests (including 406 for unsupported media types).",
+              "Introduce a server error simulation (e.g., dependency failure) that returns 500 with a JSON error body to fulfill the \u201c>=400 on error\u201d criterion.",
+              "Consider rate-limiting tests (burst PUTs) to assert 429 behavior if applicable, or explicitly document that the endpoint is not rate-limited.",
+              "Expand method negative tests to include OPTIONS/HEAD/POST/DELETE with 405 and assert the Allow header lists PUT.",
+              "Define and assert a canonical error response schema across 401/403/405/503 (e.g., fields: errorType, errorCode, message, requestId) to meet the Produces: application/json expectation."
+            ],
+            "usage": {
+              "completion_tokens": 4033,
+              "prompt_tokens": 3274,
+              "total_tokens": 7307,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3264,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

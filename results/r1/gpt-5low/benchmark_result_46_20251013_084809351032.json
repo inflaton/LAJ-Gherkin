@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-13T08:48:09.351006",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:47:46.096856",
+    "benchmark_end_time": "2025-10-13T08:48:09.350996",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 23.25414,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Successful 204 with empty body and explicit cache invalidation assertion (TC01, TC19).",
+              "DELETE - Non-Existent Resource: 404 when account does not exist, including empty DB state (TC02, TC16, TC18).",
+              "Input Validation: 400 for invalid UUID formats and injection/XSS attempts (TC03, TC12, TC14, TC15, TC10).",
+              "Authentication: 401 for unauthenticated and expired/invalid token (TC05, TC06).",
+              "Method Handling: 405 for unsupported HTTP method (TC11).",
+              "Resilience/Dependency Failures: 503 when cache service unavailable and degraded performance handling (TC07, TC08).",
+              "Query Parameters: Extra query parameters safely ignored with 204 (TC09).",
+              "Performance/Concurrency: Concurrent DELETE requests across accounts with SLA validation (TC13).",
+              "Network Resilience: Retry after transient network failure succeeds (TC17)."
+            ],
+            "gaps": [
+              "DELETE - Concurrency on the same resource: No scenario for simultaneous/repeated DELETEs on the same accountId to verify idempotency and race conditions.",
+              "Authorization (RBAC): No test for authenticated non-admin user attempting the action (expected 403 Forbidden).",
+              "Server Error Handling: No scenario validating generic 5xx (e.g., 500) behavior on unexpected backend failures.",
+              "Response Headers: No assertions on Content-Type for error responses (application/json) and absence of body/headers for 204, despite \"Produces: application/json\".",
+              "Request Semantics: No test for handling an unexpected request body or unsupported media type (e.g., 415) given request body is N/A.",
+              "Accept Header Negotiation: No test for 406 Not Acceptable when an unsupported Accept header is sent.",
+              "Rate Limiting/Throttling: No coverage for burst requests behavior and corresponding responses/headers.",
+              "Boundary UUID cases: No tests for edge UUIDs like NIL UUID (all zeros), uppercase UUIDs, or hyphenless UUIDs to ensure strict pattern enforcement."
+            ],
+            "recommendations": [
+              "Add a scenario for idempotency and race conditions on the same accountId: send concurrent/repeated DELETEs for one account; expect consistent 204 and no errors/log corruption.",
+              "Introduce RBAC test: authenticated non-admin user attempts DELETE and receives 403 Forbidden with proper error payload.",
+              "Add a generic 500-error simulation (e.g., force internal exception) to verify standardized error schema and retry guidance.",
+              "Assert headers: for error responses ensure Content-Type: application/json and a well-formed error body; for 204 verify no body and optionally no Content-Type; verify no-cache headers are appropriate if applicable.",
+              "Add a test sending a request body or Content-Type: application/json to confirm it is ignored or results in 415, per API contract.",
+              "Add Accept header negotiation tests: unsupported Accept should return 406; supported should return correct Content-Type.",
+              "Introduce rate-limiting test: issue rapid DELETE bursts and validate either 200/204 with headers or 429 Too Many Requests per system behavior.",
+              "Expand UUID boundary tests: NIL UUID, uppercase UUID, hyphenless UUID; confirm 400 or acceptance per spec and document expected behavior."
+            ],
+            "usage": {
+              "completion_tokens": 1860,
+              "prompt_tokens": 4640,
+              "total_tokens": 6500,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

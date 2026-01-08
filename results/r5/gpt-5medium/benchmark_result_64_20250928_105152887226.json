@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-09-28T10:51:52.887169",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:50:46.829317",
+    "benchmark_end_time": "2025-09-28T10:51:52.887161",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 66.057844,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT - Valid Request: Multiple success paths verified (required header only, with requestedDate, with pluginProperty, with all optional headers/params). State transition to active or scheduled resume asserted.",
+              "PUT - Non-Existing Resource: 404 covered when bundle does not exist (empty DB and random UUID).",
+              "PUT - Concurrency Issues: Concurrent resume requests covered; first succeeds, subsequent fail with 400/409.",
+              "Input validation: Invalid bundleId format -> 400; missing required header -> 400; invalid state (active/cancelled) -> 400; requestedDate in past -> 400; pluginProperty wrong type -> 400; extra/unexpected params ignored.",
+              "Authorization: Invalid/unauthorized user results in 401/403.",
+              "Server error handling: Dependency/service failures return 500 or 504; retry handling covered for transient failures.",
+              "Security hardening: SQL injection and XSS attempts handled without harmful side effects.",
+              "Boundary/robustness: Max-length headers, large number of pluginProperty values, whitespace/case variations in headers.",
+              "Audit/observability: Reason/comment recorded in audit log on success.",
+              "Backward compatibility/integration/performance: Legacy client header format, degraded plugin service behavior, load/performance response time validated."
+            ],
+            "gaps": [
+              "Response headers and content negotiation: No assertions on Content-Type for error responses or that 204 has no body despite \"produces: application/json\".",
+              "requestedDate format/timezone: No tests for invalid date format, timezone handling, or same-day boundary behavior (e.g., today vs future).",
+              "pluginProperty collectionFormat=multi: No scenario verifying multiple pluginProperty query params as repeated keys (pluginProperty=a&pluginProperty=b) vs comma-separated handling.",
+              "Idempotency (sequential): No test calling resume twice sequentially to confirm the second call returns 400/409 and does not change state again.",
+              "Error payload schema: Negative tests only assert an error message string; no checks that error response follows the API\u2019s standard error schema (code, message, details).",
+              "Unexpected request body: Spec says no request body; no test sends a body to ensure it is rejected or ignored per contract.",
+              "UUID pattern edge cases: Only a generic invalid UUID tested; no tests for edge patterns (missing sections, upper/lowercase acceptance, extra characters).",
+              "Rate limiting/throttling: No scenarios to validate behavior under burst traffic for this PUT endpoint (if applicable)."
+            ],
+            "recommendations": [
+              "Add assertions for response headers: verify Content-Type on 4xx/5xx and confirm 204 has no body; align with \"produces: application/json\" contract for errors.",
+              "Expand requestedDate tests: invalid format (e.g., 2025-13-40), timezone-aware inputs (UTC vs local), and same-day boundary behavior; clarify expected semantics in spec.",
+              "Add a test for pluginProperty with collectionFormat=multi using repeated query params (pluginProperty=prop1=value1&pluginProperty=prop2=value2) and verify server parsing; also verify comma-separated input is rejected or supported per spec.",
+              "Introduce an idempotency test: issue a successful resume, then repeat the call; expect 400/409 and no additional side effects.",
+              "Validate standardized error schema in all negative scenarios (fields like errorCode, message, type).",
+              "Add a negative test that includes a non-empty JSON body to ensure the server rejects it with 400 or ignores it as specified.",
+              "Broaden UUID validation: tests for boundary cases (too short/long, missing hyphens, uppercase-only) to fully exercise the documented regex pattern.",
+              "If rate limiting applies to writes, add burst tests to confirm proper 429 handling and headers like Retry-After."
+            ],
+            "usage": {
+              "completion_tokens": 3173,
+              "prompt_tokens": 6265,
+              "total_tokens": 9438,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2368,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-13T07:27:56.856069",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T07:26:27.298671",
+    "benchmark_end_time": "2025-10-13T07:27:56.856066",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 89.557395,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid request flows: TC01, TC02, TC03, TC10 and TC13 exercise successful operations using default parameters, explicit offset/limit, optional headers, and large-limit boundaries.",
+              "Empty response handling: TC04 verifies behavior when no parked accounts exist.",
+              "Pagination & query parameter validation: TC02, TC06, TC07, TC11 and TC13 cover offset/limit semantics, negative/zero/invalid values, non-integer types, and unexpected query parameters.",
+              "Header validation & authorization: TC03, TC05, TC08, TC16 and TC17 cover required header presence, missing header error, invalid/expired tokens, header parsing regression and backward compatibility for older clients.",
+              "Error and dependency handling: TC06 and TC07 cover 400-series validation errors and TC09 covers service unavailability (503).",
+              "Security: TC14 tests header injection attempts and ensures sensitive information is not leaked.",
+              "Idempotency and duplicate submission: TC15 addresses retry behavior to avoid duplicate invoice generation.",
+              "Concurrency and performance: TC12 and TC18 address very large data volumes and concurrent requests, while TC10 targets large-limit boundary behavior.",
+              "Auditability: TC03 and TC16 explicitly include tests for auditable headers (createdBy, reason, comment).",
+              "Documentation/accessibility: TC19 checks API documentation and accessibility concerns."
+            ],
+            "gaps": [
+              "Response body schema and content verification: Tests assert application/json and high-level outcomes but do not validate the exact JSON schema, fields returned (for example operationId, processedCount, succeeded/failed lists, per-account status), or precise invoice identifiers.",
+              "Partial success and per-account failure handling: There are no scenarios simulating some accounts failing invoice generation and verifying how partial failures are reported or retried.",
+              "Idempotency semantics and duplicate suppression details: TC15 mentions preventing duplicate invoices on retry but lacks explicit tests for repeated identical submissions, idempotency keys, or deterministic exactly-once guarantees under race conditions.",
+              "Role-based authorization: No test verifies a valid token with insufficient privileges (non-admin user) receives the correct denial (403) distinct from expired/invalid token behavior.",
+              "Precise error codes and standardized error payloads: Several scenarios allow ranges (e.g., 400 or 401). There is no enforcement of precise expected HTTP status codes or a standardized error response schema for specific error types.",
+              "Server 500/internal error and database-failure handling: TC09 covers 503 but there are no tests simulating internal server errors (500) or DB failures and verifying sanitized error messages.",
+              "Rate limiting and throttling: No tests for sustained high request rates or expected 429 responses and retry/backoff behavior.",
+              "Offset beyond dataset bounds and limit-only boundary cases: No explicit test for offset greater than the number of parked accounts (expecting zero processed), or for only providing limit without offset, or system behavior when limit exceeds service-enforced maximums.",
+              "Audit persistence and logging verification: Tests state auditability but do not validate that headers (createdBy, reason, comment) are persisted in audit logs or DB records.",
+              "Asynchronous/long-running operation semantics: If the operation is asynchronous/queued, there are no tests to assert operation identifiers, status endpoints, or correct follow-up semantics (Location header, retry-after, polling).",
+              "Response header metadata: No checks for additional HTTP metadata such as Retry-After, Location (for async), Cache-Control, or Content-Length where applicable.",
+              "Partial processing recovery scenarios: Lack of tests for recovery when operation partially processed due to a mid-run failure (ensuring resumed runs do not duplicate work)."
+            ],
+            "recommendations": [
+              "Add JSON schema assertions for successful and error responses: verify fields like operationId, processedCount, succeeded[], failed[], and per-account status to make behavior testable and deterministic.",
+              "Create partial-failure scenarios: simulate invoice generation failures for a subset of parked accounts and assert that the API returns a detailed report of successes and failures and appropriate retry semantics.",
+              "Implement explicit idempotency tests: repeat the same request (and concurrent duplicates) and assert invoices are generated exactly once; if the API supports idempotency keys, include tests for those headers.",
+              "Add role-based access control tests: verify that a valid token for a non-admin user yields 403, and an admin token succeeds, to ensure RBAC is enforced.",
+              "Tighten error expectations: convert ambiguous expectations (400 or 401) into precise expected codes and verify standardized error payload structure (error code, message, details) for each failure mode.",
+              "Simulate internal server and DB failures: add tests that force 500 responses or DB exceptions and assert sanitized error messages and appropriate logging without stack traces in responses.",
+              "Add rate-limiting and throttling tests: bombard the endpoint and verify 429 responses or other throttling behavior; validate retry/backoff guidance if present.",
+              "Add boundary tests for offsets and limits: include offset greater than total accounts, limit-only calls, and tests for limits exceeding supported maxima to verify deterministic behavior and error handling.",
+              "Verify audit/log persistence: after a request with X-Killbill-CreatedBy, X-Killbill-Reason, X-Killbill-Comment, assert corresponding entries are present in audit/log tables or event streams.",
+              "If operation can be asynchronous, add tests for async semantics: assert returned operation id, Location or Retry-After headers, and implement polling tests to verify final processing status and idempotency across retries.",
+              "Validate additional response headers and absence of sensitive info: assert Content-Type, and where applicable Retry-After, Location, Cache-Control; ensure error responses do not leak stack traces or internal details.",
+              "Clarify and tighten TC11 expectation for extra query parameters: decide whether extra params should be ignored or rejected and codify that behavior in tests so implementations are unambiguous."
+            ],
+            "usage": {
+              "completion_tokens": 7238,
+              "prompt_tokens": 5207,
+              "total_tokens": 12445,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6016,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-13T19:06:09.773156",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:05:45.967262",
+    "benchmark_end_time": "2025-10-13T19:06:09.773151",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 23.805889,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: TC01 and TC02 cover the successful PUT semantics (204) including the host state change and idempotent re-apply when already in rotation.",
+              "Authorization & Authentication: TC03, TC04 and TC09 cover unauthenticated (401) and insufficient-permission (403) cases and missing auth headers.",
+              "Method semantics: TC06 covers incorrect HTTP method (405).",
+              "Service availability & server-side failure: TC05 covers service/unreachable (503).",
+              "Request robustness: TC07 and TC08 cover unexpected payloads and extra headers being tolerated and still returning 204.",
+              "Resilience & retries: TC13 covers transient network interruptions with retry behavior.",
+              "Performance/degraded behavior: TC10 covers operation under high load and acceptable timeout behavior.",
+              "Concurrency/race conditions: TC14 addresses multiple concurrent PUTs and race-condition concerns.",
+              "Security: TC12 attempts header injection to validate the system is not vulnerable to simple injection vectors.",
+              "Regression: TC11 ensures previously fixed rotation bugs remain fixed."
+            ],
+            "gaps": [
+              "Response content-type and headers: There is no explicit test verifying response headers (e.g., Content-Type application/json as stated in the story) or other relevant headers that should be returned with 204 responses.",
+              "Non-existing resource / host identity: No scenario covers the case where the target host does not exist or cannot be identified (the story assumes 'a host', but tests do not exercise an explicit non-existent-host error path).",
+              "500 / Internal Server Error: Tests do not explicitly simulate internal server errors (e.g., DB failure) and verify a 500 response or appropriate error handling beyond 503.",
+              "Idempotency semantics beyond simple re-apply: While TC02 covers already-in-rotation, there is no deeper verification of side effects or logs/audits to ensure no duplicate state changes occur.",
+              "Detailed input validation: Although PUT has no body per story, tests do not assert robustness against malformed headers beyond TC12; there is no explicit test for malformed cookies, malformed auth tokens format, or invalid header encodings.",
+              "Partial update / payload rejection: PUT guideline mentions partial updates; tests don't assert that partial/structured payloads are rejected or validated (TC07 allows non-empty body but doesn't cover validation of structured payloads).",
+              "Rate limiting / throttling: No tests for rate limiting or excessive requests beyond TC14 concurrency; no negative tests for throttling responses (e.g., 429).",
+              "Caching and related headers: No tests for caching behavior or presence/absence of ETag/Cache-Control headers.",
+              "Timeout & retry policy details: TC10 and TC13 check for timeout and retry success, but there are no explicit tests for configurable timeout thresholds, exponential backoff, or partial failure behaviors.",
+              "Audit/logging/observability: No tests assert that the operation is logged/audited or that metrics are emitted."
+            ],
+            "recommendations": [
+              "Add tests to assert response headers including Content-Type (application/json) even for 204 responses and any required auditing headers.",
+              "Add a scenario where the specified host cannot be found or identified and assert the correct error is returned (e.g., 404 or appropriate business error).",
+              "Introduce tests that simulate internal server errors (database, dependency failure) to validate 500 responses and error bodies.",
+              "Add tests for rate limiting and throttling (e.g., many requests in a short period producing 429) and verify graceful handling.",
+              "Add negative tests for malformed authentication tokens, malformed headers, and invalid header encodings to ensure robust input validation.",
+              "If PUT with payloads is unsupported, add explicit tests asserting that structured/partial payloads are either ignored or rejected with a clear response (to satisfy 'Partial Update' guideline).",
+              "Extend concurrency tests to check for side effects, duplicate state transitions, and idempotency by validating system state changes, logs, or timestamps to ensure no race corruption.",
+              "Add tests to validate timeout configuration and retry/backoff behavior explicitly (e.g., assert response when backend calls time out vs. eventual success after retry).",
+              "Add observability/audit tests that verify an audit record or log entry is created when a host is put back into rotation, if that is a requirement.",
+              "Add a test that verifies behavior and response when dependencies are slow but still within SLA vs. when they exceed SLA (to complement TC10)."
+            ],
+            "usage": {
+              "completion_tokens": 1245,
+              "prompt_tokens": 3274,
+              "total_tokens": 4519,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

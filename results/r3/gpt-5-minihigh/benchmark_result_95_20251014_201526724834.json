@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "95_2025-10-14T20:15:26.724804",
+    "jira_id": "95",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/tags - Add tags to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:14:14.337593",
+    "benchmark_end_time": "2025-10-14T20:15:26.724800",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 72.387207,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "95_qe_sup-gpt4.1_agent-gpt4.1_1748922214.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid payload / successful creation (201) with response body asserted as Tag objects (TC01, TC02, TC03).",
+              "Required header validation: X-Killbill-CreatedBy enforced (TC07).",
+              "Optional headers handled: X-Killbill-Reason and X-Killbill-Comment accepted (TC02).",
+              "Empty-array handling returns 201 and empty JSON array (TC04).",
+              "Payment not found and DB-empty -> 404 responses (TC05, TC18).",
+              "PaymentId format validation -> 400 for invalid UUID format (TC06).",
+              "Request-body validation: malformed JSON, invalid element types, nulls -> 400 (TC08, TC09, TC17).",
+              "Unexpected/extra fields in body -> 400 (TC10).",
+              "Duplicate tag IDs in request deduplicated; idempotency for existing tags (TC11, TC19).",
+              "Concurrency and race-condition coverage: concurrent POSTs and consistency checks (TC20).",
+              "Performance/large payloads: peak-load performance and large-array boundary test (TC12, TC14).",
+              "Dependency failure handling: service unavailable -> 503 (TC13).",
+              "Security scenarios: unauthorized user (TC15) and malicious payload / XSS attempt -> 400 (TC16).",
+              "Response shape asserted (array of Tag objects) in success scenarios (TC01 and others)."
+            ],
+            "gaps": [
+              "No explicit test for tag-definition existence: a valid UUID that does not correspond to any seeded tag definition is not covered (how should the API respond: 400 vs 404?).",
+              "Content-Type and Accept header checks are missing: tests do not assert the API requires/returns application/json or how it behaves with wrong/missing Content-Type.",
+              "Internal server error (500) simulation is not covered \u2014 only dependency 503 is tested. Server-side failures such as DB exceptions and rollback behavior are missing.",
+              "Atomicity/partial-failure behavior is not tested: mixed arrays containing some valid tagDefinition UUIDs and some valid-format but non-existent/invalid tag IDs (should the call be all-or-nothing?).",
+              "No tests for payload-too-large / server limits (e.g., > max request size) and the expected response (413 or 400).",
+              "Rate limiting / throttling behavior is not covered (how the API reacts to many requests in short time beyond concurrency/performance scenarios).",
+              "Response headers validation is missing (Content-Type on responses; Location or other creation-related headers if applicable).",
+              "Tag object schema validation is shallow: tests assert presence but do not validate full Tag fields (types, timestamps, IDs, CreatedBy/metadata mapping) or exact schema compliance.",
+              "Authorization granularity is not deeply tested: TC15 checks unauthorized user generically but does not assert 401 vs 403 in a strict role/permission matrix or test valid-but-insufficient-permission cases.",
+              "Header-value validation edge cases are missing: empty X-Killbill-CreatedBy, excessively long header values, or malformed header values are not tested."
+            ],
+            "recommendations": [
+              "Add tests for the behaviour when the request contains valid-format tagDefinition UUIDs that do not exist in the system \u2014 define and assert whether API returns 400 or 404 and include those tests.",
+              "Add Content-Type/Accept checks: test requests with missing or incorrect Content-Type and assert response (400) and verify response Content-Type is application/json on success/errors.",
+              "Introduce 500/internal-server-error simulations (e.g., DB exception or forced server error) to validate error handling, logging and that client receives appropriate 5xx status codes.",
+              "Add atomicity tests for mixed-valid/mixed-invalid tag arrays to confirm whether the operation is transactional (all-or-nothing) or partial-success, and assert data consistency/rollback accordingly.",
+              "Add tests for payload-size limits: send payloads above configured request size and assert proper status (413 or configured behaviour).",
+              "Add rate-limiting/throttling tests to verify behaviour under many rapid requests and to ensure appropriate 429 or other policies are enforced (distinct from functional concurrency tests).",
+              "Assert response headers on success and error (Content-Type, and any creation-related headers if applicable).",
+              "Harden schema assertions for Tag objects: validate each field (types, required fields, timestamps, paymentId/tagDefinitionId values) against the Tag definition contract.",
+              "Expand authorization tests to cover 401 vs 403 cases explicitly, and add tests for users with insufficient permissions vs unauthenticated requests to document expected behavior.",
+              "Add header-validation edge-case tests (empty X-Killbill-CreatedBy, overly long values, invalid character sets) to ensure robust input validation."
+            ],
+            "usage": {
+              "completion_tokens": 4899,
+              "prompt_tokens": 6214,
+              "total_tokens": 11113,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3904,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

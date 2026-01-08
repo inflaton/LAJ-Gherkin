@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-09-28T06:42:09.688203",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T06:40:48.088424",
+    "benchmark_end_time": "2025-09-28T06:42:09.688200",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 81.599776,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Success (204) + empty body for valid account cache invalidation (TC01, TC09, TC19).",
+              "Invalid accountId format (400) handling and multiple invalid-pattern/security inputs (TC03, TC12, TC14, TC15).",
+              "Account-not-found (404) cases for non-existent account / empty DB / partial DB states (TC02, TC16, TC18, TC10).",
+              "Authentication error handling for missing/expired tokens (401) (TC05, TC06) and background requirement for admin auth. ",
+              "Unsupported HTTP method handling (405) (TC11).",
+              "Service/unavailable and degraded-performance scenarios (503/optional 204) (TC07, TC08).",
+              "Extra query-parameter tolerance (TC09).",
+              "Concurrency and performance scenario for multiple concurrent deletes and average response time (TC13).",
+              "Regression and edge-case scenarios included (invalid UUID regression TC12, network retry TC17, backward-compatibility TC19)."
+            ],
+            "gaps": [
+              "Authorization scope (403) is not tested: there is no scenario for a valid authenticated user who lacks admin privileges (insufficient role/authorization).",
+              "Idempotency / same-resource race conditions: no explicit test for repeated DELETE on the same account (behavior on second call) or concurrent DELETEs against the very same account to detect race conditions.",
+              "Soft-delete semantics: no tests verify whether the system treats invalidation as a soft or hard operation or whether resources/flags are set as a result.",
+              "Side-effect verification is thin: although TC01 states \"caches ... should be invalidated\", there are no explicit before/after checks against the cache service, nor assertions that other accounts\u2019 caches remain untouched, nor checks that an invalidation event/message was published to dependent systems.",
+              "Error response contract & headers are not asserted: tests do not validate Content-Type, JSON error schema (fields like errorCode/message), or the \u201cProduces: application/json\u201d contract vs 204 no-content behavior.",
+              "Server internal error (500) scenarios are not covered (e.g., simulated DB failures or unhandled exceptions).",
+              "Rate limiting / throttling is not tested (relevant for high-frequency admin operations).",
+              "Audit/logging/tracing of admin actions (that an admin invalidated caches) is not covered.",
+              "Boundary/validation for accountId length/pattern is ambiguous: TC10 allows 400 or 404 and does not enforce the precise UUID regex contract specified in the story."
+            ],
+            "recommendations": [
+              "Add an authorization/role test: authenticated non-admin user attempts DELETE -> expect 403 (forbidden) or defined behavior in contract.",
+              "Add idempotency tests: call DELETE twice for same account and assert the documented result (e.g., first 204, second 204 or 404 as per API contract); add concurrent DELETEs targeting the same account to detect race conditions. ",
+              "Add explicit cache-side verification: pre-populate the account cache, call DELETE, then verify the cache entries are removed for that account and unchanged for other accounts; or assert that the cache-invalidation message was sent to the cache service/event bus.",
+              "Assert error response contract: check Content-Type header, validate error JSON schema (error code, message), and ensure error messages are consistent with API spec.",
+              "Simulate server-side failures (DB down, unexpected exceptions) to ensure 500 (or agreed error) is returned and handled gracefully; add tests for retry/backoff behavior where applicable.",
+              "Add rate-limiting/throttling tests: burst of DELETE requests should produce 429 or follow the system\u2019s rate-limiting policy.",
+              "Add audit/logging verification tests to ensure admin actions are recorded (audit trail, requestor ID, timestamp).",
+              "Tighten boundary tests for accountId: define exact allowed pattern from the API contract and assert deterministic outcomes (do not allow ambiguous \"400 or 404\" expectations\u2014adjust tests to the documented behavior).",
+              "Clarify and assert \"produces: application/json\" vs 204 behavior: for 204 responses ensure no body and proper headers; for error responses assert Content-Type application/json."
+            ],
+            "usage": {
+              "completion_tokens": 6389,
+              "prompt_tokens": 4640,
+              "total_tokens": 11029,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5504,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

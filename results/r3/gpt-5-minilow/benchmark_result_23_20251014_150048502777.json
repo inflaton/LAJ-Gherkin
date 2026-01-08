@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "23_2025-10-14T15:00:48.502749",
+    "jira_id": "23",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/invoices - Retrieve account invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:00:12.605041",
+    "benchmark_end_time": "2025-10-14T15:00:48.502745",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 35.897704,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "23_qe_sup-gpt4.1_agent-gpt4.1_1748917429.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple success scenarios (no params, with date range, with boolean flags, with audit levels) validate expected successful responses and returned Invoice objects.",
+              "Empty Response: Scenario TC08 and TC25 verify behavior when no invoices exist or no invoices match filters (empty JSON array, 200).",
+              "Query Parameters: Many combinations are tested \u2014 startDate, endDate, withMigrationInvoices, unpaidInvoicesOnly, includeVoidedInvoices, audit (FULL/MINIMAL), unsupported extra params, edge cases (startDate after endDate, only startDate/only endDate, min/max dates).",
+              "Authorization (basic): Tests for missing and invalid tokens (TC12, TC13) verify 401 behavior.",
+              "Input validation & security: Malformed accountId (TC10), very large accountId (TC26), SQL injection attempt (TC15), and XSS attempt (TC27) are covered.",
+              "Error responses: Non-existent account returns 404 (TC11); invalid inputs return 400 in several scenarios (TC10, TC15, TC21, TC26).",
+              "Resilience & integration: Service unavailable (TC14), slow downstream dependency (TC17), downstream inconsistent data (TC28) and concurrency (TC18) are present.",
+              "Performance: Large volume scenario (TC16) addresses high-volume retrieval and mentions pagination/performance."
+            ],
+            "gaps": [
+              "Pagination: While TC16 mentions a large volume and \u201cmay be paginated,\u201d there are no concrete tests verifying pagination behavior (page size, offsets/limits, navigation, consistent ordering, or correct total counts).",
+              "Caching Behavior: No tests verify caching headers (ETag, Last-Modified, Cache-Control) or conditional requests (If-None-Match/If-Modified-Since / 304 responses).",
+              "Rate Limiting / Throttling: No scenarios cover rate limits (429) or behavior under burst traffic and client throttling.",
+              "Authorization scope/roles: Tests cover 401 (unauthenticated) but there are no tests for authorization/forbidden (403) scenarios \u2014 e.g., valid token without sufficient permissions or other role-based access controls.",
+              "Pagination performance validation: TC16 asserts response time under 2s, but there is no repeatable performance metric/assertion strategy (warm/cold caches, metrics around memory/CPU), nor dedicated load tests tying pagination to performance.",
+              "Content negotiation & response headers: No checks for Content-Type, expected application/json, charset, or other relevant response headers.",
+              "Audit enum coverage: Audit has enum NONE / MINIMAL / FULL; tests cover FULL and MINIMAL but NONE is not explicitly tested.",
+              "Invalid query parameter types & formatting: Apart from injection and date-range validation, there are few tests for malformed query parameter types (e.g., non-boolean values for boolean params, invalid enum values for audit other than XSS).",
+              "403 vs 401 distinction: No explicit test to ensure authenticated-but-unauthorized results in 403 where applicable."
+            ],
+            "recommendations": [
+              "Add explicit pagination scenarios: test limit/offset (or page token) behavior, verify page sizes, next/previous links (if applicable), deterministic ordering, and combined filters across pages. Include tests that validate total count vs pages.",
+              "Add caching/conditional request tests: validate Cache-Control, ETag/Last-Modified headers, and conditional GETs returning 304 when appropriate.",
+              "Add rate limiting tests: simulate burst requests to validate 429 responses and backoff behavior, and tests for any configured rate-limiting headers (Retry-After).",
+              "Include authorization/permission tests: add cases where a valid token lacks permissions and assert 403 responses and proper error messages.",
+              "Expand response header validations: assert Content-Type is application/json, proper charset, and any pagination-related headers or custom API headers (request-ids, rate-limit info).",
+              "Cover audit=NONE explicitly: test that audit=NONE returns no audit info, and that default behavior (no audit param) matches documented default.",
+              "Add malformed parameter type tests: e.g., withMigrationInvoices=notABool, unpaidInvoicesOnly=123, audit=INVALID to assert 400/422 and clear error messages.",
+              "Formalize performance tests: create repeatable load/benchmark tests for large datasets and pagination, with defined SLAs and monitoring of response times and resource usage.",
+              "Clarify expected behavior for pagination + filters under concurrent access: add tests ensuring consistency (stable sorting) across concurrent paginated requests."
+            ],
+            "usage": {
+              "completion_tokens": 1207,
+              "prompt_tokens": 6428,
+              "total_tokens": 7635,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

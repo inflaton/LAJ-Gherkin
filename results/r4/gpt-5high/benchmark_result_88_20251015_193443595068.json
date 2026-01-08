@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-15T19:34:43.595036",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:33:07.472587",
+    "benchmark_end_time": "2025-10-15T19:34:43.595033",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 96.122446,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Deletion: Success paths for deleting all tags or a specified subset return 204 with empty body and verify resulting state (TC01, TC02, TC03, TC04, TC05, TC06, TC07, TC18).",
+              "Non-Existent Resource: Proper handling of invalid ID format (400) and not found (404) is covered (TC08, TC09).",
+              "Robust input validation on query/header parameters: required X-Killbill-CreatedBy enforced, optional Reason/Comment handled, malformed/empty/oversized tagDef and unexpected params tested (TC03, TC06, TC07, TC10, TC13, TC14, TC16).",
+              "Authorization and infrastructure errors: unauthorized (401), service unavailable (503), and malicious payloads (400/422) are exercised (TC11, TC12, TC15).",
+              "Non-functional checks: basic concurrency performance and integration resilience with audit logging dependency considered (TC17, TC19)."
+            ],
+            "gaps": [
+              "Concurrency semantics for DELETE are not asserted: expected behavior when two clients delete the same tags concurrently (idempotency, final state, and status of the second request) is not defined or validated.",
+              "Soft delete vs hard delete not verified: no explicit post-delete read-back or audit verification to confirm permanent removal vs logical (soft) deletion per guideline.",
+              "Multi-value tagDef encoding not explicitly tested: collectionFormat=multi (tagDef=UUID1&tagDef=UUID2) should be validated; alternative encodings (e.g., CSV) should be accepted or rejected per contract.",
+              "Sequential idempotency not explicit: deleting the same tags twice in sequence and asserting the documented status (typically 204 both times) is missing.",
+              "Role-based authorization (403) behavior is not covered for authenticated but unauthorized callers.",
+              "Response header checks for 204 are missing: assertions that Content-Type is absent (no body) and that standard headers are present; for error responses, consistent Content-Type and error schema are not validated.",
+              "Boundary and duplicate handling in tagDef: duplicates in the list and mixed valid/invalid UUIDs in a single request are not covered; expected handling (ignore duplicates vs reject) is undefined.",
+              "Ambiguity in large tagDef inputs (TC14): expected outcome is not fixed; needs split into concrete limits and outcomes (204 within limits, 413 beyond)."
+            ],
+            "recommendations": [
+              "Add explicit concurrency/idempotency scenarios: two clients delete the same set of tags concurrently; assert first returns 204, second returns the documented status (preferably 204 for idempotency) and final state has no tags.",
+              "Add a sequential idempotency test: perform the same DELETE twice in a row; verify responses and ensure no additional side effects or audit duplication.",
+              "Verify deletion semantics: after DELETE, GET the invoice item's tags (or equivalent verification) to confirm removal; if soft delete is expected, validate flags and that tags do not appear to consumers; assert audit entries include CreatedBy/Reason/Comment.",
+              "Validate collectionFormat=multi: send tagDef as repeated params (tagDef=UUID1&tagDef=UUID2) and as CSV; expect success for multi and rejection for unsupported formats.",
+              "Add a 403 Forbidden scenario for authenticated but unauthorized users to delete tags.",
+              "Assert response headers: for 204, no Content-Type and empty body; for 4xx/5xx, Content-Type application/json and a consistent error schema (code, message, requestId).",
+              "Cover duplicate and mixed tagDef cases: duplicates should be handled idempotently; define and test behavior when the list contains both valid and invalid UUIDs (reject with 400 or partial with 207), aligning with product decision.",
+              "Replace TC14's ambiguous expectation with two tests tied to documented limits: one within limits (204) and one exceeding limits (413)."
+            ],
+            "usage": {
+              "completion_tokens": 6439,
+              "prompt_tokens": 5394,
+              "total_tokens": 11833,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5568,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

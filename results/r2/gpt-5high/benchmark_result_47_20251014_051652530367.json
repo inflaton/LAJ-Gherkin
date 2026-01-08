@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-14T05:16:52.530333",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T05:14:20.644335",
+    "benchmark_end_time": "2025-10-14T05:16:52.530327",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 151.885992,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE: Valid deletion covered with 204 and actual effect verification (idempotency included via empty cache case).",
+              "DELETE: Non-existent resource handled (404 for non-existent tenant context).",
+              "DELETE: Concurrency under load covered; multiple concurrent DELETEs, no races, acceptable latency.",
+              "Robust error handling covered: 400 (malformed), 401 (missing/invalid auth), 500 (internal), 503 (service unavailable), 504 (timeout).",
+              "Security hardening covered via header injection negative test.",
+              "Input validation covered: unsupported params/payload rejected with 400.",
+              "Behavioral verification covered: subsequent requests and dependent services reflect cache invalidation.",
+              "Regression check included to ensure previously fixed bug does not recur."
+            ],
+            "gaps": [
+              "Authorization/role: No scenario for authenticated but unauthorized (non-admin/insufficient privileges) access returning 403.",
+              "Tenant context handling: No scenario for missing/omitted tenant context header/token or invalid tenant header format (should return 400/401/422 per contract).",
+              "Multi-tenant isolation: No scenario proving invalidating tenant A does not affect tenant B.",
+              "Response headers/content negotiation: \"Produces: application/json\" not validated; Content-Type for error responses and appropriate headers for 204 (no body) are not asserted; Accept negotiation not tested.",
+              "Error response schema: No validation of standardized error payload structure (e.g., code, message, type, requestId).",
+              "Distributed/cluster propagation: No scenario validating cache invalidation propagates across nodes in a clustered deployment."
+            ],
+            "recommendations": [
+              "Add a scenario for authorized-but-forbidden user (valid auth without admin/required permission) expecting 403 and no side effects.",
+              "Add scenarios for missing tenant context header/token and malformed tenant context values, asserting correct 4xx status and no invalidation.",
+              "Add a multi-tenant isolation scenario: invalidate for tenant A; verify tenant B caches remain intact.",
+              "Assert response headers: verify Content-Type: application/json for 4xx/5xx errors; ensure 204 responses have no body and appropriate headers; optionally test Accept negotiation (e.g., unsupported Accept returns 406 if applicable).",
+              "Validate error payload schema against the API\u2019s error contract (fields like code, message, type, requestId/correlationId).",
+              "If deployed in a cluster, add a scenario to verify invalidation is visible across nodes/instances (no stale data from another node).",
+              "Tighten TC08 to a single expected status code (choose 400 or 403 per spec) to avoid ambiguous assertions.",
+              "Refactor Background to avoid forcing valid authentication for negative-auth scenarios (use scenario-specific Given or separate backgrounds) and prevent false positives."
+            ],
+            "usage": {
+              "completion_tokens": 7377,
+              "prompt_tokens": 3389,
+              "total_tokens": 10766,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6784,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

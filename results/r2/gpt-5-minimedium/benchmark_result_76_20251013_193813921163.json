@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-10-13T19:38:13.921110",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:37:35.343426",
+    "benchmark_end_time": "2025-10-13T19:38:13.921105",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 38.577679,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01, TC02, TC18, TC19, TC22) verify successful retrieval for valid subscriptionId and/or requestedDate and validate response status 200 and JSON Product object.",
+              "Empty Response / No Data: TC11 covers behavior when the database has no subscriptions (expects 404/no product found).",
+              "Query Parameters: Extensive coverage for combinations of parameters \u2014 valid/omitted/invalid subscriptionId and requestedDate (TC01\u2013TC07, TC12\u2013TC14).",
+              "Authorization: TC09 verifies unauthorized access returns 401.",
+              "Error Handling: Many error conditions are covered \u2014 nonexistent subscription (TC05), invalid date format (TC06), invalid UUID (TC08), missing required parameters (TC07), future/past dates (TC12, TC13), service down (TC10), downstream dependency failure (TC21).",
+              "Security: Injection and XSS attack vectors are tested (TC16, TC17) and expected error handling is asserted.",
+              "Performance/Load: Concurrency and response-time expectations covered by TC15 and TC20 (peak load and acceptable response times).",
+              "Integration / Data Consistency: TC21 and TC22 cover dependency failure handling and validation that returned Product matches catalog definition.",
+              "Regression: TC18 and TC19 explicitly cover previously fixed bugs and backward compatibility scenarios."
+            ],
+            "gaps": [
+              "Pagination: No tests assert pagination behavior or explicitly assert the endpoint is non-paginated. The standard guideline for paging large result sets is not addressed.",
+              "Caching Behavior / Conditional GET: No tests for caching headers (ETag, Last-Modified, Cache-Control) or conditional requests (If-None-Match / 304 responses).",
+              "Rate Limiting / Throttling: Although concurrent load is considered (TC15/TC20), there are no explicit tests for rate limit enforcement (429 responses) or client throttling behavior.",
+              "Authorization nuance (403): Tests only check 401 (unauthenticated). There is no test for authenticated-but-forbidden (403) scenarios or role-based access control.",
+              "Deterministic behavior for ambiguous parameter combinations: TC03 and TC04 allow \"200 or error\" which means the tests do not assert a deterministic business rule. The acceptance criteria in the story expect a defined behavior when parameters are omitted; this is not firmly asserted.",
+              "Schema / Field-level validation: While Product object validity is asserted at a high level, there are no tests that validate individual Product fields/required attributes, types, ranges, or unexpected/malformed fields in the response body.",
+              "Caching side-effects and header handling: No tests check Content negotiation, charset, or other headers beyond Content-Type.",
+              "Negative concurrency/data-race scenarios: No tests ensure data consistency under concurrent updates to subscription/product (reads during writes)."
+            ],
+            "recommendations": [
+              "Add explicit pagination tests or a negative test asserting the endpoint is non-paginated: e.g., create many subscriptions/products and verify whether the endpoint returns a paged list or a single item and validate pagination headers/links when applicable.",
+              "Add caching and conditional GET tests: assert presence and correctness of ETag / Cache-Control / Last-Modified headers; test If-None-Match to expect 304 where applicable.",
+              "Add rate-limiting tests: hammer the endpoint to verify 429 responses and that rate-limit headers (Retry-After) are sent when limits are exceeded.",
+              "Add authorization scope/role tests: include authenticated-but-forbidden cases (403) and tests that verify token scopes or roles are enforced.",
+              "Clarify and codify business rules for ambiguous parameter combinations (only requestedDate, no parameters). Replace \"200 or error\" in TC03/TC04 with deterministic expected behavior and add tests asserting that behavior.",
+              "Add response schema/field-level assertions: validate required fields, types and ranges inside the Product object (IDs, names, prices, currencies, effective dates), and assert no unexpected sensitive fields are leaked.",
+              "Add header/negotiation tests: validate Content-Type charset, allow/deny unexpected Accept headers, and confirm consistent behavior.",
+              "Add data-consistency tests for concurrent read/write: simulate product/plan updates while performing GETs to verify consistent/expected read semantics (eventual/strong consistency depending on requirements).",
+              "If the API supports conditional error codes for inputs (422 vs 400), make tests assert the specific code your API must return rather than accepting multiple options; tighten assertions to the expected contract."
+            ],
+            "usage": {
+              "completion_tokens": 1967,
+              "prompt_tokens": 5044,
+              "total_tokens": 7011,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

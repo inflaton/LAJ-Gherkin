@@ -1,0 +1,101 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-14T14:48:14.118270",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:47:31.985401",
+    "benchmark_end_time": "2025-10-14T14:48:14.118265",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 42.132864,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request (PUT): Happy-path scenario TC01 verifies updating externalKey and expecting 204.",
+              "Non-Existing Resource: TC04 and TC15 cover 404 when bundle(s) not found.",
+              "Input Validation / Malformed Path: TC03 covers malformed bundleId format (400).",
+              "Required Headers: TC02 covers missing required X-Killbill-CreatedBy header (400).",
+              "Request Body Validation: TC06 (missing body), TC07 (malformed JSON), TC08 (missing externalKey), TC09 (extra fields) cover many payload/validation cases.",
+              "Uniqueness/Conflict: TC05 covers externalKey conflict when key already exists for same account (400).",
+              "Edge cases for externalKey content/size: TC10 (very long), TC11 (empty), TC19 (special characters), TC20 (leading/trailing spaces) address character/length/format concerns.",
+              "Headers behavior: TC14 verifies optional X-Killbill-Reason and X-Killbill-Comment usage; TC21 checks unexpected extra headers tolerance.",
+              "Authentication/Authorization: TC12 covers missing/invalid auth (401/403).",
+              "Service/Dependency Failures: TC13 covers downstream service/database unavailable (503).",
+              "Concurrency and Race Conditions: TC17 covers concurrent updates and expectation for single success / conflict for others.",
+              "Performance and Scalability: TC16 (large payload) and TC23 (response time under load) address performance aspects.",
+              "Regression / Backward compatibility: TC18 and TC22 cover regression and legacy client compatibility.",
+              "Operational / Documentation: TC24 verifies API documentation accessibility and required fields are documented."
+            ],
+            "gaps": [
+              "Response content on success: The story notes \u201cproduces: application/json\u201d while acceptance expects 204 (no-content). Tests do not assert response body/headers for successful 204 to confirm the API\u2019s content-type/empty-body behavior or any returned JSON (if any).",
+              "Schema validation beyond externalKey: Request schema references a Bundle object where only externalKey is exercised. No tests validate rejection of additional Bundle fields that should be validated/normalized beyond the extra-fields permissive test (TC09) or verify other Bundle schema constraints.",
+              "Content-Type handling: No explicit tests for missing/incorrect Content-Type header (e.g., not application/json) and server behavior/response codes.",
+              "Exact error payloads and error codes/messages: Tests assert status codes and generic error indications but do not verify structured error response schema, error codes, or localized messages.",
+              "Header value validation: Tests check missing X-Killbill-CreatedBy but not invalid values (e.g., overly long CreatedBy, invalid characters) or missing format for reason/comment headers.",
+              "Idempotency / Duplicate Submission: No explicit test for duplicate submissions or idempotency (re-sending same rename twice) and expected outcome.",
+              "Partial update semantics: Guidelines mention partial updates; the feature does not include a test that attempts a partial/ambiguous update (e.g., other fields present but omitted) to verify behavior (reject vs ignore).",
+              "Authorization granularity: TC12 covers missing/invalid auth but no tests for role/permission-based denial (403 vs 401) or multi-tenant/account isolation (ensuring account boundaries are enforced when renaming keys).",
+              "Persistence and auditing: No tests assert audit trail/createdBy/reason/comment being persisted or visible in logs/history.",
+              "Content validation rules: While many edge cases exist, there is no explicit test for maximum/minimum allowed length defined by system (spec leaves it open); TC10 leaves outcome ambiguous rather than asserting system limits.",
+              "Rate limiting / throttling: No tests for rate limiting or throttling when many requests are made in a short time.",
+              "Caching/HTTP headers: No tests for caching-related headers (ETag, Cache-Control) or related behavior on update endpoints, nor for conditional requests.",
+              "Pagination / GET-specific behaviors: Not applicable directly to this PUT endpoint but the standard guidelines include GET items; no tests ensure behavior of any supporting GET endpoints that might list bundles after rename (to validate propagation)."
+            ],
+            "recommendations": [
+              "Assert success response details: For the happy path, add asserts that 204 has an empty body and appropriate headers (Content-Type behavior) or that a 200/204 + JSON behavior matches the API contract if it produces JSON.",
+              "Content-Type validation tests: Add tests for missing or incorrect Content-Type header to confirm server returns 400/415 as appropriate.",
+              "Error payload schema checks: Add assertions validating structured error responses (fields, error codes, messages) for each error scenario (400/404/401/403/503) to make tests stricter and machine-verifiable.",
+              "Idempotency / duplicate rename tests: Add tests to call rename twice (same payload) to ensure consistent behavior (idempotent success or clear duplicate handling).",
+              "Header value validation: Add tests for invalid X-Killbill-CreatedBy values (too long, invalid chars) and for X-Killbill-Reason/comment content handling (e.g., overly long reason).",
+              "Account isolation tests: Add tests to confirm externalKey uniqueness is scoped to account \u2014 try renaming to a key used in another account (should be allowed if spec says unique per account) and assert expected behavior.",
+              "Persistence/audit verification: Add tests that verify CreatedBy/Reason/Comment are logged/persisted in audit/history where applicable.",
+              "Partial update / unexpected fields: Add negative tests that include other Bundle fields which should be rejected vs ignored depending on contract; assert the API behavior consistently.",
+              "Rate limiting and concurrency load tests: Add tests that exercise rate limits and high-throughput behavior to detect throttling (standard guideline).",
+              "Caching and related headers: If the API or related GET endpoints expose caching semantics, add tests for ETag/If-Match behavior and Cache-Control headers; verify update invalidates caches if appropriate.",
+              "Define and assert size/charset limits: Replace ambiguous tests (TC10/TC19/TC20) with concrete assertions tied to documented limits (e.g., assert 255 allowed or 400 if not), to avoid flaky pass/fail depending on environment.",
+              "Verify GET propagation: Add a follow-up GET/list-bundles check after rename to ensure rename is visible through read endpoints (consistency check)."
+            ],
+            "usage": {
+              "completion_tokens": 1646,
+              "prompt_tokens": 6051,
+              "total_tokens": 7697,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

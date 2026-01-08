@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-13T05:15:07.541571",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:14:33.959004",
+    "benchmark_end_time": "2025-10-13T05:15:07.541568",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 33.582564,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC05, TC06, TC07) verify successful deletion semantics and 204 responses.",
+              "Non-Existent Resource: TC08 verifies 404 when invoiceItemId is not found.",
+              "Invalid Identifier Format: TC09 and TC13 validate handling of invalid/malformed UUIDs for invoiceItemId and tagDef.",
+              "Header Validation & Authentication: TC10 (missing X-Killbill-CreatedBy) and TC11 (invalid auth token) cover required header and auth failure cases.",
+              "Optional Headers: TC03 and TC18 cover use of X-Killbill-Reason and X-Killbill-Comment (including special characters) and verify they do not break deletion.",
+              "Query Parameter Variations: TC02, TC05, TC06, TC13, TC16, and TC14 cover presence/absence of tagDef, subset vs non-present tag IDs, empty tagDef, malformed elements, partial elements, and very large lists.",
+              "Edge & Robustness: TC15 covers XSS/injection attempts in headers; TC12 covers service-unavailable (503); TC17 addresses concurrent requests and performance; TC19 addresses dependent-service (audit) failures and partial failures.",
+              "Empty Response Body: Multiple success scenarios assert empty body with 204 status.",
+              "Error code coverage: Tests include expected 204, 400, 401, 404, 503 and ambiguous handling for large payloads (TC14)."
+            ],
+            "gaps": [
+              "Soft Delete Semantics: No tests verify whether tags are soft-deleted (e.g., \u201cdeleted\u201d flag) versus permanently removed, nor checks of retention/audit records beyond TC19's high-level integration test.",
+              "Idempotency / Repeated Deletes: No explicit test that repeated DELETE calls for the same invoiceItemId (or same tag set) are idempotent (e.g., second DELETE still returns 204 or appropriate response).",
+              "Authorization / Permission Levels (403): Authentication failure (401) is covered, but there are no tests for authorization/permission denied scenarios (403) where token is valid but lacks rights to delete tags.",
+              "Server Error Handling (5xx) beyond 503: No tests simulate database failures or internal errors that produce 500/502/504 to verify graceful handling and retries.",
+              "Response Headers & Content-Type: Tests do not assert response headers (e.g., Content-Type, application/json expectation in the story, or Cache-Control/ETag), which may be required by consumers or by the API description.",
+              "Rate Limiting & Throttling: No tests cover API rate limits or behavior under request bursts beyond TC17 (performance) \u2014 TC17 focuses on correctness/performance, not throttling responses.",
+              "Explicit Id/Value Boundaries: Tests do not assert maximum lengths or allowed character sets for X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment beyond XSS payloads; no tests for extremely long header values.",
+              "Clear contract for partial failures: TC19 mentions partial failures but there is no concrete test validating exact response structure/content for partial failures (e.g., 207 Multi-Status) or audit/logging guarantees."
+            ],
+            "recommendations": [
+              "Add idempotency tests: send the same DELETE twice (and concurrent repeated deletes) and assert consistent idempotent behavior and safe 204 responses or documented alternative.",
+              "Add authorization (403) tests: include scenarios where an authenticated user lacks permission to delete tags and assert 403 and a clear error message.",
+              "Simulate server-side failures: add tests that mock DB or internal service errors to verify 500/502/504 responses and that clients get useful error messages and diagnostics.",
+              "Assert response headers: add checks for Content-Type, and if applicable the application/json contract (even for error responses), plus any expected Cache-Control / ETag behavior or confirm they are intentionally absent for DELETE.",
+              "Soft-delete verification & audit: if the system uses soft deletes, add tests that verify deleted flags, retention behavior, and audit log entries (and their content) post-delete; if permanent deletion, assert absence in storage.",
+              "Rate-limiting/throttling tests: implement tests that exercise request bursts and verify 429 (or configured throttling behavior) and retry guidance headers if present.",
+              "Clarify and test partial-failure responses: implement concrete tests for dependent-service failures (audit logging) that assert exact status codes and body structure (e.g., 207 Multi-Status) rather than \"204 or 207\" ambiguity.",
+              "Header boundary tests: add tests for very long or unusual but valid header values (length limits, Unicode) to ensure validation and avoid unexpected rejections."
+            ],
+            "usage": {
+              "completion_tokens": 2346,
+              "prompt_tokens": 5394,
+              "total_tokens": 7740,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1344,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

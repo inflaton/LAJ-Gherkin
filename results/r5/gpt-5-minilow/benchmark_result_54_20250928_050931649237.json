@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-09-28T05:09:31.649209",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:09:15.016283",
+    "benchmark_end_time": "2025-09-28T05:09:31.649204",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 16.632921,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC12, TC16) exercise successful deletion flows including \u201call tags\u201d, specific tags, empty-array regression and very large sets.",
+              "Path parameter validation: TC01/TC02/TC05/TC06/TC07 check valid, invalid format and non-existent bundleId behavior (204, 400, 404).",
+              "Query parameter validation: Scenarios cover valid tagDef lists, invalid tagDef UUIDs, mixed valid/invalid tagDef (TC02, TC07, TC13, TC16).",
+              "Required headers: Presence and absence of X-Killbill-CreatedBy is covered (TC03, TC08).",
+              "Optional headers: Handling of optional X-Killbill-Reason and X-Killbill-Comment is tested (TC03).",
+              "Error handling: Several error cases covered \u2014 invalid bundleId format (400), non-existent bundle (404), invalid tagDef (400), missing required header (400), unauthorized (401), service unavailable (503), partial invalid params (400).",
+              "Concurrency and performance edge cases: Concurrency (TC15) and timeout/long-running operations (TC18) are included.",
+              "Integration / data consistency: Post-delete verification via GET is present (TC17).",
+              "Security/validation in headers: XSS/injection in headers is considered (TC14).",
+              "Robustness: Extra unexpected query params handling (TC11) is covered."
+            ],
+            "gaps": [
+              "Soft delete semantics: No scenario checks whether deletion is soft (flag/state) vs hard removal, or whether deleted tags remain in audit logs/history.",
+              "Authorization nuance: TC09 covers unauthorized (401) but there is no explicit test for forbidden (403) vs unauthenticated (401) distinctions or role-based access variations.",
+              "Response content and headers: Tests do not validate response headers (Content-Type application/json on errors, caching headers where applicable) or response structure for error payloads (fields, codes, messages) beyond existence of an error message.",
+              "Rate limiting / throttling: Although concurrency is tested, there are no rate-limiting / throttling tests (e.g., many repeated requests spread over time to trigger 429).",
+              "Pagination / large-result GET interactions: The standard GET pagination guideline is not addressed \u2014 while large numbers of tags are used for DELETE, there is no test of how related GET responses are paginated when listing tags.",
+              "ETag / caching behavior: No tests check caching headers (ETag, Cache-Control) or conditional requests that could be relevant for integration checks (e.g., verifying GET after delete with ETag).",
+              "Partial-success semantics: There is a scenario for mixed valid/invalid tagDef returning 400 (TC13), but no scenario that asserts atomicity guarantees (e.g., whether none are removed on error versus partial removal) or explicit rollback behavior.",
+              "Error response consistency: No tests assert consistent error codes/payloads for malformed headers (TC14 allows 400 or 422 but doesn\u2019t assert one canonical behavior) or for malformed query arrays (e.g., tagDef provided as non-array).",
+              "Input schema/typing: No tests for malformed query parameter types (e.g., tagDef passed as comma-separated string vs repeated params), or for URL-encoded values.",
+              "Auditing / logging: No tests validate that deletions are audited (createdBy, reason, comment recorded)."
+            ],
+            "recommendations": [
+              "Add soft-delete verification: test whether tags are marked deleted vs permanently erased, and verify audit/history endpoints if available.",
+              "Add authorization matrix: include tests asserting 401 vs 403, and role-based access (admin vs regular user) to ensure proper access control semantics.",
+              "Validate response headers and error payloads: assert Content-Type on error responses, check structured error fields (code, message, parameters) and consistent HTTP status for header validation (choose 400 vs 422).",
+              "Add rate-limiting tests: create scenarios that send repeated requests at high frequency to observe 429 or throttling behavior, including backoff expectations.",
+              "Test pagination and large-result GET interactions: when many tags exist, verify GET endpoints that list tags behave with pagination and that DELETE effects are visible across pages.",
+              "Test ETag / caching behavior: after deletion, verify conditional GETs (If-None-Match) and that caching headers are correct for related GET endpoints.",
+              "Assert atomicity/partial-success behavior: add tests that confirm whether an invalid tagDef in a multi-tag request results in no tags being removed (rollback) or partial removal, and document expected behavior.",
+              "Expand query parameter format tests: cover repeated query params vs comma-separated values, URL-encoded UUIDs, empty array formats, and type mismatches.",
+              "Add auditing/logging checks: verify that X-Killbill-CreatedBy, Reason and Comment are persisted to audit logs or returned by history endpoints if applicable.",
+              "Tighten security test assertions: make TC14 assert a single expected status code and validate that payloads are sanitized and not reflected back; include injection payloads in query params as well."
+            ],
+            "usage": {
+              "completion_tokens": 1471,
+              "prompt_tokens": 4976,
+              "total_tokens": 6447,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 384,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

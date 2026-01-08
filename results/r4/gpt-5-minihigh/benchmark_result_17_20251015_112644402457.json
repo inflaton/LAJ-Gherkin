@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-10-15T11:26:44.402415",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:25:07.688017",
+    "benchmark_end_time": "2025-10-15T11:26:44.402409",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 96.714392,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Happy-path creation and variations (TC01, TC03, TC04, TC05): successful POSTs returning 201, Location header presence and DB association checks are present.",
+              "Header handling: required X-Killbill-CreatedBy enforcement and optional X-Killbill-Reason / X-Killbill-Comment exercised (TC02, TC05, TC13).",
+              "Path parameter validation: valid UUID path use and invalid/missing accountId checks (TC01, TC07, TC08).",
+              "Request-body validation: malformed JSON, missing required fields, invalid email format, extra fields and empty body are covered (TC06, TC10, TC11, TC12, TC17).",
+              "Error responses: 400 for bad requests and 404 for non-existent account are covered (TC07, TC09, TC10, TC11, TC12, TC17).",
+              "Boundary/performance-related tests: large payload handling and slow DB/timeouts covered (TC16, TC19); transient network retry and basic concurrency covered (TC20, TC25).",
+              "Security and regression: SQL injection, XSS and unicode/special-character cases are present (TC21, TC23, TC24); backward-compatibility regression is included (TC22).",
+              "Authorization: unauthorized/invalid token scenarios covered (TC14).",
+              "Integration/propagation checks: visibility via subsequent GET and downstream propagation covered (TC26).",
+              "Accessibility/documentation checks: inclusion of expectations about descriptive errors and documentation clarity (TC27)."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency not explicitly tested: there is no scenario that posts the same email twice (sequentially or concurrently) to assert conflict or idempotent behavior (e.g., 409 vs idempotent 201).",
+              "Full response schema validation is missing: tests do not assert full AccountEmail schema compliance (required fields, types, generated id, timestamps, flags) via JSON Schema or contract tests.",
+              "Location header content correctness is not strictly verified: most tests check presence only and do not validate the URL pattern, that it points to the individual email resource, or that the Location URL resolves to the created resource.",
+              "Response Content-Type header is not asserted (e.g., that responses are application/json).",
+              "Request Content-Type mismatch tests are missing (sending non-application/json to assert 415/400 behavior).",
+              "Server error (500) simulation is absent: only 503/timeouts are covered; tests do not explicitly simulate a 500 Internal Server Error and validate expected API behavior/handshake/rollback.",
+              "Rate limiting / throttling behavior is not tested (no 429 or throttling scenarios).",
+              "Header value validation gaps: tests do not check invalid/blank/overlength X-Killbill-CreatedBy or boundary validation for optional headers; handling of unexpected extra headers is not covered.",
+              "Concurrency duplicate-creation specifics are not covered: TC20 exercises concurrency generally but does not explicitly assert behavior when multiple concurrent requests attempt to add the identical email address."
+            ],
+            "recommendations": [
+              "Add duplicate-submission tests (sequential and concurrent) that POST the same AccountEmail twice and assert the expected behavior (e.g., second request returns 409 conflict or is treated idempotently) and verify DB has no duplicates.",
+              "Introduce strict response-schema (JSON Schema) validations for returned AccountEmail objects: assert presence and types of id, createdDate, email, isDefault, accountId, etc., and fail tests on schema mismatch.",
+              "Add assertions that the Location header matches the expected pattern (/1.0/kb/accounts/{accountId}/emails/{emailId}) and that a GET to that Location returns the created resource.",
+              "Assert response Content-Type (application/json) and add tests that vary Accept headers to verify content negotiation where applicable.",
+              "Add negative tests for incorrect request Content-Type (e.g., text/plain or missing Content-Type) and assert correct error codes (415 or 400) per API contract.",
+              "Simulate server-side 500 errors (or clarify expected 5xx behavior) and add tests to verify proper HTTP code, error message, and that partial writes are rolled back / no partial state remains.",
+              "Add rate-limiting / throttling tests to observe behavior under high request rates and assert 429 or documented throttle responses if applicable.",
+              "Add header-validation tests for X-Killbill-CreatedBy and optional headers: missing, empty, overly long values and ensure API enforces constraints and returns clear error messages.",
+              "Extend concurrency tests to specifically target the race to create the same email (multiple concurrent POSTs with identical payload) and validate de-duplication, unique constraints or the documented resolution behavior.",
+              "Make TC06 (extra fields) deterministic: decide whether extra fields should be ignored or rejected and add tests that assert the chosen behavior explicitly; update documentation and tests accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 9989,
+              "prompt_tokens": 6487,
+              "total_tokens": 16476,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 8960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-14T16:00:46.822322",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T16:00:03.813630",
+    "benchmark_end_time": "2025-10-14T16:00:46.822317",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 43.008687,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC05) verify successful removals returning 204 and empty body.",
+              "Non-Existent Resource: TC08 verifies 404 for missing invoice item.",
+              "Path Parameter Validation: TC09 checks invalid invoiceItemId format (400).",
+              "Required Header Validation: TC10 verifies missing X-Killbill-CreatedBy returns 400.",
+              "Authentication: TC11 checks invalid/expired token returns 401.",
+              "Query Parameter Variants: TC02, TC05, TC06, TC07, TC13 cover presence/absence, subset, non-present IDs, empty tagDef, extra params, and malformed tagDef UUIDs.",
+              "Optional Headers: TC03 covers X-Killbill-Reason and X-Killbill-Comment handling; TC18 covers special characters in comment.",
+              "Malformed / Invalid Input: TC13 and TC16 check malformed UUIDs and partially specified tagDef arrays.",
+              "Large Input / Limits: TC14 probes very large tagDef lists and expected outcomes (204 or 413).",
+              "Security Input Validation: TC15 covers XSS/injection attempts in headers.",
+              "Concurrency / Performance: TC17 exercises high concurrency to detect race conditions and performance issues.",
+              "Service Availability / Integration Failures: TC12 (service down) and TC19 (audit logging unavailable) test resilience/partial failure responses.",
+              "Edge-case: TC04 covers deleting when invoice item has no tags (empty response handling).",
+              "Accessibility & Documentation: TC20 addresses documentation and error-message accessibility."
+            ],
+            "gaps": [
+              "Soft Delete Behavior: No scenario verifies whether tags are soft-deleted vs permanently removed or asserts the persistent storage state (deleted flag, timestamps, audit entries).",
+              "Authorization/Role-Based Access (403): Tests cover authentication (401) but not forbidden scenarios (user authenticated but lacks permission -> 403).",
+              "Idempotency / Repeat Deletes: No explicit tests for repeating the same DELETE (idempotent behavior), or deleting tags that were just removed (expected 204 vs 404 ambiguity).",
+              "Server Error Handling (5xx): Apart from 503 (TC12), there are no tests that simulate 500/Internal Server Error, DB failures, or graceful degradation patterns.",
+              "Error Response Schema and Content-Type: Tests assert presence of error messages but do not validate the error response schema, content-type headers, or consistent error codes/body structure.",
+              "HTTP Headers and Response Metadata: No assertions for response headers like Content-Type, Cache-Control, ETag or other relevant metadata (even if caching is less relevant for DELETE, content-type and audit headers matter).",
+              "Partial Failure Semantics: While TC19 mentions possible partial failures, there is no concrete test that verifies transactional atomicity when removing multiple tag IDs (e.g., some succeed, some fail) or the exact HTTP status for partial success beyond the broad TC19 note.",
+              "Duplicate / Repeated tagDef entries and Ordering: No tests for duplicate UUIDs in tagDef, differently ordered lists, or percent-encoded query params.",
+              "Boundary Conditions on Headers: No tests for very long X-Killbill-Comment/Reason values, charset/encoding edge cases beyond special characters/XSS, or limits on header sizes.",
+              "Rate limiting / Throttling (429): No tests for request throttling or server-side rate limiting despite performance/concurrency test being present."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification test: after DELETE, assert whether tag records are removed or flagged (include DB-level verification or API read-back to confirm permanent vs soft delete).",
+              "Add authorization (403) tests: exercise authenticated users without sufficient privileges to confirm 403 responses and correct error messages.",
+              "Add idempotency tests: send the same DELETE twice and assert the second call behaves as expected (204 vs 404) and document intended behavior.",
+              "Simulate server-side failures (500): create tests that force DB/transaction failures or throw 500 to ensure the API returns meaningful errors and that clients can handle them.",
+              "Validate error response schema and headers: assert Content-Type, structured error fields (code/message/type), and consistent formatting across error scenarios (400/401/403/404/500/503).",
+              "Add tests for duplicate and percent-encoded tagDef values and ordering to ensure the server normalizes/handles these cases consistently.",
+              "Add boundary/header-size tests: very large X-Killbill-Comment/Reason to identify header-size limits and expected error responses.",
+              "Add explicit transactional/partial-failure tests: craft scenarios where some tag removals fail (e.g., constrained DB) and assert whether operation is atomic, and check the exact status code and audit logs.",
+              "Add rate-limiting/429 tests: simulate many requests in short time windows to assert throttling behavior and proper 429 responses and Retry-After headers.",
+              "Add assertions for response metadata: at minimum assert Content-Type and any relevant audit or correlation headers returned by the API so downstream services can rely on them."
+            ],
+            "usage": {
+              "completion_tokens": 2209,
+              "prompt_tokens": 5394,
+              "total_tokens": 7603,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-13T13:48:19.537244",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T13:45:43.931198",
+    "benchmark_end_time": "2025-10-13T13:48:19.537239",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 155.606041,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT Method - Valid Request: Multiple success paths with required header only and with optional requestedDate, pluginProperty, Reason, Comment; verifies bundle and subscriptions paused or scheduled (TC01\u2013TC05).",
+              "PUT Method - Non-Existing Resource: Proper 404 handling for non-existent bundle and empty DB (TC07, TC20).",
+              "PUT Method - Concurrency Issues: Only one of concurrent pause requests succeeds; others fail appropriately (TC21).",
+              "Input validation: Invalid UUID, invalid state (already paused/canceled), missing required header, malformed/past requestedDate, malformed pluginProperty (TC06, TC08\u2013TC10, TC17\u2013TC19).",
+              "Security hardening: SQL injection in path and XSS in headers rejected without side effects (TC13, TC14).",
+              "Large input handling: Very large pluginProperty array exercised (TC16).",
+              "Resilience and dependencies: Service unavailable (503) and dependent plugin failure (502) covered (TC12, TC25).",
+              "Integration and regression: Downstream consistency validated; unrelated bundles unaffected (TC23, TC26).",
+              "Performance sanity: Load/performance expectation under burst of requests (TC22)."
+            ],
+            "gaps": [
+              "Response headers/content: No assertions that error responses are application/json per spec; no check that 204 responses have no body.",
+              "Query param encoding: Spec defines pluginProperty as collectionFormat=multi; tests use a JSON-like array. Missing coverage of repeated query params and URL-encoding behavior.",
+              "Authorization semantics: Only 401 is covered and TC11 conflates CreatedBy with auth. No 403 scenario for authenticated user lacking permission.",
+              "Sequential idempotency: No explicit repeat-call test after a successful pause (immediate or scheduled) to prove stable outcome and no duplicate side effects (beyond concurrent case).",
+              "Boundary dates: No tests for requestedDate being today (boundary), leap day, or DST transitions.",
+              "Request body handling: Spec says no body; no test that a non-empty body is rejected or ignored with a defined status (e.g., 400/415).",
+              "Audit verification: TC04 claims audit entries but does not retrieve/validate them via an audit endpoint.",
+              "Error schema: No validation of standardized error payload structure and fields across 400/404/502/503.",
+              "Operational headers: No checks for presence/format of Retry-After on 503 or similar operational headers.",
+              "Scheduled behavior: For requestedDate scheduling, no follow-up verification that the state transitions to paused at the requested time."
+            ],
+            "recommendations": [
+              "Add a scenario asserting 204 has no response body and that 4xx/5xx errors return Content-Type: application/json with a consistent error schema.",
+              "Test pluginProperty as repeated query params (pluginProperty=k1=v1&pluginProperty=k2=v2) including proper URL-encoding; retain special-character coverage from TC24.",
+              "Separate auth from metadata: use invalid/expired auth token for 401 and a valid token with insufficient permissions for 403.",
+              "Add sequential idempotency scenarios: repeat pause immediately after 204 (immediate and scheduled cases) and assert documented response (likely 400) with no additional side effects.",
+              "Extend date edge cases: requestedDate= today (boundary), leap day (e.g., 2024-02-29), and around DST; assert server interprets dates consistently (UTC) and applies schedule correctly.",
+              "Add a negative test sending a non-empty request body to confirm server behavior (reject with 400/415 or ignore) per API contract.",
+              "Validate audit logs by fetching them after TC04/TC05 and asserting CreatedBy, Reason, Comment, and timestamps are recorded.",
+              "Add tests to assert standardized error payload fields (e.g., code, message) for 400/404/502/503.",
+              "For 503 scenarios, assert presence and correctness of Retry-After header if supported.",
+              "For scheduled pauses (TC02/TC05), add a follow-up step (time travel or wait) to confirm the bundle and subscriptions transition to paused at requestedDate."
+            ],
+            "usage": {
+              "completion_tokens": 7402,
+              "prompt_tokens": 6254,
+              "total_tokens": 13656,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6528,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

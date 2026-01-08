@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "40_2025-09-28T11:11:07.305660",
+    "jira_id": "40",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{childAccountId}/transferCredit - Move a given child credit to the parent level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:09:55.842101",
+    "benchmark_end_time": "2025-09-28T11:11:07.305656",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 71.463555,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "40_qe_sup-gpt4.1_agent-gpt4.1_1748918568.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT - Valid Request: Success path returns 204 and verifies state change (child credit reduced, parent credit increased) [TC01].",
+              "PUT - Non-Existing Resource: 404 for missing child account [TC04], missing parent account [TC05], and empty database [TC12].",
+              "PUT - Concurrency Issues: Concurrent requests handled so only one succeeds and others fail due to insufficient credit [TC14]; sequential duplicate guarded [TC16].",
+              "Input Validation: Required header missing [TC06]; malformed UUID path param [TC07]; malicious and unexpected header values validated [TC11, TC15]; extra headers ignored [TC08].",
+              "Authorization: Unauthorized/forbidden access covered with 401/403 [TC10].",
+              "Operational Resilience: API unavailable scenario with 503/network error [TC09].",
+              "Performance: Large dataset with response time threshold [TC13].",
+              "Optional Headers Behavior: Reason/comment accepted and audit-logged [TC02]."
+            ],
+            "gaps": [
+              "Business rule: Child account without a parent (or not marked as a child) is not covered; expected 400/404 depending on API rules.",
+              "Response contract for 204: No assertion that the body is empty and headers are correct (e.g., absence/presence of Content-Type) despite \"Produces: application/json\" note.",
+              "Content negotiation: No tests for Accept headers (e.g., Accept: application/json vs unsupported types leading to 406).",
+              "Server error handling: No simulation of internal errors (e.g., DB failure) returning 500.",
+              "Retry/idempotency semantics under network uncertainty: No test where first request times out client-side but succeeds server-side, and a retry should not double-transfer.",
+              "Audit details: No assertion that X-Killbill-CreatedBy is persisted in audit logs/events beyond being required.",
+              "Request body handling: Story says Request Body: N/A; no test ensures a supplied body is rejected (400/415) or ignored as per spec.",
+              "Relationship integrity: No test for a child pointing to a parent that exists but is not actually its linked parent (mismatched relationship)."
+            ],
+            "recommendations": [
+              "Add a scenario for a child account with no parent (or not a child type) attempting transfer; expect 400/404.",
+              "Add a success-path assertion that 204 returns an empty body and expected headers; add error-path checks that error responses are JSON with proper Content-Type.",
+              "Introduce content-negotiation tests: valid Accept header vs unsupported Accept leading to 406 Not Acceptable.",
+              "Add a forced internal failure (e.g., DB exception) to verify a 500 response and error payload structure.",
+              "Add a network-timeout/retry scenario to confirm operation does not double-transfer when the first attempt actually succeeded server-side.",
+              "Verify audit persistence for X-Killbill-CreatedBy (who performed the transfer) in audit logs/events, not only reason/comment.",
+              "Add a negative test sending a non-empty request body to confirm it is either rejected or ignored according to the API contract.",
+              "Add a test where the child\u2019s recorded parentId differs from the actual target parent relationship, ensuring the API enforces correct linkage."
+            ],
+            "usage": {
+              "completion_tokens": 3441,
+              "prompt_tokens": 4953,
+              "total_tokens": 8394,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2752,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

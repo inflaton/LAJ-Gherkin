@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-09-28T07:14:30.089595",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:12:33.359288",
+    "benchmark_end_time": "2025-09-28T07:14:30.089590",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 116.730302,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Endpoint and happy path: Successful resume with required headers returning 204 and updating bundle/subscription state (TC01, TC18).",
+              "Path parameter validation: valid UUID success and invalid UUID format handled (TC01, TC06) and not-found 404 for missing bundle (TC05).",
+              "Query parameter handling: requestedDate scheduling (future) and invalid past date covered (TC02, TC20); pluginProperty valid, large volume and invalid formats covered (TC03, TC13, TC19).",
+              "Headers and audit: required X-Killbill-CreatedBy presence and missing-header error (TC01, TC07); optional X-Killbill-Reason and X-Killbill-Comment processed and recorded in audit log (TC04); max length and whitespace/case variations covered (TC12, TC26).",
+              "State validation and business rules: cannot resume when bundle is active or cancelled (TC08, TC09).",
+              "Authorization and security: unauthorized access handled (TC10) and security tests for SQL injection and XSS (TC16, TC17).",
+              "Error and failure modes: dependency/plugin unavailable => 500 (TC14), plugin degraded/timeout behavior considered (TC25), and retry after transient network failure (TC15).",
+              "Concurrency and idempotency considerations: concurrent resume requests and expected outcomes discussed (TC21).",
+              "Non-functional tests: performance/load under normal and peak load (response time threshold) covered (TC22).",
+              "Regression and backward compatibility: regression case and legacy client header format covered (TC23, TC24).",
+              "Edge cases and robustness: extra unexpected parameters ignored or tolerated (TC11), regression and previous edge cases added (TC23)."
+            ],
+            "gaps": [
+              "Response payload and content-type verification: tests assert status codes but do not validate response headers or error payload structure/schema (the story notes \"produces: application/json\").",
+              "Atomicity and transactional guarantees: no explicit tests verify that resume is atomic across all subscriptions in a bundle (no partial-resume + rollback test).",
+              "Authentication nuance coverage: missing tests for missing auth token, expired tokens, token scope/permissions or differentiated 401 vs 403 semantics beyond \"invalid user\".",
+              "Deterministic idempotency and precise status codes: TC21 allows multiple possible responses (204 then 400/409); tests do not assert a single expected deterministic behavior for repeated requests.",
+              "RequestedDate format and timezone edge cases: no tests for ISO formats, timezone offsets, DST boundaries or boundary timestamps (midnight).",
+              "Downstream side effects: no tests that verify billing, invoicing or notification side effects triggered by resume (only subscription state change asserted).",
+              "Partial failures during plugin interactions: no explicit test that simulates a plugin failing mid-operation and validates rollback/compensation or partial state.",
+              "Rate limiting and throttling: no tests to validate behavior when clients exceed request quotas or to assert rate-limiting responses.",
+              "Error response content consistency: message codes, error fields and localization are not validated; tests mostly assert status codes and allow multiple codes in some cases.",
+              "Header injection / CRLF / binary input attacks: security tests cover SQLi and XSS but not other header/parameter injection vectors."
+            ],
+            "recommendations": [
+              "Add assertions for response headers and body schema for both success and error responses (Content-Type, a stable error schema with code/message/field).",
+              "Add atomicity tests: simulate a failing plugin or partial failure mid-resume and assert either full rollback (no subscriptions resumed) or clearly documented partial behavior.",
+              "Expand authentication tests: include missing Authorization header, expired token, insufficient scope/permissions and assert specific expected codes (401 vs 403).",
+              "Make idempotency expectations concrete: add tests that assert exact status codes for repeated or duplicate resume requests (decide on 204 then 409 or 204 then 400 and codify that).",
+              "Add requestedDate format tests: ISO8601 variations, timezone offsets, boundary timestamps and validate server interpretation and stored scheduled time.",
+              "Add tests to validate downstream side effects where applicable: billing events, invoice generation or notifications triggered by resume.",
+              "Add negative plugin interaction tests: plugin returns partial success, throws errors, or times out mid-operation and verify system consistency and user-facing errors.",
+              "Introduce rate-limiting and throttling tests (abuse scenarios and expected 429 responses or documented behavior).",
+              "Add tests for header/parameter injection patterns beyond SQLi/XSS (CRLF, header splitting, binary inputs) and ensure sanitization.",
+              "Tighten error assertions: instead of allowing multiple status codes for the same scenario, choose and assert single expected codes and validate error payload fields to prevent ambiguity."
+            ],
+            "usage": {
+              "completion_tokens": 6762,
+              "prompt_tokens": 6265,
+              "total_tokens": 13027,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5760,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "90_2025-10-15T17:57:13.291798",
+    "jira_id": "90",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Add custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T17:53:53.689667",
+    "benchmark_end_time": "2025-10-15T17:57:13.291794",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 199.602127,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "90_qe_sup-gpt4.1_agent-gpt4.1_1748921815.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Payload (POST): TC01\u2013TC04 cover 201 Created with correct response body for required and optional headers, single and multiple CustomField arrays.",
+              "Invalid Payload (POST): TC06\u2013TC09 and TC11 exercise 400 responses for invalid UUID, malformed/missing body, missing required header, and unknown fields.",
+              "404 Not Found: TC05, TC22, TC23 validate behavior when the invoice item does not exist or DB is empty.",
+              "Validation breadth: TC19\u2013TC21 cover boundary lengths, special characters, and injection attempts to check sanitization/validation.",
+              "Large Payloads: TC14 targets maximum allowed array size handling.",
+              "Duplicate Submission/Idempotency: TC25 covers retry after transient failure without creating duplicates.",
+              "Server Error Handling: TC13 covers service unavailability (503).",
+              "Authentication/Authorization: TC12 validates 401/403 for unauthenticated/unauthorized access.",
+              "Concurrency: TC16 covers concurrent POSTs to the same invoice item.",
+              "Persistence/Integration: TC18 confirms fields are persisted and retrievable via subsequent GET.",
+              "Header requirements: CreatedBy required and Reason/Comment optional are exercised (TC01, TC02, TC07)."
+            ],
+            "gaps": [
+              "Content negotiation not asserted: no checks that request Content-Type is application/json or that response Content-Type is application/json; no negative tests for 415 Unsupported Media Type or 406 Not Acceptable.",
+              "Server error 500 not covered: only 503 is tested; guideline calls for 500 Internal Server Error (e.g., DB failure) simulation.",
+              "Mixed-validity payload behavior undefined: no test where array contains both valid and invalid CustomField objects to assert atomic vs partial creation and resulting status.",
+              "Above-maximum payload negative path missing: no test for payload exceeding the maximum allowed (count or total size) expecting 413.",
+              "Duplicate submission explicit case missing: no test sending the exact same POST twice (without network failure) to verify deduplication, idempotency key handling, or 409/200/201 behavior.",
+              "Schema-level validation gaps: no tests for wrong data types, nulls, or missing required properties within CustomField objects per the JSON schema.",
+              "Existing-field duplicate behavior not covered: TC17 handles duplicates within a single request, but not when adding a field name that already exists on the invoice item.",
+              "Ambiguity in expected outcomes: several scenarios use \u201c201 or 400/413/\u2026 depending on behavior\u201d; tests should assert a single, contractually defined status.",
+              "Response headers not asserted: no checks for Produces application/json or other standard headers (e.g., Date); schema-level validation of response payload is not enforced."
+            ],
+            "recommendations": [
+              "Add content negotiation tests: assert request Content-Type: application/json and response Content-Type: application/json; add negative tests for 415 (wrong/missing Content-Type) and 406 (unsupported Accept).",
+              "Simulate 500 Internal Server Error (e.g., forced DB failure) and assert correct error payload and status.",
+              "Add mixed-validity array scenarios to define atomicity: one invalid item among valid ones should result in an agreed behavior (reject all with 400 or partial success); verify resulting DB state.",
+              "Create explicit duplicate submission tests: send identical POST twice (with and without Idempotency-Key if supported) and verify no duplicate records or appropriate 409/200/201 response.",
+              "Add above-limit tests: exceed maximum number/size of CustomField objects and assert 413 (or documented limit behavior).",
+              "Extend schema validation: wrong data types, null/empty strings, and missing required properties for CustomField; use JSON schema assertions for request and response.",
+              "Test behavior when adding a CustomField whose name already exists on the target invoice item (pre-existing duplicates).",
+              "Make expectations deterministic: replace \u201c201 or 400/413/\u2026\u201d and \u201c401 or 403\u201d with exact, agreed statuses per the API contract.",
+              "Assert response headers on success (Content-Type: application/json) and optionally validate presence of standard headers (e.g., Date)."
+            ],
+            "usage": {
+              "completion_tokens": 7974,
+              "prompt_tokens": 6336,
+              "total_tokens": 14310,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

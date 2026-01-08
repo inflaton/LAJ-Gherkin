@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-14T15:24:14.988915",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:23:19.791718",
+    "benchmark_end_time": "2025-10-14T15:24:14.988911",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 55.197193,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Deletion: Multiple scenarios cover successful deletions (all fields, specific fields, no-fields case) and expected 204 responses.",
+              "Path param validation: paymentId format and non-existent paymentId are tested (400 for invalid format, 404 for not found).",
+              "Query parameters: Good coverage of query param variants \u2014 specific IDs, absent param (remove all), unexpected extra params, min/max/large counts, malformed IDs, SQL-injection style input, and partial (mixed) inputs.",
+              "Header validation: Required header X-Killbill-CreatedBy presence and missing-header behavior tested; optional headers X-Killbill-Reason and X-Killbill-Comment tested.",
+              "Authorization: Unauthorized token case tested (401).",
+              "Error handling: Tests cover client error responses (400, 401, 404) and service-unavailable (503).",
+              "Security: XSS attempt in header and SQL injection in query parameter are included.",
+              "Scale/performance edge cases: Large payload/100 and 1000 customField parameters and a slow/degraded system scenario are present.",
+              "Integration: Audit-log dependent-service available/unavailable scenarios included.",
+              "Regression & backward-compatibility: Regression and legacy-client scenarios are present."
+            ],
+            "gaps": [
+              "Concurrency / race conditions: No explicit tests for concurrent deletions (e.g., two clients deleting same payment fields simultaneously) or for deletion vs concurrent creation of custom fields.",
+              "Soft-delete semantics: No tests verify if deletion is soft (tombstone) vs hard delete, or assert the resource state in DB after deletion beyond \"fields removed\".",
+              "Idempotency / repeated delete: No test for repeated DELETE on the same resource (delete twice) to confirm idempotent behavior and status code on second call.",
+              "Authorization nuance (403): Tests include 401 for auth failure, but not authorization/permission failures that should yield 403.",
+              "Content-negotiation & response headers: No checks for response headers (Content-Type, produced application/json expectation) or presence/absence of caching headers even though API says it produces application/json.",
+              "Rate limiting / throttling: No tests for multiple rapid requests or rate-limiting behavior.",
+              "Deterministic audit-failure behavior: TC22 allows either 204 or 503 depending on error handling; there is no test asserting the desired, deterministic integration contract when audit logging fails.",
+              "Server error handling (500): No explicit tests simulating server/db errors to ensure 500 behavior and graceful error messages.",
+              "Soft validation of header values: While malformed header X-Killbill-CreatedBy XSS is present, there are no tests for header length limits/character sets beyond that.",
+              "Concurrency / transactional integrity for partial deletes: No tests ensuring atomicity when deleting multiple customField IDs (if some fail, do others roll back?)."
+            ],
+            "recommendations": [
+              "Add concurrency tests: simulate two or more parallel DELETE requests (or delete + update) to verify race condition handling, idempotency, and transactional integrity (atomicity of multi-id deletes).",
+              "Add idempotency test: issue DELETE twice for same payment/custom fields and assert consistent (204 or 404/appropriate) behavior per API contract.",
+              "Add soft-delete verification: include DB-level assertions (or GETs) to confirm whether custom fields are permanently removed or soft-deleted and that related indexes/search behave accordingly.",
+              "Add authorization/permission tests (403): test authenticated-but-unauthorized users and role-based access to ensure 403 is returned where appropriate.",
+              "Assert response headers and content-negotiation: verify Content-Type for non-empty error responses, and validate produced application/json claim or that 204 responses correctly have no body and appropriate headers.",
+              "Add rate-limiting and throttling tests: fire bursts of requests to verify the system handles rate-limit conditions and returns appropriate 429 or other responses if applicable.",
+              "Clarify & enforce audit-log contract: make TC22 deterministic \u2014 decide whether audit-log failures should block deletion (503) or be best-effort (204) and add tests asserting the chosen behavior; add tests to verify audit entries content when available.",
+              "Add server error simulations: simulate DB or service failures to validate 500 handling and user-facing error messages.",
+              "Add tests for header validation limits: length, allowed characters, and whitespace handling for X-Killbill-CreatedBy and optional headers.",
+              "Add atomicity tests for partial failures: when deleting multiple customField IDs, simulate a failure on one ID and verify whether operation is all-or-nothing or partial per spec, and test behavior accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 1990,
+              "prompt_tokens": 6120,
+              "total_tokens": 8110,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

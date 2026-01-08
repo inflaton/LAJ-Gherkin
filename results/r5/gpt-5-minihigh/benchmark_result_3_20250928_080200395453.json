@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "3_2025-09-28T08:02:00.395425",
+    "jira_id": "3",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/tags - Remove tags from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T08:00:32.104668",
+    "benchmark_end_time": "2025-09-28T08:02:00.395421",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 88.290753,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "3_qe_sup-gpt4.1_agent-gpt4.1_1748915976.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid deletion flows: single, multiple and remove-all behaviour covered (TC01, TC02, TC03, TC13, TC20) with assertions for 204 and empty body.",
+              "Header handling: Required X-Killbill-CreatedBy presence and missing-header negative case covered (TC01, TC09); optional X-Killbill-Reason and X-Killbill-Comment covered (TC04, TC19).",
+              "Path & query validation: Valid and invalid accountId formats, non-existent account, valid/malformed/invalid/mixed tagDef values and empty-array cases covered (TC06, TC07, TC08, TC14, TC18, TC20).",
+              "Business rule special case: AUTO_PAY_OFF removal guarded by default payment method validated (TC10).",
+              "Error handling: Client errors for invalid inputs and service unavailability (5xx) are tested (TC06\u2013TC09, TC12, TC14, TC18).",
+              "Authorization & security: Unauthorized client access tested (TC15).",
+              "Concurrency & resilience: High-level concurrent request/performance scenario and transient network recovery are present (TC17, TC16).",
+              "Query parameter robustness: extra/unexpected query params and large numbers of tagDef values are exercised (TC11, TC13).",
+              "Regression/backwards compatibility: Tests for previously fixed mixed-valid-invalid regression and omission of optional headers are included (TC18, TC19)."
+            ],
+            "gaps": [
+              "Soft-delete semantics and audit trail: No tests verify whether tag removal is a soft delete (deleted flag, historical record) or a hard delete, nor is audit logging verified.",
+              "Rate limiting / throttling: No tests simulate bursts or verify server responses when rate limits are exceeded (e.g., 429, Retry-After).",
+              "Caching and response headers: No assertions about Cache-Control, ETag, or that DELETE results are not cached; Content-Type header on error responses is not asserted.",
+              "Race conditions / atomicity at resource level: TC17 checks throughput and timing but there is no focused test for conflicting concurrent deletes on the same tag(s) to assert transactional behavior (all-or-none vs partial).",
+              "Explicit idempotency verification: Although TC05 exercises deleting from an account with no tags, there is no explicit test that deletes the same tag twice in sequence after a successful delete to prove idempotency semantics.",
+              "Parameter-format variants & duplicates: No tests for alternate encodings (comma-separated vs repeated tagDef params), for duplicate tagDef entries in one request, or for server behaviour when request exceeds practical limits (beyond TC13 which tests large but not limit behaviour).",
+              "Server-side limits and error semantics: TC13 covers large numbers, but there is no test asserting server limits or expected 413/400 behavior when limits are exceeded or when payloads are extremely large."
+            ],
+            "recommendations": [
+              "Add tests for soft-delete vs hard-delete semantics and audit logging: verify DB deletion flags, history entries, or audit records after DELETE.",
+              "Add explicit idempotency tests: delete a tag, then delete the same tag again and assert 204 both times and stable DB state.",
+              "Add focused race-condition tests: two clients concurrently delete the same tag(s) and assert the final state is correct and no partial/incorrect intermediate state is persisted (test transactional guarantees).",
+              "Add rate-limiting tests: send burst requests to provoke throttling and assert proper 429 responses and Retry-After headers or documented throttling behavior.",
+              "Assert response headers: check Content-Type on error responses equals application/json and verify Cache-Control/Pragma headers indicate non-cacheable responses for DELETE.",
+              "Test alternate query parameter encodings and edge formats: comma-separated values, repeated tagDef keys, duplicate values, and confirm documented behaviour.",
+              "Define and test server-side limits: identify max acceptable number of tagDef params and add tests that exceed that to assert documented error codes (413/400) or successful handling.",
+              "Clarify and add tests for partial-success vs all-or-none semantics when some tagDefs are valid and others are not (if API contract expects transactional behaviour, add tests to validate it)."
+            ],
+            "usage": {
+              "completion_tokens": 6383,
+              "prompt_tokens": 5684,
+              "total_tokens": 12067,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5504,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

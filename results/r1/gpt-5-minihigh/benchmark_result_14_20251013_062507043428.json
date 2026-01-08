@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "14_2025-10-13T06:25:07.043403",
+    "jira_id": "14",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts - Retrieve an account by external key",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T06:23:35.816912",
+    "benchmark_end_time": "2025-10-13T06:25:07.043399",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 91.226487,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "14_qe_sup-gpt4.1_agent-gpt4.1_1748916733.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Happy path retrieval by externalKey with default params (200 + application/json) is implemented (TC01).",
+              "Optional query parameters behavior is extensively tested: accountWithBalance (TC02), accountWithBalanceAndCBA (TC03), audit=FULL and audit=MINIMAL (TC04, TC05), and combined parameters (TC05).",
+              "Missing/empty data and not-found handling are tested (404) for both single missing account and empty DB (TC06, TC17).",
+              "Input validation and negative query-parameter tests are present: missing required param (TC07), malformed externalKey (TC08), invalid boolean and audit values (TC09, TC10).",
+              "Security input handling tests exist for SQL injection and XSS attempts (TC14, TC15) covering basic sanitization/validation behavior.",
+              "Authorization checks for absent and invalid tokens are present (401 responses in TC11, TC12).",
+              "Service and integration error handling is covered for dependency failure, inconsistent data, and timeouts (503 TC13, 502 TC24, 504 TC25).",
+              "Extra query parameters are verified to be ignored (TC16).",
+              "Boundary and regression tests are present: long key boundaries (255/256 chars TC18, TC19), regression problematic key (TC22), backward compatibility (TC23).",
+              "Performance and concurrency tests are included: single-request latency target (TC20) and 100 concurrent requests (TC21)."
+            ],
+            "gaps": [
+              "Caching behavior not tested: no checks for ETag, Cache-Control, Last-Modified, or conditional GET responses (304).",
+              "Rate limiting and throttling tests missing: no verification of 429 responses or Retry-After header under sustained high request rates (TC21 tests concurrency but does not assert rate-limit behavior).",
+              "Schema and field-level assertions are weak: tests check presence/absence of balance/CBA/audit but do not validate full Account JSON schema, types, required fields, or value formats.",
+              "Inconsistent coverage of response headers: Content-Type is asserted only in TC01; other scenarios (success, errors, redirects) do not verify consistent headers or content-negotiation behavior.",
+              "No explicit test for HTTP 500 internal server error for unhandled server-side failures; while 502/503/504 are present, a 500 scenario should be validated. ",
+              "No test for explicit audit=NONE to verify the documented default or for explicit boolean=false cases to confirm parameters are honored when explicitly set to false.",
+              "No test to assert authorization semantics beyond 401: scenarios where a valid token exists but lacks permission (403/forbidden) are not covered, if applicable.",
+              "No tests for conditional or cached error responses (e.g., cached 404 or stale data handling), and no validation of caching headers in error responses.",
+              "Pagination is not addressed; although this endpoint returns a single Account (by externalKey) so pagination is not applicable, confirm with API design."
+            ],
+            "recommendations": [
+              "Add caching tests: verify ETag and Cache-Control headers on successful responses, and test conditional GETs using If-None-Match / If-Modified-Since to assert 304 behavior and correct cache headers on error responses.",
+              "Add explicit rate-limiting tests: flood the endpoint or use a simulated throttle to assert 429 responses and the presence of Retry-After header; include client backoff behavior where relevant.",
+              "Add full JSON schema validation tests for the Account object across scenarios: required fields, types, date formats, numeric ranges, and nullable fields. Use a schema validator (e.g., JSON Schema) in automated tests.",
+              "Assert response headers consistently across success and error scenarios (Content-Type, Content-Length when applicable, Cache-Control). Include tests for Accept/Content-Type negotiation.",
+              "Add a test to simulate an unhandled server error resulting in 500 to ensure graceful error reporting and that sensitive internals are not leaked.",
+              "Add tests for explicit audit=NONE and explicit boolean=false parameter values to confirm defaults and explicit false are honored.",
+              "If the API supports RBAC, add a 403 forbidden test for authenticated users without sufficient permissions to distinguish from 401 authentication failures.",
+              "Extend security tests to include URL-encoding edge cases and confirm correct handling and logging without exposing sensitive data. Also add fuzzing or property-based tests for parameter inputs.",
+              "Clarify pagination applicability in API design; if the endpoint may return lists in future or supports multiple results, add pagination tests. If it is single-resource only, mark pagination as not applicable in acceptance criteria."
+            ],
+            "usage": {
+              "completion_tokens": 5831,
+              "prompt_tokens": 5127,
+              "total_tokens": 10958,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4864,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

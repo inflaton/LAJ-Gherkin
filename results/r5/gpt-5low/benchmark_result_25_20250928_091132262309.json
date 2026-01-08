@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-09-28T09:11:32.262282",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:10:52.043600",
+    "benchmark_end_time": "2025-09-28T09:11:32.262278",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 40.218678,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "POST/Valid Payload: Multiple success paths including default behavior (no query params -> default payment method) and with all optional params (paymentMethodId, externalPayment, paymentAmount, targetDate, pluginProperty).",
+              "POST/Invalid Payload & Validation: Robust negative tests for malformed UUIDs, invalid paymentMethodId, negative/zero paymentAmount, malformed targetDate, non-boolean externalPayment, invalid pluginProperty types, and missing/empty required headers.",
+              "POST/Duplicate Submission: Retry/idempotency behavior validated under network errors to prevent duplicate payments.",
+              "POST/Large Payloads: Boundaries for very large paymentAmount and large pluginProperty arrays are exercised.",
+              "POST/Server Error Handling: Simulated infrastructure failures (DB 500, payment gateway 502/503, plugin system 502/503) are covered.",
+              "Authorization: Unauthorized access (401) is covered.",
+              "Security Hardening: SQL injection attempt in accountId and XSS in pluginProperty validated to avoid leakage/exec.",
+              "Behavioral Variants: Accounts with no unpaid invoices or no invoices, partial vs full vs over-amount payments, unknown query params handling, and mixed states across accounts are validated.",
+              "Performance/Load: Response time under normal and peak load and resource utilization under stress are covered."
+            ],
+            "gaps": [
+              "Response semantics: No explicit assertion that HTTP 204 has an empty body and appropriate headers (e.g., Content-Type may be omitted or application/json as per spec).",
+              "Content negotiation and media type: No tests for incorrect Content-Type/Accept headers (e.g., 415 Unsupported Media Type, 406 Not Acceptable) even though the operation consumes/produces application/json per spec note.",
+              "Idempotency header behavior: No scenario validating X-Killbill-Idempotency-Key (if supported) to guarantee safe retries beyond network-error scenarios.",
+              "Partial payment allocation rules: No verification of how a partial payment is allocated across multiple unpaid invoices (ordering, oldest-first, pro-rata, etc.).",
+              "External payment semantics: No scenario for externalPayment=false explicitly (default), or for interactions between externalPayment=true and paymentMethodId (e.g., paymentMethodId ignored or validated when external).",
+              "Authorization variants: No 403 Forbidden scenario (authorized but not permitted) if the platform distinguishes between authentication and authorization.",
+              "Rate limiting/throttling: No scenario for 429 Too Many Requests under burst traffic.",
+              "Precision/currency handling: No tests for decimal precision, rounding rules, or currency compatibility when specifying paymentAmount.",
+              "Audit trail/headers persistence: No verification that X-Killbill-Reason and X-Killbill-Comment are stored and retrievable in audit logs.",
+              "Multivalue query formatting: No explicit test for collectionFormat=multi semantics of pluginProperty (e.g., pluginProperty=a&pluginProperty=b ordering/duplication).",
+              "Method constraints: No tests for 405 Method Not Allowed for unsupported methods on this endpoint."
+            ],
+            "recommendations": [
+              "Add a success-case assertion that the 204 response has no body and verify any expected headers (and absence of unexpected ones).",
+              "Introduce content-negotiation tests: wrong Content-Type/Accept -> expect 415/406 respectively.",
+              "If supported, add idempotency-key scenarios to guarantee no duplicates on any retry path (not only transient network failures).",
+              "Define and test partial payment allocation rules across multiple invoices (documented policy and verification).",
+              "Add scenarios for externalPayment=false explicitly and clarify behavior when externalPayment=true is combined with paymentMethodId.",
+              "Include a 403 Forbidden case to distinguish authorization from authentication when applicable.",
+              "Add a rate-limiting test for 429 under burst traffic to complement performance tests.",
+              "Cover monetary precision: test amounts with many decimal places, currency scale limits, and rounding behavior.",
+              "Verify audit headers persistence by retrieving payment/audit logs and asserting createdBy/reason/comment are recorded.",
+              "Test pluginProperty using collectionFormat=multi with duplicates and order sensitivity.",
+              "Add negative tests for unsupported methods (e.g., GET/PUT/DELETE -> 405) to harden the contract."
+            ],
+            "usage": {
+              "completion_tokens": 2028,
+              "prompt_tokens": 7048,
+              "total_tokens": 9076,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

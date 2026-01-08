@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-15T15:40:37.316983",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:39:04.570044",
+    "benchmark_end_time": "2025-10-15T15:40:37.316976",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 92.746932,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT Valid Request: Happy paths covered with required header only, optional headers (Reason/Comment), requestedDate, and pluginProperty; correct 204 response asserted.",
+              "PUT Non-Existing Resource: 404 covered via scenario with no bundles present.",
+              "PUT Concurrency Issues: Concurrent resume requests covered; subsequent requests expected to fail with 400/409.",
+              "Input Validation: Invalid bundleId format (UUID), missing required X-Killbill-CreatedBy, requestedDate in the past (400), invalid pluginProperty type, and extra/unexpected parameters handled.",
+              "Authorization: Unauthorized access covered (401/403 for invalid credentials).",
+              "Server/Error Handling: Dependency outage (500), plugin service timeout (504), and transient network retry scenarios included.",
+              "Security: SQL injection attempt in pluginProperty and XSS in comment safely handled.",
+              "Boundary/Limit Cases: Max-length headers and very large number of pluginProperty values covered.",
+              "State Validation: Attempting to resume active or cancelled bundles returns proper 4xx.",
+              "Auditability: Reason/comment audit logging covered in success case."
+            ],
+            "gaps": [
+              "requestedDate format and timezone: No tests for invalid date formats (e.g., 2025-13-01), time components, or account/tenant timezone semantics; only future/past validity covered.",
+              "pluginProperty serialization: Missing tests for collectionFormat=multi (e.g., pluginProperty=key1%3Dval1&pluginProperty=key2%3Dval2), URL-encoding of special characters, and malformed pairs (e.g., missing \"=\").",
+              "PUT idempotency (sequential): No scenario calling resume twice sequentially on the same bundle (first 204, second 400/409) to assert no duplicate side effects.",
+              "Response contract for 204: No explicit assertion that 204 responses return an empty body and appropriate headers (e.g., absence of Content-Type or correctness despite \"produces application/json\").",
+              "404 in populated dataset: Not-found case only tested with empty database; missing case where a well-formed but non-existent UUID is requested in a non-empty system.",
+              "Bundle content semantics: Story says it affects \"all paused subscriptions\"; tests assert \"all subscriptions are resumed\". Missing scenario with a bundle containing mixed subscription states to ensure only paused ones are resumed and others remain unchanged.",
+              "Invalid requestedDate values: No tests for non-ISO formats, invalid calendar dates, or timezone offsets (e.g., 2025-01-01T00:00:00Z vs date-only).",
+              "Header case insensitivity and trimming: Value trimming covered, but no test that header names are case-insensitive and that leading/trailing spaces are trimmed consistently for all relevant headers."
+            ],
+            "recommendations": [
+              "Add scenarios validating requestedDate parsing and timezone behavior: invalid formats, timezone-aware timestamps, and account/tenant timezone application; verify scheduling semantics (remains paused until the effective date).",
+              "Add tests for pluginProperty collectionFormat=multi using repeated query parameters; include URL-encoding and malformed entries to confirm validation errors.",
+              "Add a sequential idempotency test: invoke resume twice on the same bundle and assert first 204, second 400/409, with no duplicate side effects or extra audit entries.",
+              "Assert the 204 response has no body and confirm headers are appropriate (e.g., Content-Type behavior consistent with 204).",
+              "Add 404 test with a syntactically valid but non-existent UUID in a populated database.",
+              "Create a scenario with mixed subscription states within a bundle; assert only paused subscriptions are resumed, and active/cancelled remain unchanged.",
+              "Expand invalid requestedDate cases (e.g., 2025-02-30, 2025-13-01, non-ISO strings) and boundary times (end-of-day, DST transitions).",
+              "Add a test demonstrating header name case-insensitivity (e.g., x-killbill-createdby) and trimming for Reason/Comment as well."
+            ],
+            "usage": {
+              "completion_tokens": 4173,
+              "prompt_tokens": 6265,
+              "total_tokens": 10438,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3328,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

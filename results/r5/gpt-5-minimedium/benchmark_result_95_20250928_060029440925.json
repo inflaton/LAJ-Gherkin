@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "95_2025-09-28T06:00:29.440887",
+    "jira_id": "95",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/tags - Add tags to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:59:53.774410",
+    "benchmark_end_time": "2025-09-28T06:00:29.440881",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 35.666471,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "95_qe_sup-gpt4.1_agent-gpt4.1_1748922214.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: Multiple success scenarios validate creation (TC01, TC02, TC03) and assert 201 + returned Tag objects.",
+              "Required and Optional Headers: X-Killbill-CreatedBy required is tested (TC01/TC03) and optional X-Killbill-Reason / X-Killbill-Comment are tested (TC02).",
+              "Empty Request Array: Empty-array behavior tested and expected empty JSON response (TC04).",
+              "Malformed / Invalid Payloads: Malformed JSON (TC08), invalid tag UUID format (TC09), unexpected extra fields (TC10), partial/null elements (TC17) are covered.",
+              "Path parameter validation and resource-not-found: Invalid paymentId format (TC06) and non-existent payment -> 404 (TC05, TC18) are covered.",
+              "Duplicate / Idempotency: Duplicate tag entries and re-adding existing tags are covered (TC11, TC19).",
+              "Large payload & performance: Very large array boundary and performance under load are addressed (TC14, TC12).",
+              "Concurrency / Race conditions: Concurrency scenarios included (TC20) to exercise concurrent POSTs and deduplication behavior.",
+              "Service-level errors: Dependency failure / service unavailable tested (TC13 resulting in 503).",
+              "Security: Unauthorized user scenario (TC15) and malicious payload / injection attempt (TC16) are included."
+            ],
+            "gaps": [
+              "Non-existent but well-formed tagDefinition UUIDs: No scenario that submits well-formed UUIDs that do not exist in the tag-definition store and asserts the expected behaviour (error vs creation skip) \u2014 the spec does not explicitly define expected outcome so it is untested.",
+              "Server 5xx / DB failure simulation: While 503 for a dependent service is present, there is no explicit test for internal server/database failures returning 500 and graceful error handling/retries.",
+              "Content-Type / Accept headers and response headers: Tests do not assert request Content-Type/Accept handling or response Content-Type (application/json) and other response headers (e.g., caching, ETag) even though \"Produces: application/json\" is in the API description.",
+              "Exact response schema validation: While Tag objects are asserted to exist, there is no explicit, thorough schema-level validation for required Tag fields/types, HTTP Location header on creation (if applicable), or metadata field structure and values.",
+              "Behavior for well-formed but semantically invalid inputs: e.g., tagDefinition UUIDs formatted correctly but referencing tag definitions that are disabled/archived \u2014 not covered.",
+              "Rate limiting / throttling: No tests for rate limiting, burst protection, or repeated rapid requests beyond performance/concurrency tests.",
+              "Content-type mismatch / wrong JSON shape: There is an extra-fields test (TC10) and malformed JSON (TC08), but a case where the top-level type is correct JSON but wrong type (e.g., object instead of array) is not explicitly present.",
+              "Authorization granularity: TC15 checks unauthorized user broadly, but role/permission variations (401 vs 403, scoped permissions) are not enumerated or asserted precisely."
+            ],
+            "recommendations": [
+              "Add tests for well-formed but non-existent tagDefinition UUIDs to establish and verify the system behaviour (error vs skip vs create stub).",
+              "Add a 500 Internal Server Error scenario (simulate DB failure) to validate server error handling and client-visible messages.",
+              "Assert request/response headers explicitly: test Content-Type enforcement (requests without application/json or wrong Accept), response Content-Type, and any Location, Cache-Control, or ETag headers that should be produced.",
+              "Add strict schema validation tests for returned Tag objects (types, required fields: paymentId, tagDefinitionId, metadata timestamps/user, etc.) and validate metadata contents when optional headers are provided.",
+              "Include rate-limiting/throttling tests (burst of requests exceeding expected limits) to verify correct 429 or other expected responses and graceful degradation.",
+              "Add a test where the request body is a valid JSON object (not array) to assert correct 4xx handling for wrong top-level type.",
+              "Expand authorization tests to cover permission levels (distinct 401 vs 403 cases) and token/role permutations to ensure correct access control enforcement.",
+              "Add tests for semantic edge-cases such as tag definitions that are disabled/archived and how they are handled when referenced in the payload.",
+              "Where applicable, assert idempotency invariants after concurrent/duplicate requests by querying the payment tags post-requests and validating no duplicates and correct audit metadata (createdBy, reason, comment) are set."
+            ],
+            "usage": {
+              "completion_tokens": 2251,
+              "prompt_tokens": 6214,
+              "total_tokens": 8465,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "10_2025-09-28T04:46:56.082678",
+    "jira_id": "10",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/auditLogs - Retrieve audit logs by account id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:46:37.802771",
+    "benchmark_end_time": "2025-09-28T04:46:56.082673",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 18.279902,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "10_qe_sup-gpt4.1_agent-gpt4.1_1748916432.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: TC01 covers the successful retrieval of audit logs and asserts 200, content-type and response structure.",
+              "Empty Response: TC02 and TC12 verify behavior when account exists but has no audit logs (empty JSON array, 200).",
+              "Non-existing Resource: TC03 verifies 404 when account is not found.",
+              "Input Validation: TC04 (malformed UUID), TC10 (injection attempt), and TC15 (empty accountId) cover invalid accountId formats and input rejection.",
+              "Authorization: TC05 and TC06 cover missing and invalid authentication tokens (401 expected).",
+              "Query Parameters: TC07 verifies that extra/unknown query parameters are ignored.",
+              "Error Handling / Resilience: TC08 (database unavailable -> 500) and TC11 (timeout/service unavailable -> 503/504) cover server- and infra-level error responses.",
+              "Large Dataset / Performance: TC09 exercises a very large result set and asserts response size and acceptable response time.",
+              "Concurrency: TC14 tests concurrent requests to validate concurrency behavior and stability.",
+              "Backward Compatibility / Regression: TC13 and TC12 address backward compatibility and a regression scenario where empty audit logs previously returned 500."
+            ],
+            "gaps": [
+              "Pagination: No scenario tests pagination behavior (limit/offset/page parameters, links, or partial results). The large dataset test asserts bulk return of 10,000 items rather than verifying pagination or streaming behavior.",
+              "Pagination Response Structure: No checks for pagination metadata (if API supports page/limit/next links) or correct ordering and deterministic results across pages.",
+              "Rate Limiting / Throttling: No tests for rate limits (e.g., 429 responses, retry-after headers) or behavior under rapid repeated requests beyond normal concurrency.",
+              "Caching / HTTP Headers: No tests check caching headers (ETag, Last-Modified, Cache-Control), conditional GET handling (If-None-Match / 304), or client caching behavior.",
+              "Authorization Granularity: No test for insufficient permissions (403 Forbidden) vs authenticated-but-unauthorized clients; tests only cover unauthenticated (401).",
+              "Schema Validation Depth: While tests assert \"AuditLog objects\" contain required fields, there is no explicit test for field-level schema validation (types, nullable vs required fields, enum values, date formats).",
+              "Content Negotiation: No tests for Accept headers or non-JSON accept/response negotiation.",
+              "Rate/Load Limits vs Pagination Interaction: No tests combining large datasets with pagination + rate limits to validate graceful degradation.",
+              "Edge Cases for Large Payloads: The large dataset test assumes server returns all items; no test for partial responses, streaming, or out-of-memory behavior.",
+              "Error Response Structure: Tests assert presence of error messages but do not validate consistent error payload schema (error codes, fields)."
+            ],
+            "recommendations": [
+              "Add pagination tests: include scenarios for limit/offset (or page/size), boundary values (page=0, limit=1, limit=max), verifying number of items returned, ordering, and next/prev links or cursors.",
+              "Add rate-limiting tests: simulate bursts of requests to validate 429 responses and Retry-After header handling; include tests for client behavior when receiving 429.",
+              "Add caching and conditional GET tests: verify presence and correctness of ETag/Last-Modified/Cache-Control headers, and test If-None-Match / 304 responses.",
+              "Add authorization-authority tests: include scenarios for authenticated users without sufficient permissions expecting 403, and ensure RBAC behavior if applicable.",
+              "Add stricter schema validation tests: validate field types, required vs optional fields, date/time formats, nested object shapes and example values against the API definition.",
+              "Add content-negotiation tests: send Accept headers other than application/json and assert behavior (e.g., 406 or proper fallback), and validate response content-type in detail.",
+              "Add pagination + load tests: combine large dataset with pagination and rate-limit scenarios to ensure graceful handling and acceptable performance.",
+              "Add standardized error payload tests: assert consistent error response structure (error code, message, details) across 4xx/5xx responses.",
+              "Add tests for invalid query parameter values (malformed params, unsupported params) and parameter combinations, not just ignored extras.",
+              "If the API supports streaming or chunked responses for large sets, add tests that validate chunking behavior and memory/timeout handling."
+            ],
+            "usage": {
+              "completion_tokens": 1247,
+              "prompt_tokens": 4166,
+              "total_tokens": 5413,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

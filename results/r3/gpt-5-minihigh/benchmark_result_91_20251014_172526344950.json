@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-14T17:25:26.344920",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T17:22:47.160138",
+    "benchmark_end_time": "2025-10-14T17:25:26.344915",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 159.184777,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Endpoint availability and basic success flows: TC01\u2013TC05 verify PUT path, successful 204 responses and that DB is updated/created as expected for items with and without prior custom fields.",
+              "Required and optional headers: X-Killbill-CreatedBy required (TC01, TC03); X-Killbill-Reason and X-Killbill-Comment optional and exercised (TC02); missing required header validated (TC09).",
+              "Path parameter validation: invalid UUID format -> 400 (TC06); non-existent UUID -> 404 (TC07, TC24, TC25).",
+              "Request body validation basics: malformed JSON -> 400 (TC08); empty body -> 400 (TC10); unsupported/extra fields -> 400 (TC11).",
+              "Large payload and performance: large payload behavior and size limits addressed (TC12, TC21) and bulk/parallel updates across many items covered (TC20).",
+              "Authentication negative flow: invalid/missing authentication -> 401 (TC13).",
+              "Security input handling: SQL injection payloads are exercised (TC14).",
+              "Server and integration failures: DB unavailable -> 500 (TC15); dependent service unavailable -> 503 (TC19); gateway timeout under load -> 504 (TC16).",
+              "Idempotency and regression: repeated same request idempotency verified (TC17); regression test for prior data-loss bug included (TC18).",
+              "Edge cases and state variations: minimum-value payloads (TC22), unexpected URL params (TC23), database-empty and partially-populated states (TC24, TC25)."
+            ],
+            "gaps": [
+              "Partial-update semantics: no explicit tests that verify behavior when CustomField objects in the array are partial/missing required properties (i.e., whether partial object updates are accepted or rejected).",
+              "Concurrency on same resource: missing tests for race conditions when multiple concurrent PUTs target the same invoiceItemId (optimistic locking / last-write-wins behavior is not verified).",
+              "Detailed CustomField schema validation: per-field validation is not thoroughly covered (missing tests for required properties inside each CustomField, invalid data types, allowed value ranges, field length limits, duplicate names within the array).",
+              "Authorization nuance (403): tests cover unauthenticated (401) but do not cover authenticated-but-forbidden (403) scenarios / permission checks.",
+              "Response headers and contract: tests do not assert response headers (Content-Type, presence/format of error JSON, behavior of \"Produces: application/json\" for 204 vs error responses).",
+              "Duplicate-submission semantics: beyond identical-request idempotency (TC17), there are no tests for duplicate entries inside payloads or duplicate-submission handling semantics.",
+              "Rate limiting/throttling: no tests for high-frequency request throttling (429) or rate-limit enforcement.",
+              "Header value validation: no negative tests for invalid/empty/oversized X-Killbill-CreatedBy, or invalid values for optional headers.",
+              "Security coverage beyond SQLi: missing tests for XSS, header injection, extremely large/complex nested JSON structures (DoS vectors).",
+              "Behavioral contract clarity: the spec says \"Produces: application/json\" but tests don\u2019t validate what is returned for 204 vs error responses\u2014this ambiguity should be clarified and tested."
+            ],
+            "recommendations": [
+              "Add explicit schema validation tests for CustomField objects: missing required properties (e.g., name/objectType), wrong data types, invalid enums, field length limits and duplicate names in the array \u2014 expect 400/422 as defined by API behavior.",
+              "Introduce concurrency tests targeting the same invoiceItemId: run parallel conflicting PUTs and assert deterministic behavior (locking, consistency, or defined conflict response).",
+              "Add partial-update tests: send payloads that intentionally omit fields in CustomField objects and assert whether the API accepts, merges, or rejects them according to API contract.",
+              "Add authorization/permission tests for 403: verify authenticated users without required permissions receive 403 and that 401 remains reserved for unauthenticated requests.",
+              "Assert response headers and error payload contract: verify Content-Type, error JSON schema for 4xx/5xx responses, and clarify how 204 should be represented (headers present/absent).",
+              "Add rate-limiting / throttling tests: simulate high request rates to verify throttling behavior (429/Retry-After) if applicable to the platform.",
+              "Expand security tests: include XSS, header-injection attempts, deeply nested/complex JSON payloads and size-based DoS scenarios beyond SQLi to harden parsing logic.",
+              "Add duplicate-submission tests beyond idempotency: payloads with duplicate CustomField entries and near-duplicate requests to validate deduplication or error handling.",
+              "Add boundary tests for header values: empty/too-long X-Killbill-CreatedBy, invalid encodings, and invalid optional header contents to ensure robust header validation and useful error messages.",
+              "Clarify spec ambiguity: update acceptance criteria about \"Produces: application/json\" vs 204 no-content and add tests that explicitly validate the intended contract for success and error responses."
+            ],
+            "usage": {
+              "completion_tokens": 6905,
+              "prompt_tokens": 6450,
+              "total_tokens": 13355,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

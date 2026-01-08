@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-13T04:17:23.468369",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:17:08.831933",
+    "benchmark_end_time": "2025-10-13T04:17:23.468366",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 76,
+    "average_generation_time_seconds": 14.636433,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 76,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 76,
+            "covered": [
+              "PUT Method - Valid Request: Multiple success scenarios (TC01-TC05, TC21, TC22) verify 204 response and DB updates for valid payloads.",
+              "PUT Method - Non-Existing Resource: TC07, TC24, TC25 cover 404 when invoice item is not found.",
+              "PUT Method - Input Validation / Invalid Payloads: TC06 (invalid UUID), TC08 (malformed JSON), TC10 (empty body), TC11 (unsupported fields) cover many invalid-payload/error cases resulting in 400s.",
+              "PUT Method - Headers and Required Fields: TC02, TC03, TC09 validate required and optional header handling (X-Killbill-CreatedBy required; Reason/Comment optional).",
+              "PUT Method - Authentication/Authorization: TC13 covers missing/invalid authentication resulting in 401.",
+              "PUT Method - Large Payloads / Size Limits: TC12 and TC21 address behavior for large payloads and system-config-dependent responses (204 or 413) and performance.",
+              "PUT Method - Idempotency & Regression: TC17 verifies repeated requests; TC18 addresses regression/data-integrity concerns.",
+              "PUT Method - Error Handling / Server & Dependency Failures: TC15 (DB unavailable -> 500), TC16 (timeout -> 504), TC19 (dependent service unavailable -> 503) cover server/infra error paths.",
+              "PUT Method - Performance / Parallelism: TC20 covers parallel updates for many invoice items and performance thresholds.",
+              "Edge cases & URL params: TC23 covers unexpected URL parameters handling.",
+              "State variation: TC24 and TC25 cover different DB population states."
+            ],
+            "gaps": [
+              "PUT Method - Partial Update Semantics: No explicit test validating whether partial payloads are accepted or rejected (i.e., whether PUT must be full replacement vs partial).",
+              "PUT Method - Concurrency / Race Conditions: While TC20 covers parallel requests for performance, there are no focused tests on data race conditions (lost updates, write ordering, optimistic locking behavior) when multiple clients update the same invoice item concurrently.",
+              "Input Validation - Schema-level field validation coverage: Tests do not explicitly validate per-field constraints defined by CustomField schema (data types, length limits, required fields inside CustomField object) beyond unsupported/ malformed/SQL injection cases.",
+              "Authorization scopes / roles: TC13 covers invalid auth token, but there are no tests for authorized-but-insufficient-permissions (403) or role-based access controls.",
+              "Rate Limiting / Throttling: No tests for rate limiting, request bursts, or 429 handling.",
+              "Auditing / Headers propagation: While optional headers are tested for presence, there is no verification that 'X-Killbill-Reason'/'X-Killbill-Comment' are persisted/audited appropriately.",
+              "Caching, ETag, or HTTP behavior: Not applicable to PUT semantics but no tests for relevant HTTP headers (e.g., Last-Modified) or response body consistency beyond status codes.",
+              "Negative status code variability clarity: Several tests accept multiple possible status codes (e.g., TC12 expects 204 or 413; TC14 expects 400 or 422) \u2014 there is no test to assert which is the official contract or to verify consistent behavior."
+            ],
+            "recommendations": [
+              "Add explicit tests for partial payloads to confirm PUT semantics: include a test that sends a payload missing some CustomField properties and assert whether fields are removed, ignored, or rejected (expect 400 if partial updates are unsupported).",
+              "Add focused concurrency/race condition tests: simulate two clients updating the same invoice item concurrently with different payloads and assert final state and absence of lost updates (test for locking/ETag/If-Match behavior if supported).",
+              "Add schema-level field validation tests: test invalid data types, overly long strings, missing required CustomField properties, and boundary conditions for lengths/allowed characters to ensure consistent 4xx errors.",
+              "Add authorization-role tests: include cases where token is valid but lacks required permissions expecting 403, and tests for different roles if API enforces RBAC.",
+              "Add rate-limiting tests to verify 429 behavior under high request rates and ensure graceful throttling.",
+              "Add tests to verify optional header persistence/auditing: ensure X-Killbill-Reason and X-Killbill-Comment are recorded in logs/audit trail when present.",
+              "Tighten expectations for ambiguous tests: replace multiple-possible-status scenarios with deterministic expected behavior per API contract, or add explicit configuration-dependent assertions (e.g., test both configurations separately).",
+              "Add negative tests for injection beyond SQL (e.g., XSS, large numbers of nested objects) and ensure consistent validation responses."
+            ],
+            "usage": {
+              "completion_tokens": 1179,
+              "prompt_tokens": 6450,
+              "total_tokens": 7629,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

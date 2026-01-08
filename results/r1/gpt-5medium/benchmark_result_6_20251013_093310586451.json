@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-13T09:33:10.586425",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:32:12.495777",
+    "benchmark_end_time": "2025-10-13T09:33:10.586421",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 58.090644,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "PUT - Valid Request: Multiple success paths verify 204 and data updated (TC01, TC02, TC03, TC04, TC16, TC24, TC27, TC28).",
+              "Headers: Required X-Killbill-CreatedBy present; optional X-Killbill-Reason/Comment accepted and ignored if extra headers present (TC01, TC02, TC05).",
+              "Input validation: 400 on invalid accountId format and non-existent account; 400 on missing/malformed/invalid body (TC06, TC07, TC09, TC10, TC11, TC18).",
+              "Edge cases: Empty array semantics exercised; large arrays and max lengths covered (TC04, TC15, TC16).",
+              "Security validation: SQLi and XSS payloads rejected with 400 (TC20, TC21).",
+              "Performance/throughput: Concurrent requests across accounts and large payload near limits, including 413 overflow (TC25, TC26).",
+              "Authorization: 401 for missing/invalid auth (TC12).",
+              "Resilience/availability: 503 service down, 502 dependency failure, 504 timeout; retry transient error path (TC13, TC14, TC19, TC22).",
+              "Integration side-effects: Audit logs and external reporting updated (TC27, TC28)."
+            ],
+            "gaps": [
+              "PUT - Partial update semantics: No scenario clarifies whether the operation replaces all custom fields vs merges. Add tests verifying subset updates do or do not remove unspecified fields.",
+              "Idempotency: No scenario proving repeated identical PUTs produce the same state and 204 consistently (safe retry behavior).",
+              "Concurrency on same resource: No race test where two clients update the same account\u2019s fields concurrently; absence of last-write-wins or version/ETag conflict (e.g., 409) coverage.",
+              "Media type and content negotiation: No tests for unsupported/missing Content-Type (415) or unsupported Accept (406); no assertion that 204 returns an empty body and appropriate headers.",
+              "Server error handling: No simulation of internal 500 (e.g., DB failure) distinct from 502/503.",
+              "Authorization/permissions: 403 Forbidden (authenticated but not authorized) not covered.",
+              "Header value validation: Constraints for X-Killbill-CreatedBy/Reason/Comment (empty string, max length, invalid characters, whitespace) not exercised.",
+              "Spec alignment for non-existent account: Tests expect 400; if API contract intends 404 Not Found, there is a mismatch not covered by tests.",
+              "CustomField schema contract: Behavior for extra properties is assumed to be ignored (TC17) but not validated against spec; no test for rejecting unknown properties if required.",
+              "Response headers: No checks for standard headers (e.g., Content-Type on error responses, correlation/request-id, Retry-After on 503/429 if applicable).",
+              "Internationalization: No tests with Unicode/locale-specific characters in field names/values and headers.",
+              "Data consistency post-retry: TC22 doesn\u2019t assert that partial failures and retries don\u2019t cause duplicate or partial writes."
+            ],
+            "recommendations": [
+              "Add scenarios to define and assert replace vs merge behavior: send a subset of fields when account already has fields and verify whether unspecified fields remain or are removed.",
+              "Add an idempotency test: repeat the exact same PUT multiple times (including after a transient error) and assert unchanged state and 204.",
+              "Introduce concurrency tests on the same account: two simultaneous PUTs with different payloads; assert deterministic outcome (e.g., last-write-wins) or 409 with versioning/If-Match.",
+              "Add media type tests: missing/incorrect Content-Type -> 415; unsupported Accept -> 406; explicitly assert 204 has no body.",
+              "Simulate internal server error path (e.g., DB exception) and expect 500 with a descriptive error payload.",
+              "Add authorization test for 403 (role without permission) distinct from 401.",
+              "Validate header value rules: empty/whitespace-only CreatedBy -> 400; excessively long Reason/Comment -> 400; character set constraints.",
+              "Clarify and align expected status for non-existent account (400 vs 404) and add a scenario accordingly.",
+              "Revisit TC17 per contract: if unknown properties are not allowed, expect 400; if allowed, assert they are ignored and not persisted.",
+              "Assert response headers on success and error (Content-Type on errors, correlation/request-id, Retry-After on 503/429 if implemented).",
+              "Add i18n tests using Unicode in CustomField names/values and headers to ensure proper encoding/validation.",
+              "Enhance TC22 to verify that retries do not create duplicates or partial writes and that the final persisted state matches exactly one of the attempted payloads."
+            ],
+            "usage": {
+              "completion_tokens": 4027,
+              "prompt_tokens": 6919,
+              "total_tokens": 10946,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3008,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

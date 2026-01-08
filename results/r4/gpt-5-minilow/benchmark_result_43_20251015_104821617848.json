@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-10-15T10:48:21.617820",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:48:08.542248",
+    "benchmark_end_time": "2025-10-15T10:48:21.617816",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 13.075568,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid PUT request: Success scenarios (TC01, TC02, TC20, TC23) verify 204 responses and database update expectations.",
+              "Header validation: Required header missing (TC03) and optional headers combinations (TC02, TC24) are tested.",
+              "Path parameter validation: Invalid UUID formats for paymentId and paymentTransactionId (TC04, TC05) are covered.",
+              "Resource existence: Non-existent payment and transaction cases return 404 (TC06, TC07, TC12).",
+              "Request body validation: Missing body and malformed JSON are tested (TC09, TC10).",
+              "Business/state validation: Inconsistent/invalid state transitions are tested (TC08).",
+              "Unsupported/extra fields handling: Extra fields and extra query params are covered (TC13, TC25).",
+              "Boundary values: Maximum/minimum field value tests are present (TC14, TC15).",
+              "Error/edge conditions: Timeout/backend unavailability (TC16), empty DB (TC12), mismatched IDs (TC27) are included.",
+              "Concurrency and performance: Concurrent updates and high load are addressed (TC17, TC21).",
+              "Security: SQL injection and XSS payload handling are included (TC18, TC19).",
+              "Integration/resilience: Dependent service degradation and resilience behavior are considered (TC22).",
+              "Misc: Header whitespace/case variations (TC26) and regression case (TC20) are present, and documentation accessibility (TC28) is explicitly included."
+            ],
+            "gaps": [
+              "Schema-level assertions: Tests do not assert specific AdminPayment schema fields (e.g., lastSuccessPaymentState, currentPaymentStateName, transactionStatus) are validated and stored correctly \u2014 only general \"updated\" is asserted.",
+              "204 vs response body/content-type: Story notes \"Produces: application/json\" but success tests expect 204 No Content; there are no assertions about response content-type, headers, or empty-body behaviour consistency.",
+              "Atomicity/transactional behavior: No explicit tests verify atomicity \u2014 e.g., that both paymentTransaction and parent payment state are updated together or rolled back on partial failure.",
+              "PUT semantics / partial update: No explicit test asserting whether partial updates (missing optional fields) are accepted or rejected per API contract beyond TC23 (only required fields). There is no negative test ensuring partial updates are rejected if policy requires full AdminPayment object.",
+              "Server error handling (5xx): Tests do not simulate internal server errors (e.g., DB failure) to verify 500 responses and safe failure modes.",
+              "Audit/logging effects: No tests verify that X-Killbill-CreatedBy/Reason/Comment are recorded in audit trails or in DB change metadata.",
+              "Precise validation error contents: While many error cases check for correct status codes, there are few assertions about the exact error codes/messages/fields returned in the JSON error body (structured error payload).",
+              "Idempotency/replay/duplicate requests: No test for duplicate/same-request replays to ensure idempotent behavior or duplicate handling.",
+              "Rate limiting / throttling: Although performance/1000 requests exists, there is no explicit rate-limiting/throttling policy test (e.g., 429 responses).",
+              "Downstream consumer effects: XSS test checks that no XSS is executed, but there is no verification that downstream consumers (e.g., UI/display service) sanitize/handle values \u2014 limited to API-only scope."
+            ],
+            "recommendations": [
+              "Add schema-level assertions: Verify that specific fields inside AdminPayment (lastSuccessPaymentState, currentPaymentStateName, transactionStatus, timestamps, amounts) are updated correctly in DB and match the request payload.",
+              "Align expectations for 204 vs response body: Add explicit tests for response headers and body when 204 is returned (e.g., Content-Type presence/absence) and clarify expected \"Produces: application/json\" behavior with API owners; add tests accordingly.",
+              "Test atomicity: Create tests that force a partial failure (e.g., make updating the child transaction succeed but parent payment update fail) to verify transactional behavior and rollback semantics.",
+              "Clarify and test PUT semantics: If PUT must supply a full resource, add negative tests where only partial fields are provided and expect 4xx if not allowed; conversely, if partial is allowed, add tests that verify omitted fields remain unchanged.",
+              "Add server-error simulations: Introduce tests that simulate DB errors or unexpected exceptions to verify 500 responses and ensure no inconsistent state is left behind.",
+              "Audit/logging validation: Add tests to confirm X-Killbill-CreatedBy/Reason/Comment are persisted in audit logs/DB change records and are retrievable.",
+              "Validate structured error payloads: For 4xx/404 cases assert the structure and important fields of the error JSON (code, message, field errors) to ensure clients can rely on them.",
+              "Duplicate/idempotency tests: Add cases for duplicate submissions (replay of same request) to confirm idempotency or safe duplicate handling.",
+              "Rate limiting tests: Add explicit rate-limiting tests that verify throttling behavior and proper 429/Retry-After handling if applicable, separate from pure performance tests.",
+              "Add 5xx recovery/resilience tests for dependent services: Extend integration tests to verify retries/fallbacks are applied and data consistency preserved when downstreams are flaky."
+            ],
+            "usage": {
+              "completion_tokens": 1510,
+              "prompt_tokens": 6337,
+              "total_tokens": 7847,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 384,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

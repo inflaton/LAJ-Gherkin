@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "60_2025-10-13T07:31:19.085785",
+    "jira_id": "60",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles/{bundleId}/auditLogsWithHistory - Retrieve bundle audit logs with history by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T07:29:48.430045",
+    "benchmark_end_time": "2025-10-13T07:31:19.085780",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 90.655735,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "60_qe_sup-gpt4.1_agent-gpt4.1_1748919885.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid GET request: TC01 verifies 200, Content-Type \"application/json\", response is a JSON array, and each AuditLog object matches the expected schema and corresponds to the bundleId.",
+              "Empty response handling: TC02 validates the endpoint returns an empty JSON array when a bundle exists but has no audit logs.",
+              "Resource-not-found / state variation: TC03, TC15 and TC16 verify 404 behavior when the bundle is not present (DB empty / partially populated / specific missing id).",
+              "Input validation: TC04, TC19 and TC20 cover invalid bundleId formats (invalid UUID, whitespace, special chars) and appropriate 400/404 responses.",
+              "Authentication: TC05 and TC06 check missing and invalid authentication tokens (401 responses).",
+              "HTTP method enforcement: TC21 verifies non-GET methods return 405.",
+              "Service error handling: TC07 covers service unavailability (503).",
+              "Security injection: TC11 tests SQL-injection-like input in the path and asserts no internal errors / stack traces are exposed.",
+              "Performance & scale: TC10 validates very large result sets with a response-time threshold; TC17 exercises concurrent requests (50) to check load behavior.",
+              "URL robustness & query handling: TC08 (unexpected query parameters), TC18 (trailing slash) and TC09 (UUID boundary case) exercise URL and query variations.",
+              "Regression & integration: TC13 verifies previously malformed entries are returned well-formed; TC14 checks consistency with other audit-log endpoints."
+            ],
+            "gaps": [
+              "Pagination: No tests cover pagination behavior (limit/offset/page parameters), Link headers or server-side paging for large result sets \u2014 only a single large-result performance test exists.",
+              "Caching behavior: No tests validate caching headers (ETag, Last-Modified, Cache-Control) or conditional GET behavior (If-None-Match -> 304).",
+              "Rate limiting / throttling: Concurrency/load tests exist but there are no explicit tests to verify rate-limiting policy (429 responses, Retry-After header) or throttling behavior under bursts.",
+              "Authorization granularity: Tests cover 401 (missing/invalid token) but not 403 scenarios (authenticated but not authorized), expired tokens, or scope/role-based access restrictions.",
+              "Query-parameter coverage: Only unexpected query parameters are tested (TC08). There are no tests for any documented/optional query parameters, nor validation of parameter value ranges/types.",
+              "Content negotiation / Accept header: No tests for Accept header variations or 406 responses when unsupported media types are requested.",
+              "Response header validation: Tests do not assert other response headers (e.g., Content-Length, Link, X-RateLimit-*, Cache-Control).",
+              "Missing-path-segment and encoding edge-cases: No explicit test for entirely missing bundleId path segment, URL-encoded IDs, or extremely long bundleId values (beyond special-char tests).",
+              "Security surface: Injection test exists for SQL-like input, but other vectors (header injection, very long inputs/fuzzing, XSS in returned fields) are not covered.",
+              "Schema negative testing: While success schema is asserted, there are no negative tests for malformed AuditLog fields, missing required fields, or incorrect data types in the returned AuditLog objects."
+            ],
+            "recommendations": [
+              "Add pagination tests: if the API supports paging, add scenarios for page/limit/offset, verify Link headers (next/prev), test boundary pages, zero or excessive page sizes, and behaviour when total size changes between requests.",
+              "Add caching/conditional GET tests: assert ETag, Last-Modified and Cache-Control headers are present and correct; add If-None-Match/If-Modified-Since tests expecting 304 Not Modified when appropriate.",
+              "Add rate-limiting/throttling tests: simulate request bursts to verify the server enforces rate limits (429 + Retry-After) and validate behavior under sustained high request rates.",
+              "Expand authorization tests: add 403 tests for valid tokens without required permissions, expired-token scenarios, token scope checks and role-based access control where applicable.",
+              "Expand query-parameter coverage: create tests for any supported query/filter parameters (date ranges, types, sort, etc.), including valid combinations and invalid values to verify proper validation/error codes.",
+              "Add content-negotiation tests: request unsupported Accept types to validate 406 or fallback behavior; verify default behavior when Accept header is absent.",
+              "Validate response headers: assert presence and correctness of headers such as Content-Length, Link (pagination), X-RateLimit-Remaining, and Cache-Control where relevant.",
+              "Add path/encoding edge-case tests: test missing path segment, URL-encoded bundleIds, extremely long id strings, and confirm route handling and expected error codes.",
+              "Harden security testing: run fuzzing and additional injection tests (header injection, long payloads, XSS payloads in returned fields) and ensure no sensitive internals are leaked.",
+              "Add negative schema tests: validate strict field types, required/optional fields, and assert server behavior when audit-log entries contain missing or mis-typed fields.",
+              "Automate performance benchmarks: convert ad-hoc performance checks into repeatable performance tests with SLAs, resource monitoring and regression alerts."
+            ],
+            "usage": {
+              "completion_tokens": 6733,
+              "prompt_tokens": 5164,
+              "total_tokens": 11897,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5632,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

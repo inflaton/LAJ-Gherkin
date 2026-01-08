@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-09-28T10:54:11.052477",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:52:48.307493",
+    "benchmark_end_time": "2025-09-28T10:54:11.052471",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 82.744978,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Deletion: 204 success path verified, including boundary emails and optional headers (TC01, TC02, TC12, TC13).",
+              "Required/Optional Headers: Required X-Killbill-CreatedBy enforced (TC01, TC07) and optional Reason/Comment accepted (TC02).",
+              "Input Validation: Invalid accountId and email formats return 400; injection blocked (TC05, TC06, TC16).",
+              "Non-Existent Resource: 404 when account or email not found, including empty email list (TC03, TC04, TC09).",
+              "Authorization: 401 for invalid/expired token (TC10).",
+              "Concurrency: Parallel deletes yield one 204 and remaining 404s (TC15).",
+              "Resilience/Server Errors: Dependency failure returns 503; retry recovers from transient network issue (TC11, TC19).",
+              "Performance: Response time threshold validated (TC14)."
+            ],
+            "gaps": [
+              "Spec headers: Acceptance says Produces: application/json; no test asserts response headers or that 204 responses have an empty body.",
+              "Soft delete behavior: No verification whether deletion is soft vs hard (e.g., audit flags, ability to list with includeDeleted).",
+              "Idempotency (sequential): No scenario for repeated DELETE on same resource to confirm contract (e.g., second call 404 per spec).",
+              "URL encoding: No tests for properly URL-encoded email path (e.g., plus signs, percent-encoding, spaces, Unicode/IDN).",
+              "Authorization 403: No scenario for authenticated but unauthorized user (insufficient permissions).",
+              "Server error 500: No coverage of generic internal errors (e.g., DB failure) distinct from 503 dependency outage.",
+              "Optional headers persistence: No check that X-Killbill-Reason/Comment are captured in audit logs.",
+              "Spec ambiguity on extra parameters: TC08 assumes extra query params are ignored; spec does not define this behavior.",
+              "Boundary constraints: No defined max/min email length constraints from spec; tests assume acceptance but do not verify validation against documented limits (if any)."
+            ],
+            "recommendations": [
+              "Add a scenario asserting response headers for success/error, and that 204 responses have no body; if Produces applies, validate Content-Type or clarify spec for 204.",
+              "Add a soft-delete check: verify audit trail entries for deletion (CreatedBy/Reason/Comment), and whether deleted emails appear in any includeDeleted view.",
+              "Add an idempotency test: perform DELETE twice sequentially and assert the second response matches contract (likely 404 as resource is gone).",
+              "Add URL-encoding scenarios: DELETE with percent-encoded emails (e.g., user+tag@example.com encoded), spaces, and Unicode local parts/domains (IDN/punycode).",
+              "Add a 403 Forbidden scenario for a valid token lacking delete permissions.",
+              "Simulate a 500 Internal Server Error (e.g., database outage) and assert error contract (status code, error body).",
+              "Verify audit persistence of X-Killbill-Reason and X-Killbill-Comment on successful deletion via subsequent audit API/read.",
+              "Clarify expected behavior for unsupported query parameters; align TC08 to asserted spec (either ignore with 204 or reject with 400) and add a negative case if needed.",
+              "Document and test explicit email length/character constraints if they exist; otherwise remove assumptions or mark as non-normative tests."
+            ],
+            "usage": {
+              "completion_tokens": 4011,
+              "prompt_tokens": 5675,
+              "total_tokens": 9686,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3264,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

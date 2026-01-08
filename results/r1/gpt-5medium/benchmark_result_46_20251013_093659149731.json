@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-13T09:36:59.149687",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:36:09.565444",
+    "benchmark_end_time": "2025-10-13T09:36:59.149683",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 49.584239,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Valid Deletion: Success path returning 204 with empty body is verified; scenario asserts caches are invalidated.",
+              "DELETE Non-Existent Resource: 404 responses covered for unknown/missing accounts and empty database.",
+              "Input Validation: 400 responses covered for invalid UUID formats, short IDs, injection/XSS attempts, and malformed paths.",
+              "Authorization: 401 covered for unauthenticated and invalid/expired tokens.",
+              "Method Constraints: 405 for unsupported HTTP method (GET) is covered.",
+              "Resilience: 503 covered for cache service down and degraded performance; transient network failure with retry covered.",
+              "Concurrency/Performance: Concurrent DELETEs across multiple accounts covered with response time expectation.",
+              "Robustness: Extra query parameters are tolerated; missing path segment behavior (404) is covered.",
+              "Regression: Backward-compatibility scenario included."
+            ],
+            "gaps": [
+              "Response Headers/Content-Type: Story specifies produces application/json, but tests do not assert Content-Type for error responses or headers on 204 (e.g., absence of body).",
+              "Idempotency: No scenario verifying repeated DELETE on the same account remains safe and returns 204 consistently.",
+              "DELETE Concurrency (same resource): No race-condition test where multiple DELETEs target the same account simultaneously.",
+              "Role-Based Authorization: No scenario for authenticated non-admin attempting the operation (expected 403 Forbidden if enforced).",
+              "Error Payload Schema: Tests check for generic error messages but do not validate a stable error schema (code/type/message).",
+              "Success Side-Effect Verification Depth: \u201ccaches should be invalidated\u201d is asserted, but there is no concrete verification via a follow-up read showing cache refresh/eviction behavior.",
+              "Server Error Handling: No coverage for unexpected 500 Internal Server Error and retry/backoff behavior.",
+              "Unsupported Methods Breadth: Only GET is tested for 405; other methods (POST/PUT/PATCH/OPTIONS) not covered.",
+              "UUID Pattern Boundary: The \u201cvery large accountId\u201d mixes 400/404 outcomes; lacks explicit tests for exact UUID boundary lengths (e.g., valid 36-char vs off-by-one)."
+            ],
+            "recommendations": [
+              "Add header assertions: verify Content-Type: application/json for error responses; for 204 ensure no body and appropriate headers.",
+              "Add idempotency test: call DELETE twice on the same account and expect 204 both times with no adverse effects.",
+              "Add same-account concurrency test: fire concurrent DELETEs for one account and assert all return 204 without race-induced errors.",
+              "Add RBAC test: authenticated non-admin should receive 403 Forbidden (if the API enforces admin-only access).",
+              "Validate error schema: assert fields like errorCode, message, type, and a consistent structure across 400/404/503.",
+              "Strengthen side-effect verification: warm/populate cache, mutate underlying data, then after DELETE confirm subsequent read reflects refreshed data and cache was actually invalidated.",
+              "Cover generic 500 handling: simulate unexpected server failure and assert proper 500 response and safe behavior (no partial/inconsistent state).",
+              "Expand 405 coverage to POST/PUT/PATCH/OPTIONS to ensure only DELETE is allowed.",
+              "Refine UUID boundary tests: explicitly test correct 8-4-4-4-12 UUID vs off-by-one lengths to deterministically expect 400 for invalid patterns."
+            ],
+            "usage": {
+              "completion_tokens": 3597,
+              "prompt_tokens": 4640,
+              "total_tokens": 8237,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2880,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

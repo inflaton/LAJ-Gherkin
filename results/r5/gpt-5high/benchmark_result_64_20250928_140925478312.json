@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-09-28T14:09:25.478286",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T14:06:52.379202",
+    "benchmark_end_time": "2025-09-28T14:09:25.478282",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 153.09908,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT - Valid Request: Success 204 updates bundle to active and resumes all paused subscriptions; scheduled resume via requestedDate; pluginProperty processed; optional headers Reason/Comment recorded.",
+              "PUT - Non-Existing Resource: 404 when bundle not found (empty DB case).",
+              "PUT - Concurrency Issues: Concurrent resume requests handled; first succeeds, subsequent return 400/409.",
+              "Header Validation: Required X-Killbill-CreatedBy present/missing cases covered; optional X-Killbill-Reason and X-Killbill-Comment handled and audited; whitespace and max-length boundaries covered.",
+              "Query Parameters: requestedDate valid future date; pluginProperty accepted and processed; extra/unexpected parameters ignored.",
+              "Error Handling (400): Invalid UUID format, invalid bundle state (active/cancelled), requestedDate in the past, and pluginProperty wrong type return 400 with error message.",
+              "Authorization: Unauthorized access returns 401/403.",
+              "Server Failures: Dependency/service failures return 500 or 504 as appropriate.",
+              "Security: SQL injection and XSS attempts are safely handled.",
+              "Performance/Reliability: Load/performance scenario and retry after transient network failure."
+            ],
+            "gaps": [
+              "requestedDate format validation and timezone handling: No scenario for malformed dates (e.g., 2025-13-40, not-a-date) or timezone nuances; spec says format date.",
+              "pluginProperty collectionFormat=multi encoding: Tests pass a JSON-like array in the query; no scenario verifies repeated query params (pluginProperty=...&pluginProperty=...) are parsed correctly, including duplicates and empty values.",
+              "404 Not Found in a populated database: No test for a syntactically valid, non-existent bundleId when other bundles exist (distinct from empty DB).",
+              "204 response semantics: No assertions that the 204 response has an empty body and appropriate Content-Type headers despite \"Produces: application/json\" in spec.",
+              "Request body handling: Endpoint has no body; no test ensures a non-empty body is rejected (400) or ignored per contract.",
+              "Idempotency on repeated sequential calls: Same request sent twice sequentially (not concurrent) behavior/code not verified.",
+              "Error response schema: Tests only check for an error message, not the standardized error payload structure (e.g., code, message, type).",
+              "Audit verification: \"Reason/comment recorded\" is asserted abstractly; no retrieval/inspection from audit logs API to prove persistence and contents.",
+              "Authentication token edge cases: Missing/expired/insufficient-scope token scenarios are not covered."
+            ],
+            "recommendations": [
+              "Add malformed requestedDate tests (invalid format, impossible dates) and timezone boundary cases; expect 400 with clear validation error.",
+              "Verify pluginProperty as repeated query params (collectionFormat=multi), including duplicates, empty values, and special characters; assert correct parsing server-side.",
+              "Add a 404 test for a non-existent, well-formed UUID when the database contains other bundles.",
+              "Assert 204 response has no body and clarify Content-Type behavior; if the API truly \"produces application/json\", assert it for error responses only.",
+              "Send a request with an unexpected JSON body to confirm the API rejects it (400) or ignores it; document the expected behavior.",
+              "Test idempotency: send the same resume request twice sequentially; assert first 204, then defined outcome (204 if idempotent, or 400/409) and document contract.",
+              "Validate error response schema (fields like code, message, details) and content type for 4xx/5xx responses.",
+              "Read back audit logs via the audit endpoint to verify CreatedBy, Reason, Comment, and requestedDate were persisted correctly.",
+              "Add auth edge cases for missing/expired tokens or insufficient permissions to ensure consistent 401/403 handling."
+            ],
+            "usage": {
+              "completion_tokens": 8170,
+              "prompt_tokens": 6265,
+              "total_tokens": 14435,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7360,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

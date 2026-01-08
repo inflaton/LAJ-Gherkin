@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-10-14T03:57:35.570778",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T03:55:28.505590",
+    "benchmark_end_time": "2025-10-14T03:57:35.570775",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 127.065185,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "POST - Valid Payload: Multiple success paths with required-only and all optional fields/headers, asserting 201, JSON Account response, and Location header (TC01, TC02, TC03, TC16).",
+              "POST - Invalid Payload: Malformed JSON, empty body, and missing required fields return 400 with error details (TC05, TC06, TC12).",
+              "Header requirements/validation: Required X-Killbill-CreatedBy covered for both presence and type errors; optional headers exercised (TC02, TC04, TC08).",
+              "Large Payloads: Boundary test with maximum field sizes succeeds (TC11).",
+              "Authorization negative path: Unauthorized access returns 401 (TC09).",
+              "Server dependency/timeouts: Database outage and network timeout handled with 503 and 504 (TC10, TC14).",
+              "Location semantics/integration: Location header is used to GET the resource; retrieval matches created Account (TC20).",
+              "Robustness to extras: Extra JSON fields and unexpected headers don\u2019t break creation (TC07, TC17).",
+              "Performance/concurrency: Concurrent POSTs complete within thresholds (TC18).",
+              "Security signal: Injection/XSS attempt considered and expected to be rejected or sanitized (TC15)."
+            ],
+            "gaps": [
+              "Duplicate Submission: TC13 is non-deterministic (201 or 409) and conflicts with Background (no conflicting accounts). Need deterministic policy tests: create once, then submit same payload again; or pre-seed duplicates; assert 201 vs 409 as per spec.",
+              "Field-level validation depth: No explicit tests for Account schema rules (e.g., invalid email format, phone number, currency/timezone/country codes, external key uniqueness/length, numeric ranges, string length/min/max).",
+              "Server Error Handling (500): No scenario for unexpected server exception returning 500 with proper error body and headers; also no transaction rollback verification.",
+              "Media types/content negotiation: Missing tests for request Content-Type enforcement (415 for non-JSON), response Content-Type = application/json, and 406 when Accept is unacceptable.",
+              "Rate limiting/throttling: No coverage for 429 Too Many Requests when exceeding POST rate limits; TC18 checks performance but not throttling behavior.",
+              "Optional header validation: No negative tests for X-Killbill-Reason/Comment (invalid types, excessive length, non-UTF8/control characters) or persistence/audit expectations.",
+              "Response schema completeness: No assertions that server-populated fields (e.g., accountId, externalKey echo, createdDate, defaults) are present and valid; no check that Location ID matches id in response body.",
+              "Security hardening specificity: TC15 has ambiguous outcome; no explicit assertions that malicious input is safely stored/escaped and never reflected/executed; no header injection tests.",
+              "Produces requirement: While JSON body is asserted, the response header for Content-Type: application/json is not verified.",
+              "Idempotency/retry behavior: No scenario covering safe client retries (e.g., network failure after create) to avoid duplicate accounts; no Idempotency-Key behavior if supported."
+            ],
+            "recommendations": [
+              "Make duplicate handling deterministic: split into two scenarios with clear preconditions\u2014(a) duplicate rejected with 409 and error schema; (b) duplicate accepted semantics if allowed\u2014and ensure Background/seeding supports the test.",
+              "Add a field-level validation matrix: invalid email, invalid phone format, out-of-range numbers, unsupported currency/timezone/country codes, externalKey length/charset, overlong strings; assert 400 with field-specific error details.",
+              "Add server error simulation yielding 500 Internal Server Error and verify JSON error envelope, correlation ID if applicable, and that no partial resource is created.",
+              "Add media type tests: POST with Content-Type text/plain -> 415; POST with Accept text/plain -> 406; always assert response Content-Type is application/json on success and errors.",
+              "Add throttling tests: burst requests beyond configured limit should return 429 with Retry-After; verify compliant behavior resumes after backoff.",
+              "Extend optional header tests: invalid types and maximum lengths for X-Killbill-Reason/Comment; include Unicode and control-character handling; verify audit persistence if part of requirements.",
+              "Assert response schema completeness: verify presence/format of accountId, createdDate/defaults; confirm Location path contains the same id as response body; verify absolute/relative URL format as per API contract.",
+              "Harden security tests: assert stored/returned fields are sanitized/escaped and not executed; include attempts with JSON-breaking characters and header injection; ensure no reflection in error responses.",
+              "Verify Produces contract explicitly by checking response headers for Content-Type: application/json on 201 and 4xx/5xx.",
+              "Add idempotent retry behavior test (if supported): simulate client retry after network timeout; with Idempotency-Key (or equivalent), expect single resource creation; without it, define expected behavior."
+            ],
+            "usage": {
+              "completion_tokens": 7827,
+              "prompt_tokens": 4821,
+              "total_tokens": 12648,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6784,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

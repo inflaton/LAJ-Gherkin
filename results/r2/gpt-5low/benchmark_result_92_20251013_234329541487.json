@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-13T23:43:29.541456",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:43:10.732639",
+    "benchmark_end_time": "2025-10-13T23:43:29.541450",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 18.808811,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "DELETE - Valid Deletion: Success paths for deleting all fields (no query) and specific fields (with query) return 204 and clear fields (TC01, TC02, TC03, TC04, TC06).",
+              "DELETE - Non-Existent Resource: 404 when invoice item does not exist (TC08).",
+              "DELETE - Server Error Handling: Dependency/service unavailable returns 503 (TC14).",
+              "Authorization: 401 for invalid/expired auth token (TC19).",
+              "Input Validation - Path Params: 400 for invalid invoiceItemId format (TC07).",
+              "Input Validation - Query Params: 400 for malformed customField IDs and mixed valid/invalid IDs (TC10, TC17); duplicates tolerated (TC18); extra unexpected params are ignored (TC11).",
+              "Headers: Required X-Killbill-CreatedBy enforced (TC09); optional headers covered including Reason and Comment with long value (TC05, TC16); regression on header parsing (TC20).",
+              "Scalability: Large number of customField IDs handled (TC12).",
+              "Operational/Performance: Under load still returns 204 within acceptable response time (TC13).",
+              "Idempotency-like behavior: Deleting when no custom fields exists still returns 204 (TC04)."
+            ],
+            "gaps": [
+              "DELETE - Concurrency: No scenarios where two clients delete simultaneously or where a delete occurs between request and processing (race conditions).",
+              "DELETE - Soft Deletes/Audit: No verification that deletions are soft or recorded in audit logs/history (if applicable in Kill Bill).",
+              "Authorization Variants: No 403 Forbidden scenario (valid auth but insufficient permissions/roles).",
+              "Idempotency on specific IDs: No test for repeating the same specific-ID deletion twice and ensuring the second call behavior (e.g., 204 or defined error).",
+              "Validation - Non-associated IDs: No scenario where provided customField UUIDs are valid format but do not belong to the target invoice item (should they be ignored, 400, or partial success?).",
+              "Empty/missing query parameter edge: No explicit test for customField parameter present but empty (e.g., customField= with no value) and multiple repeated empty params.",
+              "Headers - Limits/Validation: No max length/character set validation for X-Killbill-CreatedBy and X-Killbill-Reason; only Comment length was tested.",
+              "Content Negotiation/Headers: No checks for expected response headers (Content-Type for 204, error payload structure/content-type), nor Accept handling.",
+              "Rate Limiting/Throttling: No tests for too many DELETE requests leading to 429 or similar behavior if enforced."
+            ],
+            "recommendations": [
+              "Add concurrency scenarios: two parallel DELETEs against the same invoice item; verify final state and expected response codes.",
+              "Define and test soft delete/audit expectations: assert audit entries or history endpoints reflect deletions if Kill Bill tracks them.",
+              "Add authorization coverage for 403 Forbidden with a valid token lacking necessary permissions/tenant roles.",
+              "Test idempotency for specific-ID deletions: perform DELETE with the same customField IDs twice; define expected behavior (likely 204 both times).",
+              "Add scenario where customField UUIDs are valid but not associated to the invoice item; clarify expected outcome (ignore vs 400) and test it.",
+              "Add edge case for empty customField parameters (e.g., customField=, customField=&customField=) and mixed empty + valid values.",
+              "Extend header validation: boundaries and invalid characters for X-Killbill-CreatedBy and X-Killbill-Reason; test overly long Reason.",
+              "Validate response headers: ensure 204 has no body and appropriate headers; for errors, assert structured JSON error with proper Content-Type and fields.",
+              "If applicable, include rate limiting tests (burst of DELETEs) to verify 429 or system-defined behavior."
+            ],
+            "usage": {
+              "completion_tokens": 1477,
+              "prompt_tokens": 5523,
+              "total_tokens": 7000,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 640,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

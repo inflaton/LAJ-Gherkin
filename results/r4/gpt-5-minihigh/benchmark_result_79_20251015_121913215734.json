@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "79_2025-10-15T12:19:13.215705",
+    "jira_id": "79",
+    "jira_title": "Implement/Test API: GET /1.0/kb/credits/{creditId} - Retrieve a credit by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:17:54.168018",
+    "benchmark_end_time": "2025-10-15T12:19:13.215700",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 79.047682,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "79_qe_sup-gpt4.1_agent-gpt4.1_1748921053.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid requests: TC01, TC02 and TC15 verify successful retrieval (HTTP 200) for CREDIT_ADJ and CBA_ADJ credits and check Content-Type application/json and that returned id matches the requested id.",
+              "Empty / Not-found handling: TC03, TC04 and TC18 cover scenarios where the credit is not present (or DB is empty) and expect 404 with an error message.",
+              "Path-parameter validation and input-sanitization: TC05, TC14, TC16 and TC17 cover invalid UUID formats, truncated and whitespace-padded IDs and expect 400/404 as appropriate; TC12 and TC13 cover SQLi and XSS attempts.",
+              "Authentication checks: TC06 and TC07 validate missing and expired/invalid auth tokens and expect 401 responses.",
+              "Type filtering: TC11 verifies that an InvoiceItem that is not CREDIT_ADJ or CBA_ADJ is treated as not found (404).",
+              "Dependent service failure: TC10 simulates the database being down and expects 503 service-unavailable behavior.",
+              "Query-parameter tolerance: TC08 confirms extra/unexpected query parameters are ignored and do not affect successful retrieval.",
+              "Performance and concurrency: TC09 (degraded-performance threshold) and TC19 (100 concurrent requests) test response time and behavior under load.",
+              "Security tests: TC12 and TC13 explicitly test injection and XSS vectors and assert a safe failure (400) and no compromise.",
+              "Basic response body assertion: TC01 and TC02 assert that the response body is a valid InvoiceItem JSON object and check the invoice item type.",
+              "Backward compatibility & regression: TC20 and TC15 include regression and backward-compatibility checks for previously failing creditIds."
+            ],
+            "gaps": [
+              "Caching behavior not covered: No tests assert ETag or Cache-Control headers, conditional GET (If-None-Match / If-Modified-Since) or 304 Not Modified behavior.",
+              "Rate limiting / throttling not covered: TC19 verifies concurrency performance but there are no tests asserting 429 responses, Retry-After behavior or server-side throttling policies under sustained high request rates.",
+              "Authorization scope (403/RBAC) not covered: Tests assert 401 for unauthenticated requests but do not test authenticated users lacking permission (403) or role-based access controls.",
+              "Detailed field-level schema validation missing: Tests check \"valid InvoiceItem\" but do not assert presence/format/type of required fields (amount, currency, invoiceId, accountId, startDate/endDate, enums, etc.) or value ranges.",
+              "HTTP headers beyond Content-Type are not asserted: Content-Length, ETag, Cache-Control, Vary, Retry-After and other operational headers are untested.",
+              "Internal Server Error (500) scenarios not explicitly tested: Only DB-down / 503 is present; unhandled exceptions and general 500 behavior are not covered.",
+              "Content negotiation / Accept header handling not tested: No tests for Accept variations or unsupported media types (406) behavior.",
+              "Post-security-test verification is vague: SQLi/XSS tests claim \"system should not be compromised\" but do not include explicit DB integrity checks or verification that no malicious payloads were stored/executed.",
+              "Soft-delete / archived resource handling not covered: No scenarios for records marked deleted/archived (if the domain supports soft deletes) to assert expected behavior (404 or domain-specific response).",
+              "Pagination: The guidelines mention pagination, but for this single-resource GET-by-ID endpoint pagination is not applicable; this should be documented as out-of-scope or tested if the API is extended to return collections."
+            ],
+            "recommendations": [
+              "Add caching tests: assert presence and correctness of ETag and Cache-Control headers and implement conditional GET tests (If-None-Match / If-Modified-Since) expecting 304 Not Modified where appropriate.",
+              "Add rate-limiting tests: simulate bursts and sustained high request rates to verify 429 responses, Retry-After header and server throttling behavior; include both short-burst and long-duration scenarios.",
+              "Add RBAC/permission tests: include authenticated users with insufficient permissions to assert 403 Forbidden and appropriate error messages.",
+              "Add detailed schema validation: create tests that assert required InvoiceItem fields, their types, numeric and date ranges, currency/amount formats and allowed enum values for invoiceItemType.",
+              "Add 500/Internal Server Error tests: simulate unexpected server faults to verify graceful 500 responses and consistent error payload structure for monitoring and clients.",
+              "Add content-negotiation tests: call the endpoint with different Accept headers to verify correct response or appropriate 406 behavior for unsupported media types.",
+              "Strengthen security verification: after injection/XSS attempts, include explicit assertions that the database state is unchanged and no malicious payloads were stored or executed; add audit/logging checks as applicable.",
+              "Add tests for soft-deleted/archived resources if the domain supports them to ensure correct handling (e.g., 404 or special status).",
+              "Make backward-compatibility tests explicit and automated: capture and assert response contract (schema) snapshots across supported client versions to detect breaking changes.",
+              "Assert additional HTTP headers in tests: include Content-Length, Vary, Server and any caching-related headers and document expected header semantics.",
+              "Document pagination as out-of-scope for this endpoint (GET by ID) in the test plan, or add pagination tests if the API is later extended to return lists of credits."
+            ],
+            "usage": {
+              "completion_tokens": 7922,
+              "prompt_tokens": 4626,
+              "total_tokens": 12548,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6784,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

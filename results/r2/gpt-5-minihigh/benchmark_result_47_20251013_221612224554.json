@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-13T22:16:12.224517",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:14:07.692311",
+    "benchmark_end_time": "2025-10-13T22:16:12.224511",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 124.5322,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01 verifies the successful path (DELETE returns HTTP 204) and TC09 asserts idempotency when cache is already empty.",
+              "Authentication negative/positive checks: TC02 and TC03 cover missing and invalid credentials (401); background and other scenarios assume valid admin credentials for positive flows.",
+              "Non-Existent Tenant: TC04 validates behavior when the tenant context does not exist (404).",
+              "Server & Service Errors: TC05 (500), TC06 (503) and TC14 (504) cover internal error, service unavailable and gateway timeout error paths (meets \"HTTP >= 400 on errors\").",
+              "Bad Request / Input Validation: TC07 covers malformed requests with unsupported query parameters/payload returning 400.",
+              "Security: TC08 covers header injection attempts and expects 400/403 responses.",
+              "Concurrency & Performance: TC10 tests concurrent DELETE requests and asserts 204 responses plus a response-time SLA (< 2s).",
+              "Regression & Integration: TC11 ensures a previously fixed bug stays fixed; TC12 checks cache invalidation is observable by dependent services.",
+              "Cache state variations: TC13 validates that mixed valid/expired entries are fully invalidated."
+            ],
+            "gaps": [
+              "Authorization (403) for insufficient privileges: There is no scenario where a valid authenticated user lacks admin privileges and is rejected with 403.",
+              "Content-Type / Response Headers: Tests do not assert 'Produces: application/json' or otherwise validate Content-Type, nor other relevant response headers (e.g., caching headers or Retry-After).",
+              "Tenant isolation: No test ensures invalidation is strictly scoped to the current tenant (i.e., other tenants\u2019 caches remain unaffected).",
+              "Missing tenant-context handling: No scenario for absent or malformed tenant context header/token to confirm expected error behavior (400/401/404 as applicable).",
+              "Error response schema/format: Error scenarios assert presence of an error message but do not validate a consistent JSON error schema (field names, error codes, types) or content-type for error responses.",
+              "Rate limiting / Throttling: There is no test for rate limits (429) or throttling behavior under burst traffic beyond the concurrency/performance test.",
+              "Concurrent modification edge cases: While TC10 covers concurrent deletes, there is no explicit test for race conditions where cache is being repopulated or modified concurrently (possible conflicts or inconsistent states).",
+              "Soft-delete / underlying data assurance: No tests confirm that cache invalidation does not delete persistent data or unintentionally alter durable storage.",
+              "Logging/audit/metrics: No scenarios validate that admin cache invalidation operations are logged/audited or that relevant metrics/counters are emitted.",
+              "Large-volume / long-running invalidation: Apart from TC10 and TC14, there is limited coverage for very large caches (memory/throughput impact) and system resilience under extreme load."
+            ],
+            "recommendations": [
+              "Add an authorization negative test: authenticated non-admin (valid token but insufficient permissions) should receive HTTP 403.",
+              "Assert response headers: add checks for 'Content-Type: application/json' on error responses and define expected behavior for 204 (no body vs content-type presence).",
+              "Tenant isolation test: set up two tenant contexts with distinct caches, DELETE in tenant A and assert only tenant A's cache is invalidated while tenant B remains unchanged.",
+              "Missing tenant-context test: send DELETE without tenant header / with malformed tenant id and assert expected error (document expected status and message).",
+              "Error-schema validation: for each error case assert a consistent JSON structure (e.g., {code, message, type, timestamp}) so clients can reliably parse errors.",
+              "Rate-limiting/throttling tests: simulate bursts of DELETE requests to validate 429 behavior or configured throttling policy and presence of Retry-After header.",
+              "Concurrent edge-case tests: simulate concurrent invalidation + cache repopulation to detect race conditions, verify eventual consistency and acceptable error semantics (no data corruption).",
+              "Persistence safety test: verify cache invalidation only affects cache layer and does not remove or corrupt persistent data backing the cache.",
+              "Audit & metrics tests: validate that an invalidation action is logged with tenant and admin metadata and that relevant metrics/counters are incremented.",
+              "Large-volume performance test: run invalidation against very large cache sizes and measure latency, resource usage and failure modes (to tune timeouts and resource limits)."
+            ],
+            "usage": {
+              "completion_tokens": 6307,
+              "prompt_tokens": 3389,
+              "total_tokens": 9696,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5376,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

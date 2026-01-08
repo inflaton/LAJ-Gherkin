@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "65_2025-09-28T06:40:48.087877",
+    "jira_id": "65",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/block - Block a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T06:39:06.955297",
+    "benchmark_end_time": "2025-09-28T06:40:48.087873",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 101.132576,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "65_qe_sup-gpt4.1_agent-gpt4.1_1748920218.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid payload and successful creation (201) with JSON array response and field checks (TC01, TC02, TC03, TC04, TC13-15).",
+              "Path parameter validation (UUID format) and not-found handling returning 400/404 (TC06, TC05, TC07).",
+              "Request body validation: malformed body and missing body produce 400 (TC08, TC10) and schema availability in Background.",
+              "Optional headers and query parameters covered: X-Killbill-Reason, X-Killbill-Comment, requestedDate and pluginProperty (valid/invalid date formats covered in TC11; multi-value pluginProperty in TC02/TC04).",
+              "Authentication/authorization basics: invalid authentication token and missing X-Killbill-CreatedBy are tested (TC18, TC09).",
+              "Security validation: injection and XSS test cases included to validate sanitization/validation (TC19, TC20).",
+              "Error handling for dependent/unavailable services and network issues covered (service down -> 503, dependent service errors -> 502/503, network retry -> TC17, TC21, TC28).",
+              "Concurrency and concurrent creation scenarios covered (TC22) and performance/scale tests included (large payload / stress / response-time under normal/peak/bulk in TC16, TC25-TC27).",
+              "Integration and data-consistency checks included (TC29); regression/back-compat and special-character encoding covered (TC23, TC24)."
+            ],
+            "gaps": [
+              "Duplicate submissions / idempotency: no explicit test for repeated identical POSTs or expected behavior (e.g., 201 then 409, idempotent 200, or deduplication).",
+              "Internal server error (500) / database failure: no explicit simulation of 500 Internal Server Error or DB transaction failure (only 502/503 and dependent-service errors are covered).",
+              "Authorization scope / permission errors (403): tests cover missing/invalid token (401) but not insufficient privileges or role-based access returning 403.",
+              "Rate limiting / throttling: no tests for 429 behavior under client throttling or API rate limits.",
+              "Precise Content-Type and header validations: no explicit tests for missing/incorrect Content-Type (application/json) or verification of response headers (Content-Type, Location, caching headers).",
+              "PluginProperty negative cases and validation: no tests for invalid pluginProperty formats, excessive counts, or invalid values that should trigger validation errors.",
+              "Per-field schema negative tests and error messages: malformed-body test exists but there are no granular tests that omit each required BlockingState field individually and assert precise validation errors. ",
+              "Ambiguity in expected status for missing X-Killbill-CreatedBy (TC09 allows 400 or 401): tests should assert a single expected behavior rather than a range.",
+              "Exceeding limits behavior: while large payloads are tested (TC16), there are no explicit tests for payloads that exceed server limits producing 413/400 and the exact server behavior.",
+              "Transactionality / partial failure semantics: no explicit tests for partial failure when the blocking state must be applied across multiple systems (atomic rollback / compensating behavior)."
+            ],
+            "recommendations": [
+              "Add a duplicate-submission test: send the same BlockingState POST twice and assert the expected behavior (define whether duplicates are rejected (409), ignored, or are allowed to create separate entries).",
+              "Add a 500/Internal Server Error test by simulating DB failures or forced server exceptions and assert consistent error response structure and status code 500.",
+              "Add authorization-scope tests to cover insufficient-permission scenarios (expect 403) and ensure RBAC behavior is validated.",
+              "Add rate-limiting tests that fire high request rates and assert 429 (or configured throttling response) and proper Retry-After headers.",
+              "Add Content-Type validation tests: omit or set incorrect Content-Type and assert 415/400 (or server-defined behavior); verify response headers (Content-Type: application/json, optional Location header semantics).",
+              "Add negative tests for pluginProperty: invalid formats, very large numbers of properties, and boundary values to ensure robust validation and error messages.",
+              "Add per-field schema validation tests: for each required BlockingState field, submit requests missing that field and assert precise 400 responses with useful error messages.",
+              "Tighten TC09 to assert a single expected response code and message for missing X-Killbill-CreatedBy (prefer explicit 400 with validation error or 401 if it is an authentication requirement).",
+              "Add explicit tests for payloads exceeding server limits (expect 413 or configured behavior) and confirm the server handles large/oversized requests gracefully.",
+              "Add transactional/partial-failure tests: simulate a failure applying the blocking state to one integrated system and assert overall atomic behavior or defined compensating actions; verify system consistency/reconciliation (extend TC29)."
+            ],
+            "usage": {
+              "completion_tokens": 6277,
+              "prompt_tokens": 7893,
+              "total_tokens": 14170,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5248,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

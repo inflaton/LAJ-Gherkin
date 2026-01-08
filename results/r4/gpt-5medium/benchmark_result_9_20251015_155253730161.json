@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "9_2025-10-15T15:52:53.730119",
+    "jira_id": "9",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/block - Block an account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:50:57.925993",
+    "benchmark_end_time": "2025-10-15T15:52:53.730115",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 115.804122,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "9_qe_sup-gpt4.1_agent-gpt4.1_1748916388.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST - Valid Payload: Happy-path creation with minimal data and with all optional headers/query params (TC01\u2013TC05). Confirms 201 and JSON array of BlockingState(s), aligning with story success criteria.",
+              "POST - Invalid Payload: Missing body, malformed JSON, invalid accountId format, missing required header, malicious payload all return 400 as appropriate (TC07\u2013TC10, TC14).",
+              "POST - Large Payloads: Near max-size BlockingState array handled successfully (TC20).",
+              "POST - Validation (positive cases): requestedDate supplied (TC02, TC03), pluginProperty supplied including empty array (TC02, TC04, TC15), extra unknown query param ignored (TC18), max/min field boundary checks in body (TC16, TC17), security input hardening (TC13\u2013TC14).",
+              "POST - Server Error Handling: Upstream/database and plugin outages mapped to 503 (TC12, TC22).",
+              "Story-specific errors: 404 when account not found (TC06).",
+              "Non-functional/extra coverage beyond guidelines: Authorization 401 (TC11), performance/concurrency/load (TC19, TC25, TC26), integration with plugins (TC21), regression scenarios (TC23, TC24)."
+            ],
+            "gaps": [
+              "POST - Duplicate Submission: No explicit scenario re-submitting the same payload (with/without Idempotency-Key) to verify idempotency, deduplication, or conflict handling.",
+              "POST - Validation gaps on query params: No tests for invalid requestedDate formats (non-ISO date, timezone, out-of-range dates), boundary dates (past/future), or leap-day edge cases. pluginProperty collectionFormat=multi not explicitly verified via repeated query keys (pluginProperty=val1&pluginProperty=val2); no invalid type (non-string), duplicate entries, very long/unicode values.",
+              "Content negotiation/headers: No assertions for response Content-Type=application/json; no test for 415 Unsupported Media Type when Content-Type is missing/incorrect; no Accept header negotiation checks.",
+              "Server error matrix: No 500 Internal Server Error scenario; no explicit timeout leading to 504 Gateway Timeout (TC19 checks latency but not timeout behavior).",
+              "Functional scope nuances: Not explicitly testing blocking scope for sub-entities (e.g., bundles/subscriptions) via BlockingState fields, despite story mentioning parts of the account.",
+              "Default/effective date behavior: No assertion that effective date defaults to \u201cnow\u201d when requestedDate is omitted; no timezone normalization/clock-skew handling checks.",
+              "Audit/metadata: Optional headers (Reason, Comment) persistence or audit logging not verified; also no negative tests for overlong/invalid header values.",
+              "Path param robustness: No tests for edge UUID cases (uppercase/lowercase variants, hyphenless UUID, trailing spaces, URL-encoded characters) beyond a generic bad-id."
+            ],
+            "recommendations": [
+              "Add a duplicate submission scenario: send the identical POST twice (sequentially and concurrently). If Idempotency-Key is supported, include cases with and without it; assert either one created state or documented behavior (e.g., 409 or same resource returned).",
+              "Expand query param validation: invalid requestedDate (bad format, timezone, non-existent date), past/future boundary tests, and explicit verification of collectionFormat=multi for pluginProperty using repeated keys. Add tests for non-string values, duplicates, long/unicode values.",
+              "Verify content negotiation: assert response Content-Type=application/json; add 415 when Content-Type is missing/wrong; include Accept header cases.",
+              "Augment server error handling: simulate generic 500 and a controlled timeout path to validate 504 (or documented behavior), in addition to 503.",
+              "Cover scope semantics: craft BlockingState bodies that target account-level vs specific bundles/subscriptions (if supported), and assert the correct scope is affected.",
+              "Test default effective date: when requestedDate is omitted, assert effectiveDate ~ current server time and correct timezone normalization.",
+              "Auditability: verify that CreatedBy/Reason/Comment are persisted (via subsequent retrieval/audit logs) and add boundary/invalid value tests for these headers.",
+              "Harden path param tests: include UUID edge cases (uppercase, hyphenless, whitespace, URL-encoding) to ensure strict validation and proper 400 responses."
+            ],
+            "usage": {
+              "completion_tokens": 4764,
+              "prompt_tokens": 7115,
+              "total_tokens": 11879,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3840,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

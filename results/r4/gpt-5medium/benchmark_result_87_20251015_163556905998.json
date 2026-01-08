@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-15T16:35:56.905960",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:34:32.523898",
+    "benchmark_end_time": "2025-10-15T16:35:56.905955",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 89,
+    "average_generation_time_seconds": 84.382057,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 89,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 89,
+            "covered": [
+              "Valid Payload: Happy-path creation with one and multiple tag definition UUIDs returns 201 with JSON array of Tag objects (TC01, TC02, TC03, TC04, TC05).",
+              "Headers: Required X-Killbill-CreatedBy covered (present/missing); optional X-Killbill-Reason and X-Killbill-Comment verified (TC03, TC06).",
+              "Path Param Validation: Invalid invoiceItemId format -> 400; non-existent invoice item -> 404 (TC07, TC08, TC15).",
+              "Invalid Payloads: Malformed JSON, empty array, invalid tag definition UUIDs, unsupported fields, null/empty elements -> 400 (TC09, TC10, TC11, TC12, TC24).",
+              "Duplicate Handling: Duplicate UUIDs in request deduped; adding an already-existing tag does not create duplicates (TC13, TC20).",
+              "Large Payloads: Very large array handled (201 or 413) (TC19).",
+              "Security/Validation: Malicious payload rejected (400/422) (TC18).",
+              "Server Error Handling (partial): Upstream unavailability and timeouts covered (503/504) (TC17, TC21, TC25).",
+              "Performance: Acceptable latency under load verified (TC14).",
+              "Authorization: Unauthorized access yields 401 (TC16)."
+            ],
+            "gaps": [
+              "Server Error Handling (500): No simulation of internal server/database failure returning 500 with proper error structure.",
+              "Duplicate Submission/Idempotency across calls: No scenario repeating the same POST request to ensure no duplicate tags and consistent status codes.",
+              "Mixed-validity array behavior: No test defining whether any-invalid tag ID in the array causes full rollback vs partial success.",
+              "Content-Type and Accept headers: No tests enforcing Content-Type: application/json (415 on wrong/missing) or verifying response Content-Type/application/json.",
+              "Response contract depth: Scenarios do not validate full Tag object schema (fields, types) beyond tagDefinitionId/association.",
+              "Error response schema: Tests check for messages but not for standardized error fields (code, type, message).",
+              "Body required semantics: No test for entirely missing body or non-array body types (e.g., object, number).",
+              "Type validation inside array: No case with non-string elements (numbers/objects) producing 400.",
+              "Concurrency/race conditions: No parallel POSTs to the same invoice item to ensure duplicate-prevention under concurrent requests.",
+              "Authorization breadth: 403 Forbidden (RBAC/insufficient permissions) not covered if applicable.",
+              "Rate limiting/throttling: No 429 tests under burst conditions (if enforced by the API)."
+            ],
+            "recommendations": [
+              "Add a 500 Internal Server Error scenario by simulating a database/storage failure; verify status 500 and error schema.",
+              "Add idempotency/duplicate-submission tests: perform the same POST twice; expect first 201, second returns no duplicates (201 or 200 as per spec) and identical tag set.",
+              "Define and test mixed-validity behavior: submit array with one valid and one invalid tag ID; assert transactional rollback (preferred) with 400 and no tags created.",
+              "Enforce media type handling: add tests for missing Content-Type and wrong Content-Type (text/plain) returning 415; verify response Content-Type is application/json.",
+              "Validate full Tag schema: assert all required fields (e.g., id, tagDefinitionId, objectType, objectId, createdDate, audit fields) and data types in success responses.",
+              "Standardize error payload checks: verify error response contains consistent fields (e.g., errorCode, message, type) for 400/404/500/503/504.",
+              "Add tests for missing body and non-array body (object/number) to return 400 with clear validation messages.",
+              "Include non-string element validation: array containing numbers/objects should be rejected with 400.",
+              "Introduce concurrency tests: run parallel POSTs adding the same tag to the same invoice item; assert at-most-once creation and no duplicate Tag objects.",
+              "Expand authorization tests: include 403 Forbidden for authenticated users lacking required permissions (if RBAC is enforced).",
+              "Consider rate limiting tests: burst POSTs leading to 429 Too Many Requests with Retry-After if applicable to this endpoint."
+            ],
+            "usage": {
+              "completion_tokens": 4252,
+              "prompt_tokens": 6738,
+              "total_tokens": 10990,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3328,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

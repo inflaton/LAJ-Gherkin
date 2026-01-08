@@ -1,0 +1,97 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-15T11:15:39.306238",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:15:05.456364",
+    "benchmark_end_time": "2025-10-15T11:15:39.306234",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 33.84987,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Successful POST transfer happy path with minimum required fields (TC01) including verifying 201, response Bundle linked to target account and Location header.",
+              "Successful POST with all optional query and header parameters (TC02) covering requestedDate, billingPolicy, pluginProperty and optional headers.",
+              "Billing policy variations (START_OF_TERM, END_OF_TERM, IMMEDIATE) are exercised (TC03) and invalid billingPolicy is checked (TC10).",
+              "RequestedDate validation: valid (TC04) and invalid date format (TC09) are tested.",
+              "PluginProperty handling: multiple values (TC05), empty array (TC18), large payload edge (TC20), and XSS validation (TC16) are included.",
+              "Path parameter validation: invalid bundleId format -> 400 (TC08).",
+              "Existence checks: 404 for non-existent bundle and non-existent target account (TC06, TC07, TC22, TC23).",
+              "Required inputs validated: missing request body/accountId (TC12) and missing required X-Killbill-CreatedBy header (TC11) -> 400.",
+              "Authentication and authorization error handled (TC13 -> 401).",
+              "Server/dependency errors covered including service unavailable 503 (TC14) and inconsistent dependency -> 500 (TC24).",
+              "Security-related malformed input checks (SQL injection in accountId TC15; XSS in pluginProperty TC16).",
+              "Recovery/resilience scenarios: transient network retry (TC17).",
+              "Regression checks: transfer to same account disallowed (TC25) and backward compatibility (TC26).",
+              "Performance and load considerations included (TC27-30) and concurrency for multiple bundles (TC29).",
+              "Accessibility and documentation error/message clarity covered at a high level (TC31)."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency: No explicit test for duplicate POSTs of the same transfer (how the service handles repeated identical requests).",
+              "Default billingPolicy behavior: Although billingPolicy values are tested when provided, there is no explicit assertion that the default (END_OF_TERM) is applied when billingPolicy is omitted.",
+              "Content-Type and response headers validation: Acceptance criteria require \"Produces: application/json\" but there is no explicit test verifying Content-Type and other response headers beyond Location presence/format in a subset of tests.",
+              "Invalid target accountId format (non-UUID): There is a test for non-existent account (404) and SQL injection (TC15), but no explicit test for malformed accountId format that should yield 400.",
+              "Concurrency on the same bundle: TC29 covers concurrent requests for multiple bundles, but there is no test for concurrent transfers of the same bundle to detect race conditions or locking issues.",
+              "Schema-level validation of returned Bundle: While some scenarios assert a \"valid Bundle object\", there is no explicit, detailed schema validation test (field-level checks for required Bundle properties and types).",
+              "Duplicate/contradictory query parameters handling: No tests for repeated query parameters or conflict resolution (e.g., multiple requestedDate values).",
+              "Rate limiting / throttling behavior: Not covered (relevant for POST under heavy usage).",
+              "Boundary tests for maximum allowed header lengths and exact behavior when exceeded: TC21 tests max allowed length success, but there is no test for exceeding limits and expected failure (e.g., 413/400).",
+              "Error message structure/machine-readable codes: TC31 mentions accessibility, but tests do not systematically assert presence of machine-readable error codes or consistent error payload structure."
+            ],
+            "recommendations": [
+              "Add a duplicate-submission test: send the same POST payload twice and assert either idempotent behavior or clean, documented duplicate handling (e.g., second call returns 409 or the same 201 with identical resource Location).",
+              "Add an explicit test to assert default billingPolicy is applied when omitted (verify END_OF_TERM behavior and any resulting subscription/billing effects).",
+              "Add tests to verify response headers: Content-Type is application/json, Location URL format validation, and any caching or other headers that should be present/absent.",
+              "Add test for malformed target accountId format (non-UUID) to ensure a 400 is returned for invalid accountId syntax.",
+              "Add concurrency test targeting the same bundle (multiple simultaneous transfer attempts) to detect race conditions, locking, or duplicate-transfer prevention.",
+              "Introduce strict schema validation tests for the returned Bundle object (field presence, types, accountId updated, dates formatted correctly). Use JSON schema or similar assertions.",
+              "Add tests for repeated/contradictory query parameters and specify expected resolution rules.",
+              "Include rate-limiting/throttling tests under high request rates and confirm appropriate 429 or documented behavior.",
+              "Add negative boundary tests for header length limits (exceeding X-Killbill-Reason/Comment) and assert expected error codes/responses.",
+              "Standardize and assert error response structure and machine-readable error codes across error scenarios so clients can programmatically react; add tests to verify presence and format of these codes."
+            ],
+            "usage": {
+              "completion_tokens": 2401,
+              "prompt_tokens": 7734,
+              "total_tokens": 10135,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1344,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

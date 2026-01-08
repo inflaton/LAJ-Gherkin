@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-10-14T23:55:57.972032",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T23:53:33.869765",
+    "benchmark_end_time": "2025-10-14T23:55:57.972028",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 144.102263,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "POST/Valid Payload: Multiple happy-path scenarios verify 201 Created, Location header, DB association, and visibility via subsequent GET (TC01, TC03, TC04, TC05, TC22, TC26).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment exercised (TC02, TC05, TC13).",
+              "Path parameter validation: Invalid format, missing/empty accountId return 400; non-existent account returns 404 (TC07, TC08, TC09).",
+              "Request body validation: Malformed JSON, empty body, missing required fields, invalid email format covered (TC10, TC11, TC12, TC17).",
+              "Boundary/robustness: Extra/unknown fields considered (TC06); large payload boundary tested (TC16); unicode/special characters tested (TC21).",
+              "Security: Unauthorized/forbidden access checked (TC14); SQL injection and XSS attempts rejected (TC23, TC24).",
+              "Resilience/availability: External dependency down (503), slow DB/timeout and retry behavior covered (TC15, TC19, TC25)."
+            ],
+            "gaps": [
+              "Duplicate submission/idempotency: No scenario for posting the same email twice to the same account (expected 409 Conflict, deduplication, or idempotent behavior).",
+              "Server error handling (500): No explicit simulation/assertion of 500 Internal Server Error for unexpected server-side failures.",
+              "Content negotiation and headers: No tests for missing/incorrect Content-Type leading to 415 Unsupported Media Type; no Accept header/406 handling; response Content-Type application/json not asserted.",
+              "Response structure/schema: Only some scenarios assert the response is a JSON array of AccountEmail objects; no JSON Schema validation of response structure and types.",
+              "Location header semantics: Only TC01 validates that Location contains the created resource URL; other success scenarios merely check presence; no follow-the-link verification.",
+              "Non-deterministic expectations: Several scenarios allow multiple outcomes (e.g., '201 or 400/422') which reduces test value and traceability (TC06, TC13, TC16, TC18, TC21, TC23, TC24).",
+              "Authorization depth: No role/permission-specific tests (authenticated but unauthorized user receiving 403).",
+              "Header boundary cases: No tests for long/unicode values in X-Killbill-Reason/Comment, or header length limits."
+            ],
+            "recommendations": [
+              "Add duplicate submission tests: POST the same email twice for the same account; assert expected behavior (e.g., first 201, second 409 or idempotent no-op). Include a concurrent duplicate test to ensure no double-insert.",
+              "Add server error handling: Force a backend exception to validate 500 Internal Server Error with a well-formed error body.",
+              "Add content negotiation tests: Send missing/wrong Content-Type (expect 415); send unsupported Accept (expect 406). Always assert response Content-Type is application/json.",
+              "Enforce response structure: In all success paths, assert the body is a JSON array of AccountEmail objects and validate against the AccountEmail schema; ensure the new email appears exactly once.",
+              "Strengthen Location header checks: Assert exact URL pattern and that a GET on the Location returns the created resource (or list) as per API contract.",
+              "Remove ambiguity: Replace '201 or 400/422' outcomes with precise expected statuses after clarifying intended behavior with the API owner.",
+              "Expand authorization tests: Include role-based scenarios where an authenticated user lacks permissions and receives 403.",
+              "Add header boundary tests: Very long and unicode values in X-Killbill-Reason/Comment; verify acceptance or proper validation limits and error messages."
+            ],
+            "usage": {
+              "completion_tokens": 6502,
+              "prompt_tokens": 6487,
+              "total_tokens": 12989,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5696,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

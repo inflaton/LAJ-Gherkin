@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-13T04:53:11.544161",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:52:40.913998",
+    "benchmark_end_time": "2025-10-13T04:53:11.544157",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 30.630159,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC07, TC20) verify successful deletions and correct 204 responses.",
+              "Query Parameters: Tests cover presence/absence of customField params, multiple values, single value, unexpected extra params, max/min counts and large numbers (TC02, TC05, TC06, TC07, TC15).",
+              "Path parameter validation: Invalid paymentId format and non-existent payment are tested (TC08, TC09).",
+              "Header handling: Required header missing is tested (TC11); optional headers X-Killbill-Reason and X-Killbill-Comment tested (TC03).",
+              "Authorization: Authentication failure is tested (invalid token) producing 401 (TC12).",
+              "Error handling for bad inputs: Malformed customField IDs and mixed valid/invalid inputs are tested (TC13, TC16), including SQLi attempts (TC18) and XSS in headers (TC17).",
+              "Edge cases: No custom fields present (TC04), non-existent customField IDs (TC10), and idempotency-like behaviour (TC10 shows no-op when requested ID does not exist).",
+              "Integration: Audit log integration available/unavailable is covered (TC21, TC22).",
+              "Performance/Load: System under heavy load performance expectation is present (TC19).",
+              "Regression/backward compatibility: Regression and legacy client scenarios covered (TC20, TC23).",
+              "Service availability: Service unavailable scenario covered (TC14) \u2014 tests for upstream/service failures are present."
+            ],
+            "gaps": [
+              "Concurrency / Race conditions: No tests simulate concurrent deletes or race conditions (DELETE guideline item).",
+              "Soft delete semantics and downstream visibility: No tests verify whether deletion is soft (flagged) vs hard (permanently removed), or behavior of subsequent reads after delete.",
+              "Response headers and content-type: Tests do not assert response Content-Type or that the API produces application/json as specified (headers like Content-Type, Cache-Control, ETag).",
+              "Idempotency explicitness: While TC10 partially covers no-op, there is no explicit re-invoke/delete-twice idempotency test to confirm consistent behavior on repeat requests.",
+              "Authorization granularity / permissions (403): No test for insufficient privileges/forbidden (403) vs unauthenticated (401).",
+              "Server error coverage (500): Apart from 503/service unavailable, there is no explicit test for 500 Internal Server Error or database failures and how they surface.",
+              "Rate limiting / throttling: No tests for multiple requests in short time or rate-limiting responses.",
+              "Limits & validation policy: Although very large counts are tested, there is no test asserting server-side enforced limits, e.g., expected error when exceeding a supported maximum (413/400), or behavior when number of params is larger than allowed.",
+              "Collection format & encoding variants: Tests do not exercise alternate collection encodings (e.g., comma-separated single param vs repeated params) to ensure server parses all supported formats.",
+              "Audit-log failure determinism: TC22 allows two possible outcomes (204 or 503) but does not assert expected deterministic behavior/policy for when audit service is down.",
+              "Response body format on errors: Tests check presence of error message but do not validate error schema/fields or consistent error codes/payload structure."
+            ],
+            "recommendations": [
+              "Add concurrency tests: simulate multiple simultaneous DELETE requests (overlapping customField sets) to detect race conditions and verify atomicity/idempotency.",
+              "Add soft-delete verification: after deletion, perform GETs (or DB checks) to confirm whether fields are removed or marked deleted and ensure expected visibility semantics.",
+              "Assert HTTP headers: add assertions for Content-Type (application/json), Cache-Control/ETag (or explicit absence for DELETE), and any KillBill-specific headers in success and error responses.",
+              "Explicit idempotency test: call DELETE twice (same parameters) and assert consistent response code and state (204 and no-op).",
+              "Add authorization/permission tests: include 403 scenarios (authenticated but not authorized) and role-based permission checks.",
+              "Server error simulations: add tests that force 500-level errors (e.g., DB failures, unexpected exceptions) and verify error handling and logging.",
+              "Rate limiting tests: hammer the endpoint to verify correct throttling responses (429 or policy-specific behavior) and stability under bursts.",
+              "Parameter limits & parsing: add tests that exceed server-supported parameter counts and exercise alternate collection encodings (comma-separated, JSON arrays if supported) to validate parsing and error codes.",
+              "Tighten audit-log behavior expectations: define and test deterministic behavior when dependent services (audit) fail rather than allowing ambiguous outcomes.",
+              "Error payload schema: validate error response structure and messages for 400/401/404/422/500 to ensure clients can reliably parse and surface errors."
+            ],
+            "usage": {
+              "completion_tokens": 1990,
+              "prompt_tokens": 6120,
+              "total_tokens": 8110,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

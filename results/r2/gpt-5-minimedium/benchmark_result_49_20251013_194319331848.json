@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-13T19:43:19.331823",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:42:32.700982",
+    "benchmark_end_time": "2025-10-13T19:43:19.331819",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 46.630837,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Deletion: Success case (204) with host marked out of rotation is specified (TC01, TC12).",
+              "Authorization: Unauthorized/no-token and invalid-token scenarios are present (TC02, TC03).",
+              "Error Handling: Multiple error scenarios covered \u2014 already-out (409, TC04), service unavailable (503, TC05), internal server error (500, TC06), invalid method (405, TC07), invalid request body (400, TC09).",
+              "Input Validation / Extras: Extra query parameters handling is tested (TC08), and malicious headers/body tests are present (TC09, TC13).",
+              "Concurrency & Idempotency (partial): Concurrent requests are exercised (TC11) and an already-out scenario tests handling of repeated operations (TC04).",
+              "Performance: Response time requirements under normal and concurrent load are included (TC10, TC11).",
+              "Regression: A regression test confirms the side effect (host marked out of rotation) and status querying (TC12)."
+            ],
+            "gaps": [
+              "Authorization scope/role checks (403): No scenario for an authenticated user lacking admin privileges (should return 403).",
+              "Response headers and content-type: Tests do not assert required headers (e.g., Content-Type: application/json for error responses or any headers for 204 responses), yet the story states \"Produces: application/json\".",
+              "Soft delete / persistence semantics: No tests verify whether the removal is soft vs permanent, retention/audit logs, or the exact persisted state beyond being \"marked out of rotation\".",
+              "External side effects / downstream systems: No tests validate propagation to load balancers, service registries, or monitoring/health endpoints (i.e., that traffic actually stops going to the host).",
+              "Idempotency edge cases: While TC04 and TC11 partially cover repeated requests, there is no explicit sequential idempotency test (e.g., repeated DELETEs by the same admin expecting consistent responses).",
+              "Token lifecycle and formats: Missing tests for expired tokens, malformed tokens (different from \"invalid\" token case), token scopes, and refresh-token related failures.",
+              "Rate limiting / throttling: No tests for rate limits, abuse protection, or behavior under burst traffic beyond TC11's concurrent functional check.",
+              "Large/oversize inputs: No tests for very large headers, long query parameter values, or very large/malformed bodies beyond \"malicious\" payloads.",
+              "Error response schema validation: Tests check for error messages but do not assert structured error payload schema or HTTP header consistency.",
+              "Recovery and eventual consistency: No tests assert that the host remains out of rotation after service restarts or after a given reconciliation window."
+            ],
+            "recommendations": [
+              "Add a 403 test case: authenticated user without admin role should receive HTTP 403 and a clear error payload.",
+              "Assert response headers: for errors assert Content-Type: application/json and for 204 decide/verify whether Content-Type should be present or absent and add assertions.",
+              "Add soft-delete/audit tests: verify audit log entries, timestamps, and whether host state is persisted (soft delete vs permanent).",
+              "Add downstream propagation tests: validate that load balancers / health endpoints stop routing to the host (integration-level test).",
+              "Add explicit idempotency tests: repeated sequential DELETE requests by same and different admins and expected, deterministic responses (e.g., 204 then 409 or idempotent 204 depending on spec).",
+              "Add token lifecycle tests: expired token, revoked token, malformed token formats, and insufficient scope tests.",
+              "Add rate limiting and throttling tests: burst requests beyond limits and verify appropriate 429 or throttling behavior if applicable.",
+              "Add large payload/header tests: oversized headers, long query strings, and excessively large body content to validate robust input handling and limits.",
+              "Validate error response schema: assert consistent JSON error structure (fields such as code, message, timestamp) and relevant headers for all error cases.",
+              "Add recovery/persistence tests: restart Kill Bill or relevant components and assert host remains out of rotation; add eventual consistency checks if the removal is asynchronous."
+            ],
+            "usage": {
+              "completion_tokens": 1899,
+              "prompt_tokens": 3433,
+              "total_tokens": 5332,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

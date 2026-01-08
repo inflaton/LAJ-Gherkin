@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "83_2025-10-15T12:35:56.516668",
+    "jira_id": "83",
+    "jira_title": "Implement/Test API: GET /1.0/kb/customFields/search - Search custom fields by type, name and optional value",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:34:34.225471",
+    "benchmark_end_time": "2025-10-15T12:35:56.516663",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 82.291192,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "83_qe_sup-gpt4.1_agent-gpt4.1_1748921300.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid requests: Many scenarios (TC01-TC07, TC37, TC27) exercise successful retrieval across combinations of objectType, fieldName, fieldValue, and combined filters with assertions for 200 OK and schema conformity.",
+              "Audit parameter handling: TC08-TC10 cover audit=FULL, MINIMAL, NONE and verify inclusion/exclusion of audit info.",
+              "Pagination basics and edge cases: TC07 (limit/offset), TC21 (very large limit), and TC22 (offset beyond data) exercise core pagination behavior and edge offsets.",
+              "Empty/partial DB states: TC11, TC28, TC29 validate empty results and partially populated database behavior (empty arrays and partial results).",
+              "Input validation and error handling: TC13-TC16 validate invalid parameters (objectType/offset/limit/audit) and TC19-TC20 cover SQL injection and XSS attempts.",
+              "Authentication negative case: TC17 validates behavior when authentication headers are missing (401).",
+              "Dependent services and integration: TC18, TC32, TC33 cover audit-log integration, unavailable or degraded dependent services and expected responses (503/timeout variants).",
+              "Performance and concurrency: TC23, TC24, TC30, TC31 test concurrent requests and response time SLAs under normal/heavy/peak loads.",
+              "Regression & backward compatibility: TC25-TC27 provide regression checks and legacy-client behavior when only objectType is provided.",
+              "Schema & content assertions: Multiple scenarios assert JSON array responses and that items conform to the CustomField schema (TC01 and others)."
+            ],
+            "gaps": [
+              "Default limit ambiguity and TC01 inconsistency: The Jira story documents a default limit=100, but TC01 expects \"all custom fields\" with no query parameters \u2014 there is no explicit test asserting default-limit behavior or that responses are clipped to default limit.",
+              "Pagination ordering and stability: No tests assert deterministic ordering (sort key) or that paging via offset/limit returns stable, non-overlapping, complete result sets across pages.",
+              "Authorization / permission scenarios (403): Tests cover missing auth (401) but do not cover authenticated-but-forbidden cases (403), role/permission boundaries, or expired/invalid tokens beyond header absence.",
+              "Rate limiting and throttling: No tests for server-side rate limits (e.g., bursts resulting in 429), retry/backoff behavior, or per-client throttling.",
+              "Caching and conditional GET: No tests asserting Cache-Control, ETag, Last-Modified, or If-None-Match/304 behavior.",
+              "Content negotiation and headers: Tests do not assert response headers (Content-Type: application/json), Accept header handling, or charset/media-type negotiation.",
+              "Search semantics not specified/tested: No tests for exact vs substring matches, case sensitivity, or handling of empty/null fieldValue (search for blank values).",
+              "Unicode, encoding and special-character handling: No tests for internationalized input, URL-encoded parameters, or handling of reserved characters in query params.",
+              "Upper-bound and policy for limit parameter: While a large limit (1000) is tested, there is no explicit test asserting a maximum allowed limit or the server response when a client requests an excessively large limit.",
+              "DB-state verification after injection attempts: TC19 states \"no data should be deleted\" but there is no explicit DB assertion step verifying no mutation occurred post-attack."
+            ],
+            "recommendations": [
+              "Align TC01 with the documented default limit: add/modify tests that assert when limit is omitted the response contains at most the default (100) items and clarify TC01 expectation (or explicitly test \"fetch all\" only if API supports it).",
+              "Add deterministic pagination tests: define expected sort order (e.g., createdDate or id), then page through results with limit/offset and assert no missing/duplicate records and consistent ordering across pages.",
+              "Expand authorization tests: add scenarios for authenticated-but-forbidden requests (403), expired tokens, and role-based access control boundaries.",
+              "Add rate-limiting tests: simulate bursts of requests from the same client and assert documented throttling behavior (429 or backoff), plus verify graceful handling and headers indicating quota/reset where applicable.",
+              "Add caching and conditional-request tests: assert Cache-Control/ETag headers are present/appropriate; test If-None-Match leading to 304 Not Modified and validate cacheability semantics.",
+              "Assert HTTP headers and content negotiation: add tests verifying Content-Type is application/json, proper charset, and behavior when Accept header requests unsupported media types.",
+              "Test search semantics and special values: add cases for exact vs substring vs case-insensitive matches, searches for empty string/null values, and behaviour when fieldValue is omitted vs empty.",
+              "Add internationalization and encoding tests: include unicode and reserved-character examples in fieldName/fieldValue to validate proper URL-encoding and correct matching.",
+              "Define and test server limits for limit parameter: add tests that request limit above any stated maximum and assert either capped behavior or a descriptive 4xx error, include performance checks when large limits are requested.",
+              "Harden injection/XSS tests with DB assertions: after SQL-injection tests, include explicit assertions against the database to ensure no rows were deleted/modified; capture and assert sanitized error messages.",
+              "Optional: add observability/metrics checks (rate, latency percentiles) as part of performance scenarios and add a test to validate API documentation matches behavior (parameter names, defaults, response schema)."
+            ],
+            "usage": {
+              "completion_tokens": 7217,
+              "prompt_tokens": 6532,
+              "total_tokens": 13749,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

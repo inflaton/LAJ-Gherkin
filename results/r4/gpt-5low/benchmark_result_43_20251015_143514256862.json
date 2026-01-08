@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-10-15T14:35:14.256833",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T14:34:23.856755",
+    "benchmark_end_time": "2025-10-15T14:35:14.256829",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 50.400074,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT - Valid Request: Successful 204 updates with DB verification (TC01, TC02), including optional headers behavior (TC24).",
+              "PUT - Non-Existing Resource: 404 for missing payment or transaction and mismatched relationships (TC06, TC07, TC12, TC27).",
+              "PUT - Concurrency: Concurrent updates scenario ensuring consistency (TC17).",
+              "Input Validation: Invalid/missing header (TC03), invalid UUID formats (TC04, TC05), missing body (TC09), malformed JSON (TC10), inconsistent state data (TC08).",
+              "Security/Hardening: SQLi and XSS payload handling (TC18, TC19).",
+              "Resilience/Perf: Backend timeouts (TC16), high load (TC21), degraded dependency behavior (TC22).",
+              "Schema and Boundaries: Extra unsupported fields ignored (TC13), max/min values (TC14, TC15), partial input with only required fields (TC23).",
+              "Authorization: 401 when missing/invalid auth (TC11).",
+              "Misc: Extra query params ignored (TC25), header whitespace/case tolerance (TC26)."
+            ],
+            "gaps": [
+              "PUT - Partial Update policy clarity: No test to assert rejection when partial updates are NOT allowed; conversely, only-required-fields accepted (TC23) assumes partial is allowed without spec confirmation.",
+              "Concurrency specifics: No explicit assertion for conflict detection/response (e.g., 409) or optimistic locking/version checks; no test for last-write-wins vs. first-write-wins determinism.",
+              "Content negotiation: No tests for missing/incorrect Content-Type -> 415 Unsupported Media Type or unacceptable Accept header -> 406 Not Acceptable.",
+              "Server error handling: No simulation/assertion of 500 Internal Server Error (e.g., DB failure) and correct error payload/headers.",
+              "Authorization/Permissions: No 403 Forbidden scenario for authenticated non-admin user/insufficient privileges.",
+              "Idempotency and retry safety: No test that repeating the same PUT yields consistent results and no duplicate side-effects; no at-least-once delivery safety checks.",
+              "Response headers/contracts: Story says Produces application/json, but 204 should have no body; no assertions on absence/presence of Content-Type, correlation IDs, or standard error schema for 4xx/5xx.",
+              "Audit trail: No verification that X-Killbill-CreatedBy, Reason, Comment are persisted in audit logs/history.",
+              "State-transition rules: Only generic invalid transition covered; no matrix of allowed vs disallowed transitions across transactionStatus/currentPaymentStateName/lastSuccessPaymentState with cross-field constraints.",
+              "Rate limiting/throttling: No coverage for 429 Too Many Requests under burst traffic distinct from performance measurements.",
+              "Large payload limits/streaming: No explicit test for very large but valid bodies near system limits (beyond max field lengths), e.g., total payload size constraints."
+            ],
+            "recommendations": [
+              "Clarify partial update policy for AdminPayment. If partial not allowed, add a scenario asserting 400 when required state fields are omitted; if allowed, add cases proving only specified fields change and others remain unchanged.",
+              "Enhance concurrency tests: add optimistic locking/version header or ETag-based scenarios; verify deterministic outcome and/or 409 Conflict behavior when appropriate; assert no lost updates.",
+              "Add content negotiation tests: incorrect/missing Content-Type -> 415; unacceptable Accept -> 406; confirm no body on 204 and appropriate headers on errors.",
+              "Add server fault injection: simulate DB outage or exception to assert 500 responses and error schema consistency.",
+              "Add authorization test for authenticated non-admin to assert 403 Forbidden and confirm admin-only enforcement.",
+              "Add idempotency/retry tests: repeat identical PUT multiple times and after transient failures to ensure consistent final state and no duplicate side-effects.",
+              "Verify auditing: after update, retrieve audit logs/history to ensure CreatedBy/Reason/Comment captured correctly with timestamps.",
+              "Expand state-transition coverage: create explicit allowed/disallowed transition matrix and test representative transitions, including edge cases (e.g., reversing from SUCCESS to PENDING, chargeback corrections).",
+              "Introduce rate limiting tests under burst load to assert graceful 429 handling and correct Retry-After headers, separate from performance SLAs.",
+              "Test payload size boundaries: very large but valid JSON within server limits and just-above-limit to assert 413 Payload Too Large or equivalent behavior."
+            ],
+            "usage": {
+              "completion_tokens": 1964,
+              "prompt_tokens": 6337,
+              "total_tokens": 8301,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

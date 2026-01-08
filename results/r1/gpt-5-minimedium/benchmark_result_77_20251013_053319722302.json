@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "77_2025-10-13T05:33:19.722275",
+    "jira_id": "77",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/priceList - Retrieve priceList for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:32:44.440008",
+    "benchmark_end_time": "2025-10-13T05:33:19.722271",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 35.282263,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "77_qe_sup-gpt4.1_agent-gpt4.1_1748920942.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid Request: Multiple success scenarios (both params, only subscriptionId, only requestedDate, no params) cover expected successful GET behavior and content-type checks.",
+              "Empty Response / No Data: TC13 explicitly covers behavior when the DB has no subscriptions or price lists (404 or empty/default response).",
+              "Query Parameters: Wide range of combinations are tested \u2014 valid, omitted, malformed, partially provided, extra unexpected parameters, size limits.",
+              "Error Handling: Common error cases are covered (400 for invalid formats, 404 for not-found, 401 unauthorized, 503 service unavailable, 502 dependency failure).",
+              "Security input validation: Injection (TC10) and XSS (TC22) attempts are included to verify the system does not expose internal details or execute payloads.",
+              "Performance / Resilience: Response time under normal and peak load (TC14, TC15), retry after transient network failure (TC17), large data volume (TC18) are present.",
+              "Regression / Edge cases: Date boundary behavior (TC21) is explicitly included.",
+              "Response correctness: Success scenarios assert the response is a valid PriceList JSON object and content-type application/json."
+            ],
+            "gaps": [
+              "Pagination: No tests verify pagination behavior (page/limit/offset) or the API's behavior when the underlying data set is large with respect to paging. TC18 checks large volume performance but not pagination semantics.",
+              "Caching Behavior / Conditional GET: There are no tests for caching headers (ETag, Cache-Control, Last-Modified) or conditional requests (If-None-Match / 304 Not Modified).",
+              "Rate Limiting / Throttling: No tests that verify rate-limiting behavior, 429 responses, or Retry-After headers under abusive request rates.",
+              "Authorization completeness: TC08 covers missing/invalid token (401) but there is no test for authorization failures that should return 403 (valid auth but insufficient permissions / role-based access).",
+              "Schema-level validation: While success cases assert \"valid PriceList JSON object\", there are no explicit schema validation tests against the API's PriceList definition (field presence, types, required fields, unexpected/missing fields).",
+              "Content negotiation and headers: Tests check content-type for success but don't verify other relevant headers (Content-Length, charset) or behavior with Accept headers.",
+              "Pagination-related performance/scalability semantics: no tests to confirm whether the API streams, truncates, or paginates when many price-list changes exist (beyond timing assertions)."
+            ],
+            "recommendations": [
+              "Add pagination tests: If the endpoint can return multiple items or could be affected by a large change history, add tests for page/limit/offset (and verify default/maximum page sizes) and behavior when requesting out-of-range pages.",
+              "Add caching/conditional GET tests: Verify presence and correctness of Cache-Control, ETag, Last-Modified headers; add conditional GET tests using If-None-Match to assert 304 Not Modified behavior.",
+              "Add rate-limiting tests: Simulate high-frequency requests to assert 429 responses and presence of Retry-After header; verify graceful degradation under throttling.",
+              "Cover 403/permission scenarios: Add tests for valid authentication but insufficient authorization to ensure 403 is returned where applicable (role-based access).",
+              "Add strict schema validation tests: Validate the response body against the PriceList JSON schema (/definitions/PriceList) \u2014 required fields, types, nested structures, and reject responses that omit required attributes.",
+              "Test content negotiation and headers: Include cases with different Accept headers to confirm correct behavior and validate other response headers (charset, Content-Length when relevant).",
+              "Expand date-related edge cases: Add tests for time-zone/date-time inputs (if API later accepts datetimes), leap days, end-of-day boundaries, and future/past dates beyond business rules.",
+              "Clarify pagination vs aggregation behavior in spec: If API is intended to return a single PriceList (no paging), add an explicit test asserting no pagination-related headers are present; if it may return multiple results, implement pagination tests per above.",
+              "Document and automate negative large-input tests: Extend large payload and malformed parameter tests to include fuzzing and long-running requests to exercise parsing and boundary conditions."
+            ],
+            "usage": {
+              "completion_tokens": 2370,
+              "prompt_tokens": 4977,
+              "total_tokens": 7347,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1472,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

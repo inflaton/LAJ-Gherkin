@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-09-28T05:20:37.623226",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:20:03.685546",
+    "benchmark_end_time": "2025-09-28T05:20:37.623222",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 33.937676,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC07, TC20, TC23) verify successful deletion and expected 204 responses.",
+              "Query Parameters: Good coverage of multi/value handling, missing query param (all fields removed), single ID, many IDs, unexpected extra params (TC01, TC02, TC05, TC06, TC07, TC15).",
+              "Path & Input Validation: Invalid paymentId format (TC08), malformed customField ID (TC13), partial-invalid mixes (TC16) and non-existent customField ID (TC10) are tested.",
+              "Headers: Required header presence/absence tested (TC03, TC11) and optional headers X-Killbill-Reason/X-Killbill-Comment validated (TC03).",
+              "Authorization: Valid vs invalid authentication token covered (TC12).",
+              "Error Handling: 400 for invalid input, 404 for missing payment, 503 for service unavailable \u2014 these are explicitly tested (TC08, TC09, TC14).",
+              "Edge / Boundary cases: Large-number-of-params tests (TC06, TC15) check scalability/URI size concerns and server handling.",
+              "Security: XSS and SQL injection attempts in inputs are included (TC17, TC18).",
+              "Performance / Resiliency: Slow/heavy load scenario with response-time expectation (TC19).",
+              "Integration: Audit-log availability/unavailability tested (TC21, TC22).",
+              "Regression/Backward compatibility: Regression scenario and legacy client scenario present (TC20, TC23)."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No scenarios simulate concurrent deletes or simultaneous modifications (race conditions) to validate locking/consistency.",
+              "Idempotency / Duplicate Deletion: No explicit test verifying idempotent behavior when DELETE is invoked multiple times against the same resource.",
+              "Soft Delete vs Hard Delete: No tests check whether deletion is soft (flagged) versus permanent (DB-level verification or recovery).",
+              "403 / Role-based Authorization: Tests include 401 (invalid token) but not 403 (valid auth but insufficient permissions / role restrictions).",
+              "Response Headers & Content-Type: Although \"Produces: application/json\" is in the acceptance criteria, tests do not assert Content-Type, caching headers, ETag, or other response headers.",
+              "Rate Limiting / Throttling: No tests validate handling of many requests in a short timeframe (429 or throttling behavior).",
+              "Server limits / URI length handling: While large lists are tested, there is no test asserting server behavior for query-string length limits or explicit rejection/400 for too many params.",
+              "Partial-success semantics: No test that mixes existing and non-existing (but correctly formatted) customField UUIDs to validate whether existing ones are removed and how non-existing ones are reported.",
+              "Transactional / Failure consistency: No scenario verifying DB state rollback/partial-commit when an error occurs mid-operation (e.g., audit log write failure causing deletion to roll back).",
+              "Caching / Cache-Control: No tests check caching headers or client cache behavior (even if limited relevance to DELETE)."
+            ],
+            "recommendations": [
+              "Add concurrency tests: simulate two clients attempting to delete overlapping sets of custom fields concurrently to observe race conditions and ensure correct locking/consistency.",
+              "Add idempotency tests: invoke DELETE twice for the same payment (first removes fields, second should return 204 or a safe idempotent response) and assert consistent behavior.",
+              "Add role-based authorization tests (403): test a valid token with insufficient privileges to ensure proper forbidden responses.",
+              "Assert response headers: add checks for Content-Type and any required response headers (and verify behavior for empty body \u2014 whether Content-Type is present or omitted), and verify \"Produces: application/json\" expectation.",
+              "Add rate-limiting tests: hammer the endpoint to verify throttling behavior and appropriate 429/related headers.",
+              "Test partial-success and transactional behavior: submit a mix of valid existing UUIDs and valid-but-nonexistent UUIDs to confirm which are removed and whether operation is atomic; also test failure scenarios where dependent services (audit log) fail and verify DB consistency.",
+              "Add server-limit tests: verify server behavior when query string or number of customField parameters exceeds realistic/implemented limits (expect 4xx/413 or documented behavior).",
+              "Add soft-delete verification (if relevant): verify DB state after delete to confirm whether fields are soft-deleted (flagged) or hard-deleted, and add restore/visibility tests if soft-delete exists.",
+              "Add explicit idempotency/duplicate-submission checks and ensure documented behavior matches implementation.",
+              "Add tests for content negotiation and caching where applicable, and include negative header validation cases (length limits, invalid characters) beyond XSS to harden header validation."
+            ],
+            "usage": {
+              "completion_tokens": 2288,
+              "prompt_tokens": 6120,
+              "total_tokens": 8408,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

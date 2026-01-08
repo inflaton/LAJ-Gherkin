@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-15T11:39:01.790178",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:38:12.062287",
+    "benchmark_end_time": "2025-10-15T11:39:01.790173",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 49.727886,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid PUT requests and success semantics: TC01-TC05, TC21, TC22 verify 204 responses and that custom fields are created/updated in the DB (create vs update cases, min/max payload cases).",
+              "Header and auth handling: Required header X-Killbill-CreatedBy presence and optional headers X-Killbill-Reason/X-Killbill-Comment covered (TC01-TC03); missing required header (TC09) and invalid/missing authentication (TC13) are tested.",
+              "Path parameter & resource existence: invoiceItemId format validation (TC06 -> 400) and non-existent resource / DB-empty scenarios (TC07, TC24, TC25 -> 404) are covered.",
+              "Request body validation: malformed JSON (TC08), empty request body (TC10), unsupported/extra fields (TC11), SQL-injection payloads (TC14) and large payload handling (TC12) are addressed.",
+              "Error & failure modes: server/database failure (TC15 -> 500), gateway/timeouts (TC16 -> 504), dependent service unavailability (TC19 -> 503) are included.",
+              "Idempotency and regression: repeated identical requests (TC17) and regression check for data-loss (TC18) are present.",
+              "Performance & scale: parallel updates across many invoice items and large-payload performance checks are included (TC20, TC21).",
+              "Edge cases & URL params: extra/unexpected query parameters (TC23) and state variations (TC24, TC25) are present."
+            ],
+            "gaps": [
+              "Partial-update semantics (merge vs replace) not asserted: no scenario verifies whether submitting a subset of custom fields should merge with existing fields or replace them entirely.",
+              "Concurrency/race conditions for the same invoiceItemId: TC20 covers parallel updates across multiple items but there is no test for concurrent updates to the same invoice item (lost-update/race scenarios).",
+              "Atomicity/transactionality on partial failure: no test ensures that if one CustomField in the array is invalid the entire operation is rolled back (no partial commits).",
+              "Schema-level validation of CustomField fields is incomplete: missing tests for required fields inside each CustomField, invalid data types, max length, allowed character sets, and duplicate keys in the same payload.",
+              "Empty JSON array semantics ([]) not tested: unclear whether an empty array should be accepted (no-op), clear fields, or rejected. TC10 checks an empty body, not an empty array.",
+              "Content-Type / media-type handling: no scenarios for missing or incorrect Content-Type (e.g., expecting 415 Unsupported Media Type) or verifying response content-type headers.",
+              "Error response format and consistency: tests assert presence of error messages but do not validate the error payload structure, error codes, or Content-Type for error responses.",
+              "HTTP method correctness and 405 responses: no tests exercise other HTTP methods on this endpoint to verify Method Not Allowed behavior.",
+              "Rate limiting / throttling tests are absent (high request rate behavior not verified).",
+              "Tests do not verify that optional headers (X-Killbill-Reason, X-Killbill-Comment) are persisted/audited or surfaced in logs/audit trails."
+            ],
+            "recommendations": [
+              "Add explicit tests for partial-update behavior (e.g., send payload that omits some existing custom fields and assert whether omitted fields remain or get deleted) to remove ambiguity about merge vs replace semantics.",
+              "Add concurrency tests that perform simultaneous PUTs to the same invoiceItemId (race conditions) and assert no lost updates; include tests with optimistic locking or version checks if supported.",
+              "Add transactional/atomicity tests: send mixed-validity arrays (one valid CustomField, one invalid) and assert that either all changes are applied or none are (and verify DB state).",
+              "Add schema validation tests for CustomField internals: missing required properties, invalid types, oversized strings, duplicate keys in the same array \u2014 assert specific validation error codes/messages.",
+              "Test empty JSON array case ([]) explicitly and specify expected behavior (no-op, clears fields, or validation error) in the acceptance criteria, then add tests accordingly.",
+              "Add Content-Type handling tests (missing/incorrect Content-Type => expected 415 or 400) and assert response Content-Type headers for both success and error responses.",
+              "Validate error payload structure and content-type consistently across error scenarios (define and assert expected error JSON schema).",
+              "Add a negative test for other HTTP methods (e.g., POST, GET, DELETE on this path) to ensure 405 Method Not Allowed is returned where applicable.",
+              "Introduce rate-limiting/throttling tests (burst requests) if the API enforces limits; otherwise document that this is out of scope.",
+              "Add tests that verify optional headers (X-Killbill-Reason and X-Killbill-Comment) are recorded in audit logs or change history when available, or document expected behavior if not persisted."
+            ],
+            "usage": {
+              "completion_tokens": 6160,
+              "prompt_tokens": 6450,
+              "total_tokens": 12610,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5120,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

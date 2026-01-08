@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-09-28T05:34:23.762841",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:33:50.972888",
+    "benchmark_end_time": "2025-09-28T05:34:23.762836",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 32.789948,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Deletion: Multiple successful deletion scenarios (TC01, TC02, TC12, TC13, TC17, TC18) verify normal and edge-case removals.",
+              "Non-Existent Resource: Scenarios for non-existent account and non-existent email (TC03, TC04, TC09) check proper 404 handling.",
+              "Input Validation: Invalid accountId format and invalid email formats including XSS/injection are tested (TC05, TC06, TC16).",
+              "Headers: Required header enforcement (missing X-Killbill-CreatedBy in TC07) and optional headers handling (X-Killbill-Reason, X-Killbill-Comment in TC02) are covered.",
+              "Authorization: Unauthorized token scenario is present (TC10) to verify 401 handling.",
+              "Error Handling / Dependencies: Service/unavailable dependency scenario is present (TC11) and transient network retry is covered (TC19).",
+              "Concurrency & Idempotency: Concurrent deletion behavior is tested (TC15) \u2014 ensures one successful delete and subsequent 404s.",
+              "Performance: A response-time threshold test exists (TC14).",
+              "Edge Cases & Regression: Tests for very long and minimal-length email addresses (TC12, TC13), uppercase email regression (TC17), legacy-client compatibility (TC18), and extra unsupported query parameter handling (TC08) are included."
+            ],
+            "gaps": [
+              "Soft Delete / Persistence Semantics: No tests verify whether deletion is soft (flagged) vs hard (physically removed), or that audit records/soft-delete metadata exist.",
+              "Response Schema / Headers: Tests do not validate response Content-Type, error payload schema/fields (the story notes 'Produces: application/json') or presence of audit headers in responses.",
+              "Authorization scope / Forbidden (403): There is a 401 test for invalid/expired token, but no test for valid authentication with insufficient permissions (403).",
+              "Generic Server Error (500): There is a 503 scenario, but no generic 500 Internal Server Error simulation and handling test.",
+              "Rate Limiting / Throttling: No tests for rate limiting or behavior under request bursts beyond the concurrency test.",
+              "Caching / HTTP Semantics: No checks for caching or caching-related headers (ETag, Cache-Control); albeit less relevant for DELETE, the standard guidelines mention caching behavior elsewhere.",
+              "URL Encoding / Path Encoding: No tests for URL-encoded emails, special characters in path requiring encoding, or handling of reserved characters beyond the XSS example.",
+              "Audit / Analytics Verification: No test asserts that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs or persisted.",
+              "Error payload assertions: Tests assert status codes but mostly rely on generic 'contains an error message' rather than checking specific error codes, fields, or machine-parsable error structure.",
+              "Idempotency explicitness: While TC15 covers concurrent deletes, there is no standalone sequential-idempotency test (repeat same DELETE after success and assert 404/consistent behavior)."
+            ],
+            "recommendations": [
+              "Add a Soft-Delete vs Hard-Delete test: Verify database state (flag vs removal) and audit trail entries after delete to confirm persistence semantics.",
+              "Validate response headers and payload schema: Add assertions for Content-Type and error payload fields (e.g., code, message, entityType) to ensure API contract (application/json) is upheld for error responses.",
+              "Add a 403 test for insufficient permissions: Send request with a valid token lacking required scope/role and expect 403.",
+              "Add a generic 500 simulation: Introduce a test that simulates an unexpected server error (database or service exception) and validate 500 handling and error payload.",
+              "Add rate-limiting / throttling tests: Verify behavior when clients exceed request limits \u2014 e.g., multiple rapid requests and expected 429 or throttling behavior.",
+              "Add URL-encoding tests: Verify deletion works when email path param is URL-encoded and when it contains reserved characters (plus signs, slashes, percent-encoded chars).",
+              "Add audit verification: Tests that confirm X-Killbill-CreatedBy/Reason/Comment are recorded (e.g., via audit endpoint or DB assertion) to ensure metadata is preserved.",
+              "Add explicit idempotency test: Sequentially call DELETE twice from the same client and assert first is 204, second is 404 (or consistent idempotent behavior per API contract).",
+              "Tighten error assertions: For negative tests, assert specific error codes/messages/fields rather than only 'contains an error message' to make tests less brittle and more verifiable.",
+              "Add stress/soak tests and extended concurrency: Beyond the 5-thread concurrency check, include higher-load tests to exercise race conditions and database locking behavior."
+            ],
+            "usage": {
+              "completion_tokens": 2286,
+              "prompt_tokens": 5675,
+              "total_tokens": 7961,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-09-28T06:33:42.144503",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T06:32:09.344779",
+    "benchmark_end_time": "2025-09-28T06:33:42.144498",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 92.799719,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC07, TC20) cover successful deletion of all fields, selected fields, single field, optional headers usage, and regression verification.",
+              "Path & Query Parameter Validation: Tests verify invalid paymentId format (TC08 -> 400), non-existent paymentId (TC09 -> 404), malformed customField IDs (TC13 -> 400), extra/unexpected query params (TC05), min/max/large numbers of customField params (TC06, TC15), and removal when no customField param is provided (TC01).",
+              "Authorization & Header Validation: Missing required header X-Killbill-CreatedBy (TC11 -> 400), invalid auth token (TC12 -> 401), optional headers X-Killbill-Reason/X-Killbill-Comment accepted (TC03), and header content validation (XSS attempt TC17) are covered.",
+              "Input Validation & Error Handling: Partial/invalid query inputs (TC16), non-existent customField IDs (TC10), SQL-injection style input (TC18), and service unavailable (TC14 -> 503) are included.",
+              "Integration & Resilience: Audit log integration available/unavailable cases (TC21, TC22) and a performance/under-load check (TC19) are present.",
+              "Security: Tests for XSS (TC17) and SQL injection-like input (TC18) address common injection threats.",
+              "Idempotent/Empty-state behavior: Deleting when payment has no custom fields returns 204 (TC04), covering an important empty-state behavior."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No scenarios test concurrent deletes or race conditions (e.g., two clients deleting overlapping sets of custom fields at the same time).",
+              "Soft Delete Semantics: No tests assert whether deletion is soft (e.g., marked deleted) vs. permanent and how that affects reads/audit trails.",
+              "Idempotency & Repeat Deletes: No explicit test that repeated DELETE calls are idempotent (expected consistent 204).",
+              "Mixed-existing vs non-existing valid-format IDs: Missing a scenario where the query contains a mix of valid-existing UUIDs and valid-but-nonexistent UUIDs to verify whether existing ones are removed and non-existing ones are ignored or cause error.",
+              "Authorization nuance / RBAC (403): No test for valid authentication but insufficient authorization (403 / permission errors).",
+              "Scoping / Isolation: No test ensuring deletion only affects the target payment and does not remove custom fields from other payments.",
+              "Response Headers & Content-Type: Acceptance criteria says \"produces: application/json\" but tests do not assert response headers (Content-Type, Content-Length) or error response JSON schema.",
+              "Error Response Schema & Consistency: While some error messages are asserted, there is no systematic validation of error response structure (fields, codes, machine-readable error format).",
+              "Limits & Server-side rejections: Tests include large counts (100, 1000) but do not assert server behaviour when limits are exceeded (e.g., returning 413/400 or documented limit error).",
+              "Rate Limiting / Throttling: No tests for rate-limiting behavior under high request rates.",
+              "Duplicate or empty query parameter values: No tests for duplicate identical customField params or empty customField values (e.g., customField= & customField=cf1 twice).",
+              "Deterministic behavior on dependent-service failure: TC22 leaves behavior ambiguous (204 or 503). Tests should assert a defined contract for dependent-service failures."
+            ],
+            "recommendations": [
+              "Add concurrency/race-condition tests: simulate concurrent DELETE requests (overlapping and disjoint customField sets) and assert final state + acceptable response codes.",
+              "Add idempotency tests: call DELETE twice (or more) for the same payment and verify consistent 204 responses and no side-effects beyond the first call.",
+              "Add mixed-existing/non-existing valid UUID test: include both existing and valid-but-nonexistent UUIDs in one request and define + assert the expected behavior (remove existing, ignore missing, or fail outright).",
+              "Add RBAC/permissions tests: include scenarios with valid tokens but insufficient privileges and assert 403 Forbidden behavior.",
+              "Assert response headers and error response schema: verify Content-Type (application/json for error responses), and validate error JSON schema (code, message, fields) across error scenarios (400/401/404/503).",
+              "Add scoping tests: ensure deletion affects only the targeted payment and does not remove or alter custom fields on other payments.",
+              "Define & test server limits: document expected max number of customField params and add tests asserting server returns a clear error (e.g., 413/400) when the limit is exceeded, instead of only testing very large payloads that assume success.",
+              "Add duplicate & empty param tests: verify behavior with duplicate same-ID parameters and empty customField values.",
+              "Tighten dependent-service failure tests: make TC22 assert the expected system behavior (either transactionally succeed without audit entry or fail with a clear error) and validate audit log content when available (who, when, reason, comment, affected IDs).",
+              "Add rate-limiting and throttling tests: simulate bursts and verify appropriate 429 responses or documented backoff behavior.",
+              "Add soft-delete vs hard-delete tests: if the system supports soft deletes, add checks (e.g., deleted flag, retention) and corresponding read endpoints to assert correct semantics.",
+              "Add tests for repeatability and regression: include automated tests that assert the exact expected code for previously flaky/buggy behavior (make ambiguous acceptance cases deterministic)."
+            ],
+            "usage": {
+              "completion_tokens": 5601,
+              "prompt_tokens": 6120,
+              "total_tokens": 11721,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4416,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

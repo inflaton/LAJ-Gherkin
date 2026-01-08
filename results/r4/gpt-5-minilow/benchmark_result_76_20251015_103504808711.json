@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-10-15T10:35:04.808683",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:34:54.738581",
+    "benchmark_end_time": "2025-10-15T10:35:04.808678",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 10.070097,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid Request: Several scenarios (TC01, TC02, TC19, TC22) exercise successful retrieval with valid parameters and response validation (200 + Product JSON).",
+              "Empty Response / No Data: TC11 covers the empty-database case and expected 404/non-found behavior.",
+              "Query Parameters: Multiple combinations are tested \u2014 both parameters present, each omitted independently (TC02, TC03), both omitted (TC04/TC07), invalid format (TC06, TC08), extra unexpected params (TC14).",
+              "Authorization: TC09 verifies unauthorized access (401).",
+              "Error Handling: Tests cover non-existent subscription (TC05), invalid input formats (TC06, TC08), missing parameters (TC07), dependency/unavailable service (TC10, TC21), and edge cases around dates (TC12, TC13, TC18).",
+              "Security: Injection and XSS attempts are included (TC16, TC17) verifying input sanitization and safe error messaging.",
+              "Performance / Load: TC15 and TC20 address concurrent requests and response-time expectations.",
+              "Regression / Compatibility: TC18 and TC19 are explicit regression/backward-compatibility checks.",
+              "Integration / Data Consistency: TC21 and TC22 check downstream dependency handling and consistency between subscription and catalog."
+            ],
+            "gaps": [
+              "Pagination: No scenario tests pagination or large-result-set paging semantics (e.g., page, limit, next links) even though the standard GET guideline lists pagination.",
+              "Caching Behavior: No tests verify caching-related headers (ETag, Last-Modified, Cache-Control) or conditional GET behavior (If-None-Match / 304 responses).",
+              "Rate Limiting / Throttling: Although there are load and performance tests, there are no explicit tests for rate-limiting behavior (429 responses) or client throttling.",
+              "Response Schema Validation Depth: While Product object validation is mentioned, there are no negative tests for partially malformed Product responses from downstream services (schema drift).",
+              "Content Negotiation: No tests for Accept headers or non-JSON responses; only application/json is asserted.",
+              "Authorization Granularity: TC09 checks missing token; there are no tests for insufficient permissions (403) vs. unauthenticated (401) or token expiry scenarios.",
+              "Edge behavior for ambiguous requestedDate without subscriptionId: TC03 and TC04 allow \"200 or error\" but do not define deterministic expectations; no test asserting how ambiguity is resolved (e.g., multiple matches vs. requirement to supply subscriptionId).",
+              "HTTP Method Safety/Idempotency: No tests to ensure GET is safe and does not change state (could be relevant if downstream services have side effects).",
+              "Rate/Load-driven degradation behavior: There are performance tests, but no tests that progressively push the system to observe graceful degradation, circuit-breaker behavior, or backpressure responses (502/503 vs. 200)."
+            ],
+            "recommendations": [
+              "Add explicit pagination tests: create many matching subscriptions/products and verify page, limit, offsets, total counts, and link headers (if applicable).",
+              "Add caching tests: verify ETag/Cache-Control/Last-Modified headers, conditional GETs returning 304, and that responses include appropriate cache directives.",
+              "Add rate-limiting tests: simulate bursts of requests to validate 429 responses or throttling headers and client behavior under limits.",
+              "Expand authorization tests: include expired tokens, tokens with insufficient scopes/roles (expect 403), and verify token refresh behavior if applicable.",
+              "Schema-negative tests: simulate malformed Product payloads from downstream services and assert the API returns 502/503 or a well-formed error without leaking sensitive details.",
+              "Clarify and make deterministic the expected behavior for requests with only requestedDate or no params: create explicit acceptance criteria and tests for how the API resolves ambiguity (e.g., return list vs. error).",
+              "Add content-negotiation tests: request non-JSON Accept headers and assert proper 406 or fallback behavior; assert response Content-Type in all success and error cases.",
+              "Add tests verifying GET has no side effects: ensure repeated GETs do not modify subscription/product state.",
+              "Add progressive load tests to validate graceful degradation: increase load until rate limits or dependency failures surface and assert proper error codes and stability."
+            ],
+            "usage": {
+              "completion_tokens": 1034,
+              "prompt_tokens": 5044,
+              "total_tokens": 6078,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

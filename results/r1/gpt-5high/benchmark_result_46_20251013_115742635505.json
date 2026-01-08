@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-13T11:57:42.635468",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T11:55:50.512602",
+    "benchmark_end_time": "2025-10-13T11:57:42.635462",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 112.12286,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "DELETE Valid Deletion: Successful 204 with empty body and cache invalidation verified (TC01).",
+              "Non-Existent Resource: 404 when account does not exist, including empty DB and partial population (TC02, TC16, TC18).",
+              "Input Validation: 400 for invalid accountId formats, including regression and security injection/XSS attempts (TC03, TC12, TC14, TC15).",
+              "Missing Path Parameter: 404 when accountId segment is omitted (TC04).",
+              "Authorization: 401 for unauthenticated and expired/invalid tokens (TC05, TC06).",
+              "Unsupported Method Handling: 405 for GET on the DELETE endpoint (TC11).",
+              "Operational Failures: 503 handled for cache service down or degraded performance (TC07, TC08).",
+              "Query Parameters: Extra query parameters do not break success path (TC09).",
+              "Performance/Concurrency: Concurrent DELETEs complete successfully within SLO (TC13).",
+              "Resilience: Transient network failure with retry results in success (TC17).",
+              "Regression/Backward Compatibility: No regressions compared to previous releases (TC19)."
+            ],
+            "gaps": [
+              "Response headers and content negotiation are not verified: no checks for Content-Type: application/json on 4xx/5xx, nor that 204 has no body/content-type per spec; story states Produces: application/json.",
+              "Idempotency and race conditions on the same account are not tested (repeated DELETEs and concurrent DELETEs for the same account should remain safe and return consistent status).",
+              "Authorization gap: No 403 Forbidden scenario for authenticated but non-admin users.",
+              "Unsupported methods coverage is incomplete (POST, PUT, PATCH, HEAD, OPTIONS not tested; Allow header not verified).",
+              "Rate limiting/throttling behavior (e.g., 429 with Retry-After) is not covered.",
+              "Server error handling for unexpected internal failures (500) is not covered.",
+              "UUID boundary and determinism: TC10 is ambiguous (404 or 400). Clear separation of valid-but-not-found (404) vs invalid-format/length (400) is missing; additional boundary cases (hyphenless, uppercase-only, too long/short) not covered.",
+              "Error response schema is not validated (e.g., presence of standardized fields like error code/type/message).",
+              "Side-effect isolation is not asserted (ensure other accounts\u2019 caches and global caches are unaffected by a per-account invalidation).",
+              "DELETE with unexpected request body or unsupported Content-Type is not tested (should be ignored or return 415 per contract)."
+            ],
+            "recommendations": [
+              "Add header assertions: ensure 4xx/5xx responses return Content-Type: application/json; confirm 204 has no body and appropriate headers; align with Produces: application/json in the story.",
+              "Add idempotency tests: two successive DELETEs for the same valid account should both return 204 and not error; verify system state remains correct.",
+              "Add race-condition tests for the same account: concurrent DELETEs for one account should all return 204 and not produce conflicts or errors.",
+              "Add 403 Forbidden test: authenticated user lacking admin role should receive 403.",
+              "Expand unsupported method tests to POST, PUT, PATCH, HEAD, OPTIONS; verify 405 and the Allow header lists supported methods.",
+              "Introduce rate limiting tests: burst DELETE requests should yield 429 with a Retry-After header when thresholds are exceeded (if applicable).",
+              "Simulate internal server failures to validate 500 handling and stable error contract.",
+              "Split and clarify TC10: one case with a syntactically valid but unknown UUID -> 404; separate cases for invalid format/length (e.g., hyphenless, too long/short, underscores) -> 400.",
+              "Validate error response schema for 4xx/5xx (e.g., fields like code, message, requestId) to enforce a consistent API contract.",
+              "Add side-effect isolation test: after invalidating account A, verify caches for account B remain intact and no global caches are impacted.",
+              "For 503 scenarios, verify presence/absence of Retry-After header and document recommended client retry behavior.",
+              "Add test for DELETE with a request body or unsupported Content-Type to confirm it is ignored or rejected with 415, per API specification."
+            ],
+            "usage": {
+              "completion_tokens": 6423,
+              "prompt_tokens": 4640,
+              "total_tokens": 11063,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5504,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

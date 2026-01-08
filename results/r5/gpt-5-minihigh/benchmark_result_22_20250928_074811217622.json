@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-09-28T07:48:11.217565",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:46:45.745429",
+    "benchmark_end_time": "2025-09-28T07:48:11.217561",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 85.472132,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid PUT requests and success responses: TC01\u2013TC07 and TC19 verify HTTP 204 and backend CBA recalculation across many account states (zero, positive, negative, large, multiple transactions, regression state).",
+              "Required and optional header validation: TC01\u2013TC03 verify X-Killbill-CreatedBy presence and TC02 verifies optional X-Killbill-Reason and X-Killbill-Comment. Negative header cases are covered by TC10, TC11, TC25 and TC26 (missing/empty/whitespace/null).",
+              "Path parameter validation & non-existent resources: TC08, TC09, TC16 and TC17 exercise invalid UUID formats, oversized accountId values, non-existing accounts and empty DB, asserting 400 for invalid account IDs.",
+              "Error and edge-case handling: TC12 (extra unsupported headers) and TC23 (unexpected query params) verify tolerant behavior; TC22 checks unsupported HTTP method -> 405.",
+              "Resilience/availability & retry: TC13 verifies retry behavior on transient network errors; TC14 covers service unavailable (503).",
+              "Security tests: TC15 (SQL injection payload in header) and TC24 (XSS in comment) exercise input sanitization and non-leakage of implementation details.",
+              "Concurrency & performance: TC18 (high concurrency), TC20 (response within 2s normal load) and TC21 (peak load within 5s) cover concurrency and basic performance goals.",
+              "Boundary and numeric-state scenarios: TC04, TC05, TC06 cover zero, negative and very large positive CBA states; TC07 covers multiple CBA-impacting transactions.",
+              "Backend state verification: Many scenarios explicitly assert that CBA is rebalanced in the backend (not only status codes).",
+              "Specification conformance for success & common errors: Success (204) and common client errors for invalid account id (400) are covered by multiple test cases."
+            ],
+            "gaps": [
+              "Authorization / authentication negative tests: No scenarios cover missing/invalid auth token or insufficient permissions (401/403). The Background assumes a valid token but negative auth tests are absent.",
+              "Response headers & content validation: No checks for Content-Type (application/json per spec), verification that 204 responses contain no body, or that error responses follow a JSON schema.",
+              "Idempotency: No explicit test that repeated/sequential PUT calls are idempotent (state stability across repeated calls).",
+              "Handling of unexpected request body: Spec says Request Body: N/A but there is no test for behavior when a non-empty body is sent (ignored vs rejected).",
+              "Server-side 5xx and transactional atomicity: Only 503 is tested; 500 Internal Server Error scenarios, partial failures and rollback/atomicity are not covered.",
+              "Header size and encoding limits: No tests for very long CreatedBy/Reason/Comment values, nor for unicode/non-ASCII header handling.",
+              "Numeric precision/overflow for CBA: No tests verify fractional currency precision, rounding rules, or overflow when rebalancing extreme balances.",
+              "Audit/logging of headers: No verification that CreatedBy/Reason/Comment are recorded in audit/event logs tied to the rebalancing operation.",
+              "Rate limiting/throttling: No tests for server-side throttling (429) or behavior under extreme request bursts beyond performance timing checks.",
+              "Negative concurrency/failure modes: Concurrency tests check success under load but do not exercise race conditions that cause locks/conflicts or verify conflict responses (e.g., 409) or retry backoff semantics."
+            ],
+            "recommendations": [
+              "Add authentication/authorization negative tests: missing token -> expect 401; invalid token or insufficient privileges -> expect 401/403.",
+              "Assert response headers and body behavior: verify Content-Type on error responses, assert 204 responses have appropriate no-content behavior (no body) and any required headers (e.g., Allow on 405).",
+              "Add idempotency tests: run the same PUT twice (sequentially) and assert the second call is safe (204) and there is no double application of changes.",
+              "Test handling of non-empty request body: send various payloads with PUT and assert documented behavior (ignored vs validation error) is enforced.",
+              "Simulate server 500 and test transactional rollback: induce DB/service failure mid-operation and assert no partial updates persist (or document expected behavior).",
+              "Add header length and encoding tests: very long CreatedBy/Reason/Comment values and non-ASCII/unicode content to validate limits and encoding handling.",
+              "Add numeric precision and overflow scenarios: fractional-cent balances, very large balances and rounding tests to ensure correct monetary behavior.",
+              "Verify audit/logging: check that CreatedBy, Reason and Comment are recorded in rebalancing events or audit trail with the correct values.",
+              "Include rate-limiting/throttling tests: burst requests to validate 429 responses and graceful degradation or backoff behavior.",
+              "Extend concurrency tests to negative/failure cases: craft race conditions that provoke lock conflicts/timeouts and verify deterministic, documented outcomes (retry, 409, or serialized updates)."
+            ],
+            "usage": {
+              "completion_tokens": 6510,
+              "prompt_tokens": 5515,
+              "total_tokens": 12025,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5440,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

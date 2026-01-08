@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-15T00:25:59.508332",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T00:23:42.679888",
+    "benchmark_end_time": "2025-10-15T00:25:59.508327",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 136.828439,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Success paths for removing all custom fields (no query) and specific fields via multi customField params return 204 with empty body and verify state change.",
+              "Non-Existent Resource: 404 for non-existent paymentId and 400 for invalid paymentId format are covered.",
+              "Headers: Required X-Killbill-CreatedBy validated (present and missing -> 400); optional X-Killbill-Reason and X-Killbill-Comment accepted.",
+              "Query Parameters: collectionFormat=multi behavior covered (min 1, large sets, none); invalid customField formats and SQL injection attempts rejected with 400; non-existent customField IDs handled.",
+              "Authorization: 401 for invalid/expired token covered.",
+              "Resilience: 503 service unavailable scenario covered; performance under load validated with acceptable response time.",
+              "Observability: Audit log side effect covered when service available.",
+              "Security Hardening: XSS in header and SQL injection in query are detected and rejected."
+            ],
+            "gaps": [
+              "Concurrency: No scenarios for concurrent deletions/race conditions (e.g., two clients deleting the same fields simultaneously).",
+              "Idempotency: No test that repeating the same DELETE after fields are already removed still returns 204 and leaves state unchanged.",
+              "Soft Deletes: No explicit verification of soft-deletion semantics vs hard delete (e.g., visibility only in audit/history).",
+              "Duplicate customField entries: No case with the same UUID repeated in the query; expected deduplication and 204 not validated.",
+              "Mixed valid and non-existent but well-formed UUIDs: Behavior not covered (e.g., remove existing, ignore missing, return 204).",
+              "Collection format robustness: No negative test for csv usage (customField=uuid1,uuid2) despite collectionFormat=multi; no test for blank/whitespace customField values (customField=).",
+              "Error contract: Tests don\u2019t assert error response schema or Content-Type (application/json) for error cases.",
+              "Ambiguous expectation: TC22 allows \u201c204 or 503\u201d; acceptance criteria must be deterministic for dependent service failures.",
+              "Spec alignment: Success-path examples use placeholders like cf1/cf2 that are not UUIDs, conflicting with the API contract requiring UUIDs.",
+              "Authorization/Permissions: No 403 Forbidden case for authenticated user lacking rights (if RBAC applies).",
+              "Unexpected query parameters: TC05 assumes 204 with unknown parameter; the contract for unknown params is not defined/validated."
+            ],
+            "recommendations": [
+              "Add concurrency tests: parallel DELETEs on the same payment/custom fields; verify consistent outcomes and absence of race conditions.",
+              "Add idempotency test: repeat DELETE after successful removal; expect 204 and no changes.",
+              "Clarify deletion semantics and add tests: verify that after deletion, a GET of custom fields is empty while audit/history still records the change (if soft delete applies).",
+              "Use valid UUIDs for customField IDs in all success-path tests to align with the API contract.",
+              "Add tests for duplicate customField UUIDs in the query to ensure deduplication and stable 204.",
+              "Add test mixing valid existing and valid non-existent UUIDs; define and assert expected status (likely 204) and resulting state.",
+              "Add negative tests for collectionFormat=multi misuse: csv lists (customField=uuid1,uuid2) and blank values (customField=) should return 400.",
+              "Validate error response contract: assert application/json Content-Type and a stable error schema (e.g., code, message) for 4xx/5xx responses.",
+              "Make TC22 deterministic: define whether removal proceeds with 204 when audit is down (with degraded logging) or fails with 503; split into explicit variants.",
+              "Consider a 403 Forbidden scenario if the API enforces RBAC/permissions for deleting custom fields.",
+              "Define and test behavior for unknown query parameters (ignore vs 400) and update TC05 accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 7881,
+              "prompt_tokens": 6120,
+              "total_tokens": 14001,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7040,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

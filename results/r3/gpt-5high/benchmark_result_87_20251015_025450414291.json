@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-15T02:54:50.414254",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:52:18.604329",
+    "benchmark_end_time": "2025-10-15T02:54:50.414249",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 89,
+    "average_generation_time_seconds": 151.80992,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 89,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 89,
+            "covered": [
+              "POST - Valid Payload: Multiple happy paths for single and multiple tags, items with and without existing tags, and with optional headers; responses assert 201 and JSON array of Tag objects",
+              "POST - Invalid Payload and Validation: Invalid invoice item id format, missing required header (X-Killbill-CreatedBy), malformed JSON, empty array, null or empty entries, invalid tag ids, and unsupported body fields return 400",
+              "POST - Not Found Handling: Non-existent invoice item returns 404, including when the database has no invoice items",
+              "POST - Large Payloads: Very large array scenario covered with expected 201 or 413 handling",
+              "POST - Server Error Handling: Service unavailable and dependency failure (503) and timeout (504) scenarios covered",
+              "Security: Unauthorized access (401) covered; malicious payload is rejected (400 or 422)",
+              "Data integrity: Duplicate tag ids within a single request do not create duplicates; re-adding an already existing tag does not duplicate it",
+              "Performance: Heavy-load scenario with response time expectation included",
+              "State variations: Database empty, partially populated, and invoice item at maximum allowed tags are exercised"
+            ],
+            "gaps": [
+              "Duplicate submission across separate identical POST requests is not tested (idempotency on retry)",
+              "Atomicity on mixed-validity inputs not defined or tested (e.g., one valid and one invalid tag id in the same array) to verify all-or-nothing behavior",
+              "No simulation of 500 Internal Server Error (e.g., database failure) as per server error handling guideline",
+              "Response headers not asserted, notably Content-Type application/json on success and errors (story states produces application/json)",
+              "Request Content-Type enforcement (415 Unsupported Media Type) not tested when content type is incorrect or missing",
+              "Non-existent tag definition ids with valid UUID format are not explicitly tested as a distinct case from invalid format",
+              "Array element type validation not covered (e.g., numbers or objects instead of strings should be rejected)",
+              "No test for safe retry after timeout or partial failure to demonstrate idempotent behavior across calls",
+              "No validation of the full Tag response schema fields beyond tagDefinitionId and association (e.g., objectType, objectId, audit info)"
+            ],
+            "recommendations": [
+              "Add an idempotency test: POST the same valid body twice to the same invoice item; assert the second call succeeds without creating duplicates and returns an appropriate status",
+              "Add mixed-validity input test: include one valid and one invalid tag id in the same array; assert expected atomic behavior (either all rejected or define partial success if supported)",
+              "Add a forced backend failure test to validate 500 Internal Server Error mapping (e.g., simulate DB exception)",
+              "Assert response headers on success and error paths, especially Content-Type application/json, as per produces requirement",
+              "Verify request Content-Type handling by sending a non-JSON body or wrong Content-Type and expect 415 Unsupported Media Type",
+              "Add a test where tag definition ids are valid UUIDs but do not exist; clarify expected status (400 vs 404) and ensure the behavior is consistent",
+              "Add data type validation tests for array elements (e.g., integers, objects) to ensure strict schema enforcement with 400",
+              "Add a retry-after-timeout scenario to confirm safe, duplicate-free outcomes when clients retry after a 504",
+              "Enhance response validation to check key Tag schema fields (e.g., tagDefinitionId, objectType, objectId for the invoice item, createdDate, audit fields) if defined by the Tag schema"
+            ],
+            "usage": {
+              "completion_tokens": 7538,
+              "prompt_tokens": 6738,
+              "total_tokens": 14276,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6784,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

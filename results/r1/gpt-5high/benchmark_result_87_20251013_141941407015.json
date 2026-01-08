@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-13T14:19:41.406987",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T14:16:45.827379",
+    "benchmark_end_time": "2025-10-13T14:19:41.406983",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 175.579604,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST - Valid Payload: Single and multiple tag additions succeed with 201 and return a JSON array of Tag objects associated to the invoice item (TC01, TC02, TC03, TC05).",
+              "POST - Validation/Invalid Payload: Malformed JSON, empty list, null/empty entries, invalid UUIDs (path and body), unsupported extra fields, and missing required header all return proper 400s (TC06, TC07, TC09, TC10, TC11, TC12, TC24).",
+              "Resource existence: Non-existent invoice item returns 404 (TC08, TC15).",
+              "Optional headers: X-Killbill-Reason and X-Killbill-Comment accepted without affecting success (TC03).",
+              "Large payloads and performance: Extremely large arrays handled (201 or 413), and heavy-load performance threshold validated (TC14, TC19).",
+              "Server error handling (partial): Service unavailable and dependency failures return 503; timeout returns 504 (TC17, TC21, TC25).",
+              "Duplicate handling: Duplicate tag IDs in request are de-duplicated; adding an already-existing tag does not duplicate it (TC13, TC20).",
+              "Authorization: Unauthorized access returns 401 (TC16)."
+            ],
+            "gaps": [
+              "Response headers: No assertions that success and error responses include Content-Type: application/json as specified (Produces: application/json).",
+              "Server Error Handling: No test for 500 Internal Server Error (e.g., database failure/exception).",
+              "Duplicate Submission guideline: No idempotency test for sending the exact same POST twice in quick succession (graceful handling and stable outcome).",
+              "Wrong media type: No test for missing/incorrect Content-Type (e.g., text/plain) leading to 415 Unsupported Media Type.",
+              "Schema/type validation breadth: No test for body type mismatch (object/string instead of array) or non-string entries (numbers/booleans) inside the array.",
+              "Atomicity with mixed validity: No scenario where the array contains both valid and invalid tagDefinitionIds to validate all-or-nothing behavior and error messaging.",
+              "Response schema depth: Tests only check tagDefinitionId; they do not assert the full Tag schema (#/definitions/Tag) fields (e.g., objectType, objectId, id, audit fields).",
+              "Non-existent tag definition: No test for a valid-format UUID that does not correspond to any tag definition (expected 400/404 per API behavior).",
+              "Authorization depth: No 403 Forbidden scenario for authenticated but unauthorized users (if applicable).",
+              "Spec alignment: TC04 expects both old and new tags in the POST response; the story specifies the response contains the created tags only\u2014this may be a misaligned expectation."
+            ],
+            "recommendations": [
+              "Add assertions for Content-Type: application/json on success and error responses to enforce Produces contract.",
+              "Introduce a 500 Internal Server Error test by simulating a backend/database failure to satisfy Server Error Handling guideline.",
+              "Add an idempotency/duplicate submission scenario: send the identical POST twice; verify no duplicates are created and define expected status (201 vs 200) with the team.",
+              "Add a 415 Unsupported Media Type test using incorrect or missing Content-Type headers.",
+              "Add schema/type robustness tests: body as object/string; array containing numbers/booleans; expect 400 with clear validation errors.",
+              "Add a mixed valid+invalid tagDefinitionIds scenario to confirm atomic behavior (either all created or none) and the returned error code/message.",
+              "Expand response validation to assert full Tag schema fields (id, objectType=INVOICE_ITEM, objectId matches invoiceItemId, tagDefinitionId, audit fields including createdBy/reason/comment where applicable).",
+              "Add a test for valid-format but non-existent tagDefinitionId to verify correct error handling (400/404) and message clarity.",
+              "Add a 403 Forbidden scenario for authenticated users lacking required permissions, if RBAC applies.",
+              "Add a negative test for blank/whitespace X-Killbill-CreatedBy to ensure it is treated as invalid input.",
+              "Align TC04 with the specification (response should represent only created tags) or update the story if the intended behavior is to return all tags."
+            ],
+            "usage": {
+              "completion_tokens": 7879,
+              "prompt_tokens": 6738,
+              "total_tokens": 14617,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6976,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

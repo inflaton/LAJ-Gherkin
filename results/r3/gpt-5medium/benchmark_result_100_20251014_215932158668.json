@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-14T21:59:32.158637",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:58:02.701143",
+    "benchmark_end_time": "2025-10-14T21:59:32.158632",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 89.457489,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE - Valid Deletion: Successful removal of all fields and specific fields returns 204 with empty body (TC01, TC02, TC03, TC07, TC20).",
+              "DELETE - Non-Existent Resource: 404 when paymentId does not exist (TC09).",
+              "Parameter handling: Optional multi-valued customField covered (absent/present, multiple values), invalid formats, nonexistent IDs, and unexpected param ignored (TC01, TC02, TC05, TC10, TC13, TC16, TC18).",
+              "Header validation: Required X-Killbill-CreatedBy enforced; optional Reason/Comment handled; invalid/malicious header values rejected (TC01, TC03, TC11, TC17).",
+              "Authorization: 401 for invalid/unauthorized token (TC12).",
+              "Input boundaries and scale: Large numbers of query params (100 and 1000) covered (TC06, TC15).",
+              "Operational resilience: 503 when service unavailable; integration with audit log service both available/unavailable; performance under load (TC14, TC21, TC22, TC19).",
+              "Edge cases: Payment with no custom fields still returns 204; regression and backward compatibility scenarios included (TC04, TC20, TC23)."
+            ],
+            "gaps": [
+              "DELETE - Concurrency: No scenarios for concurrent deletions (race conditions), e.g., two clients deleting same fields simultaneously or delete during concurrent updates.",
+              "DELETE - Idempotency: No explicit test that repeating the same DELETE yields a consistent response (e.g., second call 204/no-op).",
+              "Soft delete behavior: Not validated. If the system uses soft deletes, absence/presence of soft-deleted records is not asserted; if hard delete is intended, this should be clarified.",
+              "Response headers: The story states Produces: application/json, but no assertions validate Content-Type headers on success (204) or errors.",
+              "Authorization depth: No 403/permission model tests (role-based access) if applicable.",
+              "Rate limiting/throttling: No tests for 429 or behavior under rapid repeated calls.",
+              "Query param corner cases: No coverage for duplicate customField IDs, empty values (customField=), or mixed valid + nonexistent IDs in one request.",
+              "Server error handling (500): Only 503 covered; database or internal failures returning 500 are not tested.",
+              "Method/contract robustness: No test ensuring unsupported methods return 405 on this endpoint."
+            ],
+            "recommendations": [
+              "Add concurrency scenarios: two parallel DELETEs for the same payment/fields; verify eventual state and response codes for both requests.",
+              "Add idempotency scenario: perform DELETE twice (all fields and specific fields); assert second call is a safe no-op with consistent status (commonly 204).",
+              "Clarify deletion model (soft vs hard). If soft delete, add tests asserting records are flagged as deleted and excluded from subsequent retrieval; if hard delete, assert records are fully removed.",
+              "Assert response headers: verify Content-Type per contract on error responses and whether 204 responses include or omit Content-Type; align tests to the API spec.",
+              "Add authorization/permissions test for 403 if RBAC applies (e.g., user lacks permission to modify payments).",
+              "Introduce rate-limiting tests: burst DELETE requests to confirm 429 or documented behavior.",
+              "Cover query param edge cases: duplicate IDs, empty customField values, and mixture of valid + nonexistent IDs should be well-defined and tested.",
+              "Simulate internal server error (500), e.g., DB failure, and assert error contract (status code and error payload).",
+              "Add a negative contract test for unsupported HTTP methods returning 405 on this resource."
+            ],
+            "usage": {
+              "completion_tokens": 3999,
+              "prompt_tokens": 6120,
+              "total_tokens": 10119,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3200,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

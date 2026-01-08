@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "28_2025-10-15T14:30:59.216465",
+    "jira_id": "28",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/refresh - Refresh account payment methods",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T14:30:12.901902",
+    "benchmark_end_time": "2025-10-15T14:30:59.216461",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 46.314559,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "28_qe_sup-gpt4.1_agent-gpt4.1_1748917789.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Success path returning 204 is covered (TC01) and with various optional headers and params (TC02\u2013TC07, TC21, TC22).",
+              "Parameters: Path UUID validation (TC08, TC19), non-existent account (TC09, TC27), optional query params pluginName and pluginProperty including multi-value and large-size cases (TC02\u2013TC04, TC07, TC24), unexpected extra params (TC18).",
+              "Headers: Required X-Killbill-CreatedBy presence and absence (TC01, TC05, TC10); optional Reason/Comment handled (TC05).",
+              "Error Handling: 400 for invalid inputs (TC08, TC11, TC12, TC16, TC17, TC19), 404 for not found (TC09, TC27), upstream failures 502/503 (TC13, TC25), timeout 504 (TC20).",
+              "Security: Injection/XSS attempts rejected (TC16, TC17).",
+              "Concurrency/Performance: Concurrent requests and system under load with timing thresholds and integrity (TC14, TC23, TC29).",
+              "Integration/Consistency: External gateway interactions and post-refresh consistency across systems (TC13, TC25, TC26).",
+              "Backward compatibility/regression: Older clients and encoding of pluginProperty (TC21, TC22)."
+            ],
+            "gaps": [
+              "PUT Guideline - Concurrency: While TC23 checks performance/integrity, there is no explicit validation of idempotency or race conditions leading to duplicate/incorrect payment methods.",
+              "PUT Guideline - Partial Update: Not applicable functionally (no body), but there is no test asserting that an unexpected request body is rejected (e.g., 400/415).",
+              "Combined query parameters: No positive scenario validating pluginName together with one or more pluginProperty values succeeds (only failure path with plugin down is tested in TC25).",
+              "Response semantics for 204: No assertion that the body is empty and that Content-Type is absent or correct for 204 responses.",
+              "Content negotiation and headers: No tests for Accept header handling or verifying declared Produces application/json vs. 204 semantics; no checks of response headers (e.g., request-id, audit headers echoed, cache headers if any).",
+              "Authentication/Authorization breadth: Only invalid/missing token (TC15); no role/permission matrix if applicable.",
+              "Rate limiting/throttling: No scenarios to verify behavior under burst traffic and appropriate 429 responses if enforced.",
+              "Server error handling: No simulation of generic 500 (e.g., database failure) distinct from external gateway/plugin errors.",
+              "Method/Media errors: No 405 Method Not Allowed or 415 Unsupported Media Type scenarios.",
+              "Monitoring/Audit: No verification that CreatedBy/Reason/Comment are persisted to audit logs for the refresh operation."
+            ],
+            "recommendations": [
+              "Add an idempotency/race condition scenario: issue multiple concurrent refreshes for the same account and assert the final state has no duplicates, is deterministic, and audit entries are correct.",
+              "Add a scenario that sends an unexpected JSON/body with the PUT and assert it is rejected (400/415) since the API specifies no request body.",
+              "Add a positive scenario combining pluginName with multiple pluginProperty values and assert 204 and correct plugin invocation.",
+              "For 204 success responses, assert that the response body is empty and Content-Type is not set or is appropriate, and optionally verify Content-Length is 0.",
+              "Add tests for Accept header negotiation and verify response headers (e.g., request-id/correlation-id, no caching headers if applicable).",
+              "Expand authorization coverage to include permission/role checks if the endpoint is restricted (expect 403 for authenticated but unauthorized users).",
+              "Introduce rate limiting tests: burst requests to confirm either accepted within SLOs or proper 429 with Retry-After.",
+              "Simulate internal server errors (e.g., DB outage) and assert a clean 500 response with a descriptive error payload.",
+              "Add negative tests for 405 and 415: wrong HTTP method and unsupported Content-Type.",
+              "Verify audit logging: ensure X-Killbill-CreatedBy/Reason/Comment are recorded and retrievable via audit APIs after a refresh."
+            ],
+            "usage": {
+              "completion_tokens": 1924,
+              "prompt_tokens": 6117,
+              "total_tokens": 8041,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

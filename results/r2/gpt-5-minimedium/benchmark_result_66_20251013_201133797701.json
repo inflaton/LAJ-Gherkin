@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-13T20:11:33.797666",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T20:10:42.457355",
+    "benchmark_end_time": "2025-10-13T20:11:33.797660",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 51.340305,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: TC01 covers the happy path and verifies 204 and that the bundle externalKey is updated.",
+              "Required headers: TC02 verifies behavior when X-Killbill-CreatedBy is missing; TC14 verifies optional X-Killbill-Reason and X-Killbill-Comment are accepted.",
+              "Path parameter validation: TC03 covers malformed bundleId (invalid format) and TC04/TC15 cover non-existent bundle scenarios (404).",
+              "Request body validation: TC06 (missing body), TC07 (malformed JSON), TC08 (missing externalKey), TC09 (extra fields tolerated), TC11 (empty externalKey) collectively cover many invalid/edge body cases.",
+              "Uniqueness/conflict handling: TC05 verifies conflict when externalKey already used by another bundle for the same account.",
+              "Error codes: Tests include expectations for 204, 400, 404, 401/403, 503 across several scenarios.",
+              "Concurrency/resilience: TC17 covers concurrent update behavior and TC13 covers dependent service unavailability (503).",
+              "Edge cases & validation limits: TC10 (very long key), TC19 (special characters), TC20 (leading/trailing spaces) are present to check input validation and system limits.",
+              "Security/Authorization: TC12 covers missing/invalid authentication leading to 401/403.",
+              "Performance & non-functional: TC16 (large payload), TC23 (response time under normal load) address performance aspects.",
+              "Regression/backwards compatibility & docs: TC18 (regression), TC22 (legacy clients), and TC24 (API documentation accessibility) are included."
+            ],
+            "gaps": [
+              "Partial update semantics: There is no explicit scenario that verifies partial updates are rejected vs. allowed (PUT should either require full resource or have defined behavior).",
+              "Idempotency / duplicate submissions: No tests for repeated identical PUT requests (idempotency guarantee) or duplicate submission handling.",
+              "Produced response content-type / response body expectations: The story mentions produces: application/json; there are no explicit assertions about response Content-Type headers or response body shape for error responses (and 204 has no body).",
+              "Conflict scope across accounts: Tests cover conflict for same account (TC05) but do not verify that the same externalKey is allowed for bundles in different accounts (scoping rules).",
+              "Header value validation & audit persistence: Tests assert presence/absence of headers but do not validate header value formats or that X-Killbill-CreatedBy (and optional headers) are recorded/audited by the system.",
+              "Explicit status-code expectations variance: Some scenarios allow multiple possible status codes (e.g., TC10, TC16, TC19, TC20 permit 204 or 400). The acceptance criteria expect 204 on success and 400 for invalid arguments; tests should pin expected behavior or a clear matrix of validation rules.",
+              "Rate limiting / throttling: No tests for handling many requests in short time (relevant for robustness).",
+              "Detailed validation rules: There is no explicit test that verifies allowed character set, max length, trimming behavior, or exact length limits as fixed pass/fail criteria (TC10/TC19/TC20 are permissive about outcomes)."
+            ],
+            "recommendations": [
+              "Add a scenario that verifies PUT rejects partial/patch-style updates when not allowed (e.g., body missing other required Bundle fields should return 400 unless API explicitly allows partial).",
+              "Add idempotency tests: send the same rename request multiple times and assert the second request behaves as specified (either 204 no-op or specific status), and test duplicate submissions in quick succession.",
+              "Assert response headers and content-type for both success and error responses (e.g., Content-Type: application/json for error payloads) and verify error payload schema and messages.",
+              "Add a test to verify externalKey uniqueness scope across accounts: renaming to an externalKey used by a bundle in a different account should be allowed (or not) depending on business rules\u2014make this explicit.",
+              "Add tests that validate header values are recorded/audited (e.g., that X-Killbill-CreatedBy shows up in audit logs or last-modified metadata) if that is a system requirement.",
+              "Tighten edge-case tests to assert deterministic outcomes based on documented validation rules: define exact max length, allowed character set, and trimming rules and convert TC10/TC19/TC20 into PASS/FAIL expectations accordingly.",
+              "Add rate-limiting / throttling tests to exercise the API under many rapid requests and assert correct error codes/headers where applicable.",
+              "Add a test that verifies how the system responds to duplicate/near-simultaneous renames for the same target key (expected 409 conflict vs 400 should be clarified and asserted)."
+            ],
+            "usage": {
+              "completion_tokens": 2350,
+              "prompt_tokens": 6051,
+              "total_tokens": 8401,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1344,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-09-28T07:35:46.727513",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:34:53.703473",
+    "benchmark_end_time": "2025-09-28T07:35:46.727509",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 53.024036,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Successful deletion flows: full removal (no tagDef) and selective removal via tagDef are exercised and assert 204 / empty body (TC01, TC02, TC05).",
+              "Header handling: required X-Killbill-CreatedBy is validated (presence and missing-header case) and optional headers X-Killbill-Reason and X-Killbill-Comment are exercised (TC03, TC10, TC18).",
+              "Input validation and error codes: invalid invoiceItemId format -> 400, non-existent invoiceItemId -> 404, malformed tagDef -> 400, partially-specified tagDef -> 400 are covered (TC08, TC09, TC13, TC16).",
+              "Authentication & resiliency: invalid/expired token -> 401 and service-unavailable scenarios -> 503 are present (TC11, TC12).",
+              "Robustness/edge cases & security: empty tagDef, extra/unexpected query params, very large tagDef lists, XSS/injection in headers, concurrency/performance and regression with special characters are included (TC06, TC07, TC14, TC15, TC17, TC18).",
+              "Idempotency-tolerance: deleting tags not present is tolerated and returns 204 (TC05).",
+              "Integration and partial-failure consideration: dependent service (audit logging) unavailable scenario is present (TC19)."
+            ],
+            "gaps": [
+              "Produces / Content-Type not asserted: the story declares \"produces: application/json\" but the tests only assert an empty body on 204 responses and do not validate Content-Type or JSON error schema for error responses.",
+              "403 / authorization granularity missing: there is a test for invalid/expired token (401) but no test for an authenticated user lacking permission (403, role/ACL checks).",
+              "Soft-delete and visibility semantics not covered: tests do not verify whether deletions are logical (soft) vs physical, nor do they validate visibility of the change via subsequent GETs or audit entries (beyond the generic TC19).",
+              "Server-error / transactional failure coverage: 500 Internal Server Error scenarios (e.g., DB exception, partial transaction rollback) are not simulated or asserted.",
+              "Rate limiting / throttling and retry behavior are not tested (no 429 or throttling verification).",
+              "CollectionFormat and param variants for tagDef not fully tested: variations of collection format (multi params vs CSV), duplicate tagDef entries, and mixed valid+invalid UUID lists are not explicitly covered.",
+              "Error response schema and exact message assertions are weak: tests expect \"an error message\" but do not assert standardized JSON error schema, error codes, or fields.",
+              "Caching / headers interactions not checked: ETag / Cache-Control / other headers (even if more relevant to GET) are not asserted and interactions after DELETE (stale caches) are not tested."
+            ],
+            "recommendations": [
+              "Clarify API contract regarding \"produces: application/json\" for 204 responses and add assertions for Content-Type and error response JSON schema (for 4xx/5xx responses).",
+              "Add an authorization test for authenticated-but-forbidden users (expect 403) to cover role/ACL scenarios. ",
+              "Add tests to verify deletion semantics: a) subsequent GETs reflect removed tags (or a deleted flag) to cover soft vs hard delete behavior; b) audit log entries are created and contain expected information \u2014 also test transactional behavior when audit logging fails. ",
+              "Simulate server-side failures to assert 500 handling and that operations are properly rolled back or logged. ",
+              "Add rate-limiting / throttling tests that flood the endpoint and assert 429 and Retry-After behavior (or system limits), and verify system stability under burst traffic. ",
+              "Expand tagDef parsing tests: cover multi-format query params (?tagDef=1&tagDef=2), CSV (?tagDef=1,2), duplicate tagDef entries, and mixed valid/invalid UUID lists to define expected acceptance/rejection behavior. ",
+              "Strengthen error assertions: test exact JSON error schema (fields, codes, messages) for 400/401/403/404/500 to ensure client-friendly, machine-parseable errors. ",
+              "Extend concurrency tests to include mixed operations (simultaneous add/remove of tags) and assertion of no data corruption; include explicit idempotency test (repeat same DELETE twice and assert same 204 outcome).",
+              "Treat accessibility/documentation (TC20) as a separate UX/PO review item or automate checks against a documented error-message/field standard; ensure messages are clear for accessibility tools. "
+            ],
+            "usage": {
+              "completion_tokens": 6413,
+              "prompt_tokens": 5394,
+              "total_tokens": 11807,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5440,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

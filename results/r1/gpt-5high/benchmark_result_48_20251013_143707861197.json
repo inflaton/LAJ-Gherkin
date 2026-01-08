@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-13T14:37:07.861169",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T14:34:35.818615",
+    "benchmark_end_time": "2025-10-13T14:37:07.861165",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 152.04255,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "PUT Valid Request: 204 No Content on success, empty body, and host state updated to in-rotation; idempotent when host already in rotation (TC01, TC02).",
+              "Authorization/RBAC: 401 for unauthenticated and 403 for insufficient privileges; missing auth headers handled (TC03, TC04, TC09).",
+              "Error Handling: 405 for wrong method, 503 when service unavailable, and transient failure with retry behavior (TC05, TC06, TC13).",
+              "Concurrency: multiple concurrent PUTs complete without race conditions (TC14).",
+              "Resilience/Robustness: extra headers and unexpected payload do not break the operation; response remains empty on 204 (TC07, TC08).",
+              "Performance: acceptable response time under load (TC10).",
+              "Security: header injection attempt does not compromise the system (TC12).",
+              "Regression safety net for previously fixed issue (TC11)."
+            ],
+            "gaps": [
+              "Content negotiation/headers: Story states \"Produces: application/json\" but there are no assertions on Content-Type for success or error responses; no tests for Accept header behavior (e.g., 406 Not Acceptable).",
+              "500 Internal Server Error: No scenario simulating backend/internal failures (e.g., database/IO errors) to validate generic >=400/500 mapping and JSON error body.",
+              "Rate limiting/throttling: No coverage for bursts leading to 429 with appropriate Retry-After headers.",
+              "Method matrix completeness: Only GET is used to assert 405; no checks for POST/DELETE/PATCH/HEAD/OPTIONS or that the Allow header lists supported methods.",
+              "Request validation ambiguity: The API specifies request body N/A. TC07 expects 204 even with a payload. Clarify whether payloads should be ignored or rejected; if rejected, add 400/415 scenarios and invalid Content-Type handling.",
+              "Idempotency over sequential repeats: No scenario calling PUT multiple times in sequence to explicitly prove idempotency and stable state (beyond \"already in rotation\").",
+              "Structured error responses: Tests assert presence of an error message but not a JSON error schema (code/message) or correlation/request ID for troubleshooting."
+            ],
+            "recommendations": [
+              "Add assertions for Content-Type based on the spec: verify application/json on error responses and confirm behavior for 204 (often no body and Content-Type omitted). Add Accept header tests, including 406 for unsupported types.",
+              "Introduce a simulated internal failure to assert 500 responses with a JSON error body, including stable error schema fields.",
+              "Add rate limiting scenarios: burst requests causing 429 and validate Retry-After/backoff behavior.",
+              "Expand 405 coverage: try POST/DELETE/PATCH/HEAD/OPTIONS and verify the Allow header lists PUT (and any others) as appropriate.",
+              "Clarify payload handling. If payloads are disallowed, update TC07 to expect 400 or 415; add a case for invalid Content-Type leading to 415.",
+              "Add a sequential idempotency test: invoke PUT multiple times and verify repeated 204 responses and unchanged in-rotation state.",
+              "Define and assert a standard JSON error schema (e.g., code, message) across 4xx/5xx; include correlation/request ID if the platform provides it."
+            ],
+            "usage": {
+              "completion_tokens": 8066,
+              "prompt_tokens": 3274,
+              "total_tokens": 11340,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7360,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

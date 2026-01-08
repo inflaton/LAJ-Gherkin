@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-14T05:43:42.192144",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T05:40:21.785318",
+    "benchmark_end_time": "2025-10-14T05:43:42.192140",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 200.406822,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT - Valid Request: Successful pause with only required header, scheduled pause via requestedDate, and handling of pluginProperty; verifies state change on bundle and all active subscriptions (TC01\u2013TC05).",
+              "PUT - Non-Existing Resource: 404 responses validated for unknown bundleId and empty database (TC07, TC20).",
+              "PUT - Concurrency Issues: Concurrent requests tested; only one succeeds while others fail appropriately (TC21). Load/performance behavior exercised (TC22).",
+              "Input Validation: Path param UUID format (TC06), SQL injection (TC13), state-based errors (already paused, canceled) (TC08\u2013TC09), requestedDate past/malformed (TC17\u2013TC18), pluginProperty malformed/large/special chars (TC16, TC19, TC24), and extra params ignored (TC15).",
+              "Headers: Required X-Killbill-CreatedBy enforced (success paths and TC10 for missing), optional X-Killbill-Reason and X-Killbill-Comment captured/audited (TC04\u2013TC05).",
+              "Resilience/Security: Service unavailable (503) and dependency failure (502) covered (TC12, TC25); regression isolation verified (TC23); downstream consistency validated (TC26); XSS in headers rejected (TC14).",
+              "Guidelines alignment note: PUT Partial Update guideline is not applicable here (no request body)."
+            ],
+            "gaps": [
+              "Response headers/content negotiation: No assertions that 204 has no body (Content-Length: 0) and whether Content-Type aligns with the spec that states produces: application/json.",
+              "Error payload schema: Tests check for generic messages but do not validate a consistent error JSON schema (e.g., code, message, details) or Content-Type on errors.",
+              "Authorization depth: 401 unauthenticated is covered (TC11), but no 403 Forbidden scenario for authenticated users lacking permission.",
+              "Idempotency/retry behavior: No scenario that repeats the same PUT sequentially to verify deterministic outcome (e.g., first 204, subsequent 400 or defined idempotent 204).",
+              "Unexpected request body: No test sending a JSON body to confirm it is rejected (400/415) or ignored per API contract.",
+              "requestedDate edges: No tests for current-day effective date, tenant vs UTC timezone/DST boundaries, or very distant future dates.",
+              "pluginProperty collectionFormat=multi: No scenario using repeated query params (pluginProperty=...&pluginProperty=...), empty values, or duplicate keys; only array-style is described.",
+              "Auditing verification depth: Reason/Comment asserted, but no explicit check that CreatedBy/Reason/Comment are present in audit/event records with correct timestamps and bundleId."
+            ],
+            "recommendations": [
+              "Add a scenario to assert 204 semantics: empty body, Content-Length: 0, and clarify/verify Content-Type header given the spec states produces: application/json.",
+              "Validate error response schema and headers: ensure application/json error content-type and standard fields (code/message) for 400/404/5xx.",
+              "Add a 403 Forbidden test for an authenticated user without sufficient permissions (distinct from 401).",
+              "Add idempotency/retry test: issue the same pause twice; define and assert expected behavior (second call returns 400 already paused, or 204 if treated as idempotent).",
+              "Add a test sending an unexpected JSON body to PUT to confirm server rejects (400/415) or ignores it, per API contract.",
+              "Expand requestedDate tests: same-day pause, timezone/DST boundaries, and far-future scheduling; verify subscriptions remain active until the effective date and pause occurs exactly on the requestedDate.",
+              "Exercise pluginProperty with collectionFormat=multi using repeated query params, including empty values, duplicate keys, and very long key/value pairs; define expected outcomes (400/413/ignored).",
+              "Deepen auditing checks: retrieve audit logs/events and assert CreatedBy/Reason/Comment, timestamps, and bundleId are correctly recorded.",
+              "Optionally add a 500 Internal Server Error simulation (e.g., DB failure) to cover the generic server error path beyond 502/503."
+            ],
+            "usage": {
+              "completion_tokens": 8826,
+              "prompt_tokens": 6254,
+              "total_tokens": 15080,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7936,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

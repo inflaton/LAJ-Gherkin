@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-15T02:25:47.962396",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:22:39.559072",
+    "benchmark_end_time": "2025-10-15T02:25:47.962392",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 188.40332,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT: Valid Request \u2014 successful pause with required header and optional query/headers (TC01\u2013TC05), including state change for bundle and its active subscriptions.",
+              "PUT: Non-Existing Resource \u2014 404 for missing bundleId (TC07, TC20).",
+              "PUT: Concurrency Issues \u2014 only one of concurrent pause requests succeeds (TC21).",
+              "Input Validation \u2014 invalid UUID format (TC06), invalid state (already paused/canceled) (TC08\u2013TC09), requestedDate past and malformed (TC17\u2013TC18), malformed pluginProperty (TC19).",
+              "Optional Parameters \u2014 requestedDate scheduling and pluginProperty processing, including special characters (TC02\u2013TC05, TC24).",
+              "Authorization \u2014 unauthorized user yields 401 (TC11); required header missing yields 400 (TC10).",
+              "Large Payloads \u2014 very large pluginProperty array handled (204 or 413) (TC16).",
+              "Server/Dependency Failures \u2014 API unavailable 503 (TC12); plugin dependency down 502 (TC25).",
+              "Security Hardening \u2014 SQL injection in path (TC13) and XSS in headers (TC14) rejected safely.",
+              "Side Effects/Regression \u2014 unrelated bundles unaffected (TC23); downstream consistency verified (TC26).",
+              "Robustness \u2014 extra/unknown query parameters ignored (TC15)."
+            ],
+            "gaps": [
+              "Response semantics for 204 not asserted: no-body behavior and Content-Type/Content-Length headers, despite \u201cProduces: application/json\u201d in the spec.",
+              "Authorization granularity: no scenario for authenticated user lacking permissions (403 Forbidden) vs unauthenticated (401).",
+              "Rate limiting/throttling not tested (e.g., 429 with Retry-After) under burst traffic; current load test (TC22) checks performance but not throttling behavior.",
+              "Server error handling: no simulation/expectation for 500 Internal Server Error (e.g., DB failure) and contract of error payload.",
+              "Scheduled pause semantics: when requestedDate is in the future, no verification that bundle remains active until that date and transitions exactly at the boundary (including timezone/edge cases like midnight).",
+              "Scope of pause within a bundle: no scenario with mixed subscription states to assert only active subscriptions are paused while canceled/suspended remain unchanged.",
+              "Audit logging completeness: CreatedBy presence in audit logs not explicitly verified (only Reason/Comment in TC04).",
+              "Content negotiation: no test for Accept header handling (e.g., Accept: application/json succeeds vs unsupported Accept leading to 406 or documented behavior).",
+              "pluginProperty collectionFormat=multi specifics: no test validating multiple repeated query keys, duplicates, and percent-encoding at the wire level.",
+              "Idempotent retry behavior not explicitly validated (e.g., safe client retry after network timeout leading to no extra side effects and predictable response).",
+              "Non-functional TC27 (API documentation accessibility) is out of scope for endpoint behavior and does not increase API coverage."
+            ],
+            "recommendations": [
+              "Add a scenario to assert 204 has no response body and verify response headers (Content-Type/Content-Length) match the spec\u2019s \u201cProduces: application/json\u201d expectation or agreed behavior for 204.",
+              "Add a 403 Forbidden test for an authenticated user lacking permissions to differentiate from 401 Unauthorized.",
+              "Introduce rate limiting tests: rapid repeated calls to the endpoint should return 429 with proper Retry-After headers if throttled.",
+              "Simulate a backend/DB failure to confirm 500 Internal Server Error behavior and standardized error response fields.",
+              "Expand scheduled pause tests: verify bundle remains active until requestedDate, transitions exactly at the expected time, and cover timezone boundary conditions (UTC vs tenant timezone).",
+              "Create a mixed-state bundle test to ensure only active subscriptions become paused; canceled/expired remain unchanged.",
+              "Verify audit logs include X-Killbill-CreatedBy along with Reason/Comment, and that audit entries are attributed correctly.",
+              "Add Accept header tests for content negotiation: positive case (application/json) and negative case (unsupported media leading to 406 or documented alternative).",
+              "Test pluginProperty as repeated query params (collectionFormat=multi), including duplicates and percent-encoded characters; confirm server-side parsing and plugin receipt.",
+              "Add an explicit idempotent retry scenario: resend the same pause request after a simulated network timeout and assert no additional side effects and consistent final state."
+            ],
+            "usage": {
+              "completion_tokens": 7328,
+              "prompt_tokens": 6254,
+              "total_tokens": 13582,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

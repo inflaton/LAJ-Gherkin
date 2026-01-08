@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-09-28T11:42:57.815761",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:41:28.857503",
+    "benchmark_end_time": "2025-09-28T11:42:57.815757",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 88.958254,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT Valid Request: Happy paths verify 204 and persistence of the updated externalKey (TC01, TC14, TC09).",
+              "Non-Existing Resource: 404 covered for unknown bundleId and empty DB (TC04, TC15).",
+              "Validation (400): Malformed UUID (TC03), missing body (TC06), malformed JSON (TC07), missing externalKey (TC08), empty externalKey (TC11), duplicate key within same account (TC05).",
+              "Required/Optional Headers: Required X-Killbill-CreatedBy enforced (TC02); optional X-Killbill-Reason/Comment accepted (TC14); extra unexpected header tolerated (TC21).",
+              "Auth Errors: Unauthorized/forbidden paths covered (TC12).",
+              "Concurrency Issues: Only one concurrent update succeeds; others fail (TC17).",
+              "Service Unavailability: 503 path covered (TC13).",
+              "Edge Cases: Very long key, special characters, and leading/trailing spaces explored (TC10, TC19, TC20).",
+              "Performance: Normal-load response-time check and large payload behavior (TC23, TC16)."
+            ],
+            "gaps": [
+              "Partial update semantics: No scenario asserting that only externalKey changes and other Bundle fields remain unchanged.",
+              "Idempotency: No tests for repeating the same PUT (same externalKey) yielding consistent 204/no-op behavior; no test for updating to the current value.",
+              "Content negotiation and media type: No tests for missing/incorrect Content-Type leading to 415, or unacceptable Accept header leading to 406; also no check that 204 has an empty body.",
+              "Uniqueness scope across accounts: No scenario confirming that the same externalKey is allowed when used by a different account.",
+              "Status code consistency for conflicts: Tests allow 400 or 409 in concurrency, while the story specifies 400 for duplicate key; expected code should be asserted explicitly.",
+              "Header value validation: No tests for empty/whitespace X-Killbill-CreatedBy or excessively long/invalid characters in that header.",
+              "Character set and Unicode: No scenario for non-ASCII/Unicode externalKey (e.g., accented characters, emoji); allowed character policy is unverified.",
+              "Length constraints: Upper bounds for externalKey not clearly asserted (TC10 is ambiguous with 204 or 400); no test for > max length.",
+              "Unsupported Content-Type charset/variants: No scenario for Content-Type mismatches (e.g., text/plain, application/json; charset=utf-8 vs none)."
+            ],
+            "recommendations": [
+              "Add a scenario verifying only externalKey is updated and all other Bundle fields remain unchanged (fetch before/after and compare).",
+              "Add idempotency scenarios: (a) repeat the same PUT twice returns 204 both times with no additional side effects, (b) PUT setting externalKey to its current value is a no-op with defined status (preferably 204).",
+              "Add media-type/negotiation tests: (a) missing Content-Type -> 415, (b) Content-Type text/plain -> 415, (c) unacceptable Accept header -> 406, and assert 204 has an empty response body.",
+              "Add cross-account uniqueness scenario: same externalKey used by a different account succeeds (204).",
+              "Make conflict status deterministic: assert the exact status code for duplicate externalKey and for losers in concurrent updates per API spec (story says 400).",
+              "Extend header validation: empty/blank X-Killbill-CreatedBy -> 400; excessively long/invalid characters -> 400; verify Reason/Comment are persisted in audit (if applicable).",
+              "Add Unicode tests for externalKey (e.g., accented letters, CJK, emoji) to verify allowed character set and normalization.",
+              "Define and test explicit max length for externalKey: one test at the max (expect 204) and one above the max (expect 400).",
+              "Add Content-Type variants tests (e.g., application/json; charset=utf-8) to ensure they are accepted and others are rejected."
+            ],
+            "usage": {
+              "completion_tokens": 4065,
+              "prompt_tokens": 6051,
+              "total_tokens": 10116,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3200,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

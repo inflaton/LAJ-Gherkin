@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-09-28T06:12:39.045257",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T06:11:12.786756",
+    "benchmark_end_time": "2025-09-28T06:12:39.045253",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 86.258497,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid deletion scenarios: deleting all custom fields and selectively deleting specified custom fields are covered (TC01, TC02, TC03, TC04, TC13, TC14).",
+              "Input validation for path and query: invalid accountId format, SQL injection attempts, invalid customField UUIDs and XSS are tested (TC05, TC19, TC08, TC20).",
+              "Required and optional headers: presence/absence of X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment are exercised (TC03, TC07).",
+              "Idempotency and non-existent resources: repeated deletion and deleting for non-existent account are covered (TC06, TC15).",
+              "Authorization and security: unauthorized user scenarios and security edge cases are included (TC10, TC19, TC20).",
+              "Error handling and resilience: system failure and network timeout behaviour are specified (TC11, TC12).",
+              "Concurrency and performance: concurrent request handling and performance under load are addressed (TC16).",
+              "Integration and data consistency: subsequent GETs and dependent-service consistency checks are included (TC01, TC02, TC17).",
+              "Edge cases: duplicate customField IDs in the request and maximum-size requests are covered (TC13, TC14)."
+            ],
+            "gaps": [
+              "Produces / Content-Type verification: tests do not assert response media type (application/json) for success/error responses and do not clarify expected Content-Type behavior for 204 responses.",
+              "Soft-delete vs hard-delete semantics and audit trail: no tests check whether deletion is a soft delete, whether records remain flagged in DB, or whether reason/comment are recorded in audit logs.",
+              "Atomicity for multi-ID deletion: missing explicit tests that simulate partial failure during a multi-ID deletion and verify rollback/no partial deletion.",
+              "Behavior for valid-but-unrelated customField IDs: no explicit test for when provided customField UUIDs are valid but not associated with the given account (should be ignored or reported).",
+              "Alternative query-parameter encodings and edge encodings: not covered (comma-separated lists, JSON-array encodings if supported, empty customField param values, URL-encoding edge cases).",
+              "Pagination and caching for GET verification endpoints: no tests for pagination behavior or caching headers (ETag/Cache-Control) on subsequent GETs used to verify deletion.",
+              "Rate limiting and throttling: absent (no tests for 429 responses or throttle behavior under sustained high request rate).",
+              "Authentication negative paths: tests distinguish permission denial (401/403) but do not explicitly test missing/invalid/expired authentication tokens and the exact 401 vs 403 semantics.",
+              "Error response schema and content-type: tests assert presence of error message but do not assert standardized JSON error schema, error codes, or Content-Type for error bodies.",
+              "Partial network/failure semantics under concurrency: while TC11/TC12 cover errors/timeouts, there is no explicit test for mixed success/failure when multiple concurrent requests target overlapping resource sets."
+            ],
+            "recommendations": [
+              "Add assertions for response Content-Type across success and error responses. Clarify in API spec whether 204 responses should include a Content-Type header and add tests accordingly (and assert error responses are application/json).",
+              "Add DB-level or audit-log tests to verify soft-delete semantics and to confirm X-Killbill-Reason and X-Killbill-Comment are recorded in audit trails as expected.",
+              "Add atomicity tests for multi-ID deletion: simulate failure on a subset of deletes (e.g., fail on ID N) and assert no partial deletions occur or define expected behavior in spec and test it.",
+              "Add tests for behavior when customField UUIDs are valid but not associated to the account (expectation: ignore vs error). Document expected behavior if unclear and add test coverage.",
+              "Include tests for alternative query-parameter encodings (repeated params vs comma-separated lists vs JSON-array where applicable) and for empty or malformed parameter values.",
+              "Add pagination tests for GET endpoints used for verification (especially relevant for accounts with many custom fields) and caching tests to ensure ETag/Cache-Control interactions do not lead to stale reads after deletion.",
+              "Add rate limiting tests to validate 429 behavior and that rate limiting does not cause partial deletes or inconsistent state.",
+              "Add authentication negative tests for missing/invalid/expired tokens to assert 401 vs 403 and to validate exact error messaging and codes.",
+              "Standardize and test error response schema: assert JSON error object shape and fields (code, message, details) for all 4xx/5xx responses.",
+              "Add mixed-concurrency failure tests: overlapping concurrent deletes where some requests fail, to ensure correctness and detect potential race conditions beyond pure performance.",
+              "Clarify and align acceptance criteria with observed behavior where ambiguous (for example non-existent account return code: 204 vs 404, and expected Content-Type for 204). Update tests accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 6603,
+              "prompt_tokens": 5440,
+              "total_tokens": 12043,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5568,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

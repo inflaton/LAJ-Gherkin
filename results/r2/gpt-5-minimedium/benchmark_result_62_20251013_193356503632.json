@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "62_2025-10-13T19:33:56.503606",
+    "jira_id": "62",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles/search/{searchKey} - Search bundles",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:33:17.429671",
+    "benchmark_end_time": "2025-10-13T19:33:56.503603",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 39.073932,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "62_qe_sup-gpt4.1_agent-gpt4.1_1748919997.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: Happy path (TC01) and multiple successful permutations (TC02-TC06, TC11-TC12, TC17, TC27) verify successful retrieval for valid parameters and combinations.",
+              "Empty Response: TC06, TC07, TC24 cover empty-result cases (no matches, offset > matches, empty DB).",
+              "Pagination: Basic pagination behaviour is tested (TC02, TC05, TC07, TC08, TC26) including offset/limit, zero limit and offset beyond result set.",
+              "Query Parameters: Many combinations of query params are exercised (offset, limit, audit) including combined usage (TC05) and invalid values (negative offset/limit TC10/TC11, invalid audit TC12).",
+              "Authorization: Authentication failure cases are covered (TC13 missing token, TC14 invalid token resulting in 401).",
+              "Error Handling: Various server- and dependency-level errors are covered (TC15 503, TC16 500, TC25 504 timeout).",
+              "Security/Input Validation: Malformed and injection inputs are tested (TC09 invalid searchKey, TC17 injection payload).",
+              "Performance/Concurrency: High-volume and concurrent request scenarios are included (TC19 large data volume, TC20 concurrent requests).",
+              "Response Format: Test asserts JSON response and application/json content type (TC01) and checks number of returned Bundle objects in several scenarios."
+            ],
+            "gaps": [
+              "Caching Behavior: No scenarios validate caching-related headers (ETag, Cache-Control, Last-Modified) or cache semantics for repeated requests.",
+              "Rate Limiting / Throttling: There are no tests for rate limiting, throttling, or handling of too-many-requests (e.g., 429) despite concurrency/perf tests.",
+              "Authorization - Insufficient Privileges (403): Tests cover authentication (401) but not authorization/permission failure cases (403) for users with valid tokens but insufficient permissions.",
+              "Schema / Contract Validation: Tests assert \"Bundle objects\" are returned but do not validate the Bundle JSON schema/fields, required properties, types, or nested objects.",
+              "Audit default behavior: No explicit test to verify default audit parameter (NONE) behavior when audit is omitted and how it appears in the response.",
+              "Non-integer / malformed query parameter types: Negative values are tested, but there are no tests for non-numeric strings for offset/limit (e.g., offset=abc) or values that overflow numeric types.",
+              "Edge/value-boundary tests for pagination limits: No tests that verify behavior when limit or offset exceed implementation limits or cause integer overflow, or when limit is larger than default maximum allowed by the API (if any business cap exists).",
+              "Content Negotiation and Headers: Aside from a single content-type check, there are no tests for Accept header handling, response charset, or other important response headers.",
+              "Response details for errors: Error response body structure/schema (error codes, errorType, message) is not asserted consistently across error scenarios."
+            ],
+            "recommendations": [
+              "Add caching tests: repeated GETs with and without If-None-Match / If-Modified-Since to verify ETag / Last-Modified handling and Cache-Control headers and 304 responses where appropriate.",
+              "Add rate limiting tests: flood the endpoint (or simulate configured rate limits) to produce 429 and verify Retry-After header and graceful handling.",
+              "Add authorization (403) tests: create/obtain a valid token with insufficient permissions and assert 403 and correct error payload.",
+              "Add JSON schema validation for Bundle: verify required fields, types and nested structures for Bundle objects in success responses (including audit sub-objects for FULL/MINIMAL/NONE).",
+              "Verify audit default (NONE): add a scenario that omits audit and asserts audit info is absent/none per spec and that explicit audit=NONE behaves the same.",
+              "Test malformed query param types: add tests for offset=abc, limit=1.5, extremely large numeric strings and assert 400/422 errors with descriptive messages.",
+              "Add pagination boundary tests: verify behavior when offset/limit approach int64 bounds, when limit exceeds any server-imposed maximum, and when limit is exactly default/maximum values.",
+              "Improve error payload assertions: assert consistent error response schema/fields across 4xx/5xx cases to avoid information leakage and ensure client-parsable errors.",
+              "Add content-negotiation tests: send different Accept headers and validate returned content-type, and test absent or conflicting Accept headers.",
+              "Document and add rate/throughput & stability tests to cover SLA: include response time assertions for representative dataset sizes and under concurrent load (expand TC19/TC20 with measured thresholds)."
+            ],
+            "usage": {
+              "completion_tokens": 2205,
+              "prompt_tokens": 5050,
+              "total_tokens": 7255,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

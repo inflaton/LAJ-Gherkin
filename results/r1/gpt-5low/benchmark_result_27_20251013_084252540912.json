@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "27_2025-10-13T08:42:52.540887",
+    "jira_id": "27",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/paymentMethods - Add a payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:42:29.082770",
+    "benchmark_end_time": "2025-10-13T08:42:52.540884",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 23.458114,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "27_qe_sup-gpt4.1_agent-gpt4.1_1748917729.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST/Valid Payload: Multiple success scenarios (required-only, combined query params, various account states) returning 201 with JSON body and Location header.",
+              "POST/Invalid Payload: Malformed JSON, missing required fields, invalid accountId format, and missing required header all return 400 as specified.",
+              "POST/Validation: Tests for boolean query params (true paths), path UUID validation, and security-focused validation (SQL injection/XSS) leading to 400/422.",
+              "POST/Large Payload: Handling of maximum-sized payload is verified.",
+              "POST/Server Error Handling: Simulated plugin inconsistency returns 500; plugin service down returns 503.",
+              "Authorization: Unauthorized access returns 401.",
+              "Query Parameters: Coverage for isDefault, payAllUnpaidInvoices, controlPluginName (multi), pluginProperty (multi), combined usage, and ignoring unexpected parameters.",
+              "Headers: Required X-Killbill-CreatedBy and optional Reason/Comment covered; audit reflection checked.",
+              "Concurrency/Duplicate: Concurrent requests scenario avoids duplicates; retry after network failure avoids duplicate creation.",
+              "Performance: Normal and peak-load response time expectations included.",
+              "Integration: Downstream synchronization behavior after creation is covered."
+            ],
+            "gaps": [
+              "Idempotency key/duplicate submission: No explicit test for Idempotency-Key semantics or 409/duplicate handling on exact repeat submissions.",
+              "Content negotiation: No tests for Content-Type/Accept handling (e.g., missing Content-Type, incorrect media type -> 415, unacceptable Accept -> 406).",
+              "Invalid query parameter types: No scenarios for isDefault/payAllUnpaidInvoices with non-boolean or malformed values resulting in validation errors.",
+              "Default switching semantics: When isDefault=true and an existing default exists, no test verifies the previous default is unset and only one default remains.",
+              "payAllUnpaidInvoices edge cases: No test when there are zero unpaid invoices, partial payment failures, or idempotency of invoice payment attempts.",
+              "Authorization 403: No coverage for authenticated user lacking permission (forbidden) distinct from 401.",
+              "Response headers completeness: No checks for Content-Type application/json on 201/4xx/5xx; no validation that Location is an absolute URL with correct format.",
+              "Audit persistence: Reason/Comment and CreatedBy are not verified via an audit retrieval endpoint to ensure they were persisted correctly.",
+              "Control plugins negative paths: No test for invalid/missing controlPluginName values, plugin property decoding errors, or plugin-declared 4xx errors vs 5xx mapping.",
+              "Schema strictness: No detailed field-level validation (length limits, allowed chars, required nested fields in pluginInfo) and Unicode/encoding handling.",
+              "Rate limiting/throttling: No coverage for 429 Too Many Requests under burst traffic."
+            ],
+            "recommendations": [
+              "Add explicit idempotency tests: send the same request twice (with and without Idempotency-Key) and assert one resource is created; define expected status (201 first, 409/200/204 second).",
+              "Add content-negotiation tests: missing/invalid Content-Type -> 415; unsupported Accept -> 406; verify Content-Type header on success/error.",
+              "Add invalid type tests for query params: isDefault=notabool, payAllUnpaidInvoices=123 -> 400 with clear validation messages.",
+              "Verify default switching logic: when setting a new default, assert the previous default is cleared and only one default remains.",
+              "Add payAllUnpaidInvoices edge scenarios: no unpaid invoices (201 with no attempts), partial failures (multi-status behavior or error mapping), and retry idempotency on invoice payments.",
+              "Include authorization 403 scenario for a user lacking permissions while authenticated.",
+              "Validate response headers: assert Content-Type=application/json and that Location is absolute and references the created resource path.",
+              "Assert audit persistence by retrieving audit logs for the created payment method and validating CreatedBy/Reason/Comment.",
+              "Expand control plugin negative tests: invalid plugin names, malformed pluginProperty formats, duplicated keys handling, and error mapping (4xx vs 5xx).",
+              "Strengthen schema validation: field length/character set limits, required nested fields in pluginInfo, and Unicode support tests.",
+              "Consider rate limiting tests under bursts to validate 429 behavior if applicable to this endpoint."
+            ],
+            "usage": {
+              "completion_tokens": 1994,
+              "prompt_tokens": 7438,
+              "total_tokens": 9432,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

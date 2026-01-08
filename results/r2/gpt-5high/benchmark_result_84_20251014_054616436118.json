@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "84_2025-10-14T05:46:16.436089",
+    "jira_id": "84",
+    "jira_title": "Implement/Test API: GET /1.0/kb/customFields/search/{searchKey} - Search custom fields",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T05:43:42.192657",
+    "benchmark_end_time": "2025-10-14T05:46:16.436086",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 154.243429,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "84_qe_sup-gpt4.1_agent-gpt4.1_1748921406.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Valid Request: Multiple happy-path scenarios verify 200 responses with and without query parameters, returning a JSON array of CustomField objects.",
+              "Empty Response: Covered via no-match queries and offset beyond result set returning empty arrays with 200.",
+              "Pagination: Verified limit/offset across pages, boundary values (min=1, large limits), offset beyond range, and combo with audit.",
+              "Query Parameters: Broad coverage of valid/invalid values (negative/non-integer limit, negative offset, invalid audit, unsupported params ignored) and explicit defaults use case.",
+              "Authorization: 401 behaviors for missing and invalid tokens are validated.",
+              "Error Handling: 400 for invalid parameters, 503 for backend unavailability, and 405 for unsupported HTTP method are covered.",
+              "Internationalization/Robustness: Unicode, very long, whitespace-only, and special-character search keys; injection/XSS attempts do not execute.",
+              "Performance/Concurrency: Stress and concurrent requests validate responsiveness and correctness under load.",
+              "Backward Compatibility/Integration: Legacy usage without query params works; integration scenario asserts data freshness across services.",
+              "Audit Controls: FULL, MINIMAL, and NONE modes are exercised, including combination with pagination."
+            ],
+            "gaps": [
+              "Rate Limiting: No scenarios validating throttling behavior (e.g., 429 with Retry-After) under burst traffic.",
+              "Caching Behavior: Lack of tests for ETag/If-None-Match, Cache-Control headers, and 304 Not Modified responses.",
+              "Default Behavior (omitted params): No explicit assertion that limit=100, offset=0, and audit=NONE apply when query params are omitted, including verifying count cap and absence of audit fields.",
+              "Response Headers: No checks for Content-Type=application/json (and charset) or behavior with Accept header negotiation.",
+              "Schema Validation: No explicit validation against #/definitions/CustomField (required fields/types) and exact audit fields for FULL/MINIMAL/NONE.",
+              "Offset Type Validation: Missing tests for non-integer/decimal offset values (e.g., offset=abc or offset=1.5).",
+              "Limit Edge Cases: No test for limit=0 and no explicit behavior when limit exceeds any service-imposed maximum (e.g., 1000 vs documented defaults).",
+              "Search Semantics: Case sensitivity, match type (substring/exact/prefix), and which fields are searchable are not specified or tested.",
+              "URL Encoding of Path Param: No tests for reserved characters requiring encoding in searchKey (e.g., %2F for slash, ?, #, %).",
+              "Pagination Consistency: No assertions for deterministic ordering and no overlap/missing items between pages; no verification of pagination-related headers if provided.",
+              "Authorization 403: No coverage for authenticated but forbidden (role/tenant) access, if applicable.",
+              "Error Payload Consistency: Error responses are not validated against a standard error schema (code/type/message/requestId), despite TC24 referencing guidelines."
+            ],
+            "recommendations": [
+              "Add rate-limiting tests: issue a burst of requests to trigger throttling; expect 429 with Retry-After and verify recovery after wait.",
+              "Add caching tests: capture ETag on first GET; send If-None-Match to expect 304; verify Cache-Control/ETag headers are present and correct.",
+              "Validate default behaviors by omitting all query params: assert at most 100 items are returned when more exist, offset=0 is applied, and audit fields are absent (audit=NONE by default).",
+              "Assert response headers: Content-Type=application/json; optionally verify charset and behavior with Accept header (e.g., 406 or documented fallback).",
+              "Introduce JSON schema validation for CustomField and audit structures across FULL/MINIMAL/NONE, matching #/definitions/CustomField.",
+              "Add offset type validation: offset=abc and offset=1.5 should return 400 with clear error messages.",
+              "Cover limit edge cases: limit=0 (expected 400 or defined behavior) and exceeding max allowed (either 400 or capped/truncated with documented behavior).",
+              "Define and test search semantics: case-insensitive versus case-sensitive, substring versus exact/prefix matching, and which fields are searched (name, value, etc.).",
+              "Test URL-encoded searchKey containing reserved characters (e.g., %2F, %3F, %23, %25) to ensure correct routing and matching.",
+              "Strengthen pagination integrity checks: assert deterministic sort order, no overlap/duplication across pages, and verify any pagination headers if the API provides them.",
+              "Add 403 scenario if RBAC/tenant scoping applies; otherwise document that 403 is not used for this endpoint.",
+              "Validate standardized error payloads for 4xx/5xx: assert presence of code/type/message/requestId and compliance with API documentation.",
+              "Add a scenario verifying that omitting audit parameter yields no audit info (explicitly contrasting with AUDIT=MINIMAL/FULL results).",
+              "Optionally add a GET server error simulation (500) to ensure robust error handling and consistent error schema."
+            ],
+            "usage": {
+              "completion_tokens": 7274,
+              "prompt_tokens": 5878,
+              "total_tokens": 13152,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6208,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

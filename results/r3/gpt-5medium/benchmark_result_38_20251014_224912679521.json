@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "38_2025-10-14T22:49:12.679483",
+    "jira_id": "38",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/emails/{accountEmailId}/auditLogsWithHistory - Retrieve account email audit logs with history by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T22:48:10.837049",
+    "benchmark_end_time": "2025-10-14T22:49:12.679477",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 61.842428,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "38_qe_sup-gpt4.1_agent-gpt4.1_1748918465.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request: Happy path with 200 OK returning application/json array; basic field assertions and schema check via #/definitions/AuditLog (TC01, TC16).",
+              "Empty Response: 200 OK with empty array when no audit logs exist (TC02).",
+              "Path Parameter Validation: Invalid UUID formats return 400 for accountId and accountEmailId; injection/XSS blocked (TC05, TC06, TC13, TC14).",
+              "Non-Existent Resources: 404 for missing account and missing account email; includes empty/partial DB states (TC03, TC04, TC18, TC19).",
+              "Authorization: 401 for missing/invalid tokens (TC07, TC08).",
+              "Service Resilience: 503 when API unavailable and 504 for slow downstream dependency (TC09, TC12).",
+              "Query Parameters: Extra/unrecognized query param does not break the API; still returns 200 (TC10).",
+              "Performance/Large Dataset: Handles >1000 audit logs with acceptable response time (TC11).",
+              "Regression/Ordering: Audit logs ordered by changeDate descending (TC15).",
+              "Content-Type: Response Content-Type asserted as application/json (TC01, TC02)."
+            ],
+            "gaps": [
+              "Pagination: No scenarios validating pagination behavior or confirming that pagination is not supported for this endpoint.",
+              "Caching Behavior: No checks for ETag/If-None-Match, Last-Modified/If-Modified-Since, or Cache-Control headers; no 304 Not Modified flow.",
+              "Rate Limiting: No tests for throttling/429 Too Many Requests under burst traffic.",
+              "Authorization (Forbidden): No 403 scenario for authenticated user lacking required permissions/tenant access.",
+              "Accept Header Negotiation: No test for unsupported Accept (e.g., application/xml) leading to 406 Not Acceptable.",
+              "Association Integrity: No scenario where accountId is valid and accountEmailId exists but belongs to a different account; expected 404/400.",
+              "History Semantics: Tests assert presence of history field but do not validate correctness/completeness (e.g., before/after values, actor, timestamps ordering within each history entry, ISO-8601 formatting).",
+              "Error Schema Consistency: Error responses assert only messages; no validation of standard error schema (e.g., code, type, message, requestId)."
+            ],
+            "recommendations": [
+              "Add pagination-oriented scenarios or explicitly validate that the endpoint is unpaginated: request with typical pagination params (e.g., limit/offset) should be ignored or return 400 if not supported; if supported, verify page boundaries and total counts.",
+              "Add caching tests: verify ETag/Cache-Control headers on 200; re-request with If-None-Match to assert 304 Not Modified; similarly test Last-Modified/If-Modified-Since if applicable.",
+              "Introduce rate-limiting tests: burst N requests within time window; expect 429 with proper Retry-After header; confirm normal rate resumes after window.",
+              "Add 403 Forbidden scenario for authenticated user without necessary permissions/tenant, ensuring correct distinction between 401 and 403.",
+              "Test content negotiation: send Accept: application/xml (or unsupported) and expect 406; with Accept: application/json expect 200.",
+              "Add association integrity test: valid accountId with an accountEmailId belonging to another account should not leak information; assert 404 with generic messaging.",
+              "Deep-verify history: create known sequence of changes to the account email and assert each AuditLog.history entry contains accurate before/after values, actor, changeDate in ISO-8601 UTC, and is chronologically consistent.",
+              "Validate error payload schema: assert presence and types of standardized fields (e.g., errorCode, message, details, requestId/correlationId) for 400/401/403/404/5xx."
+            ],
+            "usage": {
+              "completion_tokens": 3260,
+              "prompt_tokens": 5014,
+              "total_tokens": 8274,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2432,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

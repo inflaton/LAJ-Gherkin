@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-10-14T14:59:39.026734",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:59:00.785693",
+    "benchmark_end_time": "2025-10-14T14:59:39.026729",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 38.241036,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: TC01 and TC02 verify successful creation (HTTP 201) and retrieval/confirmation.",
+              "Optional headers: TC02 covers X-Killbill-Reason and X-Killbill-Comment behavior.",
+              "Required headers: TC03 covers missing X-Killbill-CreatedBy handling.",
+              "Invalid/Malformed payloads: TC04 (missing required field planId), TC05 (invalid currency), TC08 (empty body), TC09 (malformed JSON), and TC18 (XSS/SQL injection) cover a broad set of validation failures.",
+              "Duplicate submission/conflict: TC06 covers planId already existing resulting in HTTP 400 conflict/validation.",
+              "Large payloads: TC15 addresses very large request payloads and expected system behavior.",
+              "Boundary/limits for fields: TC12 (max lengths) and TC13 (minimum values) cover boundary conditions.",
+              "Authentication: TC10 covers missing authentication (HTTP 401).",
+              "Service/unavailability and downstream integration: TC11, TC23, and TC24 cover catalog/service unavailable scenarios and integration resilience.",
+              "Concurrency: TC22 covers concurrent creation requests and unique planId handling.",
+              "Performance expectation: TC17 adds an SLA-style response time check for creation."
+            ],
+            "gaps": [
+              "Server error handling (5xx generic cases): No explicit scenario simulates an internal server error (500) or database failure aside from catalog unavailable (503).",
+              "Idempotency / Duplicate-submission semantics: While TC06 covers conflicting planId, there is no test of repeated identical submissions (replay) to confirm idempotency or dedup behavior if planId is omitted/auto-generated.",
+              "Schema/Content-Type enforcement: There is no explicit test that Content-Type: application/json is required/validated (consumes constraint), nor tests for wrong content types.",
+              "Response body content validation: Tests assert a \"confirmation string or URI\" but do not validate format (e.g., URI pattern) or specific response headers (Location).",
+              "Audit header validation detail: X-Killbill-CreatedBy is tested for presence, but there are no tests for header length/format or for missing optional header behavior when present but empty.",
+              "Authorization scopes/permissions: TC10 covers missing authentication, but there are no tests for insufficient permissions (403) or role-based access control.",
+              "Rate limiting/Throttling: No tests cover rate limiting or burst request handling.",
+              "Payload schema extra fields behavior is partially covered by TC07 (acceptance), but no test verifies strict rejection when the API should reject unknown fields (behavior ambiguity).",
+              "Integration end-to-end verification: TC23/TC24 address dependent services availability but do not validate propagation/consistency in downstream systems beyond an assertion that the plan is \"available\".",
+              "Negative concurrency race conditions: TC22 checks concurrent success for unique IDs, but there is no test for concurrency-induced conflicts (two requests using same planId simultaneously).",
+              "HTTP method and other verb edge cases: TC14 tests GET method not allowed, but no test for HEAD/OPTIONS behavior or proper Allow header."
+            ],
+            "recommendations": [
+              "Add a 500 Internal Server Error simulation (e.g., database failure) to verify server error reporting and retry/error handling semantics.",
+              "Create an idempotency/replay test: send the same POST twice (with and without idempotency key if supported) to verify behavior (duplicate creation vs. idempotent response).",
+              "Add tests to assert Content-Type enforcement (reject non-JSON content types) and explicit consumes behavior.",
+              "Validate response body and headers more precisely: assert URI format, Location header presence/value, and any expected response schema rather than only \"string or URI\".",
+              "Add tests for authorization/permission levels (403) to cover role-based access control if relevant.",
+              "Introduce rate-limiting/throttling tests and burst scenarios to ensure graceful handling of high request rates.",
+              "Clarify and test strict vs. permissive handling of extra/unknown fields: add both rejection and permissive acceptance scenarios depending on API contract.",
+              "Add concurrency conflict tests: two simultaneous requests trying to create the same planId to verify deterministic conflict handling and consistent error codes.",
+              "Include HEAD/OPTIONS method tests to confirm Allow headers and discoverability, and verify method semantics beyond GET/POST/unsupported-GET case already present.",
+              "Strengthen integration tests to verify that downstream/dependent catalog services actually reflect the new plan (e.g., query dependent service) rather than just asserting availability."
+            ],
+            "usage": {
+              "completion_tokens": 1141,
+              "prompt_tokens": 5854,
+              "total_tokens": 6995,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

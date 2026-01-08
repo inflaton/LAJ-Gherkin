@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "93_2025-10-13T04:22:16.327636",
+    "jira_id": "93",
+    "jira_title": "Implement/Test API: GET /1.0/kb/invoiceItems/{invoiceItemId}/auditLogsWithHistory - Retrieve invoice item audit logs with history by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:22:00.197541",
+    "benchmark_end_time": "2025-10-13T04:22:16.327632",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 16.130091,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "93_qe_sup-gpt4.1_agent-gpt4.1_1748922102.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: TC01 verifies successful retrieval (200) and response shape (JSON array of AuditLog objects) for a valid invoiceItemId.",
+              "Empty Response: TC02 covers the case where an existing invoice item has no audit logs and expects an empty JSON array with 200.",
+              "Error handling for missing resource: TC03 and TC18 cover invoice item not found (404) in normal and empty-database situations.",
+              "Input validation: TC04 and TC17 validate malformed/truncated UUID handling (400).",
+              "Authentication/Authorization: TC05 and TC06 cover missing and invalid authentication (401).",
+              "Security: TC10 and TC11 test SQL injection and XSS attempts and assert no sensitive information or execution.",
+              "Robustness / Service errors: TC08 covers service/database unavailability (503).",
+              "Performance / large payloads: TC09 checks large audit log history for response size, performance, and truncation.",
+              "Concurrency and load: TC14 and TC15 exercise concurrent requests and response times under load.",
+              "Response headers and compatibility: TC16 validates Content-Type; TC13 checks backward compatibility for older clients.",
+              "Regression checks: TC12 ensures previously missing audit log fields are present.",
+              "Query parameters resilience: TC07 verifies unsupported extra query parameters are ignored and do not affect response."
+            ],
+            "gaps": [
+              "Pagination: No scenarios exercise pagination (limit/offset/page) or verify behavior when results must be paged for very large datasets (the guidelines explicitly call out pagination).",
+              "Caching Behavior / Conditional Requests: No tests for caching headers such as ETag, Last-Modified, Cache-Control, or behavior for If-None-Match / If-Modified-Since (304 responses).",
+              "Rate limiting / Throttling: No tests for rate limiting behavior (429) or handling of many requests in short windows beyond functional concurrency/performance checks.",
+              "Authorization nuances (403): Tests cover 401 but not 403 (authenticated but unauthorized) \u2014 e.g., role/tenant-based access restrictions.",
+              "Content negotiation / Accept header: Only Content-Type presence is tested; no tests for Accept header negotiation or non-JSON accept requests.",
+              "HTTP 500 / server error paths: Aside from service unavailable (503), there are no explicit tests asserting behaviour for 500 Internal Server Error or unexpected server faults.",
+              "Pagination-related performance and correctness: TC09 verifies large payloads but not segmented/paginated retrieval and correctness across pages (missing validation of item counts across pages).",
+              "Cache coherency after changes: No tests ensure audit logs reflect recent changes immediately vs eventual consistency, or validate ETag change after updates.",
+              "Detailed schema validation: While required fields are asserted in TC01/TC12, there is no explicit negative test for responses missing individual required fields (beyond regression), nor type/format checks for each AuditLog field."
+            ],
+            "recommendations": [
+              "Add pagination scenarios: test limit/offset or page parameters, verify correct totals, ordering, and that clients can retrieve complete history across pages. Include edge cases (page 0, page beyond last, negative values).",
+              "Add caching/conditional request tests: assert presence and correctness of ETag, Cache-Control, Last-Modified headers; validate 304 behaviour using If-None-Match / If-Modified-Since.",
+              "Add rate-limiting tests: simulate bursts of requests to validate 429 responses or documented throttling and proper Retry-After headers.",
+              "Add authorization role/tenant tests: include scenarios where a valid token lacks permissions and should receive 403, and multi-tenant isolation checks if applicable.",
+              "Add content negotiation tests: send Accept: application/xml or other values to verify correct error or fallback behaviour and ensure Content-Type is honored.",
+              "Add server-error (500) handling tests: simulate unexpected server faults and validate error responses do not leak internals and follow API error format.",
+              "Enhance schema validation tests: add explicit negative tests where response objects are missing required fields or have incorrect types to ensure strict validation; include field-level assertions (timestamps, user ids, change types).",
+              "Add consistency tests after updates: create/update invoice item audit trail and immediately retrieve to ensure history is up-to-date; test eventual-consistency windows if relevant.",
+              "Add rate/throughput and pagination performance tests: combine large dataset with paginated retrieval under load to validate throughput, memory usage, and absence of truncation across pages."
+            ],
+            "usage": {
+              "completion_tokens": 1122,
+              "prompt_tokens": 4403,
+              "total_tokens": 5525,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

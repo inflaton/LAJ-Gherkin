@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-09-30T11:04:45.699470",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-30T11:04:26.663664",
+    "benchmark_end_time": "2025-09-30T11:04:45.699460",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 20000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 19.035796,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid POST behavior: Many success scenarios (TC01-TC07, TC29) validate normal and optional-parameter flows producing HTTP 204.",
+              "Input validation: Numerous invalid-input scenarios (TC08-TC16) cover malformed accountId, missing/empty headers, invalid paymentMethodId, paymentAmount ranges, malformed targetDate, invalid boolean and array types.",
+              "Error handling for dependencies: Gateway and plugin failures and DB errors are covered (TC18, TC19, TC27).",
+              "Security checks: Injection and XSS attempts are explicitly tested (TC20, TC21).",
+              "Idempotency / retry recovery: Retries and duplicate-prevention regression scenarios are present (TC22, TC28).",
+              "Edge cases & limits: Tests cover extreme values and boundary behaviours (TC23, TC24, TC31-TC32 for performance/stress), and unknown query params (TC25).",
+              "Performance: Response time and resource utilization tests under normal and peak loads are present (TC30-TC32).",
+              "Behavioral correctness: Scenarios assert correct payment application logic (partial, exact, overpayment treated as capped) and use of default vs specified payment method (TC01-TC04, TC02)."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency semantics: Although TC28 and TC22 address retry/duplicate bug regressions, there is no explicit test that asserts idempotency guarantees for the POST (e.g., idempotency keys, or repeated identical requests ensuring single charge) or behavior when a retry happens before processing completes.",
+              "Large payload & request size: No explicit tests for very large query payloads or extreme numbers of pluginProperty entries beyond TC24 (TC24 is conceptual but lacks explicit size/byte-limit verification), or impact of very long string header values.",
+              "Exact response payload validation: Success responses are only asserted by status code (204). There are no tests verifying response headers (Content-Type, caching headers when relevant) or specific error body schema/fields (beyond \"contains an error message\").",
+              "Authorization/permission matrix: TC17 covers missing/invalid authentication, but there are no tests for permission scopes or role-based access (e.g., user allowed to create payments for this account vs forbidden 403).",
+              "Ambiguity in expected status codes: Several scenarios allow multiple possible status codes (e.g., TC10, TC11, TC23, TC24, TC25) rather than asserting a single expected behavior; tests should pin expected behavior to story/contract.",
+              "Concurrency race conditions around payment allocation: Partial coverage exists via retry/duplicate tests, but there are no explicit high-concurrency tests that attempt to create conflicting payments against the same unpaid invoices to assert no double-allocations (beyond TC31 which targets performance timing).",
+              "Rate limiting and throttling: Standard guideline items for handling many requests in short time are not present (no tests for 429 or throttling behavior).",
+              "Content-type and Accept header handling: No tests verify how the endpoint behaves with missing/incorrect Content-Type or Accept headers.",
+              "Audit/logging and metadata: Tests do not verify that X-Killbill-CreatedBy, Reason, Comment are persisted in audit logs or payment metadata beyond being accepted by the API."
+            ],
+            "recommendations": [
+              "Add explicit idempotency / duplicate-submission tests: simulate sending the same request twice in quick succession (and with/without a client-provided idempotency key if supported) and assert a single payment is created and the second call returns an appropriate status (204 or 409 or idempotent 200/204) and no double-charging occurs.",
+              "Create large-payload tests: submit very large pluginProperty arrays and very long header values to validate limits and proper 413/400 handling; make TC24 a concrete test with exact limits and expected outcomes.",
+              "Tighten expected status codes and response schemas: Replace ambiguous \u201c400 or 401\u201d or \u201c400 or 404\u201d expectations with the API contract values and add assertions against the error response body schema (error code, message, safe details).",
+              "Add permission/authorization tests: include 403 scenarios for authenticated users lacking permission to trigger payments for an account, and verify 401 for unauthenticated requests (TC17 expanded).",
+              "Concurrency/transactional integrity tests: simulate concurrent POSTs against the same account/invoices to assert transactional behavior and no double payments; add tests to validate locking or optimistic concurrency handling.",
+              "Rate limiting tests: add scenarios that rapidly send many requests and confirm proper 429 behavior or that the system gracefully throttles under surge.",
+              "Content negotiation and headers: add tests for missing/invalid Content-Type and Accept headers and assert consistent behavior.",
+              "Verify header propagation and audit: tests that verify X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment are stored on the payment objects or in audit logs.",
+              "Response headers & caching: while caching is less relevant for POST, assert presence/absence of headers that matter for clients (e.g., Cache-Control, Retry-After on 503/502) and any location or operation-specific headers.",
+              "Increase observability tests: include assertions that errors do not leak sensitive data and that logs/events are emitted for downstream systems (use mocks to assert interactions with plugins/gateways)."
+            ],
+            "usage": {
+              "completion_tokens": 1318,
+              "prompt_tokens": 7048,
+              "total_tokens": 8366,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

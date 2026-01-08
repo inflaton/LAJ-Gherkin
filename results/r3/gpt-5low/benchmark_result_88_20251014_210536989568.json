@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-14T21:05:36.989539",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:05:05.107326",
+    "benchmark_end_time": "2025-10-14T21:05:36.989535",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 31.882209,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Success cases with and without tagDef return 204 and remove correct tags (TC01, TC02, TC03, TC04, TC05, TC06, TC18).",
+              "Non-Existent Resource: 404 when invoice item not found (TC08).",
+              "Input Validation: 400 on invalid invoiceItemId format and malformed/partial tagDef values; 400 on missing required header (TC09, TC13, TC16, TC10).",
+              "Authorization: 401 on invalid/expired token (TC11).",
+              "Optional Headers: Reason/Comment supported and exercised, including special characters (TC03, TC18).",
+              "Resilience/Availability: 503 on service down; integration dependency unavailable handled (TC12, TC19).",
+              "Query Parameters: Presence/absence, empty, extra params, not-present-on-item, large lists exercised (TC01, TC02, TC05, TC06, TC07, TC14).",
+              "Security/Injection: Headers with malicious payload rejected (TC15).",
+              "Concurrency: High-concurrency/performance scenario covered to detect race conditions (TC17)."
+            ],
+            "gaps": [
+              "Rate Limiting: No scenario validating 429 Too Many Requests or throttle behavior.",
+              "Idempotency: No test verifying repeated DELETE calls yield idempotent outcomes (e.g., second call still 204/no-op).",
+              "Authorization/Permissions: No 403 Forbidden scenario for authenticated user lacking permission/role to remove tags.",
+              "Server Error Handling: No coverage for 500/502 transient backend failures and retry/backoff behavior.",
+              "Concurrency Specifics: No scenario where tags are modified/deleted between request dispatch and processing, asserting final consistent state and response.",
+              "Header Validation Depth: No tests for boundary lengths/allowed character sets in X-Killbill-* headers, or very long values truncation/validation.",
+              "Response Headers: No assertions on Content-Type for 204, absence of body, or correlation/request IDs in error responses.",
+              "tagDef Duplicates/Mixed Validity: No scenario where tagDef includes duplicates or a mix of valid and invalid UUIDs, clarifying whether request fails entirely or partially succeeds.",
+              "Multi-tenant/Account-Scope: No scenario ensuring invoice item belongs to the correct tenant/account and cross-tenant access is denied.",
+              "Soft Delete Behavior: Not explicitly asserted whether tag removal is irreversible vs. recoverable (audit/soft-delete semantics) as per product expectations.",
+              "Audit Outcomes: While dependency failure is tested (TC19), no validation that successful removals produce expected audit entries when service is available.",
+              "Caching/ETag: Not applicable to DELETE body, but no check that no caching headers incorrectly suggest cacheable response."
+            ],
+            "recommendations": [
+              "Add a rate limiting scenario: burst of DELETEs triggers 429 with Retry-After header; verify graceful handling.",
+              "Add idempotency tests: perform the same DELETE twice (with and without tagDef) and verify second call returns 204 and no changes.",
+              "Introduce permission tests: authenticated but unauthorized principal receives 403; verify error schema.",
+              "Simulate server-side failures: force backend DB error to return 500 and gateway failures 502; assert error body and retry headers if applicable.",
+              "Add a race-condition scenario: another client removes or adds a tag between request and processing; verify consistent end state and response code.",
+              "Extend header validation: max-length, unicode/emoji, disallowed characters, and very long Reason/Comment values; assert 400/422 as per spec.",
+              "Verify response headers: for 204 ensure no Content-Type and no body; for errors verify Content-Type, problem+json schema (if used), correlation IDs.",
+              "Test tagDef duplicates and mixed validity: duplicates ignored without error, and define behavior when array contains invalid UUID along with valid ones (all-or-nothing vs partial).",
+              "Add tenant/account isolation scenario: attempt to delete tags on an invoice item outside caller\u2019s tenant/account results in 404 or 403 per security model.",
+              "Clarify and test soft-delete/audit semantics: assert audit trail entries created with CreatedBy/Reason/Comment; verify retrieval in audit logs.",
+              "Consider 429/backoff in high-concurrency test (TC17) and measure response time SLAs; capture error budget thresholds.",
+              "Add negative for Accept header/content negotiation: unsupported Accept yields 406 if enforced, or default behavior is documented."
+            ],
+            "usage": {
+              "completion_tokens": 1644,
+              "prompt_tokens": 5394,
+              "total_tokens": 7038,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

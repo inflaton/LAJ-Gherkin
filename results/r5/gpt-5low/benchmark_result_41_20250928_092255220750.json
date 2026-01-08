@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "41_2025-09-28T09:22:55.220720",
+    "jira_id": "41",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/auditLogsWithHistory - Retrieve account audit logs with history by account id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:22:19.844807",
+    "benchmark_end_time": "2025-09-28T09:22:55.220715",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 68,
+    "average_generation_time_seconds": 35.375908,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 68,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "41_qe_sup-gpt4.1_agent-gpt4.1_1748918606.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 68,
+            "covered": [
+              "Valid Request: Happy-path retrieval returning 200 with JSON array of AuditLog objects (TC01, TC09, TC12).",
+              "Empty Response: 200 with empty array when no audit logs exist (TC02).",
+              "Query Parameters: Unsupported query parameters are ignored without breaking functionality (TC08).",
+              "Authorization: 401 errors for missing and expired/invalid tokens (TC05, TC06).",
+              "Non-Existing Resource: 404 returned for unknown accountId (TC03).",
+              "Input Validation: Robust path param validation including invalid format, partial UUID, whitespace, case, and max length (TC04, TC14, TC15, TC16, TC17).",
+              "Server Error Handling: 500 for backend/database failure (TC07) and degraded dependency behavior with 200 or 503 (TC13).",
+              "Security Hardening: SQL injection attempt in path parameter safely handled without data exposure (TC10).",
+              "Performance/Scalability: Large history performance check and concurrency load (TC09 response time, TC11 concurrent requests).",
+              "Content-Type/Produces: Verifies application/json on success (TC01)."
+            ],
+            "gaps": [
+              "Pagination: No scenarios verify pagination or result slicing for large datasets (e.g., page, pageSize), if supported or expected for large histories.",
+              "Rate Limiting/Throttling: No tests for 429 responses or backoff headers when requests exceed allowed rate.",
+              "Caching Behavior: No checks for ETag/Last-Modified, Cache-Control headers, or conditional GET (If-None-Match/If-Modified-Since) returning 304.",
+              "Authorization (Forbidden): No coverage for 403 when credentials are valid but not authorized for the account (RBAC/tenant isolation).",
+              "Error Contract: No assertions that error responses follow the standardized error schema (code, message, type) and proper Content-Type.",
+              "Response Schema Depth: While fields are checked, there is no explicit validation of nested history fields/relationships as per the AuditLog schema definition (e.g., changeType, createdDate, userName, history payload).",
+              "Observability: No verification that correlation/request IDs are returned in headers or that audit access is logged (beyond TC13 logging note)."
+            ],
+            "recommendations": [
+              "Add pagination scenarios for large audit histories: valid page/size combos, boundaries (page=0/1, max pageSize), invalid values (negative/too large), and stable ordering across pages.",
+              "Introduce rate limiting tests: burst of requests causing 429, verify Retry-After header, and that normal rate stays 200.",
+              "Add caching scenarios: server returns ETag/Last-Modified and Cache-Control; follow-up conditional GET with If-None-Match/If-Modified-Since returns 304; verify weak vs strong validators if applicable.",
+              "Add 403 authorization tests: user from another tenant or role without permissions attempting to access an account; expect 403 with proper error body.",
+              "Assert standardized error schema and Content-Type on 4xx/5xx responses; include negative contract tests for missing/extra fields.",
+              "Deepen schema validation for AuditLog entries: verify required and optional fields, types, enums (changeType), timestamps format/timezone, and linkage to historical states.",
+              "Add header/observability checks: presence and propagation of request-id/correlation-id headers; ensure logs record degraded dependency and access events per policy.",
+              "Extend performance SLO coverage: 95th/99th percentile latency assertions and payload size limits for large histories; memory/streaming behavior verification."
+            ],
+            "usage": {
+              "completion_tokens": 1470,
+              "prompt_tokens": 4397,
+              "total_tokens": 5867,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

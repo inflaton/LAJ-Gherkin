@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "40_2025-10-13T05:16:05.644290",
+    "jira_id": "40",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{childAccountId}/transferCredit - Move a given child credit to the parent level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:15:39.696080",
+    "benchmark_end_time": "2025-10-13T05:16:05.644286",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 25.948206,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "40_qe_sup-gpt4.1_agent-gpt4.1_1748918568.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Successful transfer scenarios (TC01, TC02) verify 204 success and credit movement between child and parent.",
+              "Header validation: Required header presence (TC01, TC06), optional headers (TC02), malformed/missing header formats (TC15), and unsupported headers (TC08) are tested.",
+              "Non-existing resources: Child not found and parent not found scenarios are present (TC04, TC05, TC12).",
+              "Input format validation: Malformed childAccountId / UUID validation covered (TC07).",
+              "Authorization: Unauthorized/forbidden access is covered (TC10).",
+              "Error handling for insufficient credit: Scenario for zero credit produces 400 (TC03).",
+              "Robustness / security: Injection/malicious payload in headers is tested (TC11).",
+              "Concurrency and duplicate submission: Concurrent requests and regression double-transfer are covered (TC14, TC16).",
+              "Operational failure: API unavailable / network error is covered (TC09).",
+              "Performance / scale: Large dataset performance scenario is included (TC13).",
+              "Audit/logging: Recording of transfer reason/comment is covered (TC02)."
+            ],
+            "gaps": [
+              "Produces / Content-Type assertion: Acceptance criteria states produces application/json, but tests do not assert response Content-Type or body shape for error responses; 204 may be empty but content-type should still be validated per spec.",
+              "Exact transfer semantics: Tests assert balances changed but do not assert exact transferred amounts (e.g., amount moved equals previous child credit). Edge cases like fractional amounts/currency precision are not covered.",
+              "Server-side error simulation (5xx): Tests include API down (503) but do not simulate/validate 500 Internal Server Error cases (e.g., DB failure, unexpected exceptions) or recovery behavior.",
+              "Rate limiting / throttling: No tests for rate limits / throttling behavior (the standard guidelines mention rate limiting).",
+              "Error response structure: Tests assert status codes and some messages but do not validate standard error payload schema (fields, codes, localization), nor verify consistent JSON error format.",
+              "Audit content verification: TC02 checks that reason/comment are recorded but does not verify full audit data (who, timestamp, change delta, version).",
+              "Edge cases for partial transfer: The API has no request body (N/A) but the story is ambiguous whether partial transfers are allowed; no test covers partial vs whole-credit semantics.",
+              "Concurrency granularity: While concurrent requests are tested, tests do not validate locking/transaction boundaries (e.g., database isolation levels, retries) or behavior under high contention beyond a single scenario."
+            ],
+            "recommendations": [
+              "Add assertions for response headers including Content-Type and any API-specific headers even for 204 responses to satisfy \"Produces: application/json\" in the spec.",
+              "Add tests that assert the exact amount transferred: capture pre-operation balances and assert child decrease == parent increase == expected amount (including currency/precision checks).",
+              "Introduce 5xx error simulations (e.g., forced DB failure, exception injection) to validate 500 Internal Server Error handling and that clients receive a consistent error payload.",
+              "Add rate-limiting tests (burst traffic) to ensure the API returns 429 or documented throttling responses and that retry behavior is acceptable.",
+              "Define and test an error response schema and validate it across 4xx/5xx scenarios (fields, codes, messages) to improve client interoperability.",
+              "Enhance audit/log tests to validate full audit record contents (who, when, reason, comment, amounts changed, and correlation IDs) rather than presence only.",
+              "Clarify and add tests for transfer semantics: whether transfer is all-or-nothing, partial, idempotent, and how fractional amounts are treated; add tests for those behaviors if supported.",
+              "Extend concurrency/performance tests to simulate higher contention (many concurrent requests) and verify locking, retries, and metrics; include rate and SLA assertions (p95/p99 latencies).",
+              "Add negative tests for unexpected but syntactically correct headers/values (long strings, very large numbers in headers) and validate graceful handling."
+            ],
+            "usage": {
+              "completion_tokens": 1830,
+              "prompt_tokens": 4953,
+              "total_tokens": 6783,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

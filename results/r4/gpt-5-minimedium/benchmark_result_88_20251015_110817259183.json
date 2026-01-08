@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-15T11:08:17.259150",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:07:52.500015",
+    "benchmark_end_time": "2025-10-15T11:08:17.259144",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 24.759129,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Success cases for removing all tags and removing specific tags are covered (TC01, TC02).",
+              "HTTP Success Code: 204 success response is asserted for successful operations (TC01-TC07, TC14, TC18).",
+              "Empty Response / No-op Deletion: Case where invoice item has no tags is covered (TC04).",
+              "Non-Existent Resource: 404 behavior when invoiceItemId does not exist is covered (TC08).",
+              "Invalid invoiceItemId format: 400 behavior for malformed/non-UUID ID is covered (TC09).",
+              "Required headers / Authentication: Missing X-Killbill-CreatedBy and invalid authentication token cases are covered (TC10, TC11).",
+              "Optional headers: X-Killbill-Reason and X-Killbill-Comment presence and special-character handling are covered (TC03, TC18).",
+              "Query parameter validation: Various tagDef permutations are tested \u2014 subset removal, tag IDs not present, empty tagDef, malformed UUIDs, partially specified arrays, very large lists, and extra/unexpected params (TC02, TC05, TC06, TC07, TC13, TC14, TC16).",
+              "Concurrency / Performance: High concurrency scenario intended to detect race conditions is included (TC17).",
+              "Service availability and integration failure handling: KillBill service unavailable and dependent integration (audit) unavailable are included (TC12, TC19).",
+              "Security input validation: XSS/injection attempts in headers are explicitly covered (TC15).",
+              "Accessibility and documentation: Error message clarity and documentation accessibility are considered (TC20)."
+            ],
+            "gaps": [
+              "Soft-delete semantics: No test verifies whether tag removals are soft deletes (e.g., a deleted flag / historical record) vs. permanent deletions and the expected behavior on subsequent reads beyond \"no tags\".",
+              "Idempotency / repeated deletes: No explicit test that repeated DELETEs on the same invoiceItem/tags are idempotent (e.g., DELETE twice yields same 204 or well-defined behavior).",
+              "Authorization vs Authentication: There is coverage for invalid/expired token and missing createdBy header, but no test for an authenticated user lacking permission (403 Forbidden) or role-based access control scenarios.",
+              "Response headers and content-type: Tests do not assert response headers (e.g., Content-Type, Cache-Control, ETag) even though \"Produces: application/json\" is in the story; 204 responses are empty but header expectations are not validated.",
+              "Error response body/schema: Scenarios assert that an error message is present for 4xx/5xx cases, but there are no tests validating the error response schema/fields or consistent error codes/messages beyond presence.",
+              "Exact limits and boundary values: TC14 mentions very large number of tagDef values, but there are no precise boundary tests (e.g., exact max query parameter length, max array size) that determine when the system should return 413 vs 204.",
+              "Rate limiting / throttling: No tests for rate limiting, burst traffic handling, or how repeated rapid calls are throttled.",
+              "Soft failure semantics for integrations: TC19 permits \"204 or 207 depending on design\" \u2014 there is no deterministic test ensuring partial-failure reporting or audit-trail behavior when downstream integrations fail.",
+              "DB state verification depth: Tests assert \"tags removed\", but there are no low-level checks (audit entries, event publishing, or DB row assertions) to verify side effects beyond API response.",
+              "Caching behavior: No scenarios validate caching headers or client caching behavior (ETag/If-None-Match flows)."
+            ],
+            "recommendations": [
+              "Add explicit idempotency tests: call DELETE twice for the same invoice item/tags and assert deterministic behavior (typically 204 on both or 404/204 depending on design).",
+              "Add soft-delete / persistence tests: verify whether removed tags remain in an audit/history table or are permanently deleted; validate read-after-delete behavior from API and DB.",
+              "Add authorization tests (403): include scenarios where a valid token belongs to a user without permission to delete tags to ensure proper 403 Forbidden responses.",
+              "Validate response headers and content-type: assert Content-Type, Cache-Control, and any audit-related headers even for 204 responses where applicable.",
+              "Add error response schema checks: for 4xx/5xx responses assert consistent error object structure, codes, and human-readable messages.",
+              "Add precise boundary tests for tagDef size and query length: determine the exact limits (e.g., max num UUIDs, URL length) and create tests that assert 413 or other defined behavior at those limits.",
+              "Add rate-limiting / throttling tests: simulate bursts of DELETE requests and assert correct 429/limited behavior or that system remains stable.",
+              "Strengthen integration-failure tests: make the dependent service (audit, events) fail and assert deterministic API behavior and error reporting (not an ambiguous \"204 or 207\").",
+              "Add deeper side-effect verification: check audit logs, emitted events, and DB rows to ensure the operation is fully completed and recorded.",
+              "Add a test for forbidden content in headers and ensure the system returns consistent validation errors (and consider normalizing error code expectations between 400 vs 422)."
+            ],
+            "usage": {
+              "completion_tokens": 2389,
+              "prompt_tokens": 5394,
+              "total_tokens": 7783,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

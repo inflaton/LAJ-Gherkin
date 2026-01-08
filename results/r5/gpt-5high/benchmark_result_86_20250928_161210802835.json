@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "86_2025-09-28T16:12:10.802809",
+    "jira_id": "86",
+    "jira_title": "Implement/Test API: GET /1.0/kb/invoiceItems/{invoiceItemId}/tags - Retrieve invoice item tags",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T16:09:58.951082",
+    "benchmark_end_time": "2025-09-28T16:12:10.802805",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 83,
+    "average_generation_time_seconds": 131.851723,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 83,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "86_qe_sup-gpt4.1_agent-gpt4.1_1748921548.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 83,
+            "covered": [
+              "Valid Request: Positive flows return HTTP 200 with minimal parameters, with includedDeleted=true, with audit=FULL and MINIMAL, and with all optional parameters combined; Tag schema is validated.",
+              "Empty Response: When no tags exist, the API returns HTTP 200 with an empty JSON array.",
+              "Query Parameters: Strong coverage of valid/invalid combinations (missing required accountId -> 400, invalid UUIDs -> 400, invalid includedDeleted -> 400, invalid audit value -> 400, extra unexpected parameters ignored).",
+              "Error Handling: 404 for non-existent invoice item and account; 400 for invalid IDs/parameters; 503 when backend is unavailable.",
+              "Authorization: 401 for missing/invalid token is covered.",
+              "Security: Negative tests for SQL injection and XSS to ensure no leakage or script execution.",
+              "Performance/State: Normal and peak load scenarios; empty and partially populated database variations.",
+              "Integration: Audit logging service success and failure paths are exercised.",
+              "Pagination: Not applicable for this endpoint (no pagination parameters in the spec)."
+            ],
+            "gaps": [
+              "Default behaviors not asserted: includedDeleted default=false is not validated when both active and deleted tags exist; audit default=NONE (and explicit audit=NONE) is not tested.",
+              "Account scoping: No test where invoiceItemId exists but does not belong to the provided accountId; expected 404 per parameter contract.",
+              "Headers/Content negotiation: Content-Type: application/json header is not asserted; no checks for Accept header behavior (e.g., non-JSON Accept leading to 406) if applicable.",
+              "Authorization breadth: 403 Forbidden (authenticated but not authorized to the account/tenant) is not covered.",
+              "Rate Limiting: No scenarios to validate throttling/429 Too Many Requests and related headers.",
+              "Caching Behavior: No validation of ETag/Last-Modified and Cache-Control (or explicit no-store) for GET responses.",
+              "Error schema consistency: Tests look for generic error messages but do not assert a standard error response structure (e.g., code, message, details) if one exists."
+            ],
+            "recommendations": [
+              "Add a scenario where an item has both active and deleted tags and includedDeleted is omitted; assert deleted tags are excluded by default.",
+              "Add scenarios for audit default behavior: (1) omit audit and assert no audit info (NONE), (2) audit=NONE explicitly and assert no audit fields.",
+              "Add an account scoping test: invoiceItemId exists but belongs to a different accountId -> expect 404 (or the system-specific response).",
+              "Assert response headers: Content-Type=application/json; optionally test Accept negotiation (requesting non-supported media type -> 406) if the API enforces it.",
+              "Introduce rate limiting tests: burst requests exceeding limits should yield 429 with appropriate Retry-After/RateLimit headers.",
+              "Validate caching behavior: check for ETag/Last-Modified and Cache-Control headers; if responses must not be cached, verify no-store/no-cache directives.",
+              "Add a 403 Forbidden scenario for an authenticated user lacking access to the target account/tenant.",
+              "Where applicable, assert a standard error schema (code/message) rather than only message presence.",
+              "Consider a large dataset scenario (many tags on an item) to complement performance tests and verify response correctness without pagination."
+            ],
+            "usage": {
+              "completion_tokens": 7305,
+              "prompt_tokens": 6114,
+              "total_tokens": 13419,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6592,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

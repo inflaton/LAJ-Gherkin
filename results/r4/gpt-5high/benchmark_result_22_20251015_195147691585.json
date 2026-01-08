@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-10-15T19:51:47.691557",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:50:13.448327",
+    "benchmark_end_time": "2025-10-15T19:51:47.691553",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 94.243226,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT guideline \u2014 Valid Request: Multiple success scenarios verify 204 and CBA recalculation across diverse account states (zero, negative, large positive, multiple transactions) [TC01\u2013TC07, TC12, TC23].",
+              "PUT guideline \u2014 Non-Existing Resource: Proper 400 handling for unknown accountId, invalid UUID format, overly long accountId, and empty DB [TC08\u2013TC09, TC16\u2013TC17].",
+              "PUT guideline \u2014 Concurrency Issues: Concurrent rebalancing requests return 204 and maintain consistent CBA [TC18].",
+              "Headers: Required X-Killbill-CreatedBy enforced (missing/empty/whitespace/null -> 400) [TC10\u2013TC11, TC25\u2013TC26]; optional Reason/Comment accepted [TC02]; unsupported headers tolerated [TC12]; malicious header inputs handled safely [TC15, TC24].",
+              "Operational robustness: Transient network failures retried successfully [TC13]; service unavailability returns 503 with appropriate message [TC14].",
+              "Protocol correctness: Unsupported method guarded with 405 [TC22]; unexpected query parameters tolerated without breaking success path [TC23].",
+              "Performance NFRs: Response time under normal and peak load validated [TC20\u2013TC21].",
+              "Security: SQL injection and XSS attempts do not succeed and do not leak internals [TC15, TC24].",
+              "Story acceptance criteria: Required/optional headers, UUID path param validation, no request body, 204 on success, and 400 for invalid account are all exercised."
+            ],
+            "gaps": [
+              "Explicit idempotency: Repeating the exact same PUT sequentially (no state changes between calls) should consistently return 204 and make no further adjustments.",
+              "Authorization negatives: No scenarios for missing/expired auth token (401) or insufficient privileges (403).",
+              "Response semantics for 204: No assertions that the response body is empty, Content-Length is 0, and headers (e.g., Content-Type) are appropriate given 204 and the spec\u2019s \"Produces: application/json\" note.",
+              "Structured error model: Tests assert error messages but don\u2019t validate a consistent error schema (e.g., code, message, type) for 400 responses.",
+              "Request body handling: Spec says body N/A; no test sending an unexpected body (with/without Content-Type) to confirm it is rejected (415) or ignored per API contract.",
+              "Header field constraints: No boundary tests for max length/charset of X-Killbill-CreatedBy/Reason/Comment (e.g., very long Unicode/UTF-8 values).",
+              "Auditability: No verification that CreatedBy/Reason/Comment are recorded in audit/audit logs or events for traceability.",
+              "Rate limiting/throttling: No coverage for 429 or similar behavior under burst traffic distinct from performance timing.",
+              "Data correctness oracle: Success scenarios assert \"rebalanced\" but don\u2019t compute and validate the exact expected CBA from underlying transactions via a read (GET) or ledger check."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: invoke the same PUT multiple times sequentially; verify 204 each time and no additional CBA changes after the first call.",
+              "Add negative authorization tests: missing token -> 401; invalid/expired token -> 401; authenticated but unauthorized user -> 403.",
+              "Assert 204 response semantics: ensure no body is returned, Content-Length is 0, and clarify/validate expected headers given \"Produces: application/json\".",
+              "Validate structured error payloads for 400: assert stable schema fields (e.g., error type/code/message) and that messages don\u2019t leak stack traces.",
+              "Add a test that sends an unexpected request body with and without Content-Type; define expected behavior (reject with 415 vs ignore) and assert it.",
+              "Introduce header boundary tests: extremely long CreatedBy/Reason/Comment values, mixed Unicode, and invalid charset; expect 400 or truncation per spec.",
+              "Add an audit trail verification: after a successful rebalance, fetch audit records/events to ensure CreatedBy/Reason/Comment are persisted correctly.",
+              "Include a rate-limiting/throttling test: burst of requests to a single account; expect 429 or documented behavior.",
+              "Strengthen data validation: compute expected CBA from known transactions before/after and assert exact value via a GET or ledger query, not just \"rebalanced\"."
+            ],
+            "usage": {
+              "completion_tokens": 5934,
+              "prompt_tokens": 5515,
+              "total_tokens": 11449,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4992,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

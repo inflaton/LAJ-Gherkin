@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-09-28T05:52:10.219028",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:51:29.273539",
+    "benchmark_end_time": "2025-09-28T05:52:10.219023",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 40.945484,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Happy path: Successful transfer with minimum and optional parameters (TC01, TC02).",
+              "Request validation: Path param format (bundleId) and invalid format handling (TC08); required body presence (accountId) and missing body handling (TC12); invalid query params (requestedDate, billingPolicy) covered (TC09, TC10).",
+              "Headers: Required X-Killbill-CreatedBy presence tested (TC01, TC11); optional headers Reason and Comment exercised including max length (TC02, TC21).",
+              "Billing policy permutations: START_OF_TERM, END_OF_TERM, IMMEDIATE covered (TC03).",
+              "Requested date coverage: valid date (today) and invalid format (TC04, TC09).",
+              "Plugin properties: multi-value, empty array, large payload and XSS validation covered (TC05, TC18, TC20, TC16).",
+              "Error scenarios: 404 for missing bundle/target account (TC06, TC07, TC22, TC23), 400 for invalid inputs (TC08, TC09, TC10, TC12, TC15), 401 unauthorized (TC13), 503/500 service/unavailable & integration errors (TC14, TC24).",
+              "Response expectations: Success code 201 and Location header presence asserted (TC01, TC02); response body asserted to be Bundle object on success.",
+              "Edge/Non-functional: Concurrency, performance and resource tests included (TC27\u2013TC30); retry on transient network (TC17).",
+              "Regression and compatibility cases: transfer to same account (TC25) and old-client missing optional fields (TC26)."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency: No explicit test for duplicate POSTs (same request submitted twice) and expected behavior (e.g., idempotent response or conflict).",
+              "AccountId format validation: Tests assert missing/SQL-injection case but there's no explicit test that accountId follows UUID pattern (like bundleId format test).",
+              "Content-Type handling: No tests for missing/incorrect Content-Type request header or response Content-Type (application/json) validation.",
+              "Location header validation: Presence is tested but not strict validation of the Location value/URL pattern or correctness beyond presence.",
+              "Response schema field-level assertions: Tests assert 'valid Bundle object' but lack detailed checks for specific fields/values in the returned Bundle (e.g., accountId changed, subscription states, expected fields).",
+              "RequestedDate semantics beyond 'today' and invalid format: No tests for requestedDate in the past, future, or boundary conditions (e.g., end-of-day semantics).",
+              "Concurrent conflict on same resource: Concurrency tests use multiple bundleIds; missing test for concurrent transfer attempts on the same bundle (race-condition leading to inconsistent state).",
+              "403 / authorization roles: No tests for forbidden access (403) or role-based access control\u2014only 401 (unauthenticated) is covered.",
+              "Duplicate pluginProperty type validation: No tests for malformed pluginProperty types (e.g., string instead of array) or invalid property shapes beyond XSS.",
+              "Duplicate-submission / replay protection & idempotency tokens: Not covered (if API expects or supports idempotency headers)."
+            ],
+            "recommendations": [
+              "Add a Duplicate Submission (idempotency) test: submit the same transfer request twice and assert expected behavior (either second call returns 201 with same resource or a 409 / well-documented response).",
+              "Validate accountId format: Add a test where accountId is not a UUID to expect 400, mirroring the bundleId format test coverage.",
+              "Test Content-Type behavior: include tests for missing/incorrect Content-Type request header and verify response Content-Type is application/json and well-formed error body when applicable.",
+              "Tighten Location validation: assert the Location header matches the expected URL pattern and that the returned resource at that URL reflects the transfer.",
+              "Add field-level assertions for Bundle response: verify returned Bundle.accountId equals target accountId, relevant timestamps (effective date) match requestedDate/billingPolicy semantics, and other key Bundle fields are present and valid.",
+              "Expand requestedDate tests: cover past and future requestedDate edge cases and boundary times to ensure correct effective-date semantics.",
+              "Add concurrency test on the same bundle: simulate concurrent transfers for the same bundle to detect race conditions and ensure one consistent outcome or proper conflict handling.",
+              "Add tests for authorization/roles (403): cover authenticated-but-forbidden scenarios where token is valid but not authorized to perform transfers.",
+              "PluginProperty schema validation tests: send pluginProperty with wrong types/shape and assert 400 and helpful error messages.",
+              "If the API or infra supports idempotency tokens or replay protection, add tests for those headers and behavior.",
+              "Consider adding a duplicate-submission/performance combination test to ensure rate limiting and throttling policies behave as expected under repeated/post storms (aligns with POST and GET rate-limiting guidance)."
+            ],
+            "usage": {
+              "completion_tokens": 2324,
+              "prompt_tokens": 7734,
+              "total_tokens": 10058,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

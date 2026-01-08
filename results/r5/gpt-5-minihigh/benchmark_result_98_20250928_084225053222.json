@@ -1,0 +1,101 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "98_2025-09-28T08:42:25.053190",
+    "jira_id": "98",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/customFields - Add custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T08:40:44.624580",
+    "benchmark_end_time": "2025-09-28T08:42:25.053186",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 100.428606,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "98_qe_sup-gpt4.1_agent-gpt4.1_1748922413.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Happy path / valid payloads: Success scenario(s) asserting HTTP 201 and response JSON array of CustomField objects (TC01, TC03, TC04, TC05).",
+              "Header handling: Required X-Killbill-CreatedBy enforced and optional X-Killbill-Reason / X-Killbill-Comment exercised (TC02, TC09).",
+              "Path and resource validation: UUID-format validation and non-existent payment handling (expected 400 for bad format, 404 for not found) (TC10, TC11).",
+              "Request-body validation: malformed JSON, missing required properties, extra/unexpected fields handled (TC08, TC16, TC06).",
+              "Security validation: SQL injection/XSS payloads and sanitation expectations (TC14).",
+              "Authentication/authorization negative case: missing/invalid auth token returns unauthorized (TC12).",
+              "Service-error handling: dependent service / database unavailable scenario producing 503 (TC13).",
+              "Large payload & stress: near-maximum payload size tested; acceptance of 201 or 413 depending on implementation (TC15).",
+              "Concurrency and race conditions: concurrent posts to same payment covered (TC19).",
+              "Performance: normal and peak load performance assertions included (TC22, TC23).",
+              "Edge cases and regressions: duplicate field name handling and unicode characters covered (TC20, TC21).",
+              "Query-parameter strictness: unexpected query param handling exercised (TC17).",
+              "Timeout/network resilience: high-latency/timeout behavior considered (TC18).",
+              "Integration / persistence: created fields are verified persisted and retrievable; cross-system reflection checked (TC24, TC25).",
+              "Documentation/accessibility: API docs accessibility scenario included (TC26)."
+            ],
+            "gaps": [
+              "Content-Type / media-type negative tests: no explicit test that a missing or incorrect Content-Type (e.g., not application/json) returns 415 Unsupported Media Type. The background only assumes Content-Type is set. (Missing test coverage)",
+              "Response headers & content-negotiation: no assertions that the API returns the correct Content-Type response header or caching headers (e.g., application/json, ETag, Cache-Control).",
+              "500 Internal Server Error: only 503 (service unavailable) is modelled; there is no explicit test for 500 Internal Server Error behaviour or error format when the server fails unexpectedly.",
+              "Idempotency / duplicate submissions: no test that resending the same request behaves correctly (creates duplicate resources, is idempotent, or yields a specific error like 409).",
+              "Atomicity / partial-failure semantics: no test that a multi-item array is treated atomically (if one CustomField in the array is invalid, does the entire request roll back?).",
+              "Fine-grained schema validation: no tests for invalid data types, field length limits, or invalid enum values for objectType \u2014 e.g., submitting numeric types where strings expected or overly-long fieldValue strings.",
+              "Permission / authorization (403): tests cover unauthenticated (401) but not authenticated-but-forbidden scenarios (403) for insufficient privileges. ",
+              "Duplicate conflict with existing fields: while duplicate names in a single request are tested, there is no explicit test for adding a CustomField whose name already exists on the target payment (conflict semantics).",
+              "Rate limiting / throttling: no tests to trigger 429 or verify server rate-limiting behavior under extremely high request rates (distinct from performance SLA tests).",
+              "Accept header / content-negotiation: no tests for Accept header handling or for unsupported Accept values.",
+              "Ambiguous expected outcomes in several scenarios: multiple scenarios allow either 201 or 400 (TC06, TC07, TC17, TC20). These create test ambiguity unless API behavior is explicitly defined.",
+              "Response body schema strictness: tests assert presence of fields but do not assert the full schema (types, additional metadata, created timestamps, or location headers)."
+            ],
+            "recommendations": [
+              "Add explicit negative tests for missing/incorrect Content-Type (expect 415) and for unsupported Accept header values.",
+              "Add assertions on response headers: ensure responses include Content-Type: application/json and, where applicable, caching headers (ETag / Cache-Control) consistent with API contract.",
+              "Add a test to simulate a server-side exception (500) to verify error response format and monitoring hooks; keep 503 test but also include 500 behaviour.",
+              "Introduce idempotency/duplicate-submission tests: send the same POST twice and assert behavior (duplicate created vs safe-guard / dedupe / specific error).",
+              "Add atomicity tests for multi-item requests: include a payload where one CustomField is invalid and assert whether the whole request is rejected or partially applied, and check rollback semantics.",
+              "Add schema constraint tests: invalid data types (e.g., numeric fieldName), max-length boundary tests for fieldName/fieldValue, and invalid objectType enumerations to ensure robust validation and informative errors.",
+              "Add a 403 forbidden test case to cover authenticated users who lack permission to modify the target payment.",
+              "Add tests specifically for conflict with existing custom fields (attempt to create a field with the same name as an existing one) and assert expected conflict handling (400/409 or creation of duplicate depending on spec).",
+              "Add explicit rate-limiting / throttling tests that generate enough traffic to trigger 429 responses or observe server throttling behaviour.",
+              "Remove ambiguous assertions that permit either 201 or 400 by clarifying API contract; update tests to assert the single expected behavior so CI failures indicate regressions.",
+              "Tighten response-body assertions to validate full JSON schema: types, required properties, absence of unexpected properties, and any metadata (id, createdDate, createdBy) returned by the API.",
+              "Add checks for logging/audit fields if the API is expected to record X-Killbill-CreatedBy / Reason / Comment in the created resource or in headers."
+            ],
+            "usage": {
+              "completion_tokens": 8606,
+              "prompt_tokens": 6845,
+              "total_tokens": 15451,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7360,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

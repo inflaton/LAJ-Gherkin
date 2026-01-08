@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-10-14T14:22:00.320741",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:20:58.930712",
+    "benchmark_end_time": "2025-10-14T14:22:00.320735",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 70,
+    "average_generation_time_seconds": 61.390023,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 70,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 70,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01, TC02, TC19, TC22) validate successful retrievals and response body Product object for valid parameter combinations.",
+              "Empty Response / No Data: TC11 covers database-empty behavior and TC13 covers date-before-subscription (no product).",
+              "Query Parameters: Many combinations are tested \u2014 subscriptionId only (TC02), requestedDate only (TC03), both provided (TC01), omitted parameters (TC04/TC07), invalid formats (TC06, TC08), extra params (TC14).",
+              "Authorization: TC09 explicitly tests unauthorized access and expected 401.",
+              "Input validation & error handling: Scenarios for invalid UUID (TC08), invalid date format (TC06), SQL injection/XSS attempts (TC16, TC17), non-existent subscription (TC05), and missing params (TC07) cover a range of validation/error cases.",
+              "Edge cases & regressions: Boundary date handling (TC18), future dates (TC12), concurrency/performance under load (TC15, TC20), and regression/backward compatibility (TC19) are included.",
+              "Integration & dependency failures: TC21 covers downstream service unavailability and appropriate error mapping (502/503).",
+              "Security & robustness: Tests include common injection and XSS attack vectors (TC16, TC17) and expect sanitized responses/no sensitive info."
+            ],
+            "gaps": [
+              "Pagination: No scenarios address pagination or large result-set traversal (GET guideline: pagination). The API could return multiple products (e.g., when requestedDate omitted) and pagination behavior is unspecified/untested.",
+              "Caching behavior / HTTP headers: No tests validate caching-related headers (ETag, Cache-Control, Last-Modified) or behavior for conditional requests (304 Not Modified).",
+              "Rate limiting / Throttling: Although performance under load is present (TC15/TC20), there are no tests for rate limiting responses (429) or throttling policies.",
+              "Explicit content-type and header variations: Only TC01 mentions Content-Type; there is no systematic validation of response headers (Content-Type across cases, character sets, or security headers).",
+              "Ambiguity / Multiple-matching-resources handling: TC03 and TC04 leave allowed outcomes vague (\"200 or appropriate error if ambiguous\"). There are no deterministic tests asserting how the API resolves ambiguous requests (e.g., multiple subscriptions matching requestedDate) or whether it returns a list vs. error.",
+              "Positive assertion of error codes per spec: The story specifies >=400 for not found/invalid; some scenarios allow multiple possible codes (e.g., TC03, TC04, TC12), which weakens deterministic coverage of accepted API contract. Tests should assert the exact expected status per business rules.",
+              "Rate-limit / security logging and monitoring: No tests verify that suspicious input attempts (TC16/TC17) are logged/monitored or that failed auth attempts trigger appropriate audit trails (out of scope for functional but often required)."
+            ],
+            "recommendations": [
+              "Add pagination tests: Create scenarios where requestedDate is omitted or matches multiple subscriptions/products and verify pagination parameters (limit, offset/page) and response shape, including next/prev links where applicable.",
+              "Add caching header tests: Validate ETag, Cache-Control, Last-Modified headers and behavior for conditional GETs (If-None-Match / If-Modified-Since) expecting 304 responses when appropriate.",
+              "Add rate-limiting tests: Simulate bursts of requests to assert 429 responses and retry-after headers when limits are exceeded, and verify normal behavior when under the limit.",
+              "Tighten ambiguous scenarios: Replace \u201c200 or error\u201d style steps (TC03, TC04, TC12) with deterministic acceptance criteria reflecting the API contract (e.g., define whether multiple matches return a list, the first match, or an error). Add explicit assertions for exact status codes expected per business rules.",
+              "Assert response headers consistently: Add checks for Content-Type, charset, and security headers (e.g., X-Content-Type-Options) across success and error responses.",
+              "Add negative integration tests for dependent services: Expand TC21 to check exact error mapping (502 vs 503) and timeouts; include fallback behavior if the catalog service is degraded.",
+              "Add tests for logging/audit behavior for security-related requests: Ensure malicious inputs and authentication failures do not leak sensitive error details and are handled/recorded as required."
+            ],
+            "usage": {
+              "completion_tokens": 1125,
+              "prompt_tokens": 5044,
+              "total_tokens": 6169,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

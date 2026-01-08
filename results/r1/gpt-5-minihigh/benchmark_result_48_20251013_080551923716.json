@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-13T08:05:51.923690",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:03:51.826198",
+    "benchmark_end_time": "2025-10-13T08:05:51.923686",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 120.097488,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Core PUT success path: TC01 verifies sending PUT with no body returns 204 and marks the host in rotation (covers \"Valid Request\" for PUT).",
+              "Idempotency: TC02 verifies PUT when host is already in rotation returns 204 and leaves state unchanged.",
+              "Authentication & authorization: TC03 (401), TC04 (403) and TC09 (missing auth) cover authentication and permission failure modes.",
+              "Method contract: TC06 validates 405 Method Not Allowed when using GET on the PUT endpoint.",
+              "Service availability: TC05 covers endpoint/service unreachability with a 503 response.",
+              "Payload/header robustness: TC07 and TC08 cover unexpected non-empty bodies and extra headers being tolerated.",
+              "Resilience & non-functional: TC10 (degraded performance/timeout), TC13 (network interruption & retry) and TC14 (concurrent requests) exercise timeouts, retries and concurrency behavior.",
+              "Regression & security baseline: TC11 (regression) and TC12 (injection attempt) add regression and basic security coverage.",
+              "Response semantics: Several scenarios assert empty 204 response body and presence of error message bodies for failure cases (partial coverage of response-body expectations)."
+            ],
+            "gaps": [
+              "Content-Type / \"produces: application/json\" not asserted: no test explicitly validates response Content-Type on success or error responses.",
+              "Missing explicit 4xx/5xx coverage: there are no dedicated tests for generic 400 Bad Request or 500 Internal Server Error / simulated server failures (acceptance requires >=400 on errors).",
+              "Error response schema not validated: tests check that an error message exists but do not validate JSON error payload structure, fields or consistency.",
+              "Rate limiting / throttling not tested: no tests for sustained high request rates or expected 429 behavior.",
+              "Large payload handling absent: no tests for very large request bodies or resource-exhaustion scenarios.",
+              "Concurrent conflicting operations not covered: tests exercise many concurrent PUTs but do not cover conflicts between PUT and other state-changing ops (e.g., concurrent remove/out-of-rotation operations) or final-state consistency in those cases.",
+              "Persistence / cluster consistency and audit not covered: no tests verify that the updated host state persists across restarts or is visible across cluster nodes, and no checks for audit/log entries of the admin action.",
+              "Edge cases about host availability: background assumes at least one host; no tests cover behavior when zero hosts exist or when host selection/identifiers are ambiguous."
+            ],
+            "recommendations": [
+              "Assert Content-Type and response headers: add tests that validate Content-Type (application/json) for error responses and confirm 204 responses are empty and follow header semantics per spec.",
+              "Add 400 and 500 tests: simulate malformed request scenarios (if applicable) and server-side failures (e.g., DB or dependency failure) to ensure the API returns appropriate >=400 codes and well-formed JSON error bodies.",
+              "Validate error response schema: introduce assertions for a canonical error JSON schema (fields like error code, message, details) across all error paths.",
+              "Add rate-limiting/throttling tests: stress the endpoint with bursts and sustained traffic to verify throttling behavior or graceful degradation (expect 429 or documented behavior).",
+              "Large payload tests: send very large request bodies (and streaming/chunked payloads if supported) to verify the server handles or rejects them safely.",
+              "Conflict/concurrency tests: add scenarios where PUT is concurrent with other state-changing operations (e.g., remove/out-of-rotation) to detect race conditions and verify deterministic final state.",
+              "Persistence and cluster tests: add checks that the host state is persisted (survives restarts) and is visible across nodes in a clustered deployment; add audit/log validation if admin actions must be logged.",
+              "Harden security tests: expand TC12 into concrete injection cases (CRLF, header smuggling, XSS/SQL-like payloads) and assert no side-effects and sanitized error responses.",
+              "Clarify and test method semantics: add tests for HEAD/OPTIONS (and CORS if applicable) and confirm the endpoint follows the full HTTP contract and API documentation where relevant."
+            ],
+            "usage": {
+              "completion_tokens": 7531,
+              "prompt_tokens": 3274,
+              "total_tokens": 10805,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6656,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

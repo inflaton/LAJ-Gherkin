@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-15T11:41:29.455378",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:40:25.128989",
+    "benchmark_end_time": "2025-10-15T11:41:29.455374",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 64.326385,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Core success flows: removal of all custom fields when no customField param is present (TC01), removal of specified custom fields (TC02), single-field removal (TC03), and no-op when there are no custom fields (TC04).",
+              "Query parameter validation and edge-cases: malformed customField IDs (TC10), large lists of IDs (TC12), duplicate IDs tolerance (TC18), partial/mixed valid+invalid lists (TC17), and extra/unexpected query parameters (TC11).",
+              "Path parameter validation and resource existence: valid invoiceItemId handling and invalid format (TC07) and non-existent resource (404) handling (TC08).",
+              "Header handling: required header present/absent (X-Killbill-CreatedBy in TC06/TC09), optional headers present (X-Killbill-Reason/X-Killbill-Comment in TC05), header length and formatting regression tests (TC16, TC20).",
+              "Status codes and error handling: success (204) and expected error codes for invalid input (400), not found (404), unauthorized (401, TC19), and service unavailable (503, TC14) are exercised.",
+              "Security and input validation: injection attempt in customField parameter (TC15) covered.",
+              "Performance/scale considerations: heavy-load response time expectations (TC13) and large batch deletes (TC12) are present.",
+              "Idempotency/basic repeat/delete-no-op behavior: deleting when there are no fields returns 204 (TC04), and duplicate IDs in a single request are tolerated (TC18).",
+              "Response body expectations: tests consistently assert empty response body on success (204) as per scenarios."
+            ],
+            "gaps": [
+              "Concurrency and race conditions: No tests simulate parallel/conflicting delete operations (e.g., two clients deleting the same custom fields concurrently) or verify locking/transactional behavior.",
+              "Explicit idempotency across repeated requests: While TC04 hints at no-op behavior, there is no explicit test that sends the same DELETE twice in sequence and verifies consistent outcomes and lack of side effects.",
+              "Soft-delete vs hard-delete semantics: Tests do not verify whether custom fields are hard-deleted or soft-deleted (no DB/audit verification).",
+              "Response headers and metadata: Tests do not assert Content-Type, application/json production on errors, caching headers, correlation IDs, or other response headers. The story mentions \"Produces: application/json\" but tests do not validate header behavior.",
+              "Query parameter format variants and encoding: The spec expects collectionFormat=multi; there are no tests for alternate client encodings (comma-separated lists, JSON arrays, empty customField param, or URL-encoding edge-cases).",
+              "Error response schema: Tests assert presence of error messages but do not validate a consistent, machine-readable error schema (error code, type, field-level details).",
+              "Authorization scope/permission: Only expired/invalid token (401) is covered (TC19). Role-based access control and 403 Forbidden scenarios are not covered.",
+              "Rate limiting/throttling: TC13 checks heavy load response time but there are no tests for rate limiting (429) or server throttling behavior.",
+              "General server 500 behavior: Only 503 is considered (TC14). No explicit tests simulate internal server errors (500) to assert graceful handling.",
+              "Audit/logging persistence: No tests confirm that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs or resource history."
+            ],
+            "recommendations": [
+              "Add concurrency tests that fire parallel DELETE requests (and mixed operations) against the same invoice item to validate race conditions, locking behavior, and correct final state.",
+              "Add explicit idempotency tests: send the identical DELETE request multiple times (sequentially) and assert 204 each time and that the resource state remains consistent.",
+              "Add DB-level or audit verification tests to confirm whether custom fields are soft-deleted or permanently removed, and that X-Killbill-CreatedBy/Reason/Comment are persisted in audit/history.",
+              "Add assertions for response headers: verify Content-Type for errors, presence/absence of Content-Type for 204 responses per API contract, and any correlation or caching headers required by platform standards.",
+              "Add tests for query parameter format variants: repeated customField params (multi), comma-separated lists, empty values, URL-encoded values, and confirm server handles each as expected.",
+              "Validate error response schema in negative tests: assert structured error fields (code/type/message and per-field validation details) to make automated error handling reliable.",
+              "Add role/permission tests to cover 403 Forbidden scenarios where authenticated users lack necessary privileges.",
+              "Add rate-limiting/throttling tests that trigger and assert 429 responses or other configured throttling behavior.",
+              "Add tests simulating generic internal server failures (500) to ensure consistent error reporting and retries/backoff behavior where applicable.",
+              "Clarify the API contract around \"Produces: application/json\" vs 204 empty responses with the product/API team and update tests accordingly (then assert agreed behavior)."
+            ],
+            "usage": {
+              "completion_tokens": 6567,
+              "prompt_tokens": 5523,
+              "total_tokens": 12090,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5504,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "99_2025-09-28T04:52:31.744140",
+    "jira_id": "99",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoicePayments/{paymentId}/customFields - Modify custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:52:15.062777",
+    "benchmark_end_time": "2025-09-28T04:52:31.744119",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 16.681342,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "99_qe_sup-gpt4.1_agent-gpt4.1_1748922485.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01-TC04, TC17) verify correct 204 behaviour and DB updates for valid payloads and header combinations.",
+              "Path parameter validation: TC05 verifies invalid paymentId format (400); TC06 verifies valid-format-but-not-found (404).",
+              "Required header validation: TC07 verifies missing X-Killbill-CreatedBy results in a 4xx error.",
+              "Request body validation: TC08, TC09, TC10 cover missing body, malformed JSON, and invalid CustomField objects resulting in 4xx responses.",
+              "Authorization: TC11 covers missing/invalid authentication token (401).",
+              "Server error handling: TC12 simulates database/unavailable dependency and expects 500.",
+              "Edge cases & performance: TC14, TC15, TC20 cover very large numbers of fields, maximum length values, and large payloads.",
+              "Security validation: TC13 checks injection attempts in custom field values.",
+              "Concurrency/performance: TC19 exercises multiple concurrent requests to check data consistency and performance.",
+              "Integration/regression: TC17 verifies subsequent GET returns updated fields; TC18 tests duplicate names regression handling."
+            ],
+            "gaps": [
+              "PUT-specific Partial Update semantics: No explicit tests verify whether partial payloads are allowed or rejected (the story implies a full-array replacement semantics but this is not asserted).",
+              "Concurrency race conditions / conflict handling: TC19 tests concurrent performance but does not assert correct conflict resolution or locking behavior (e.g., lost updates, serialization/optimistic locking responses).",
+              "Response content-type and body contract on success: The story notes \"Produces: application/json\" and success 204 \u2014 tests only assert status codes and DB state; there are no assertions about response Content-Type, empty body versus JSON body, or error body schema.",
+              "Header validation beyond presence: There are no negative tests for invalid header values (e.g., malformed X-Killbill-CreatedBy, excessively long reason/comment) or for behavior when optional headers are omitted/invalid.",
+              "Idempotency / duplicate submission: No tests for repeated identical PUTs to verify idempotent behavior and handling of duplicate submissions.",
+              "Behavior for ambiguous cases (empty array semantics): TC04 mentions \"removed or remain unchanged as per API behavior\" but does not assert the exact intended behavior \u2014 ambiguity means missing a definitive acceptance test.",
+              "HTTP status detail variance: Some tests accept multiple possible statuses (400 or 422, 400 or 204) rather than verifying the expected canonical status and standardized error payload/schema.",
+              "Content-Type request header and Accept header validation: No tests validate required request Content-Type (application/json) or behavior when Accept is different.",
+              "Rate limiting / throttling: No tests address throttling or rate-limit responses under high request rates.",
+              "Audit / logging headers usage: No tests verify that X-Killbill-CreatedBy (and optional X-Killbill-Reason/Comment) are recorded in audit logs or persisted in metadata."
+            ],
+            "recommendations": [
+              "Add a clear test that asserts the expected PUT semantics for the custom fields array (replace-all vs merge). Update TC04 to assert the definitive behavior for empty array (remove all vs no-op).",
+              "Add targeted concurrency tests that assert conflict resolution \u2014 e.g., two simultaneous PUTs with differing payloads and assertions for final state and any conflict responses (409 or other) to detect lost updates.",
+              "Add assertions for response headers and body contract: verify Content-Type on success and error, and define/validate error response schema for 4xx/5xx responses.",
+              "Add negative tests for header validation: malformed X-Killbill-CreatedBy, overly long X-Killbill-Reason/Comment, and behavior when optional headers are omitted vs present.",
+              "Add idempotency/duplicate submission tests: send identical PUT twice and assert the second request has no adverse effects and returns the expected status.",
+              "Replace ambiguous expected outcomes (\"204 or 400\") with the single expected behavior in the acceptance criteria, or add separate tests for each documented behavior and map them to API version/feature flags.",
+              "Include tests that verify request Content-Type handling (missing/incorrect Content-Type -> 415 or 400) and Accept header handling.",
+              "Add rate-limiting/throttling tests that simulate repeated requests to detect 429 responses or throttling behaviour (even if not currently implemented, to document expectations).",
+              "Add tests to verify that X-Killbill headers are tracked in audit/logging or persisted metadata if that is an acceptance requirement.",
+              "Standardize expected status codes for security/validation failures (e.g., 400 vs 422) and include assertions for error messages / codes to make failures actionable."
+            ],
+            "usage": {
+              "completion_tokens": 1308,
+              "prompt_tokens": 5796,
+              "total_tokens": 7104,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

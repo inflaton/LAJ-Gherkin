@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-15T11:57:57.265848",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:56:11.566433",
+    "benchmark_end_time": "2025-10-15T11:57:57.265842",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 105.699409,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Successful POST behavior and 204 responses for required-only and optional-parameter flows (TC01, TC02, TC03, TC04, TC05, TC29).",
+              "Path parameter validation (malformed UUID) and non-existent account handling (HTTP 404) (TC08, TC09).",
+              "Header validation: X-Killbill-CreatedBy present, omitted and empty cases handled (TC01, TC10, TC16); optional headers (X-Killbill-Reason, X-Killbill-Comment) accepted (TC02).",
+              "Query-parameter validation: paymentMethodId usage and invalid formats (TC02, TC11); externalPayment boolean positive and negative cases (TC02, TC14); paymentAmount validation (negative/zero, partial, equal, greater-than-outstanding) (TC12, TC02, TC03, TC04); targetDate format validation (TC13).",
+              "Plugin property handling: multiple values, invalid types, XSS checks, and very large arrays (TC05, TC15, TC21, TC24).",
+              "Default behaviours covered: using account default payment method and paying total outstanding when optional params omitted (TC01).",
+              "No-op scenarios for accounts with no unpaid invoices or no invoices (TC06, TC07).",
+              "Duplicate-submission and retry resilience and regression tests preventing duplicate payments (TC22, TC28).",
+              "Integration & dependency error handling: payment gateway, plugin system, and database failures mapped to appropriate HTTP responses (TC18, TC27, TC19).",
+              "Security checks for SQL injection and XSS payloads (TC20, TC21).",
+              "Edge-case coverage for extremely large paymentAmount and pluginProperty arrays; handling of unexpected query parameters is present (TC23, TC24, TC25).",
+              "Performance and accessibility coverage: normal/peak response time and resource utilization stress tests, and API documentation accessibility (TC30-TC33)."
+            ],
+            "gaps": [
+              "Concurrency/race conditions: no explicit correctness tests for multiple simultaneous POSTs against the same account (beyond performance concurrency) to ensure no duplicate/conflicting payments or allocation races.",
+              "TargetDate semantics: tests provide/validate targetDate format but do not verify scheduling semantics (i.e., future targetDate should schedule payment rather than execute immediately).",
+              "Transactionality/atomicity: lack of tests that simulate mid-transaction failures to confirm full rollback (no partial application) and consistent DB state on failures. ",
+              "Multi-currency handling: no scenarios covering accounts/invoices with different currencies or currency-mismatch behavior.",
+              "PaymentMethod ownership: missing a test where paymentMethodId is valid but not associated with the target account (belongs to another account) and verifying correct error (e.g., 400/403).",
+              "Response headers and error payload schema: tests check status codes and error messages but do not assert response headers (Content-Type, Content-Length) or standardized error JSON schema and fields.",
+              "Authorization scopes/roles: authentication failure is covered (TC17) but there are no tests for authorization/permission boundaries (e.g., authenticated user lacking rights to trigger payment on an account -> 403).",
+              "Rate limiting/throttling: no tests for API throttling (429) or behaviour under abusive request bursts.",
+              "Allocation rules for partial payments: absent checks for allocation order (oldest-first vs other), rounding and precision when applying a partial payment across multiple invoices.",
+              "Idempotency header semantics: tests cover retries but do not validate idempotency-key behavior (if supported) or server-side idempotency guarantees under concurrent retries.",
+              "Audit/logging validation: optional headers (CreatedBy/Reason/Comment) are provided in tests but not asserted to be stored in payment metadata or audit logs.",
+              "Strictness for unknown parameters: TC25 allows two possible behaviors (ignore vs strict reject) but suite does not lock down which behaviour is required in production."
+            ],
+            "recommendations": [
+              "Add concurrency correctness tests: fire concurrent POSTs against the same account/invoices and assert no duplicate payments, consistent invoice allocation, and stable end-state (compare pre/post DB and payment records).",
+              "Add scheduled-payment tests for targetDate: include future-date cases that verify the payment is scheduled (and not executed) and check plugin invocation timing/notifications. ",
+              "Add transactionality tests: simulate plugin or DB failure mid-processing to ensure payments are applied atomically or rolled back and partial state is not persisted (assert DB invariants).",
+              "Add multi-currency scenarios: create invoices in different currencies and validate rejection/partial handling/currency conversion rules according to business policy.",
+              "Add paymentMethod ownership tests: attempt to use a valid paymentMethodId that belongs to a different account and assert the correct error code and message (400/403).",
+              "Assert response headers and error schema: add checks for Content-Type on error responses, ensure consistent error JSON structure (error code, message, field errors) and absence of stack traces or sensitive internals.",
+              "Add authorization/permission tests: cover cases where an authenticated user lacks permission to trigger payments on the target account and assert 403 behavior.",
+              "Add rate-limiting tests: burst or scripted high-frequency requests to verify throttling, returning 429 or other configured behaviour, and validate retry/backoff guidance.",
+              "Add allocation and rounding tests for partial payment distribution across multiple invoices, including fractional amounts and edge rounding cases.",
+              "If idempotency is supported or required, add tests for Idempotency-Key headers (replay same key) and concurrency with identical keys; otherwise expand duplicate-prevention tests to cover more concurrency scenarios.",
+              "Add audit/logging assertions: verify X-Killbill-CreatedBy/Reason/Comment are persisted in payment meta and audit logs and surface in payment records where applicable.",
+              "Decide and codify strict vs permissive handling of unknown query parameters and add tests to ensure predictable behaviour in production (update TC25 to assert the chosen behavior)."
+            ],
+            "usage": {
+              "completion_tokens": 11422,
+              "prompt_tokens": 7048,
+              "total_tokens": 18470,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 10176,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

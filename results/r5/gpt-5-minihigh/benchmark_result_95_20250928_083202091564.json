@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "95_2025-09-28T08:32:02.091538",
+    "jira_id": "95",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/tags - Add tags to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T08:30:52.732488",
+    "benchmark_end_time": "2025-09-28T08:32:02.091534",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 69.359046,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "95_qe_sup-gpt4.1_agent-gpt4.1_1748922214.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Core acceptance criteria: required header X-Killbill-CreatedBy, optional X-Killbill-Reason and X-Killbill-Comment, paymentId path validation, request body schema (JSON array of tagDefinition UUIDs), success response 201 and JSON array of Tag objects are covered (TC01-TC05, TC06-TC09, TC11, TC19).",
+              "Valid payloads: single and multiple tag additions, empty array, and very large arrays are exercised (TC01, TC02, TC03, TC04, TC14).",
+              "Input validation and error handling: malformed JSON, invalid tag UUID format, invalid paymentId format, unexpected fields, null elements are tested (TC06, TC08, TC09, TC10, TC17).",
+              "Idempotency / duplicates: duplicate entries in the request and re-adding existing tags are covered (TC11, TC19).",
+              "Concurrency and performance: peak-load and concurrent request scenarios are included (TC12, TC20).",
+              "Dependency failure handling: external/tag service unavailability is covered (TC13).",
+              "Not-found and empty-database scenarios: non-existent paymentId and an empty DB are covered (TC05, TC18).",
+              "Security: unauthorized user and malicious payload (XSS attempt) are included (TC15, TC16)."
+            ],
+            "gaps": [
+              "Missing test for a well-formed tagDefinitionId UUID that does not exist in the system (valid UUID format but non-existent tag definition) \u2014 expected behavior (400 vs 404) is not specified/tested.",
+              "No explicit test verifying response headers (Content-Type: application/json) and request Content-Type/Accept negotiation behavior.",
+              "No explicit server 500/Internal Server Error scenario (e.g., simulated DB failure) \u2014 only 503 dependency failure is present.",
+              "Transactional/atomic behavior not tested: mixing valid and invalid tag IDs in one request to verify all-or-nothing vs partial commit semantics is not covered.",
+              "No tests asserting that Tag metadata fields are populated correctly and consistently (createdBy, createdDate/timestamp, reason/comment reflected where provided).",
+              "Rate limiting/throttling behavior is not covered (429 or throttling headers).",
+              "Test TC10 assumes the server returns 400 on extra fields \u2014 API contract for unknown fields is not verified; behavior may differ (ignore vs reject), and there are no tests aligned to the actual contract.",
+              "No explicit tests for header edge-cases: very long header values, encoding, or allowed character sets for X-Killbill-* headers.",
+              "No tests to validate error response payload schema/field consistency for 4xx/5xx responses (structure and error codes)."
+            ],
+            "recommendations": [
+              "Add a test where the request contains a well-formed tagDefinition UUID that does not exist in the system; assert the expected error code and message (define whether 400 or 404 in spec first).",
+              "Add assertions for response headers (Content-Type) and tests for Accept/Content-Type negotiation to ensure the endpoint produces application/json and properly rejects/handles unsupported media types.",
+              "Add a server-error (500) simulation test (e.g., DB failure or uncaught exception) to verify safe failure modes and meaningful error payloads.",
+              "Add transactional tests that mix valid and invalid tag IDs in one request to document and validate atomicity (rollback vs partial success) and add assertions accordingly.",
+              "Add tests that verify Tag metadata fields returned include createdBy, createdDate (timestamp), and optionally reason/comment when provided, and that createdBy matches X-Killbill-CreatedBy header.",
+              "Introduce rate-limiting tests (rapid repeated requests) to verify throttling behavior and rate-limit headers (429) in line with system policies.",
+              "Review and clarify TC10: decide whether unknown fields should be rejected or ignored and update the test to match the API contract (and add positive test if the API is lenient).",
+              "Add edge-case tests for header values (very long strings, non-ASCII, and encoding) to ensure header validation and DB/storage limits are handled.",
+              "Add tests that assert consistent error response schema (fields/structure) for 4xx and 5xx responses to make client handling predictable.",
+              "For concurrency tests, add assertions verifying final persisted state is exactly as expected (no duplicates, correct counts) after concurrent requests and include backoff/retry behavior if part of client guidance."
+            ],
+            "usage": {
+              "completion_tokens": 5097,
+              "prompt_tokens": 6214,
+              "total_tokens": 11311,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4160,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

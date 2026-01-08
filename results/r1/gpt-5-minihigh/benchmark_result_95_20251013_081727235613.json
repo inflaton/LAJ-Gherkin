@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "95_2025-10-13T08:17:27.235588",
+    "jira_id": "95",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/tags - Add tags to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:15:39.623185",
+    "benchmark_end_time": "2025-10-13T08:17:27.235584",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 107.612399,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "95_qe_sup-gpt4.1_agent-gpt4.1_1748922214.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid payloads and success responses (201) for single and multiple tag UUIDs (TC01, TC02, TC03).",
+              "Required and optional header handling: X-Killbill-CreatedBy required; X-Killbill-Reason and X-Killbill-Comment optional (TC01, TC02, TC03, TC07).",
+              "Empty-array handling returns 201 with empty JSON array (TC04).",
+              "Path parameter validation: invalid UUID format (400) and payment not found scenarios (404) (TC06, TC05, TC18).",
+              "Request body validation: malformed JSON, invalid tag UUID format, unexpected fields, and null elements are tested (TC08, TC09, TC10, TC17).",
+              "Duplicate inputs and idempotency: duplicate UUIDs in payload and posting existing tags are addressed (TC11, TC19).",
+              "Performance and concurrency: heavy load and concurrent request scenarios included (TC12, TC20).",
+              "Dependency failure handling: tag service unavailable scenario returning appropriate error (503) (TC13).",
+              "Large payload / boundary scenario for many tags present (TC14).",
+              "Security checks: unauthorized access and malicious payload (XSS) tests are present (TC15, TC16).",
+              "Basic response expectations for success and error status codes (201, 400, 404, 503, 401/403) are covered across scenarios."
+            ],
+            "gaps": [
+              "Non-existent but well-formed tagDefinition UUIDs are not tested (what happens if a tagDefinition UUID has correct format but does not exist in the system).",
+              "No explicit assertions for response headers (Content-Type application/json and other produced headers).",
+              "No tests for missing or incorrect Content-Type / Accept negotiation (e.g., 415 Unsupported Media Type expectations).",
+              "No explicit server 500 Internal Server Error simulations (e.g., DB failure) and validation of error payload format for 5xx errors.",
+              "Rate limiting / throttling behavior and 429 responses under burst traffic are not covered (only general performance/concurrency is present).",
+              "Strict schema validation for returned Tag objects is weak: tests assert presence of fields but do not verify exact schema, types, timestamp formats, or that metadata values (for example createdBy) reflect header values.",
+              "Transactional behavior / partial success is not covered: mixing valid and invalid tag IDs to verify all-or-nothing semantics is missing.",
+              "Precise boundary testing for maximum payload size is incomplete: TC14 mentions maximum allowed but no test for exceeding the limit and expected error (e.g., 413).",
+              "Authorization nuance and role based permissions are not fully covered: only a generic unauthorized user scenario exists, no tests for role-based 403 vs authentication 401 semantics.",
+              "No checks for content-security beyond simple XSS example (e.g., SQL injection or other payload types) and sanitization policies."
+            ],
+            "recommendations": [
+              "Add a scenario that posts well-formed tagDefinition UUIDs that do not exist and assert the API behavior (expected 404 or domain-specific error) so consumers know how missing tag definitions are handled.",
+              "Assert response headers for successful and error responses (Content-Type: application/json, Content-Length, any error-code headers) to satisfy the \"produces\" requirement in the spec.",
+              "Add tests for missing or incorrect Content-Type and Accept headers to cover 415/406 behavior or documented alternatives.",
+              "Simulate internal server failures (database, IO) to validate 500 responses and consistent error payload format; include automated fault injection where possible.",
+              "Add rate-limiting tests that generate burst traffic to ensure the API returns 429 when thresholds are hit and that clients receive useful Retry-After headers if applicable.",
+              "Introduce strict JSON schema validation for returned Tag objects: verify field names, types, formats (UUIDs, ISO 8601 timestamps), and that metadata fields (createdBy, comment, reason) reflect request headers when applicable.",
+              "Add transactional tests mixing valid, invalid, and already-existing tag IDs to confirm whether the API is atomic (all-or-nothing) or partial; verify final DB state after the call.",
+              "Add a negative boundary test that exceeds the maximum allowed array size and assert the expected behavior (413 or other documented response).",
+              "Expand authorization tests to cover authentication vs authorization differences (401 vs 403), and include role/permission matrix tests if KillBill has ACLs for tagging operations.",
+              "Broaden security tests beyond XSS to include common injection patterns and validate server-side sanitization and input normalization.",
+              "Where possible, convert concurrency and performance scenarios into repeatable load tests with assertions on correctness (no duplicates) and error distribution; add post-condition checks that verify DB state consistency after concurrent runs."
+            ],
+            "usage": {
+              "completion_tokens": 7337,
+              "prompt_tokens": 6214,
+              "total_tokens": 13551,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6336,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

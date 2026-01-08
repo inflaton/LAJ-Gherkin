@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-14T00:21:51.782095",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T00:21:03.712660",
+    "benchmark_end_time": "2025-10-14T00:21:51.782092",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 48.069432,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Method - Valid Deletion: Success paths returning 204 with and without tagDef are verified (TC01, TC02, TC03, TC04, TC12, TC16).",
+              "DELETE Method - Non-Existent Resource: 404 for a non-existent bundleId is covered (TC06).",
+              "DELETE Method - Concurrency: Parallel DELETEs on the same bundle are exercised to detect races/data corruption (TC15).",
+              "Validation - Path Parameter: Invalid bundleId format yields 400 as per story AC (TC05).",
+              "Validation - Query Parameter: tagDef supports multi-value and large lists; invalid UUIDs and mixed-validity inputs are handled (TC02, TC07, TC12, TC13, TC16).",
+              "Headers: Required X-Killbill-CreatedBy presence enforced (TC08); optional X-Killbill-Reason/Comment accepted (TC03).",
+              "Error Handling: Service unavailable (503) and timeout (504 or 204 on completion) are explored (TC10, TC18).",
+              "Security/Injection: Malicious header values are rejected (TC14).",
+              "Empty Response Semantics: 204 responses assert empty body (multiple scenarios).",
+              "Integration/Data Consistency: Post-DELETE state verified via GET to confirm tags removed as expected (TC17).",
+              "Robustness: Extra unexpected query parameters are tolerated without error (TC11)."
+            ],
+            "gaps": [
+              "DELETE Method - Soft Deletes: No checks for soft-deletion behavior or audit/history visibility after deletion.",
+              "Idempotency: No scenario verifies that deleting already-removed/non-existent tags returns a safe 204 and leaves state unchanged.",
+              "Error Response Contract: Tests don\u2019t assert Content-Type (e.g., application/json) and error schema for 4xx/5xx responses; story states produces application/json.",
+              "Audit Trail: No verification that CreatedBy/Reason/Comment are persisted in audit logs/history for the bundle or tag changes.",
+              "Authorization Granularity: 401 is covered; no scenario for authenticated but forbidden user (403) or tenant/account boundary enforcement.",
+              "Mixed Existing/Non-Existing tagDef Values: Case where tagDef contains valid UUIDs not currently on the bundle (should ignore vs error) is not tested.",
+              "Duplicate tagDef Parameters: Behavior when duplicate tag UUIDs are passed is not exercised.",
+              "Content Negotiation/Headers on 204: No assertion that 204 responses omit body and use appropriate headers (e.g., no Content-Type), consistent with spec.",
+              "Rate Limiting/Throttling: No scenario for 429 Too Many Requests under burst deletes.",
+              "Observability: No checks for correlation/request IDs or server-side logging expectations on failures (if required by standards)."
+            ],
+            "recommendations": [
+              "Add soft delete/audit scenarios: verify tag removal is reflected in audit logs/history and confirm whether deletion is soft or hard per Kill Bill conventions.",
+              "Add idempotency tests: repeat the DELETE on the same bundle and with tagDefs already removed; expect 204 and no-op state changes.",
+              "Validate error contract: assert application/json Content-Type for error responses and validate error schema fields (code, message, type).",
+              "Verify audit headers persistence: CreatedBy, Reason, and Comment should appear in audit entries associated with the deletion event.",
+              "Cover authorization 403: use an authenticated user lacking permission to ensure proper 403 Forbidden behavior if applicable.",
+              "Test mixed existing/non-existing tags: include tagDef values where some are valid UUIDs not present on the bundle; define expected behavior (ignore vs 400) and assert it.",
+              "Handle duplicate tagDef inputs: send repeated identical tagDef parameters and ensure stable 204 behavior and single logical removal.",
+              "Assert response headers for 204: ensure no Content-Type and no body are returned; for 4xx/5xx, ensure proper Content-Type and possibly problem details.",
+              "Introduce rate limiting scenario: simulate bursts to validate 429 responses or documented behavior.",
+              "Extend concurrency coverage: combine selective tagDef deletes concurrently with full-delete to ensure deterministic final state without lost updates."
+            ],
+            "usage": {
+              "completion_tokens": 2021,
+              "prompt_tokens": 4976,
+              "total_tokens": 6997,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-09-28T05:34:52.711167",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:34:23.767323",
+    "benchmark_end_time": "2025-09-28T05:34:52.711163",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 28.94384,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Deletion: Success path (204) is covered (TC01, TC12) and host state is verified after operation (TC01, TC12).",
+              "Authorization: Authentication failure paths are covered (no token and invalid token -> TC02, TC03).",
+              "Concurrency: Race conditions and concurrent requests are considered (TC11).",
+              "Non-Existent / Already-Removed Resource: Host-not-available/out-of-rotation cases are tested (TC04, TC14).",
+              "Error Handling: Various server-side errors and service-unavailable scenarios are included (TC05, TC06).",
+              "Invalid Method / Inputs: Wrong HTTP method and malicious or non-empty request body cases are included (TC07, TC09).",
+              "Query Parameters: Handling of extra query parameters is tested (TC08).",
+              "Performance: Basic performance expectations under normal and concurrent load are specified (TC10, TC11).",
+              "Security: Header injection and malicious payloads are addressed (TC09, TC13)."
+            ],
+            "gaps": [
+              "Content-Type / Response Headers: The acceptance criteria state \"Produces: application/json\" but no scenario asserts response Content-Type or other headers (e.g., Content-Type on error responses, or presence/format of JSON error objects).",
+              "Authorization granularity / RBAC: There is no test for authenticated but unauthorized administrator (403 / insufficient privileges). The tests only cover unauthenticated (401) states.",
+              "Idempotency semantics: There is no explicit test asserting idempotency semantics of DELETE (repeat DELETE should be safe and expected status on repeat not fully defined; TC11/TC04 touch it but do not assert a consistent idempotency policy).",
+              "Soft delete / persistence semantics: No test checks whether the removal is a soft-delete flag vs. a permanent state, or whether the state persists across service restarts or is reflected in other system components.",
+              "Error response schema / JSON structure: Error scenarios assert existence of an error message but do not validate error response schema, error codes in body, or consistent JSON fields (code/message/timestamp).",
+              "Rate limiting / Throttling: Although performance tests exist, there are no explicit tests for rate limiting or throttling behavior under high request rates.",
+              "Negative/invalid query parameters: Extra params accepted test exists, but there is no coverage of malformed query parameters or invalid parameter formats (should return 400 vs ignored).",
+              "Logging / Auditing: No tests verify audit log entries or admin action recording for the operation."
+            ],
+            "recommendations": [
+              "Add assertions for response headers including Content-Type (expect application/json for errors) and any caching/security headers to match \"Produces: application/json\".",
+              "Add an RBAC test where an authenticated user lacks admin privileges and receives 403 (or the system's chosen unauthorized status) to distinguish authentication (401) from authorization (403).",
+              "Add explicit idempotency tests: e.g., send repeated DELETEs in sequence and assert the exact expected status code sequence (204 then 204 or 204 then 409) to codify behavior.",
+              "Add persistence/soft-delete tests: verify whether the host-out-of-rotation flag is persisted across service restart or reflected consistently via status query endpoints (and document expected behavior).",
+              "Define and assert error response schema in error scenarios (structure, fields and types) and include tests that validate it for 4xx and 5xx responses.",
+              "Add rate-limiting tests that rapidly send many DELETE requests to validate throttling and ensure graceful degradation (expected 429 or documented behavior).",
+              "Add tests for malformed query parameters and header edge-cases that should return 400 vs be ignored, to clarify input validation policy.",
+              "Add audit/logging verification tests if operational requirements require action tracing (ensure an audit record is created with admin identity and timestamp)."
+            ],
+            "usage": {
+              "completion_tokens": 1841,
+              "prompt_tokens": 3433,
+              "total_tokens": 5274,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

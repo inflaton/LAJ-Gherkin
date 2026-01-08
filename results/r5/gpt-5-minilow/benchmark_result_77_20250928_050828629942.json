@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "77_2025-09-28T05:08:28.629915",
+    "jira_id": "77",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/priceList - Retrieve priceList for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:08:07.876939",
+    "benchmark_end_time": "2025-09-28T05:08:28.629892",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 20.752953,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "77_qe_sup-gpt4.1_agent-gpt4.1_1748920942.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01\u2013TC04, TC21, TC18) exercise successful retrieval with combinations of subscriptionId and requestedDate and edge/date-boundary behavior.",
+              "Empty Response / No Data: TC13 covers behavior when database is empty (404 or empty/default response).",
+              "Query Parameters: Many permutations are tested \u2014 missing params, malformed params, oversized params, extra params (TC02\u2013TC04, TC05\u2013TC07, TC11, TC12, TC19).",
+              "Authorization: TC08 explicitly tests missing/invalid authentication token (HTTP 401).",
+              "Error Handling: Negative cases for invalid formats, non-existent IDs, dependency failures, and service unavailability are present (TC05, TC06, TC07, TC09, TC20).",
+              "Security: Injection and XSS attempts are included (TC10, TC22) to check input sanitization and not leaking internal details.",
+              "Performance / Load: Response-time scenarios for normal and peak load are included (TC14, TC15), and retry behavior is covered (TC17).",
+              "Integration / Dependency: Dependent service failure scenario is covered (TC20).",
+              "Robustness / Large Data: TC18 covers large change history for a subscription."
+            ],
+            "gaps": [
+              "Pagination: No tests exercise pagination or paging parameters (offset/limit/page) for large result sets \u2014 standard GET guideline expects pagination verification.",
+              "Caching Behavior: There are no tests for caching headers or semantics (ETag, If-None-Match, Cache-Control, Last-Modified) or conditional GETs.",
+              "Rate Limiting / Throttling: No tests validate rate limiting behavior (429 responses, backoff), despite guideline recommendation to test multiple rapid requests.",
+              "Authorization nuances: While 401 is tested, there are no tests for forbidden access (HTTP 403) or role-based access control variations.",
+              "Schema / Contract Validation: There is no explicit test that validates the response strictly against the PriceList JSON schema (field-level presence, types, enums), only a general \"valid PriceList JSON object\" assertion.",
+              "Pagination-related performance: While load tests exist, they do not combine with very large result sets + pagination to test performance under realistic large-list conditions.",
+              "Caching + Performance interaction: No scenarios validate cache hits vs misses under load (to ensure caching headers are correct and performance benefits are realized).",
+              "Rate limit + retry interaction: No tests that validate proper retry behavior when rate limits are hit (e.g., exponential backoff, correct status codes).",
+              "Headers and Content Negotiation: Tests check content-type but do not validate other important response headers (Content-Length, Vary, security headers).",
+              "Pagination and sorting semantics: No tests for ordering or deterministic selection when multiple applicable price lists exist (beyond the boundary test TC21)."
+            ],
+            "recommendations": [
+              "Add explicit pagination tests: create scenarios that request price lists where the API would return multiple items and verify paging parameters (limit/offset or page) \u2014 include correctness of items across pages and total counts.",
+              "Add caching/conditional GET tests: verify presence and correctness of ETag, Cache-Control, Last-Modified headers; test 304 Not Modified via If-None-Match/If-Modified-Since.",
+              "Add rate-limiting tests: hammer the endpoint to confirm a 429 or documented behavior, and validate retry guidance/headers (Retry-After).",
+              "Expand authorization tests: include 403 tests for valid token but insufficient permissions and tests for role-based restrictions (if applicable).",
+              "Add strict schema/contract validation: validate response JSON fields, data types, required fields, and enums against the PriceList definition to catch missing or malformed attributes.",
+              "Combine large-data + pagination + performance tests: verify response times and correctness when many price list changes exist and pagination is used.",
+              "Add header validation tests: include Content-Length, Vary, security headers (e.g., Strict-Transport-Security, X-Content-Type-Options) and confirm application/json charset handling.",
+              "Add retry/backoff behavior tests when the service responds with transient errors and when rate limits are encountered to ensure clients can correctly recover.",
+              "Add deterministic ordering/sorting tests: where multiple price lists could match, ensure the selection logic is deterministic (e.g., latest effective date <= requestedDate).",
+              "Document expected default behaviors: clarify and test what the API should return when both parameters are omitted (TC04) and when only requestedDate is provided (TC03) \u2014 convert \"HTTP 200 or default\" into a single, agreed contract and add tests for that contract."
+            ],
+            "usage": {
+              "completion_tokens": 1229,
+              "prompt_tokens": 4977,
+              "total_tokens": 6206,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

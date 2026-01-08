@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-14T14:38:38.658055",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:37:53.381461",
+    "benchmark_end_time": "2025-10-14T14:38:38.658050",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 45.276589,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01-TC05, TC23, TC26) verify successful pause operations including required params, optional headers, plugin properties, requestedDate scheduling, and downstream consistency.",
+              "Non-Existing Resource: TC07 and TC20 cover 404 responses when the bundle is not found.",
+              "Input Validation: TC06, TC13, TC17, TC18, TC19 validate bundleId format, SQL injection, requestedDate past/malformed, and malformed pluginProperty handling (400 responses).",
+              "Authorization & Required Header: TC10 and TC11 test missing required X-Killbill-CreatedBy and unauthorized user handling (400/401).",
+              "State Validation: TC08 and TC09 check invalid state transitions (already paused, canceled) resulting in 400 errors.",
+              "Concurrency: TC21 covers concurrent pause requests and expected single-success behavior.",
+              "Large payload / Limits: TC16 addresses large pluginProperty arrays and acceptable responses (204 or 413).",
+              "Error & Availability Handling: TC12 (503) and TC25 (dependency failure -> 502) cover service/unavailable dependency scenarios.",
+              "Security: TC13 and TC14 cover SQL injection and XSS attack vectors in inputs/headers.",
+              "Regression/Edge Cases: TC15, TC22, TC24 cover unexpected params handling, performance under load, and special character handling in pluginProperty.",
+              "Audit / Logging: TC04 ensures reason/comment are recorded in audit logs."
+            ],
+            "gaps": [
+              "Partial Update semantics: No explicit test for PUT rejecting partial payloads vs allowed semantics \u2014 the story declares no request body, but the guidelines for PUT ask to confirm allowed/unsupported payloads are handled (e.g., reject body or extra fields).",
+              "HTTP Response Content-Type and Body Expectations: There is limited verification of response headers (Content-Type) and that the endpoint produces application/json when applicable per story notes.",
+              "ETag / Caching / Idempotency: No tests for caching headers, idempotency semantics of repeated identical requests (beyond concurrency), or ETag/Cache-Control presence.",
+              "Rate Limiting / Throttling: Although load/performance (TC22) exists, explicit rate-limiting behavior (429 handling) is not covered.",
+              "Detailed authorization failure modes: No explicit test for 403 (forbidden) vs 401, role-based permission variations, or token expiry flows.",
+              "Audit trail contents beyond presence: TC04 asserts recording but doesn\u2019t validate exact stored values, timestamps, or actor identity across systems.",
+              "Boundary/value combination testing: Combinations of optional query params and headers (e.g., requestedDate + invalid pluginProperty) aren\u2019t exhaustively combined to ensure deterministic error precedence.",
+              "Schema/Contract validation for pluginProperty array items: There are tests for malformed pluginProperty but not explicit contract checks like maximum item length, allowed characters, or maximum number of plugin properties that should return specific validation error codes.",
+              "Non-UUID but syntactically acceptable IDs: TC06 covers invalid UUID format, but no test for well-formed UUID that references resource of different tenant/ownership resulting in 404/403."
+            ],
+            "recommendations": [
+              "Add a test that sends a non-empty request body or unexpected payload structure to confirm whether PUT rejects, ignores, or accepts a body (clarify and assert behavior).",
+              "Add assertions for response headers (Content-Type, relevant caching headers) and idempotency behavior on repeated identical requests (beyond concurrency).",
+              "Introduce rate-limiting tests to verify 429 responses or throttle handling when rapid repeated requests exceed limits.",
+              "Add a test for 403 Forbidden that exercises a valid token lacking the required permission/role to ensure authorization is granularly enforced.",
+              "Enhance audit/log verification to assert exact stored values (reason, comment, createdBy, timestamp), and verify propagation to downstream systems (TC26) with concrete checks rather than just existence.",
+              "Add contract/limit tests for pluginProperty items (max items, max length per item, allowed character set) and assert specific validation error codes/messages when exceeded.",
+              "Add tests for combinations of optional params that produce conflicting validation errors (e.g., requestedDate in past + malformed pluginProperty) to validate consistent error precedence and clear messages.",
+              "Add a test for tenant/ownership mismatch or access to a UUID belonging to another tenant that should return 403/404 as appropriate."
+            ],
+            "usage": {
+              "completion_tokens": 1052,
+              "prompt_tokens": 6254,
+              "total_tokens": 7306,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

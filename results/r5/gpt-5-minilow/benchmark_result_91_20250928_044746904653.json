@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-09-28T04:47:46.904627",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:47:30.259665",
+    "benchmark_end_time": "2025-09-28T04:47:46.904623",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 16.644958,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request (PUT): Multiple success scenarios (TC01-TC05, TC21, TC22) validate correct update/create behavior and response 204.",
+              "Required/Optional Headers: Required header presence and optional headers covered (TC01-TC03, TC02).",
+              "Invalid invoiceItemId format: Format validation covered (TC06 -> 400).",
+              "Non-existent resource: Not-found handling covered (TC07, TC24, TC25 -> 404).",
+              "Malformed / empty / unsupported payloads: Malformed JSON, empty body, unsupported fields covered (TC08, TC10, TC11).",
+              "Authentication/Authorization: Invalid or missing auth produces 401 (TC13).",
+              "Large payload and payload-size behavior: Approaching maximum/large payload coverage (TC12, TC21).",
+              "Security validation: SQL injection / invalid input handling covered (TC14).",
+              "Server-side failures: Database unavailability / system errors / dependent service unavailable covered (TC15, TC19 -> 500/503), and gateway timeout (TC16 -> 504).",
+              "Idempotency/regression/integrity: Idempotency and regression/data-loss checks covered (TC17, TC18).",
+              "Performance / concurrency (high-level): Parallel updates and large-scale performance represented (TC20).",
+              "State variations: Database empty/partially populated states covered (TC24, TC25)."
+            ],
+            "gaps": [
+              "PUT-specific partial-update semantics: No explicit tests that attempt partial payloads to verify whether partial updates are accepted or rejected (guideline: Partial Update behavior).",
+              "Concurrency / race conditions: While TC20 covers performance under parallel load, there are no focused concurrency tests for race conditions, conflicting simultaneous updates, locking, or lost updates (e.g., two requests changing the same custom field concurrently).",
+              "Header validation detail: Tests assert presence/missing of X-Killbill-CreatedBy, but do not validate malformed header values (e.g., excessively long createdBy, invalid characters) or behaviour when optional headers are present but invalid.",
+              "Response content verification for success: Success scenarios expect 204 but do not verify response headers (e.g., Content-Type) or any audit side-effects (except DB state checks).",
+              "Audit/logging side-effects and eventual consistency: Dependent side-effects like audit logs are only partially covered (TC19 assumes service unavailability) \u2014 no positive tests ensure audit logs or change-tracking are produced as expected on success.",
+              "Rate limiting / throttling: No tests for rate limits (relevant to standard guidelines even if more GET-centric).",
+              "Caching / HTTP semantics: No tests for caching headers, ETag, or Cache-Control (not typical for PUT success but relevant for full HTTP behaviour coverage).",
+              "Schema/content validation edge-cases: No tests for invalid data types inside CustomField objects (e.g., wrong types for expected fields), duplicate CustomField entries in the same payload, or maximum/minimum counts of array elements beyond size tests.",
+              "Error response payload structure: Error scenarios assert status codes but lack structured assertions about error response schema/fields (codes, error id, message format)."
+            ],
+            "recommendations": [
+              "Add explicit Partial Update tests: Send payloads that only include subsets of expected CustomField fields and verify whether the API rejects or accepts partial updates per spec. Include tests that expect 400 if partial updates are not allowed.",
+              "Add focused concurrency/race-condition tests: Simulate two or more concurrent PUTs against the same invoiceItemId with conflicting changes and assert final state, detect lost updates, and verify appropriate concurrency controls (e.g., optimistic locking, versioning) or documented behavior.",
+              "Expand header validation tests: Add cases with malformed/oversized X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment values to validate header input validation and error handling.",
+              "Verify success-side effects and response metadata: In success tests also assert relevant response headers (Content-Type), and add positive tests to confirm audit logs/related dependent services are invoked when available.",
+              "Add tests for error payload structure: For each error status (400, 401, 404, 413, 422, 500, 503, 504) assert the response body follows the agreed error schema (fields, codes, human message) to improve client integration reliability.",
+              "Include input-type validation and duplicates: Test invalid data types inside CustomField objects, duplicate keys in the array, and boundary counts (0, 1, many beyond expected limits) to exercise schema validation more thoroughly.",
+              "Add rate-limiting and throttling tests: Even if more relevant to GET, include stress tests that trigger API throttling to ensure correct 429/related behavior or documented limits.",
+              "Add caching/HTTP semantics tests where relevant: While PUT typically does not return cacheable responses, include tests that confirm caching headers are not incorrectly present and check related HTTP semantics."
+            ],
+            "usage": {
+              "completion_tokens": 1235,
+              "prompt_tokens": 6450,
+              "total_tokens": 7685,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

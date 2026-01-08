@@ -1,0 +1,100 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-10-13T15:12:37.919759",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T15:09:22.870258",
+    "benchmark_end_time": "2025-10-13T15:12:37.919754",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 83,
+    "average_generation_time_seconds": 195.049496,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 83,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 83,
+            "covered": [
+              "Valid Payload: Successful creation with HTTP 201 and confirmation string/URI for well-formed SimplePlan and required X-Killbill-CreatedBy header (TC01, TC02).",
+              "Optional Headers: Acceptance of X-Killbill-Reason and X-Killbill-Comment (TC02).",
+              "Invalid Payloads -> 400: Missing required header (TC03), missing required field planId (TC04), invalid currency value (TC05), empty body (TC08), malformed JSON (TC09), duplicate planId conflict (TC06).",
+              "Large Payload handling exercised (TC15).",
+              "Security validation: XSS/SQL injection rejected with 400 (TC18).",
+              "Authentication: 401 returned for unauthenticated requests (TC10).",
+              "Service error handling: 503 for catalog unavailability/degradation (TC11, TC24).",
+              "Unsupported HTTP method returns 405 (TC14).",
+              "Resilience: retry after transient network failure succeeds (TC16).",
+              "Performance: response within target threshold (TC17).",
+              "Catalog state variations: empty and partially populated catalogs (TC19, TC20).",
+              "Integration propagation validated when dependent services are available (TC23).",
+              "Concurrency: multiple concurrent valid creates succeed with unique planIds (TC22).",
+              "Boundary values: max string lengths and minimal allowed numeric values exercised (TC12, TC13)."
+            ],
+            "gaps": [
+              "Validation breadth: Only planId is tested as missing; other required fields (productName, productCategory, currency, amount, billingPeriod) missing cases are not covered.",
+              "Invalid data types/enums: No tests for wrong data types (e.g., amount as string), invalid productCategory, or invalid billingPeriod values.",
+              "Duplicate submission/idempotency: Re-sending the exact same request (client retry) behavior not defined/tested (e.g., second call returns 409 vs idempotent success).",
+              "Server error handling (500): Database or unexpected internal failures not simulated; only 503 is covered.",
+              "Content-Type handling: Missing or incorrect Content-Type (application/json) not tested for 415 Unsupported Media Type.",
+              "Response contract: No assertions on response Content-Type (application/json) and absence/presence/format of Location or equivalent URI header when 201 is returned; body being a valid JSON string is not verified.",
+              "Current catalog version semantics: Tests do not verify that the plan is added specifically to the current catalog version (and not to a future/past version).",
+              "Authorization scope: No 403 Forbidden scenario for authenticated but unauthorized roles/permissions.",
+              "Conflict variants beyond planId: No scenarios for other conflict types (e.g., duplicate plan name in product, incompatible billingPeriod for product, unsupported currency for product).",
+              "Unknown fields behavior: TC07 assumes extra fields are accepted (201) but does not test the strict-rejection path if the schema forbids additional properties.",
+              "Numeric range validation: No negative/zero amount, excessive precision, or out-of-range amount tests.",
+              "Auditability: No verification that X-Killbill-Reason/Comment/CreatedBy are captured in audit logs or change history."
+            ],
+            "recommendations": [
+              "Add scenarios for each missing required field: productName, productCategory, currency, amount, and billingPeriod omitted individually -> expect 400 with precise error messages.",
+              "Add invalid type/enum tests: amount as string/NaN, amount with too many fractional digits, invalid productCategory, invalid billingPeriod -> expect 400.",
+              "Add duplicate submission/idempotency test: send identical POST twice (with/without an idempotency key if supported) and assert only one plan is created; define expected status on the second call (409 or idempotent 200/201) and verify catalog contains a single entry.",
+              "Simulate internal failures (e.g., DB exception) to assert 500 Internal Server Error and error payload shape.",
+              "Test Content-Type handling: missing Content-Type and wrong Content-Type (text/plain) -> expect 415 Unsupported Media Type; also verify Accept negotiation if applicable.",
+              "Assert response contract on success: Content-Type is application/json; if a URI is returned, verify it is a valid URI string; if a Location header is provided, validate its presence and format.",
+              "Verify current catalog version semantics: after creation, retrieve current and previous catalog versions to ensure the plan exists only in the current version.",
+              "Add authorization test for 403 Forbidden: authenticated user lacking catalog-write permission should receive 403.",
+              "Add broader conflict tests: duplicate plan name within same product, conflicting pricing rules, unsupported currency for the product/price list -> expect 400 with conflict details.",
+              "Clarify and test unknown fields policy: add one scenario asserting rejection with 400 if schema is strict, or explicit ignoring behavior if allowed (and document).",
+              "Add numeric boundary tests: negative amount, zero amount, very large amounts near system limits, and rounding/precision behavior per currency minor units -> expect 400 or 201 per rules.",
+              "Validate audit trail: after a successful create, retrieve audit logs/history to confirm CreatedBy/Reason/Comment are recorded correctly."
+            ],
+            "usage": {
+              "completion_tokens": 7233,
+              "prompt_tokens": 5854,
+              "total_tokens": 13087,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6144,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

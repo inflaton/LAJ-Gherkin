@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-13T23:04:29.087568",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:03:15.605249",
+    "benchmark_end_time": "2025-10-13T23:04:29.087564",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 73.482315,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid PUT success path: successful PUT with no body returns 204 and marks host in rotation (TC01).",
+              "Idempotency: PUT when host already in rotation returns 204 and leaves state unchanged (TC02).",
+              "Authentication & Authorization: 401 (unauthenticated) and 403 (insufficient privileges) scenarios are present (TC03, TC04, TC09).",
+              "HTTP semantics: Method not allowed (405) for wrong HTTP method is tested (TC06).",
+              "Unexpected payload/headers handling: non-empty body and extra headers are exercised and result in 204 (TC07, TC08).",
+              "Service availability & error handling: service/unreachable scenario returning 503 is included (TC05).",
+              "Performance & timeouts: degraded performance / acceptable response time scenario is included (TC10).",
+              "Concurrency & race conditions: concurrent requests handling is covered (TC14).",
+              "Retry/transient network failures: retry after transient network interruption is covered (TC13).",
+              "Security injection attempt: header injection test is present (TC12).",
+              "Regression test: previously fixed bug regression scenario is included (TC11).",
+              "Empty response body expectation on success is asserted across success scenarios (TC01/TC02/TC07)."
+            ],
+            "gaps": [
+              "Server-side error coverage (500 Internal Server Error) is missing \u2014 no explicit tests simulate downstream/db failures producing 5xx responses.",
+              "Detailed error contract checks are missing: tests do not assert Content-Type/application-json for error responses nor validate JSON error schema/fields.",
+              "Produces: application/json acceptance note is not validated \u2014 no assertions about response headers (Content-Type) for success or error flows; 204 may be ambiguous with the \u201cproduces\u201d claim.",
+              "Rate limiting / throttling (429) is not tested \u2014 concurrency test exists but rate-limit behavior is not exercised.",
+              "Large payload / resource limits are not tested (e.g., very large request body, upload limits, or 413 responses).",
+              "Non-existing resource / no-host scenario is not covered \u2014 behavior when there are zero hosts or target host record is missing is undefined in tests.",
+              "End-to-end verification that the host actually resumes handling traffic (LB/health-check integration) is missing \u2014 tests only check internal state.",
+              "Audit/logging traceability is not tested \u2014 no checks that the administrative action is recorded with actor/timestamp.",
+              "Auth edge-cases are not fully covered (expired tokens, malformed tokens, insufficient scopes beyond a generic 403).",
+              "Detailed atomicity/versioning checks under concurrency are missing (e.g., verifying single authoritative state change, timestamps or version increments)."
+            ],
+            "recommendations": [
+              "Add a 5xx simulation test (e.g., stub DB/downstream failure) and assert 500 (or appropriate 5xx) with a JSON error body to validate server-error handling and recovery behavior.",
+              "Clarify the API contract about \"Produces: application/json\" vs 204 empty responses; then add assertions for Content-Type on error responses and explicit checks that 204 responses contain no body and do not return unexpected headers.",
+              "Add rate-limiting tests that hammer the endpoint to confirm 429 responses and presence/semantics of Retry-After headers where applicable.",
+              "Add large-payload tests (very large body and high header counts) to validate server limits and expected responses (413 Payload Too Large or graceful acceptance/ignore behavior).",
+              "Add a no-host / non-existing-resource test to define expected behavior (e.g., 404 or 400) and assert it explicitly.",
+              "Create an integration/E2E test to verify that after the host is marked in-rotation, it actually receives traffic (simulate or observe LB health checks), to satisfy the \u201cresume handling traffic\u201d goal.",
+              "Add audit/log tests to confirm administrative actions are recorded (audit entry contains admin id, operation, timestamp).",
+              "Expand auth tests to include expired tokens, malformed tokens, insufficient scopes, and token revocation cases to ensure robust auth error handling.",
+              "Add concurrency atomicity checks (beyond \u201call requests succeed\u201d) \u2014 verify single canonical state change, consistent timestamps or version increments to prevent subtle race conditions.",
+              "Define and validate an error response schema (fields, codes, message formats) and add tests that assert conformance for all error scenarios (401/403/4xx/5xx)."
+            ],
+            "usage": {
+              "completion_tokens": 6432,
+              "prompt_tokens": 3274,
+              "total_tokens": 9706,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5504,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

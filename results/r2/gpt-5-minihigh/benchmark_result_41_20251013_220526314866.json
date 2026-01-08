@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "41_2025-10-13T22:05:26.314835",
+    "jira_id": "41",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/auditLogsWithHistory - Retrieve account audit logs with history by account id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:03:18.314457",
+    "benchmark_end_time": "2025-10-13T22:05:26.314829",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 128.000372,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "41_qe_sup-gpt4.1_agent-gpt4.1_1748918606.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: TC01 and TC12 verify successful retrieval (200), Content-Type application/json, response is a JSON array of AuditLog objects and required fields are present per schema.",
+              "Empty Response: TC02 checks an account with no audit logs returns 200 and an empty JSON array.",
+              "Not Found & Server Errors: TC03 verifies 404 for non-existent account; TC07 covers 500 for database unavailable; TC13 covers degraded dependency behaviour (200 or 503).",
+              "Authentication: TC05 and TC06 cover missing and expired/invalid tokens producing 401 responses.",
+              "Input validation & edge cases: TC04, TC14, TC15, TC16, TC17 cover invalid accountId formats, whitespace, case sensitivity, max-length UUID, and partial IDs.",
+              "Query parameter handling: TC08 verifies unsupported query parameters are ignored and do not break the response.",
+              "Security: TC10 includes SQL injection attempt in accountId path parameter and checks for safe failure modes and DB integrity.",
+              "Performance & Concurrency: TC09 addresses large audit history performance; TC11 exercises concurrent requests (100) and checks response times and success under load.",
+              "Regression / Schema checks: TC12 ensures previously missing audit log fields are present as per the latest schema.",
+              "Integration: TC13 validates behavior when an upstream audit-log storage service is degraded and checks system logging of the degraded dependency."
+            ],
+            "gaps": [
+              "Pagination: No tests for pagination (limit/offset/page/continuation tokens) or verification of correct slicing/ordering of large result sets; TC09 only tests large volume, not paging.",
+              "Caching behavior: No checks for caching headers (ETag, Cache-Control, Last-Modified) or conditional GET semantics (If-None-Match -> 304).",
+              "Rate limiting / throttling: TC11 tests concurrency performance but there are no negative tests that exceed rate limits to verify 429 responses, Retry-After, or X-RateLimit headers.",
+              "Authorization nuance (403): No tests for authenticated-but-unauthorized access (403) or role/tenant-based access restrictions.",
+              "Error response schema & headers: Error scenarios assert status codes and a message but do not validate consistent error payload shape or Content-Type for 4xx/5xx responses, nor required error fields.",
+              "Response header coverage: Aside from Content-Type in TC01, important headers (Retry-After, ETag, Cache-Control, Date, X-RateLimit-*) are not asserted."
+            ],
+            "recommendations": [
+              "Add pagination tests (if API supports it): validate limit/offset/page/per_page or continuation token behavior, boundary conditions (0, max page size), ordering, and correctness when combined with large datasets.",
+              "Add caching tests: assert presence and correctness of ETag/Cache-Control/Last-Modified headers; add conditional GET tests (If-None-Match/If-Modified-Since) expecting 304 where appropriate.",
+              "Add rate-limiting tests: simulate burst traffic to trigger throttling and assert 429 responses, Retry-After header, and any X-RateLimit-* headers; also include tests for sustained high concurrency to ensure SLA compliance.",
+              "Add authorization tests for 403 cases: scenarios where a valid token exists but the caller lacks permission to view the account audit logs (different tenant/user roles), and verify proper error and no data leakage.",
+              "Enforce error response schema checks: for 4xx/5xx responses assert Content-Type application/json and validate error payload structure (error code, message, timestamp/requestId) to ensure consistent client handling.",
+              "Expand security tests: include additional malicious inputs (long strings, URL-encoded payloads, path traversal attempts, XSS vectors) and assert no sensitive information is leaked in error messages; include a post-test check that DB state is unchanged for destructive payload attempts.",
+              "Improve test data and isolation: use fixtures/mocks for DB and dependency services so tests are deterministic; add automated setup/teardown and contract tests against the AuditLog schema referenced in API definitions.",
+              "Add header-level assertions to existing tests: check Date, Content-Length (or chunked), Cache-Control, ETag, and rate-limit related headers where applicable.",
+              "Clarify pagination/caching contract in the API specification and add tests that assert the declared contract (if the API intentionally does not paginate, add tests that assert and document that behavior)."
+            ],
+            "usage": {
+              "completion_tokens": 6621,
+              "prompt_tokens": 4397,
+              "total_tokens": 11018,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5696,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

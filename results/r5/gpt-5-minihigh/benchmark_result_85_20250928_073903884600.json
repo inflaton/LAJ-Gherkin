@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "85_2025-09-28T07:39:03.884569",
+    "jira_id": "85",
+    "jira_title": "Implement/Test API: GET /1.0/kb/export/{accountId} - Export account data",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:38:06.414190",
+    "benchmark_end_time": "2025-09-28T07:39:03.884565",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 57.470375,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "85_qe_sup-gpt4.1_agent-gpt4.1_1748921476.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: TC01 and TC02 verify successful export (HTTP 200) with Content-Type application/octet-stream and an export archive in the response body.",
+              "Headers: TC01/TC02/TC03/TC15 exercise the required header X-Killbill-CreatedBy, optional headers (X-Killbill-Reason, X-Killbill-Comment) and legacy header handling.",
+              "Invalid Input Handling: TC04 and TC11 cover malformed UUIDs and injection-like inputs returning 400.",
+              "Not Found / Empty DB: TC05 and TC07 cover 404 responses when the account does not exist or the DB is empty.",
+              "Error Mapping & Timeouts: TC09 (slow downstream), TC10 (service unavailable \u2192 500) and TC17 (long-running \u2192 504) exercise failure modes and timeout behavior.",
+              "Large Data & Performance: TC08 validates a very large export (size and response-time expectation).",
+              "Concurrency / Baseline Load: TC13 verifies multiple concurrent requests (10) succeed, exercising basic concurrency handling.",
+              "Method Semantics: TC16 verifies unsupported HTTP method (POST) returns 405.",
+              "Authentication: TC18 covers unauthorized access returning 401.",
+              "Header Tolerance & Regression: TC06 checks extra/unsupported headers are tolerated; TC14 validates presence of expected Content-Type (regression).",
+              "Documentation Accessibility: TC19 ensures the endpoint and errors are documented/accessibly described."
+            ],
+            "gaps": [
+              "Pagination: No tests for pagination semantics; guideline lists pagination for large datasets (even if export is a streamed archive, this should be clarified).",
+              "Caching Behavior: No tests for ETag, Cache-Control, Last-Modified or If-None-Match/If-Modified-Since semantics (304 behavior).",
+              "Rate Limiting / Throttling: No tests for 429 or configured throttling under burst requests\u2014TC13 checks concurrency but not rate-limiting behavior.",
+              "Archive Content Validation: \"valid export archive\" is asserted but there are no checks of archive format (zip/tar.gz), manifest, file listing, or that the exported data matches source DB records.",
+              "Response Headers: No tests for Content-Disposition (filename), Content-Length, Transfer-Encoding (chunked/streaming) or other delivery-related headers.",
+              "Header Value Validation: No tests for empty, excessively long, or malformed X-Killbill-CreatedBy or optional headers (boundary/value validation).",
+              "Authorization Granularity: No tests for 403 Forbidden when authenticated but lacking permission/roles \u2014 only 401 (unauthenticated) is covered.",
+              "Streaming / Partial Download Behavior: No tests for streaming behavior, partial downloads, range requests or resume support.",
+              "UUID edge cases: No tests for valid-but-unusual UUID variants (uppercase vs lowercase, URL-encoded, leading/trailing whitespace) or path-encoding issues.",
+              "Partial/Transactional Failures: No scenarios for partial export failures (some resources fail to export) and how such cases are reported or cleaned up.",
+              "Accept Header / Content Negotiation: No tests for client Accept header variations or fallback behavior.",
+              "Sustained Load / Stress Testing: Only a single large-data perf test; no sustained throughput or stress tests to detect resource exhaustion."
+            ],
+            "recommendations": [
+              "Add archive-content validations: unpack the returned archive and assert expected files (manifest, account data, invoices, etc.), verify file formats and that exported content matches the DB snapshot.",
+              "Add caching tests: assert presence/semantics of ETag, Cache-Control, Last-Modified and test If-None-Match / If-Modified-Since flows (expect 304 if applicable).",
+              "Add rate-limiting tests: issue high-rate bursts and sustained request patterns to assert 429 responses or configured throttling/backoff behavior; include retry/backoff guidance verification.",
+              "Add header-value validation tests: empty, whitespace-only, very long, or malformed X-Killbill-CreatedBy and optional headers to ensure appropriate 4xx responses and input validation.",
+              "Add authorization/permission tests: validate role/permission checks that should produce 403 (forbidden) for authenticated users without export rights, in addition to 401 for unauthenticated requests.",
+              "Add response-header checks: validate Content-Disposition (suggested filename), Content-Length and Transfer-Encoding; add tests to ensure streaming vs buffering behaviour and acceptable memory usage for large exports.",
+              "Clarify pagination applicability in the API spec; if pagination is irrelevant for a single-stream export, note as N/A in guidelines; otherwise add pagination tests.",
+              "Add streaming/resume tests: simulate interrupted downloads and test resume or client behavior when connection is dropped mid-stream, and validate that partial data is handled safely.",
+              "Add UUID/Path edge-case tests: uppercase UUIDs, URL-encoded IDs, whitespace-trim behavior, and path-length/encoding edge cases.",
+              "Add partial-failure and transactional tests: simulate failures while exporting sub-resources and verify error propagation, partial vs full rollback behavior, and eventual consistency.",
+              "Expand performance tests: sustained concurrent exports, longer-duration load tests, and resource (CPU/memory/disk) profiling to detect exhaustion issues."
+            ],
+            "usage": {
+              "completion_tokens": 7097,
+              "prompt_tokens": 5510,
+              "total_tokens": 12607,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6016,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

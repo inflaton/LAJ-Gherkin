@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-09-28T05:50:48.265025",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:50:21.787119",
+    "benchmark_end_time": "2025-09-28T05:50:48.265021",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 26.477902,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Request (PUT): Multiple success scenarios cover the happy path (no query params, payAllUnpaidInvoices=true, pluginProperty present, optional headers present) and verify 204 responses and side effects (default set, invoices paid when requested).",
+              "Path parameter validation: Tests cover invalid UUID formats (accountId/paymentMethodId), partial UUIDs, and min/max UUID edge cases.",
+              "Resource existence: Tests cover non-existent account/paymentMethod and paymentMethod-not-belonging-to-account (404 cases).",
+              "Header validation & authorization: Tests cover required header missing (X-Killbill-CreatedBy -> 400) and unauthorized access (missing/invalid auth -> 401).",
+              "Optional headers and audit: There is a test for optional headers (X-Killbill-Reason, X-Killbill-Comment) and audit log verification.",
+              "Query-parameter behavior: payAllUnpaidInvoices true and default behavior (no query => no auto-pay) are covered; pluginProperty variations (multiple entries, empty array, max entries) are included.",
+              "Error and availability handling: Service unavailable (503) and downstream timeout behavior (504/503) scenarios are present.",
+              "Security and validation: Injection attempt in header is covered (400/422 expectation).",
+              "Concurrency & regression: Concurrency under concurrent requests, regression tests for prior bugs (clearing old default, account with no payment methods) are included.",
+              "Performance & scale: Large number of unpaid invoices case with response-time expectation is included.",
+              "Extra/unexpected parameters: Test for extra/unexpected query parameter (foo=bar) is included."
+            ],
+            "gaps": [
+              "Response headers and content-type: No assertions that responses include the expected Content-Type (application/json) or other API headers; 204 responses should be explicitly asserted to have no body but correct headers.",
+              "Error response schema/content: While many error statuses are tested, there are no strict checks of the error response schema/fields (error codes, error keys, consistent message formats).",
+              "Invalid query parameter types and values: No tests for invalid values for payAllUnpaidInvoices (e.g., non-boolean strings), or invalid pluginProperty types (non-array, malformed entries).",
+              "Idempotency / duplicate requests: No tests asserting PUT behavior under duplicate/replayed requests (idempotency guarantees).",
+              "Partial failure/transactionality when paying invoices: No tests for partial success/failure when payAllUnpaidInvoices=true (e.g., some invoice payments fail) and whether default setting is atomic or rolled back on payment failures.",
+              "Server error handling (5xx): There are availability/timeouts tests, but not explicit simulation/expectation for 500 Internal Server Error due to server/database faults and how the API surfaces those errors.",
+              "Authorization scopes / permissions (403): Tests cover unauthorized (401) but do not cover authenticated but forbidden cases (403) for insufficient privileges.",
+              "Rate limiting and throttling: No tests for multiple rapid requests, rate limiting behavior, or retry headers.",
+              "Caching behavior: No tests validate caching headers (ETag, Cache-Control) or cache-related semantics.",
+              "Plugin failure handling: No tests that mock plugin errors during payAllUnpaidInvoices to validate error propagation/rollback / retries."
+            ],
+            "recommendations": [
+              "Add assertions for response headers and Content-Type semantics (expect application/json where applicable) and explicitly assert 204 responses contain no body.",
+              "Create tests that validate error response schema and fields for 4xx/5xx responses so clients can rely on a stable error contract.",
+              "Add negative tests for query parameters: invalid payAllUnpaidInvoices values (e.g., \"yes\", \"1\", \"null\") and malformed pluginProperty payloads (non-array or invalid strings).",
+              "Add idempotency/duplicate-request tests: resend the same PUT and verify stable outcome and no duplicate side effects (e.g., duplicate payment attempts).",
+              "Add transactional/partial-failure tests for payAllUnpaidInvoices=true: simulate some invoice payments failing and assert whether default is set and how failures are reported; document expected atomicity behaviour.",
+              "Add server error (500) simulations (e.g., DB failure) to ensure the API surfaces proper 5xx responses and logs them appropriately.",
+              "Add tests for authenticated-but-forbidden (403) scenarios to cover permission-related failures.",
+              "Add rate-limiting/throttling tests by issuing many requests in a short time and asserting 429 or backoff behavior and acceptable degradation.",
+              "Add caching-related tests if applicable (ETag, Cache-Control headers) or explicitly assert no caching for this endpoint if intended.",
+              "Add plugin-failure simulations (mock plugin errors/timeouts) when payAllUnpaidInvoices=true to validate retries, error messages, and that system remains consistent."
+            ],
+            "usage": {
+              "completion_tokens": 2223,
+              "prompt_tokens": 6898,
+              "total_tokens": 9121,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

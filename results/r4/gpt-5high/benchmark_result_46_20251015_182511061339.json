@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-15T18:25:11.061301",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T18:22:20.964298",
+    "benchmark_end_time": "2025-10-15T18:25:11.061297",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 170.096999,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "DELETE: Valid deletion/invalidation for a valid account returns 204 and verifies side effect (account caches invalidated) [TC01].",
+              "DELETE: Non-existent resource handling returns 404 (unknown account, empty DB, partially populated DB) [TC02, TC16, TC18].",
+              "Input validation on path param: invalid UUID -> 400; missing path segment -> 404; boundary/oversized id handled -> 400/404 [TC03, TC04, TC10, TC12].",
+              "Authorization/Security: unauthenticated and expired/invalid tokens -> 401; injection attempts (SQL/XSS) rejected -> 400 [TC05, TC06, TC14, TC15].",
+              "Method constraints: unsupported method returns 405 [TC11].",
+              "Resilience/faults: dependent cache service down -> 503; degraded performance tolerance; transient network failure with retry -> success [TC07, TC08, TC17].",
+              "Performance/concurrency: concurrent DELETEs across multiple accounts succeed and meet latency target [TC13].",
+              "Query parameter tolerance: extra query params ignored; operation still succeeds [TC09].",
+              "Regression/backward compatibility coverage [TC19].",
+              "Guideline applicability note: Soft deletes are not applicable for cache invalidation (no resource is being deleted)."
+            ],
+            "gaps": [
+              "DELETE guideline - Concurrency on the same account and idempotency: simultaneous or repeated DELETEs for the same account are not tested; expected behavior should remain 204 without errors.",
+              "Headers and content negotiation: Story states Produces: application/json. Tests do not assert Content-Type for error responses (400/404/503), nor Accept negotiation, nor that 204 has no message body and correct Content-Length; 405 response should include Allow header.",
+              "Authorization/RBAC: Authenticated but non-admin (insufficient privileges) scenario returning 403 is missing.",
+              "Request body handling: Endpoint has no body; no test sending an unexpected body or unsupported Content-Type (should be rejected with 400/415 or ignored).",
+              "Side-effects isolation: No assertion that only the targeted account caches are invalidated while other accounts remain unaffected.",
+              "Race with resource lifecycle: Invalidation while account is being created/deleted (or immediately after deletion) not covered; expected outcome (likely 404 or 204) is undefined.",
+              "Error contract: Structure of error payload (e.g., fields code, message) and consistency across 400/404/503 not validated.",
+              "Method matrix completeness: Only GET is tested for 405; HEAD/POST/PUT/PATCH/OPTIONS not covered (and Allow header not asserted)."
+            ],
+            "recommendations": [
+              "Add idempotency and same-account concurrency scenarios: two or more concurrent DELETEs on the same account; both should return 204; verify no race conditions or 5xx.",
+              "Add a sequential double-delete test on the same account (call DELETE twice); both should return 204 and caches remain validly cleared.",
+              "Add RBAC test for an authenticated non-admin user to validate 403 Forbidden.",
+              "Assert headers: for 204 ensure empty body and Content-Length: 0; for 400/404/503 assert Content-Type: application/json and error schema; for 405 assert Allow header lists DELETE (and possibly OPTIONS); consider Retry-After for 503 if applicable.",
+              "Add negative test sending an unexpected request body with Content-Type application/json or text/plain; verify 400/415 or that the body is ignored per API contract.",
+              "Verify isolation: after invalidating one account, assert caches for other accounts are unchanged.",
+              "Expand method matrix to include HEAD/POST/PUT/PATCH/OPTIONS and validate 405 (or correct behavior for HEAD/OPTIONS).",
+              "Define and enforce a standard error schema (code/message/type) and assert it for 400/404/503 responses.",
+              "Cover lifecycle race: attempt invalidation while account deletion/creation occurs and define/verify expected outcome (likely 404 if missing, 204 otherwise)."
+            ],
+            "usage": {
+              "completion_tokens": 7194,
+              "prompt_tokens": 4640,
+              "total_tokens": 11834,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6336,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

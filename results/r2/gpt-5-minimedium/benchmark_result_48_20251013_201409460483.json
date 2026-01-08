@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-13T20:14:09.460457",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T20:13:19.072408",
+    "benchmark_end_time": "2025-10-13T20:14:09.460453",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 50.388045,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Successful PUT operation returning 204 and marking the host in rotation (TC01).",
+              "Idempotency / already-in-rotation behavior returning 204 and not changing state (TC02).",
+              "Authentication and authorization negative paths: 401 Unauthorized and 403 Forbidden (TC03, TC04, TC09).",
+              "Endpoint-level negative conditions: service unavailable (503) and method-not-allowed (405) (TC05, TC06).",
+              "Tolerance to unexpected inputs: PUT with unexpected payload and extra headers still results in 204 (TC07, TC08).",
+              "Operational concerns: degraded performance timeout handling and retry/network interruption behavior (TC10, TC13).",
+              "Concurrency and race conditions: high-concurrency scenario to verify no race condition when multiple PUTs arrive (TC14).",
+              "Regression and basic security test cases: regression verification and a header injection attempt (TC11, TC12)."
+            ],
+            "gaps": [
+              "Content-Type / response media type: story requires \"produces: application/json\" but no test asserts the Content-Type header on success or error responses (even for 204 responses).",
+              "400 Bad Request / malformed input semantics: no explicit negative test asserting 400 for malformed payloads (even though request body is N/A, malformed bodies or invalid JSON may still occur).",
+              "Generic server error (5xx) handling beyond 503: no explicit tests for 500 Internal Server Error or database failures / server-side exceptions to verify >=400 error handling per acceptance criteria.",
+              "Non-existing resource / host context: the story implies operating on host state, but there is no test for the case where the targeted host is not present or addressable (e.g., 404 or meaningful error).",
+              "Authorization header variants and header validation: missing/incorrect header permutations are partially covered but not exhaustive (e.g., expired tokens, malformed tokens, multiple auth schemes).",
+              "Content validation and body schema: although body is N/A, there is no test asserting the server rejects disallowed partial updates or validates unexpected JSON structure with a clear error code.",
+              "Rate limiting / throttling: the standard guidelines request rate limiting tests; only concurrency for correctness is covered (TC14) but not rate-limit behavior/throttling.",
+              "Exact timeout/retry semantics: TC10 and TC13 mention timing and retry but do not assert explicit timeout thresholds, retry backoff behavior, or idempotency guarantees under partial failures."
+            ],
+            "recommendations": [
+              "Add assertions for the Content-Type header on successful (204) and error responses to satisfy \"produces: application/json\" from the story. Even if the body is empty for 204, verify the response headers explicitly.",
+              "Add a negative test for malformed request bodies (e.g., invalid JSON, unexpected content-type) that asserts a 400 Bad Request (or documents why 204 is still returned), clarifying server behavior for invalid input despite \"N/A\" body in the story.",
+              "Add tests simulating server-side failures that result in 500 Internal Server Error (or other 5xx) to confirm the API returns status codes >=400 for errors per acceptance criteria.",
+              "If applicable, add a test for a non-existing/unaddressable host (or clarify the API is host-agnostic). If the endpoint operates globally, document that and remove the test; otherwise add a 404/meaningful error test.",
+              "Expand authentication tests to include expired tokens, malformed tokens, and multiple auth header permutations to be exhaustive about 401/403 behavior.",
+              "Add rate-limiting tests (large burst of requests to verify 429 / throttling behavior) separate from correctness under concurrency.",
+              "Make TC10/TC13 explicit about timing thresholds (e.g., assert response < 2s) and add tests for retry/backoff semantics and idempotency guarantees when partial failures occur.",
+              "Add a test asserting that unexpected/ potentially malicious payloads do not change system state and that inputs are sanitized/escaped (strengthen TC12 to assert no side-effects and no injection exploit)."
+            ],
+            "usage": {
+              "completion_tokens": 1819,
+              "prompt_tokens": 3274,
+              "total_tokens": 5093,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "19_2025-10-14T06:34:38.961405",
+    "jira_id": "19",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/search/{searchKey} - Search accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:31:41.730521",
+    "benchmark_end_time": "2025-10-14T06:34:38.961401",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 177.23088,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "19_qe_sup-gpt4.1_agent-gpt4.1_1748917082.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Request: Happy-path and rich success coverage including only required path param (TC01), each query param individually (offset, limit, accountWithBalance, accountWithBalanceAndCBA, audit FULL/MINIMAL) and multiple combinations including all params together (TC02, TC03).",
+              "Empty Response: No matches and empty database both return 200 with an empty JSON array (TC04, TC05).",
+              "Pagination: offset/limit exercised individually and in combination; large dataset exercised with limit=1000 and performance expectation (TC02, TC03, TC15).",
+              "Query Parameters: Robust positive/negative validation of query params (invalid search key, invalid numeric/boolean/enum, unexpected extra param ignored) and security-focused input validation (SQLi/XSS) (TC06\u2013TC08, TC12\u2013TC14).",
+              "Authorization: Missing/invalid auth tokens correctly return 401 (TC09, TC10).",
+              "Error/Resiliency: Service unavailable, dependency failure, and timeout paths covered with 503/502/504 as appropriate (TC11, TC16, TC19).",
+              "Regression/Compatibility: Empty searchKey rejected with 400; path-only (backward compatibility) succeeds (TC17, TC18)."
+            ],
+            "gaps": [
+              "Caching Behavior: No checks for ETag/Last-Modified, Cache-Control headers, or conditional GET (If-None-Match/If-Modified-Since) returning 304.",
+              "Rate Limiting/Throttling: No scenarios validating burst behavior or 429 Too Many Requests and related X-RateLimit-* headers. Concurrency is tested but not rate limiting.",
+              "Response headers/content negotiation: No assertions for Content-Type=application/json (per Produces) or handling of unacceptable Accept headers (e.g., 406).",
+              "Default parameter behavior: No explicit validation that the defaults apply (offset=0, limit=100) when omitted, especially with >100 matches.",
+              "Pagination edge cases: No tests for offset beyond result set (should return empty array), boundary values like limit=0, extremely large limit, or stable ordering across pages.",
+              "URL encoding and Unicode: No tests for URL-encoded search keys (spaces, slashes, %2F, plus signs) or non-ASCII/Unicode input to ensure correct decoding and matching.",
+              "Boolean/enum validation completeness: Missing invalid-value test for accountWithBalanceAndCBA; no explicit test for audit=NONE (only inferred by default).",
+              "Schema validation: Scenarios assert presence of some fields but do not validate the full Account schema against the OpenAPI definition or ensure forbidden fields are absent when flags are false.",
+              "Flag precedence/consistency: No explicit test defining behavior when accountWithBalance and accountWithBalanceAndCBA are both present with conflicting values (e.g., true/false).",
+              "Authorization depth (conditional): If RBAC exists, no 403 Forbidden coverage for authenticated-but-unauthorized callers."
+            ],
+            "recommendations": [
+              "Add caching scenarios: verify ETag/Last-Modified and Cache-Control on responses; exercise conditional GET returning 304 when unchanged.",
+              "Introduce rate limiting tests: run short-burst traffic to verify 429 behavior (or absence by design) and assert X-RateLimit-Limit/Remaining/Reset headers.",
+              "Validate headers and content negotiation: assert Content-Type=application/json; add test with unsupported Accept header expecting 406 Not Acceptable.",
+              "Cover default params explicitly: with >100 matches, request without query params should return at most 100 (default limit) and start at offset 0.",
+              "Add pagination edge/boundary tests: offset beyond results yields empty array; limit=0 behavior; very large limit handling; verify consistent ordering across pages.",
+              "Test URL-encoded and Unicode search keys: encoded spaces (%20), slashes (%2F), plus (+), emojis/non-ASCII to confirm proper decoding and matching.",
+              "Complete validation matrix: add invalid boolean for accountWithBalanceAndCBA; add explicit audit=NONE scenario; consider repeated params behavior if applicable.",
+              "Incorporate schema validation: validate each item against the Account schema (OpenAPI/JSON Schema) and verify absence/presence of balance/CBA/audit fields based on flags.",
+              "Define and test precedence for overlapping flags: when both balance flags are provided with conflicting values, document and assert the expected outcome.",
+              "Optionally, if RBAC applies: add 403 Forbidden scenario for authenticated users lacking permission to search accounts."
+            ],
+            "usage": {
+              "completion_tokens": 7868,
+              "prompt_tokens": 6048,
+              "total_tokens": 13916,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6912,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

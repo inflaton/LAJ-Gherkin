@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-13T19:27:18.272892",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:26:40.570723",
+    "benchmark_end_time": "2025-10-13T19:27:18.272887",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 37.702164,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Success path (204) for a valid UUID accountId is covered (TC01, TC19).",
+              "Invalid/Bad Request handling: Invalid UUID formats, malformed input, SQL injection and XSS patterns are covered (TC03, TC12, TC14, TC15).",
+              "Non-Existent Resource: 404 scenarios covered in multiple states (TC02, TC16, TC18).",
+              "Authentication: Missing and expired/invalid token scenarios are covered (TC05, TC06).",
+              "HTTP Method handling: Unsupported method (GET) tested for 405 (TC11).",
+              "Service availability and error handling: Cache service unavailable and degraded performance paths covered (TC07, TC08).",
+              "Query parameter tolerance: Extra query parameters handling is covered (TC09).",
+              "Concurrency/Performance: Concurrent DELETE requests and a basic performance SLA covered (TC13).",
+              "Edge and state cases: No-accounts and partially-populated DB states are covered (TC16, TC18).",
+              "Regression coverage: Specific regression cases for invalid UUID patterns and backward-compatibility are present (TC12, TC19)."
+            ],
+            "gaps": [
+              "Content-Type / Response Headers: The Jira success acceptance notes \u201cProduces: application/json\u201d are not asserted. Tests assert empty body but do not verify response Content-Type or other headers (e.g., Cache-Control, ETag) on success or error.",
+              "Authorization role enforcement (403): There is no scenario testing an authenticated non-admin / insufficient-permission user (should return 403).",
+              "Idempotency / repeated deletes: No explicit test that repeated DELETE on the same account is idempotent or the observed behavior on subsequent calls (204 vs 404).",
+              "Soft-delete semantics: No tests examine whether account-level cache invalidation interacts with soft-deleted accounts or soft-delete flags.",
+              "Scoped invalidation verification: Tests do not assert that only the targeted account caches were invalidated and that other accounts\u2019 caches remain intact.",
+              "Error response format consistency: Tests check for an error message but do not validate standardized error payload shape or Content-Type for error responses.",
+              "Rate limiting / Throttling: No tests for rate limiting or behavior under request storms beyond the single concurrent test.",
+              "Race condition on delete vs other operations: While concurrent deletes are tested, scenarios where another actor concurrently deletes or modifies the account resource (race leading to 204/404 ambiguity) are not explicitly covered."
+            ],
+            "recommendations": [
+              "Assert response Content-Type and relevant headers (e.g., Content-Type: application/json, Cache-Control, ETag) for both success (204) and error responses to match acceptance notes and client expectations.",
+              "Add an authorization-role test: authenticated non-admin user should get 403 (forbidden) when attempting the endpoint.",
+              "Add idempotency tests: call DELETE twice for same account and assert agreed behavior (either second call is 204 or 404) and document expected contract.",
+              "Add tests for scoped invalidation: verify caches for the targeted account are removed and caches for other accounts remain present/unaffected.",
+              "Add standardized error-payload validation: assert structure and fields of error responses (code, message, type) and Content-Type for errors.",
+              "Add rate-limiting/throttling tests: high request rate to verify 429 or other throttling behavior as applicable.",
+              "Add race-condition tests where account gets deleted/modified between request initiation and processing to validate consistent semantics (concurrency with other resource ops).",
+              "If soft-delete semantics exist in the system, add tests validating behavior when account is soft-deleted vs hard-deleted (and whether caches are invalidated in both cases)."
+            ],
+            "usage": {
+              "completion_tokens": 1998,
+              "prompt_tokens": 4640,
+              "total_tokens": 6638,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

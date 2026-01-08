@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "53_2025-10-13T05:23:08.788454",
+    "jira_id": "53",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/tags - Add tags to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:22:42.496540",
+    "benchmark_end_time": "2025-10-13T05:23:08.788450",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 87,
+    "average_generation_time_seconds": 26.29191,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 87,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "53_qe_sup-gpt4.1_agent-gpt4.1_1748919377.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 87,
+            "covered": [
+              "Valid Payload: Multiple successful-creation scenarios (TC01, TC02, TC03, TC04, TC05, TC20) validate correct behavior for valid inputs and required/optional headers.",
+              "Invalid Payload / Validation: Malformed JSON (TC10), non-array body (TC11), invalid tag UUIDs (TC12), missing body (TC14), missing required header (TC13), invalid bundleId format (TC08) and non-existent bundleId (TC09) are covered.",
+              "Duplicate / Already-existing tags: Scenarios cover adding tags when some are already present (TC06) and preventing duplicate Tag objects in responses (TC26).",
+              "Large/Boundary Payloads: Maximum allowed payload and exceeding payload tests are present (TC20, TC21).",
+              "Server Error Handling & Resilience: Backend unavailability (TC17), slow backend causing timeout (TC22), and transient network retry/recovery (TC19) are present.",
+              "Authentication/Authorization: Unauthorized access is tested (TC16).",
+              "Security/Input-sanitization: Malicious payload injection is tested (TC18).",
+              "Integration & Consistency: Post->Get verification (TC27) and cross-service consistency (TC28) are included.",
+              "Performance & Concurrency: Normal load and peak/concurrent requests tests are present (TC24, TC25).",
+              "Optional/Extra headers: Use of optional headers X-Killbill-Reason and X-Killbill-Comment is covered (TC02).",
+              "Edge cases: Empty tag list handled (TC07).",
+              "Extra unsupported headers: Behavior when extra HTTP headers are sent is tested (TC23)."
+            ],
+            "gaps": [
+              "Content-Type and response MIME checks: No explicit tests verify Content-Type request header (application/json) is required or response Content-Type (produces application/json) is returned.",
+              "Partial-success semantics for mixed arrays: No explicit test for request bodies that mix valid and invalid tag UUIDs to assert whether operation is atomic (all-or-nothing) or partial (create valid, reject invalid).",
+              "500 Internal Server Error: While 503/504 are covered, explicit simulation/assertion of 500-level unexpected server errors is missing.",
+              "Rate limiting / throttling: No tests cover rate limits or behavior when the client exceeds allowed request rate.",
+              "Caching / HTTP caching headers: No tests verify caching behavior (ETag, Cache-Control) or caching-related headers in responses.",
+              "Idempotency / duplicate submission across requests: Tests cover duplicates inside a single request and pre-existing tags, but not repeated identical POST submissions from the client (client retries producing same request) and how duplicates are handled across repeated submissions.",
+              "Header validation detail: Tests do not validate constraints on X-Killbill-CreatedBy (empty string, length limits, invalid characters) or behavior for malformed optional headers.",
+              "Content negotiation / missing Content-Type: No tests for missing/incorrect Content-Type header (e.g., text/plain) and how server responds.",
+              "Concurrency race conditions for duplicate/tag creation: Concurrent requests are included (TC25) but there is no focused test for race conditions creating the same tag simultaneously to ensure no duplicates or transactional integrity.",
+              "Behavior for extra fields in array elements: TC15 asserts extra unsupported parameters are rejected, however the acceptance criteria/schema ambiguity means a test to assert whether extra fields are ignored vs rejected should be explicit.",
+              "Response schema validation: Tests check bundleId and tagDefinitionId but do not fully validate the returned Tag object against the Tag schema (other mandatory fields, timestamps, IDs)."
+            ],
+            "recommendations": [
+              "Add tests that assert request Content-Type must be application/json and response Content-Type is application/json; verify error if Content-Type is missing/incorrect.",
+              "Add a test for a mixed-array body (some valid tagDefinition UUIDs and some invalid/non-existent UUIDs) to confirm whether service behaves atomically or does partial success and to assert the expected response and database state.",
+              "Add a test simulating a 500 Internal Server Error (e.g., database exception) and assert the server returns 500 with a suitable error payload.",
+              "Introduce rate-limiting tests: rapid-fire requests to verify 429 or configured throttling behavior and ensure proper retry guidance in headers.",
+              "Add tests to verify caching headers on responses where applicable or explicitly assert no caching for POST responses; include ETag/Cache-Control checks for any GET responses used in integration verification.",
+              "Add idempotency/duplicate-submission tests: send the exact same POST twice (client retry) and assert expected behavior (either create-once or return existing tags without duplicates).",
+              "Add header validation tests for X-Killbill-CreatedBy (empty, overly long, non-ASCII) and for malformed optional headers to ensure clear validation errors.",
+              "Add tests for missing/incorrect Content-Type header values to ensure server rejects non-JSON payloads with 400 and clear error message.",
+              "Add focused concurrency test(s) that attempt to create the same tag(s) concurrently for the same bundle to verify transactional integrity and absence of duplicate Tag records.",
+              "Clarify schema behavior for array elements and add explicit tests for extra fields inside array elements both when server should ignore and when it should reject; align tests with the API contract.",
+              "Enhance response validation to assert full Tag object schema (all required fields, types, and reasonable values like createdDate), not just bundleId and tagDefinitionId."
+            ],
+            "usage": {
+              "completion_tokens": 2415,
+              "prompt_tokens": 6808,
+              "total_tokens": 9223,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-10-15T13:25:14.970006",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:24:25.650764",
+    "benchmark_end_time": "2025-10-15T13:25:14.970000",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 49.319236,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Successful removal of all fields (TC01), specific fields via multi query params (TC02), empty account (TC04), duplicate IDs idempotency (TC14), repeated deletion idempotency (TC15).",
+              "DELETE - Non-Existent Resource: Behavior covered (TC06) with 204 no-op, though expectation should be confirmed with product/API spec.",
+              "DELETE - Concurrency: High concurrency/peak load delete requests (TC16) and idempotent repeats (TC15) reduce race-condition risk.",
+              "Validation: Required header enforced (TC07), invalid accountId format -> 400 (TC05), invalid customField UUID -> 400 (TC08), multi-value query format exercised (TC02, TC14).",
+              "Authorization: Unauthorized/forbidden access returns 401/403 (TC10).",
+              "Operational/Resilience: Backend failure -> 500 (TC11); network timeout/504 considered (TC12).",
+              "Security/Injection: SQLi-style accountId and XSS in query param rejected with 400 (TC19, TC20).",
+              "Scalability: Large number of IDs in query handled (TC13).",
+              "Integration consistency: Post-delete state verified via GET and dependent service (TC01, TC02, TC04, TC17)."
+            ],
+            "gaps": [
+              "Result contract/headers: Story states produces application/json; tests do not assert response headers (e.g., Content-Type on 204/400) nor standardized error schema for 4xx/5xx.",
+              "Atomicity with mixed validity: No scenario where some customField IDs are valid and others invalid in the same request to verify all-or-nothing behavior and 400 response without partial deletion.",
+              "Ownership/association checks: No test where provided customField IDs are well-formed but do not belong to the specified account (and mixed belongs/not-belongs).",
+              "Ambiguity for non-existent account: TC06 assumes 204; the story does not specify expected behavior. Add spec-aligned test or clarify whether 404 vs 204 is correct.",
+              "Soft delete behavior: If soft deletes/auditability are expected, there is no test verifying soft-deleted state vs permanent removal.",
+              "Audit propagation: Reason/Comment/CreatedBy are set (TC03) but not verified in audit logs/history endpoints.",
+              "Rate limiting/throttling: No coverage for 429 or behavior under burst traffic distinct from performance timing.",
+              "Concurrency race specifics: No scenario with two concurrent delete operations targeting overlapping subsets to verify consistency/no partial interleaving.",
+              "Query parameter edge cases: Empty customField value (customField=), duplicated and non-existent IDs together, very long query string handling, and rejection/acceptance of unknown params (TC09 assumes ignore; behavior should be confirmed).",
+              "Error detail: No verification of precise 400 reasons for different validation failures (invalid UUID vs bad pattern vs empty param) and correlation IDs for troubleshooting if applicable."
+            ],
+            "recommendations": [
+              "Add assertions for response headers and error payload contract: verify Content-Type, problem/error schema fields (code, message), and that 204 responses have no body.",
+              "Create mixed-validity test: include valid and invalid customField IDs in one request; expect 400 and no deletions (atomic).",
+              "Add association validation tests: provide UUIDs not attached to the account (and mixed with valid ones); define expected behavior (ignore non-associated vs 400) and verify no unintended deletions.",
+              "Clarify and test expected behavior for non-existent accountId (204 idempotent no-op vs 404). Align tests with agreed spec.",
+              "If soft deletes are part of the system, add scenarios to verify soft-deleted state, recoverability, and absence in standard GET results while present in audit/history.",
+              "Verify audit trail: after deletion with CreatedBy/Reason/Comment, assert corresponding audit records via audit endpoints contain these values.",
+              "Introduce rate-limiting scenarios: burst DELETEs beyond limits should yield 429 with retry headers if enforced.",
+              "Add targeted concurrency tests: two users deleting overlapping subsets; verify final set is correct, no partial failures, and all responses are appropriate (mostly 204).",
+              "Extend query param edge tests: empty values, whitespace, case sensitivity, non-existent IDs, and confirm behavior for unknown params (reject with 400 or ignore consistently).",
+              "Differentiate 401 vs 403 explicitly: add two scenarios to assert correct status code semantics for unauthenticated vs authenticated-but-unauthorized."
+            ],
+            "usage": {
+              "completion_tokens": 2178,
+              "prompt_tokens": 5440,
+              "total_tokens": 7618,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-15T12:11:11.812247",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:10:16.405165",
+    "benchmark_end_time": "2025-10-15T12:11:11.812242",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 55.407077,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid deletion (204) for normal flows and with optional headers \u2014 TC01, TC02, TC12, TC13, TC17, TC18",
+              "Required header enforcement (X-Killbill-CreatedBy) and missing-header negative case \u2014 TC07",
+              "Optional headers accepted (X-Killbill-Reason, X-Killbill-Comment) without causing failure \u2014 TC02",
+              "Input validation for path parameters: invalid accountId -> 400 and invalid email -> 400 \u2014 TC05, TC06",
+              "Resource-not-found handling for account/email -> 404 \u2014 TC03, TC04, TC09",
+              "Authentication negative case (invalid/expired token -> 401) \u2014 TC10",
+              "Dependency/service failure handling (503) \u2014 TC11",
+              "Concurrency/race conditions for deletes \u2014 TC15",
+              "Security input validation (XSS/injection in path) -> 400 \u2014 TC16",
+              "Boundary tests for email lengths (very long and minimal) \u2014 TC12, TC13",
+              "Tolerance of extra/unsupported query parameters (no failure) \u2014 TC08",
+              "Transient network and retry behavior covered (retry succeeding after transient failure) \u2014 TC19",
+              "Performance check for response time SLA (<500ms) \u2014 TC14"
+            ],
+            "gaps": [
+              "Soft-delete vs hard-delete semantics not exercised (no verification whether record is flagged \"deleted\" or removed permanently)",
+              "Idempotency semantics are not defined/covered explicitly \u2014 TC15 expects one 204 then 404s, but acceptance criteria does not define expected repeated-DELETE behavior",
+              "Granular authorization/permission scenarios (403 Forbidden for valid token without delete permission) are missing \u2014 only invalid-token -> 401 is tested",
+              "Response headers and Content-Type checks are missing (story says \"Produces: application/json\" but tests do not assert Content-Type or error response schema)",
+              "Audit/logging verification is absent \u2014 no tests assert that X-Killbill-CreatedBy, Reason, Comment are recorded in logs/audit trail",
+              "URL/path-encoding and special-character handling for the {email} path (percent-encoding, +, /, spaces, unicode) are not covered",
+              "Header edge-cases (oversized CreatedBy/Reason/Comment, malformed header values, non-ASCII) are not tested",
+              "Rate-limiting/throttling behavior is not covered",
+              "Behavior when multiple identical email entries exist for an account (duplicates) is not covered",
+              "Error-response schema validation beyond a free-text message (structured error fields, codes) is not validated"
+            ],
+            "recommendations": [
+              "Add tests that assert response headers and Content-Type for both success and error responses (e.g., Content-Type: application/json) and validate error JSON schema",
+              "Define and add idempotency tests: specify expected behavior for repeated DELETE requests and add tests that assert that behavior (consistent 204 or consistent 404)",
+              "Add tests for soft-delete semantics: verify whether deleted flag exists, whether the record can be recovered, and whether search/list endpoints exclude soft-deleted emails",
+              "Add RBAC/permission tests that use a valid token lacking delete permissions and expect 403 Forbidden",
+              "Add URL-encoding tests for emails with +, %, /, spaces and unicode characters and ensure server handles encoded and unencoded inputs correctly",
+              "Add audit/log verification tests to ensure X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment are recorded to the audit store or logs",
+              "Add header validation tests for too-long or malformed header values and non-ASCII content in headers",
+              "Add rate-limiting/throttle tests (burst requests) and validate server behavior under high request load",
+              "Add tests for duplicate-email scenarios (multiple identical addresses) and define expected deletion behavior",
+              "Clarify acceptance criteria about response bodies for 204 (empty vs application/json) and add tests that assert the agreed contract for success responses"
+            ],
+            "usage": {
+              "completion_tokens": 6588,
+              "prompt_tokens": 5675,
+              "total_tokens": 12263,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5760,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

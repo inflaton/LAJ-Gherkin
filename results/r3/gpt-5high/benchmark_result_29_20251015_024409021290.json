@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-10-15T02:44:09.021262",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:41:24.623533",
+    "benchmark_end_time": "2025-10-15T02:44:09.021258",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 164.397725,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT - Valid Request: Success cases verify 204 and that the specified payment method becomes default (TC01, TC02, TC03, TC04, TC05, TC24).",
+              "PUT - Non-Existing Resource: 404s for non-existent account/payment method, method not belonging to account, and account with no methods (TC08, TC09, TC10, TC21).",
+              "PUT - Concurrency Issues: Concurrent requests result in a single default; system remains consistent (TC22).",
+              "Validation: 400s for invalid UUID formats and substrings, and missing required header (TC06, TC07, TC11, TC23).",
+              "Authorization/Authentication: 401 for invalid/missing auth token (TC12).",
+              "Operational resilience: Service unavailable and timeout behaviors covered (503/504) (TC13, TC18).",
+              "Auditability: Optional reason/comment captured in audit log (TC04).",
+              "Regression: Old default cleared when new default is set (TC20).",
+              "Query parameters: payAllUnpaidInvoices behavior (default false vs true) and pluginProperty multi-value and empty cases (TC01, TC02, TC05, TC03, TC24); performance with many unpaid invoices (TC17).",
+              "Security hardening: Injection attempt in header is rejected (TC19)."
+            ],
+            "gaps": [
+              "Idempotency: No scenario verifies that setting the already-default payment method again returns 204 and causes no duplicate work (especially with payAllUnpaidInvoices=true).",
+              "Response contract for 204: Tests do not assert that the body is empty and headers (e.g., Content-Type) are appropriate for a 204 response.",
+              "Boolean query validation: No tests for invalid payAllUnpaidInvoices values (e.g., foo, 1, TRUE/False case) and expected 400 handling.",
+              "pluginProperty robustness: No scenarios for URL-encoding/special characters, duplicates, extremely long values, or exceeding server limits and expected error (e.g., 400/413).",
+              "Authorization (RBAC): No 403 Forbidden scenario for authenticated users lacking permission to modify the account.",
+              "Server error handling: No 500 Internal Server Error coverage (e.g., database failure during update or invoice payment attempts).",
+              "Unknown query parameters: TC14 assumes 204; behavior should be specified (ignore vs reject). Lack of explicit assertion per spec is a gap.",
+              "Persistence verification: Success scenarios do not read back the account/payment methods to confirm the new default via a GET endpoint.",
+              "Payment attempt outcomes: No scenario defines behavior when some invoice payments fail under payAllUnpaidInvoices=true (e.g., default still set, errors reported/logged).",
+              "Content-Type handling: No test for 415 Unsupported Media Type or incorrect body sent even though endpoint nominally consumes application/json with no body.",
+              "Audit completeness: No check that X-Killbill-CreatedBy is recorded in audit/history (only reason/comment verified).",
+              "Concurrency with payAllUnpaidInvoices: No test ensuring no duplicate charges or double payment attempts when concurrent setDefault calls include payAllUnpaidInvoices=true."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: calling setDefault with the same paymentMethodId repeatedly returns 204 and makes no extra payment attempts, even with payAllUnpaidInvoices=true.",
+              "Assert the 204 response contract: ensure the body is empty and Content-Type is absent or appropriate; document and test the expected headers.",
+              "Add invalid boolean tests for payAllUnpaidInvoices (e.g., payAllUnpaidInvoices=foo, 1, TRUE) and expect 400 with a clear validation message; also test case sensitivity as per spec.",
+              "Extend pluginProperty tests: include URL-encoded values, special characters, duplicates, very long values, and beyond-limit counts to confirm proper 400/413 handling.",
+              "Add a 403 Forbidden scenario for an authenticated user without permission to update the account\u2019s payment methods.",
+              "Introduce a 500 Internal Server Error scenario (e.g., DB failure) to validate error format and stability under server-side failures.",
+              "Clarify and test behavior for unknown query parameters: either assert they are ignored or that the API returns 400; update TC14 to reflect the agreed behavior.",
+              "Verify persistence by reading the account/payment methods after PUT (e.g., GET payment methods) to confirm the default flag is updated.",
+              "Add a scenario where payAllUnpaidInvoices=true but some payments fail (declines/timeouts); define and test expected behavior (default still set, error details/logging).",
+              "Test Content-Type handling: sending a body or wrong Content-Type should yield 415 (or be ignored) per the API contract.",
+              "Augment audit tests to verify X-Killbill-CreatedBy is accurately captured in audit logs/history alongside reason/comment.",
+              "Add concurrency with payAllUnpaidInvoices=true to ensure no duplicate charges occur and payment attempts are deduplicated or serialized safely."
+            ],
+            "usage": {
+              "completion_tokens": 7314,
+              "prompt_tokens": 6898,
+              "total_tokens": 14212,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6208,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-15T02:11:16.820842",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:09:12.074165",
+    "benchmark_end_time": "2025-10-15T02:11:16.820837",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 124.746672,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "DELETE: Valid Deletion \u2014 204 on success with account marked closed; side-effects per flags validated (defaults, each flag alone, pairwise, all true).",
+              "DELETE: Non-Existent Resource and idempotency \u2014 204 for already-closed and non-existent accounts; retry is idempotent.",
+              "DELETE: Soft delete behavior \u2014 verifies closed state rather than hard delete; default removeFutureNotifications applied.",
+              "Header validation \u2014 required X-Killbill-CreatedBy enforced (400 when missing); optional headers allowed; backward compatibility with only required headers.",
+              "Error handling \u2014 400 for invalid accountId format and SQL injection attempts; 500 for internal errors.",
+              "Authentication \u2014 401 for missing/invalid auth.",
+              "Parameter handling \u2014 exhaustive combinations of cancelAllSubscriptions, writeOffUnpaidInvoices, itemAdjustUnpaidInvoices, removeFutureNotifications; extra unsupported parameter ignored.",
+              "Performance/Scalability \u2014 large data processing and concurrent closures across multiple accounts.",
+              "Security hardening \u2014 XSS in header value sanitized."
+            ],
+            "gaps": [
+              "Concurrency on the same resource \u2014 no test for two concurrent DELETEs against the same account to ensure thread safety and single-application of side effects.",
+              "UUID pattern compliance \u2014 tests use placeholders (e.g., \"valid-uuid-1\") that don\u2019t match the required UUID regex; no positive test with a real UUID or boundary negatives near the pattern.",
+              "Response headers/content negotiation \u2014 acceptance criteria say Produces: application/json; tests don\u2019t assert Content-Type on errors or assert empty body for 204.",
+              "Authorization/permissions \u2014 no 403 scenario for authenticated but unauthorized user.",
+              "Rate limiting/throttling \u2014 no coverage for 429 behavior or Retry-After headers under burst traffic.",
+              "Audit trail \u2014 no verification that CreatedBy/Reason/Comment are persisted in audit/audit logs.",
+              "Query parameter validation \u2014 no tests for invalid boolean values (\"foo\"), case-insensitive values (\"TRUE\"), or duplicate parameters with defined precedence.",
+              "Soft-delete invariants \u2014 no follow-up tests ensuring closed accounts cannot perform restricted operations (e.g., create new subscriptions), if that\u2019s part of soft-delete semantics.",
+              "Downstream failure isolation \u2014 only DB failure tested; no scenarios where subscription cancellation, invoice write-off, or notification removal fails and how the API responds/compensates.",
+              "Spec alignment for unknown parameters \u2014 TC13 assumes extra params are ignored; specification does not state this behavior explicitly."
+            ],
+            "recommendations": [
+              "Use real UUIDs (e.g., 123e4567-e89b-12d3-a456-426614174000) for valid accounts and add tests for near-miss formats to verify 400 vs acceptance.",
+              "Add a race-condition test: fire two (or more) concurrent DELETEs on the same account; assert both return 204 and side effects occur exactly once (no duplicate cancellations/adjustments).",
+              "Assert response headers/body: for 204 verify empty body; for 4xx/5xx verify Content-Type: application/json and a structured error schema with field/context.",
+              "Add a 403 scenario for authenticated users lacking permission to close accounts.",
+              "Introduce rate-limiting tests to validate 429 responses and Retry-After when exceeding thresholds.",
+              "Verify audit logging: CreatedBy/Reason/Comment are persisted and retrievable from audit endpoints/logs.",
+              "Expand query-param validation: invalid values, case handling, and duplicate parameters with documented precedence; add negative tests for each.",
+              "Add soft-delete invariant checks (post-closure operations are blocked or constrained) if required by product behavior.",
+              "Simulate downstream failures (subscriptions/invoices/notifications) and define expected behavior (rollback vs partial success) with corresponding status codes.",
+              "Review and codify behavior for unknown query parameters (ignore vs reject with 400) and update TC13 accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 6893,
+              "prompt_tokens": 6316,
+              "total_tokens": 13209,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

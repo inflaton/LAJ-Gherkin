@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "1_2025-10-15T00:39:53.230256",
+    "jira_id": "1",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/tags - Retrieve account tags",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T00:37:15.413034",
+    "benchmark_end_time": "2025-10-15T00:39:53.230253",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 157.817219,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "1_qe_sup-gpt4.1_agent-gpt4.1_1748915835.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Happy path returns 200 with application/json and a JSON array of Tag objects; defaults (includedDeleted=false, audit=NONE) verified (TC01).",
+              "Query Parameters: includedDeleted and audit exercised individually and together (FULL, MINIMAL, combo), invalid audit value handled (400), unknown param tolerated (TC02\u2013TC05, TC09\u2013TC10).",
+              "Empty Response: Account with no tags returns an empty JSON array (TC06).",
+              "Error Scenarios (per story): 400 for invalid accountId format and edge cases; 404 for non-existent account (TC07\u2013TC08, TC20\u2013TC22).",
+              "Authorization: 401 covered for missing and invalid tokens (TC12\u2013TC13).",
+              "Resilience/Integration: API unavailability (503) and downstream failure (502) covered; regression checks included (TC11, TC18\u2013TC19, TC24\u2013TC25).",
+              "Security negatives: SQL injection-like and XSS attempts rejected with 400 (TC14\u2013TC15).",
+              "Performance/Concurrency: Large result set and concurrent requests validated with timing expectations (TC16\u2013TC17)."
+            ],
+            "gaps": [
+              "Caching Behavior: No verification of ETag/If-None-Match, Cache-Control/Expires headers, or 304 Not Modified.",
+              "Rate Limiting: No scenarios to validate 429 Too Many Requests or X-RateLimit-* headers under burst traffic.",
+              "Pagination: Not addressed; if the endpoint supports pagination, tests for limit/offset and Link headers are missing (clarify spec).",
+              "Authorization breadth: No 403 Forbidden/insufficient permissions scenario (e.g., valid token without required scope/tenant).",
+              "Contract/schema validation: Tag object shape per #/definitions/Tag is not asserted (required fields and types).",
+              "Content negotiation: No tests around Accept header handling (e.g., unsupported media types -> 406) or charset on Content-Type.",
+              "Query param robustness: No tests for includedDeleted with invalid values (e.g., includedDeleted=foo) or explicit includedDeleted=false; no explicit audit=NONE or enum case-sensitivity/whitespace handling.",
+              "Data-state edge case: Account with only deleted tags not covered (includedDeleted=false -> empty; includedDeleted=true -> deleted tags returned).",
+              "Error payload contract: Structure/content of error responses (code, message, details, correlation ID) not validated."
+            ],
+            "recommendations": [
+              "Add caching scenarios: capture ETag on first GET; repeat with If-None-Match to assert 304; verify Cache-Control/Expires headers.",
+              "Add rate-limiting tests: send bursts to confirm expected behavior (429 with X-RateLimit-* headers, or documented absence of throttling).",
+              "If supported, add pagination tests: limit/offset parameters, Link headers, boundary conditions (limit=0, max limit), and invalid values.",
+              "Add 403 Forbidden test using a valid token lacking required role/scope or tenant headers, per security model.",
+              "Validate response contract: assert Tag object fields against the API schema (JSON Schema), including types and required properties.",
+              "Add content negotiation tests: Accept: application/json works; unsupported Accept (e.g., application/xml) yields 406 or documented fallback.",
+              "Harden query param tests: explicit includedDeleted=false; includedDeleted=foo -> 400; audit=NONE explicitly; verify enum case sensitivity and trimming behavior.",
+              "Cover data-state where only deleted tags exist: verify includedDeleted flag behavior toggles result set as expected.",
+              "Assert error payload schema and avoid leakage of stack traces; verify standard error fields are present and localized if applicable.",
+              "Use realistic UUIDs in steps (e.g., 123e4567-e89b-12d3-a456-426614174000) to strictly exercise the UUID regex pattern.",
+              "Broaden performance criteria: capture p95/p99 latency and payload size; add memory/time-out assertions for very large tag sets.",
+              "Clarify and codify behavior for unknown query params (ignore vs reject) and assert accordingly in tests."
+            ],
+            "usage": {
+              "completion_tokens": 7977,
+              "prompt_tokens": 5260,
+              "total_tokens": 13237,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-15T18:44:49.162271",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T18:43:33.076918",
+    "benchmark_end_time": "2025-10-15T18:44:49.162264",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 76.085346,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "POST Valid Request: Multiple success paths including defaults and all optional parameters; partial, full, and overpayment handling; accounts with no unpaid invoices or no invoices.",
+              "Invalid Payload/Validation: Extensive checks for malformed/non-existent accountId, missing/empty required header, invalid paymentMethodId, invalid paymentAmount (zero/negative), malformed targetDate, non-boolean externalPayment, and wrong pluginProperty types.",
+              "Duplicate Submission: Retry semantics verified; no duplicate payments on retry after timeouts or post-processing errors.",
+              "Large Inputs: Extremely large paymentAmount and large pluginProperty arrays covered.",
+              "Server Error Handling: Gateway/plugin failures (502/503) and database failures (500) exercised.",
+              "Authorization: Missing/invalid auth tokens produce 401.",
+              "Security: SQL injection in accountId and XSS in pluginProperty handled without information leakage.",
+              "Query Parameters: Valid and invalid combinations, including unknown/extra parameters, are tested.",
+              "Performance: Response time under normal/peak load and resource utilization under stress are validated.",
+              "State Variation/Regression: Mixed invoice states, backward compatibility, and regression around duplicate payments are covered."
+            ],
+            "gaps": [
+              "Default behavior for externalPayment when omitted is not explicitly asserted (should default to internal processing).",
+              "No scenario for account lacking a default payment method when paymentMethodId is not provided (expected behavior/code unclear).",
+              "Target date semantics not covered (time zones, DST, past vs future behavior, boundary dates).",
+              "Boundary validation of paymentAmount precision/scale and currency rounding rules not tested (e.g., too many decimal places, just-below/above limits).",
+              "Race conditions not tested for two concurrent POSTs on the same account to ensure no double charging.",
+              "Rate limiting/throttling behavior (e.g., 429 with Retry-After) not covered.",
+              "Success 204 response not validated for empty body and appropriate headers; content negotiation/Accept handling untested.",
+              "Unsupported or incorrect Content-Type handling (e.g., 415) not covered.",
+              "Persistence/audit of optional headers (X-Killbill-Reason/Comment) not validated."
+            ],
+            "recommendations": [
+              "Add a scenario asserting that when externalPayment is omitted the system processes an internal payment (default false) and reaches the gateway.",
+              "Add a scenario for accounts without a default payment method when paymentMethodId is omitted; define and verify expected status/code (e.g., 400/422) and message.",
+              "Extend targetDate tests to cover valid past/future dates, various time zones (including DST transitions), and boundary values.",
+              "Add boundary tests for paymentAmount: smallest allowed positive amount, exactly at max, just over max, and amounts with excessive decimal precision to validate rounding rules.",
+              "Introduce a concurrency test where two clients trigger payments simultaneously for the same account to ensure atomicity and no double payments.",
+              "Introduce rate limiting tests: burst requests leading to 429 with correct Retry-After headers and proper behavior on subsequent retry.",
+              "Verify success responses comply with 204 semantics (no body) and check relevant headers (e.g., Content-Type/absence thereof) and Accept handling.",
+              "Add a negative test for unsupported Content-Type (e.g., text/plain) returning 415 Unsupported Media Type.",
+              "Add an auditability test to verify X-Killbill-Reason and X-Killbill-Comment are recorded in audit logs or metadata as expected."
+            ],
+            "usage": {
+              "completion_tokens": 7252,
+              "prompt_tokens": 7048,
+              "total_tokens": 14300,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6528,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

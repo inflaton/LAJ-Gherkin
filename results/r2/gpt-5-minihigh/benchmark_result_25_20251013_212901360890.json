@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-13T21:29:01.360862",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T21:26:12.501413",
+    "benchmark_end_time": "2025-10-13T21:29:01.360858",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 168.859445,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Successful POST flows: multiple scenarios (TC01, TC02, TC03, TC04, TC29) validate 204 responses and core payment behaviour (use of default and specified payment methods, partial/full payment, overpayment handling).",
+              "Optional query parameters & headers: pluginProperty, paymentMethodId, externalPayment, paymentAmount, targetDate and X-Killbill-CreatedBy / X-Killbill-Reason / X-Killbill-Comment are exercised (TC02, TC05).",
+              "No-op / empty-data behaviour: accounts with no unpaid invoices or no invoices return 204 and do not create payments (TC06, TC07).",
+              "Input validation & error paths: malformed/non-existent accountId, invalid paymentMethodId, negative/zero paymentAmount, malformed targetDate, invalid boolean for externalPayment, invalid pluginProperty, missing/empty required header are covered (TC08\u2013TC16).",
+              "Authentication & basic authorization: unauthorized requests tested (TC17) and required header presence/emptiness validated (TC10, TC16).",
+              "Dependency & server failures: payment gateway, plugin system and database failure scenarios included (TC18, TC19, TC27), covering server error handling.",
+              "Security: SQL injection and XSS attack scenarios are present (TC20, TC21).",
+              "Idempotency / duplicate submission: retry and duplicate-prevention scenarios covered (TC22, TC28) to avoid duplicate payments on retries.",
+              "Edge cases & input limits: very large paymentAmount and large pluginProperty arrays plus handling of extra/unknown query parameters are present (TC23, TC24, TC25).",
+              "Performance & scalability: normal, peak and stress response/time/resource tests are included (TC30\u2013TC32).",
+              "State variation & integration: mixed DB states and plugin integration behaviours are covered (TC26, TC27)."
+            ],
+            "gaps": [
+              "Rate limiting / throttling: no scenarios assert behaviour under request bursts (429 responses, Retry-After header) or verify throttle configuration.",
+              "Concurrency correctness for same-account concurrent requests: while TC31 covers concurrent performance and TC22/TC28 cover retries, there is no explicit correctness test that multiple concurrent POSTs against the same account do not create duplicate payments or produce race-condition side effects.",
+              "TargetDate scheduling semantics and timezones: no tests verify that a future targetDate schedules a payment (no immediate execution), that past dates execute immediately, or that timezone/ISO-8601 semantics are correct.",
+              "PaymentMethod-account association and state: missing test where a well-formed paymentMethodId exists but belongs to another account, is inactive, or archived (expected 4xx behaviour is not asserted).",
+              "Response contract and headers: tests assert status codes and some error messages but do not assert Content-Type on error responses (acceptance notes 'Produces: application/json') nor verify standardized error JSON schema; likewise 204 responses are not asserted to have empty body and expected headers.",
+              "Fine-grained authorization (403 forbidden): no test for an authenticated user lacking permission (403) versus unauthenticated (401).",
+              "Idempotency mechanisms: if the API supports idempotency keys/headers, there are no tests covering them explicitly.",
+              "Plugin contract validation: pluginProperty passing is asserted at a high level but there are no instrumented tests that the plugin received the exact structured payload or behaviour when plugin returns malformed responses.",
+              "Audit / persistence of headers: no tests verify that X-Killbill-CreatedBy, Reason, Comment are persisted to audit logs or database records.",
+              "Request encoding and query-array boundary cases: while large arrays are tested, explicit URL-encoding / repeated-parameter semantics and ordering of pluginProperty query params are not covered."
+            ],
+            "recommendations": [
+              "Add rate-limiting tests: generate bursts of concurrent requests for the same and different accounts and assert 429 responses and Retry-After semantics where applicable; add tests to validate that throttling does not corrupt state.",
+              "Add strong concurrency correctness tests for the same account: fire many concurrent POSTs against one account and assert invoices are paid once, ledger balances are correct, and no duplicate payments are created (verify DB state/transaction boundaries).",
+              "Add targetDate semantics tests: verify future targetDate schedules a payment (no immediate payment record), past dates execute immediately, and timezone/ISO-8601 boundaries are handled correctly.",
+              "Add paymentMethod ownership/state tests: use a paymentMethodId that exists but belongs to another account, and an inactive/archived payment method; assert appropriate 4xx responses and clear error messages.",
+              "Assert response contract and headers: for error responses assert Content-Type: application/json and validate the error JSON schema (errorCode, message, etc.); assert 204 responses have no body and only expected headers.",
+              "Introduce fine-grained authorization tests: verify 403 Forbidden for authenticated users without required permissions in addition to 401 for unauthenticated requests.",
+              "If supported, add idempotency-key tests: repeated requests with same idempotency key should result in a single payment; repeated requests without idempotency should be prevented by server-side duplication logic already covered by duplicate tests.",
+              "Instrument plugin mocks to validate pluginProperty payloads received exactly and add tests for plugin error/failure modes and fallback behaviour (and assert correct 502/503 mapping).",
+              "Add audit/persistence tests: assert X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment are persisted to audit tables or logs and surfaced in related endpoints.",
+              "Add tests for query-array encoding and boundary cases: verify repeated pluginProperty params, URL encoding, ordering, and behaviour at exact limits (and assert failure when limits exceeded)."
+            ],
+            "usage": {
+              "completion_tokens": 8495,
+              "prompt_tokens": 7048,
+              "total_tokens": 15543,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7296,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

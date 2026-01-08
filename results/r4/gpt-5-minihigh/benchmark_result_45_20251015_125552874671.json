@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-15T12:55:52.874639",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:54:54.740510",
+    "benchmark_end_time": "2025-10-15T12:55:52.874635",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 58.134125,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid deletion (all caches): TC01/TC08 confirm DELETE with no cacheName returns 204 and response body empty.",
+              "Valid deletion (specific cache): TC02 verifies deleting a named cache returns 204 and only that cache is invalidated.",
+              "Non-existent / not-alive cache errors: TC03 and TC04 cover 400 responses when the cache does not exist or is not alive.",
+              "Input validation of query param: TC05 (empty), TC10 (oversized), TC11 (special chars), TC12 (case sensitivity), and TC15 (regression format) exercise invalid cacheName cases.",
+              "Unsupported query params: TC09 verifies extra unrelated query parameters are ignored and operation proceeds.",
+              "Authorization negative case: TC06 covers unauthorized access returning 401/403 and prevents invalidation.",
+              "Server error handling: TC07 simulates subsystem failure and expects 500.",
+              "Performance & scale: TC13 measures large-number performance (1000 caches) and acceptable response time.",
+              "Concurrency: TC14 tests multiple concurrent DELETE requests and expects stable system behavior and 204 responses.",
+              "Response body expectations on success: Several scenarios assert the response body should be empty for 204 outcomes."
+            ],
+            "gaps": [
+              "Content-Type and response headers not asserted: Acceptance notes \"produces: application/json\" and tests do not verify Content-Type, Cache-Control, or other headers (especially for error responses).",
+              "Authenticated-but-not-admin role not tested: There is a test for unauthenticated access (TC06) but no explicit test for an authenticated non-admin user (should return 403).",
+              "Rate limiting / throttling not covered: No tests exercise rate limits (e.g., 429) or behavior under rapid repeated requests beyond simple concurrency. TC14 covers concurrency but not rate-limiting policies.",
+              "Idempotency and repeated deletes of the same specific cache are not explicitly tested (e.g., deleting the same cache twice in sequence).",
+              "Partial/concurrent race scenarios missing: No test for interleaved operations such as one request deleting a specific cache while another deletes all caches (partial failures/ordering effects).",
+              "Error response schema and message structure not validated: Tests assert presence of an error message but do not verify JSON error schema, error codes mapping, or machine-readable fields.",
+              "HTTP method restrictions not tested: There are no negative tests for invalid methods (e.g., POST/PUT/PATCH to this endpoint returning 405).",
+              "Soft-delete semantics are not addressed (if applicable): The guidelines mention soft deletes; tests do not assert whether cache invalidation is soft/hard\u2014this may be N/A for caches but should be clarified."
+            ],
+            "recommendations": [
+              "Assert response headers: Add assertions for Content-Type (application/json) on error responses and clarify expected headers for 204 (e.g., presence/absence of body and any informational headers).",
+              "Add role-based auth tests: Include a test for an authenticated non-admin user to verify a 403 response and that no caches are invalidated.",
+              "Add rate-limiting tests: Flood the endpoint with a high rate of requests to verify the system returns 429 or appropriate throttling behavior and exposes rate-limit headers if applicable.",
+              "Add idempotency tests: Call DELETE for the same specific cache twice (or more) and assert the API remains idempotent and responses are appropriate (204 or documented behavior).",
+              "Add mixed concurrency/race tests: Create scenarios where one request targets a specific cache while another concurrently invalidates all caches; assert deterministic outcomes and no partial/inconsistent state.",
+              "Validate error payload schema: For 4xx/5xx responses assert JSON schema, error codes, and fields (message, errorCode, moreInfo) so clients can reliably parse errors.",
+              "Test HTTP method restrictions: Verify non-DELETE methods return 405 or appropriate responses to ensure method semantics are enforced.",
+              "Clarify and test soft-delete behavior if applicable: If caches have persistence semantics beyond invalidation, add tests to assert expected behavior; otherwise document as N/A.",
+              "Extend performance tests: Add stress and soak tests beyond the single 1000-cache case and measure system metrics (CPU, memory) to detect transient degradation as noted in the story."
+            ],
+            "usage": {
+              "completion_tokens": 5693,
+              "prompt_tokens": 3739,
+              "total_tokens": 9432,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4800,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

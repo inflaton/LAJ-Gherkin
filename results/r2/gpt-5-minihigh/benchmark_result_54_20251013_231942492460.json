@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-13T23:19:42.492433",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:18:08.967518",
+    "benchmark_end_time": "2025-10-13T23:19:42.492429",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 93.524911,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Success scenarios cover removing all tags, removing specific tags, empty-tag bundles, and empty-array regression (TC01, TC02, TC04, TC16) and assert 204 + empty body.",
+              "Path & Query Parameter Validation: Tests for invalid bundleId format (TC05), non-existent bundle (TC06), invalid tagDef UUID (TC07), partial invalid tagDef (TC13), and multi-tag removal (TC02) are present.",
+              "Headers: Required X-Killbill-CreatedBy presence and missing-header behavior (TC08); optional X-Killbill-Reason and X-Killbill-Comment usage (TC03); header injection checks (TC14).",
+              "Error Handling: Unauthorized (TC09), Service Unavailable (TC10), timeout behavior (TC18) and standard 400/404 flows are covered.",
+              "Scalability & Concurrency: Large payloads / high-count tag removal (TC12, TC18) and concurrent delete behavior (TC15) are included.",
+              "Integration & Data Consistency: Post-deletion verification via GET to confirm tag state (TC17).",
+              "Edge Cases & Regression: Extra query parameters (TC11) and regression for empty-array tagDef bug (TC16) are tested.",
+              "Accessibility: Error response readability/accessibility in UI is considered (TC19)."
+            ],
+            "gaps": [
+              "Response headers / content negotiation: Tests do not assert Content-Type (produces application/json) or other headers (ETag, Cache-Control). The story requires \"produces: application/json\" but no header checks exist.",
+              "Soft-delete semantics: There are no tests confirming whether tag records are soft-deleted (deleted flag) vs physically removed (DB-level verification or API observable flag).",
+              "Idempotency / duplicate deletion: No explicit test calling DELETE repeatedly (sequentially) to assert idempotency semantics (expected repeatable 204 and stable state).",
+              "Authorization granularity: Only a single \"unauthorized\" scenario (TC09) exists; missing coverage for authenticated-but-forbidden (403) cases, missing authentication tokens, and invalid X-Killbill-CreatedBy format/values and role-based permission matrices.",
+              "Collection-format variants for tagDef: The tests assume multi parameter usage but do not validate comma-separated lists or edge cases like empty/malformed entries for collection parsing.",
+              "Removing non-associated tagDef: No test for the behavior when a valid tagDef exists in the system but is not associated with the target bundle (should the API ignore, return 204, or return an error?).",
+              "Request body & method validation: No test ensures the endpoint ignores or rejects an unexpected request body, nor tests for wrong HTTP verbs (405).",
+              "Rate limiting / throttling: Concurrency is tested, but there are no rate-limit spike tests or checks for 429 responses / backoff behavior.",
+              "Error payload schema: Error response structure (fields, codes, machine-readable schema) and localization/consistent formatting are not asserted (tests check presence of error messages but not schema)."
+            ],
+            "recommendations": [
+              "Assert response headers: add checks that successful/error responses include the expected Content-Type (application/json) and, if relevant, caching headers (ETag, Cache-Control).",
+              "Soft-delete verification: add tests that confirm whether tag records are soft-deleted or permanently removed (API-level flag check or direct DB assertion in integration tests).",
+              "Idempotency tests: add a test that calls the same DELETE twice (or more) sequentially and asserts the second call is safe (204) and system state remains consistent.",
+              "Authorization matrix: add tests for missing authentication (401), authenticated-but-forbidden roles (403), and invalid X-Killbill-CreatedBy values (format/length/unknown user) to cover role-based access control.",
+              "Collection-format and parsing: add tests for tagDef passed as comma-separated values, repeated empty tagDef parameters, trailing commas, and other parsing edge-cases to validate collectionFormat=multi behavior and robustness.",
+              "Delete-non-associated-tag: add a test for deleting a tag UUID that exists but is not associated with the bundle and assert documented behavior (ignore / 204 vs error).",
+              "Unexpected payload & method checks: add tests sending a request body to this DELETE endpoint (ensure ignored or rejected as per API contract) and wrong-method (e.g., POST/PUT) to verify 405 handling.",
+              "Rate-limit and throttling: add controlled spike/load tests to verify 429 or graceful degradation under high request rates, in addition to concurrency tests.",
+              "Error schema validation: add assertions against a canonical error schema (fields like code, message, type) to make error handling machine-readable and consistent across scenarios.",
+              "Triage non-functional edge cases: add tests for very large header values, non-ASCII characters in header fields (beyond injection checks), and confirm behavior for extreme conditions (timeouts, partial failures) to harden production behavior."
+            ],
+            "usage": {
+              "completion_tokens": 6934,
+              "prompt_tokens": 4976,
+              "total_tokens": 11910,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5888,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

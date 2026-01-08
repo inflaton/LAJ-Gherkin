@@ -1,0 +1,81 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-14T06:29:21.666544",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:26:42.396011",
+    "benchmark_end_time": "2025-10-14T06:29:21.666540",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 159.270529,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "PUT Method - Valid Request: TC01 verifies 204 No Content with the host moved back into rotation; TC02 validates idempotent behavior when the host is already in rotation.",
+              "PUT Method - Concurrency Issues: TC14 exercises concurrent PUTs to detect race conditions, ensuring consistent state.",
+              "Authorization/Authentication: TC03, TC04, and TC09 cover 401 for unauthenticated/missing headers and 403 for insufficient privileges.",
+              "Error Handling and Resilience: TC05 checks service unavailability (503), TC06 covers method misusage (405), TC13 handles transient network failures with retry, and TC10 validates latency under load.",
+              "Request Handling Robustness: TC01 confirms no body is required; TC07 and TC08 show that unexpected payloads/extra headers do not break the call (still 204).",
+              "Security Hardening: TC12 attempts header-based injection and verifies the system is not vulnerable.",
+              "Regression Safeguard: TC11 ensures previously fixed rotation bug remains resolved."
+            ],
+            "gaps": [
+              "PUT Method - Partial Update/Payload Validation: The spec lists request body as N/A, but no test asserts strict rejection of payloads (e.g., 400/415) if bodies are not allowed; TC07 assumes acceptance without confirming intended behavior.",
+              "PUT Method - Non-Existing Resource: No scenario for an unknown/unregistered host or a host not eligible to be rotated back (e.g., returns 404 or 409).",
+              "Server Error Handling Depth: Missing explicit tests for 500 Internal Server Error, 502 Bad Gateway, and 504 Gateway Timeout, despite the requirement to return >=400 on errors.",
+              "Response Headers and Content Negotiation: No validation that responses conform to \"Produces: application/json\" (e.g., correct/absent Content-Type on 204), nor verification of Accept negotiation or that 405 includes an Allow header.",
+              "Idempotency Under Repeated Calls: Beyond TC02 and a retry in TC13, there is no explicit scenario verifying multiple sequential PUTs consistently return 204 and cause no side effects.",
+              "Input/Header Validation: No tests for invalid/malformed headers or unsupported media types (e.g., Content-Type: text/plain with a payload leading to 415, or invalid Accept leading to 406)."
+            ],
+            "recommendations": [
+              "Clarify and codify payload behavior when Request Body is N/A: add a scenario asserting either rejection (400/415) or explicit ignore semantics with 204 and no side effects.",
+              "Add non-existing/invalid target scenarios: simulate an unknown/unregistered host or a host not eligible for rotation and expect a 404 or 409, as appropriate.",
+              "Add server-side failure tests: simulate 500, 502, and 504 to ensure correct >=400 responses and stable error payload format.",
+              "Validate headers and content negotiation: assert that 204 responses have an empty body and appropriate headers (e.g., Content-Type absent or consistent), verify Accept handling, and ensure 405 responses include an Allow header listing permitted methods.",
+              "Add an explicit idempotency test: send multiple sequential PUTs (e.g., 5x) and verify 204 each time with no additional side effects; optionally repeat after a service restart.",
+              "Add input/header validation scenarios: unsupported Content-Type with a body should yield 415 (or 400), and invalid Accept should yield 406, if enforced by the API."
+            ],
+            "usage": {
+              "completion_tokens": 7515,
+              "prompt_tokens": 3274,
+              "total_tokens": 10789,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6784,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

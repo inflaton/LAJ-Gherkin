@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-10-14T16:51:23.453670",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T16:47:44.426782",
+    "benchmark_end_time": "2025-10-14T16:51:23.453665",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 71,
+    "average_generation_time_seconds": 219.026883,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 71,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 71,
+            "covered": [
+              "Happy path creation (TC01): 201 response, JSON array body, Location header and DB association are asserted.",
+              "Header handling: required X-Killbill-CreatedBy (TC05/TC13) and optional X-Killbill-Reason and X-Killbill-Comment (TC02) are exercised.",
+              "Path parameter validation: invalid UUID format (TC07), missing accountId (TC08) and non-existent account -> 404 (TC09) are covered.",
+              "Request body validation: malformed JSON (TC10), missing required fields (TC11), invalid email format (TC12) and extra/unsupported fields (TC06) are tested.",
+              "Error cases and authorization: unauthorized access (TC14) and external dependency failures (TC15 -> 503) are included.",
+              "Edge and resilience cases: empty body (TC17), large payload/boundary (TC16), slow DB/timeouts (TC19), retry/recovery (TC25), and concurrency (TC20) are present.",
+              "Security checks: SQL injection and XSS attempts are covered (TC23, TC24).",
+              "Integration and regression: subsequent visibility via GET and downstream propagation (TC26), regression/unicode/backward compatibility checks (TC21, TC22), and documentation/error message clarity (TC27) are included."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency: no explicit test for submitting the same email twice (conflict/409 or idempotent behavior).",
+              "Internal server error (500) handling: tests simulate 503 but there is no explicit 500/Internal Server Error scenario and related messaging/rollback checks.",
+              "Content-Type validation: no explicit tests for missing/incorrect Content-Type request header or asserting response Content-Type is application/json.",
+              "Strict Location verification: presence of Location header is checked, but there is no explicit test that GETting the Location URL returns the created resource and that the Location ID matches the object in the response body.",
+              "Response schema enforcement: while presence of AccountEmail object is asserted, there are few assertions verifying full schema (field names, types, required fields) and that the response is strictly a JSON array in all cases.",
+              "Ambiguous expected outcomes: several scenarios allow either 201 or 400/401/403 (e.g., TC06, TC13, TC16, TC18), which weakens test assertions and leaves API-contract ambiguity.",
+              "Rate limiting and throttling: no tests for rate limiting behavior or how multiple rapid requests are handled by the API.",
+              "Header value validation: no tests for invalid/empty X-Killbill-CreatedBy values or length/format limits for headers."
+            ],
+            "recommendations": [
+              "Add a duplicate-submission test: POST the same email twice for the same account and assert intended behavior (409 conflict or idempotent 200/201). Verify no duplicate rows in DB.",
+              "Add a 500 Internal Server Error simulation: force an internal failure (e.g., DB exception) and assert a 500 response, safe error message content, and proper rollback/consistency.",
+              "Add Content-Type tests: send requests with missing or wrong Content-Type and assert 415 or 400 as appropriate; assert responses include Content-Type: application/json.",
+              "Verify Location header fully: follow the Location URL with a GET in the test and assert the returned resource matches the AccountEmail object returned in the POST response (IDs, accountId, email, flags).",
+              "Tighten response schema checks: add tests that validate the AccountEmail JSON schema precisely (field presence, types, formats) and assert the response is always a JSON array as specified.",
+              "Disambiguate tests that allow multiple outcomes: decide expected API behavior for extra fields/large payloads/headers and add separate tests for each behavior branch (explicit 201 vs explicit 400/422).",
+              "Add rate-limiting tests: simulate many rapid POSTs to verify throttling/rate-limit responses and graceful handling.",
+              "Add header validation tests: test empty or malformed X-Killbill-CreatedBy and excessively long Reason/Comment values to ensure proper validation and error messages.",
+              "Extend concurrency tests to cover duplicate-content race conditions: concurrent requests that attempt to add the same email should be tested for deduplication or conflict handling.",
+              "Add more assertions around non-functional requirements: measurable response-time SLAs in successful cases, and verify logging/monitoring events for failures (useful for production readiness)."
+            ],
+            "usage": {
+              "completion_tokens": 7274,
+              "prompt_tokens": 6487,
+              "total_tokens": 13761,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6336,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

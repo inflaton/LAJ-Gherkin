@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "58_2025-10-14T04:53:18.014417",
+    "jira_id": "58",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/customFields - Remove custom fields from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T04:50:46.461797",
+    "benchmark_end_time": "2025-10-14T04:53:18.014413",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 151.552616,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "58_qe_sup-gpt4.1_agent-gpt4.1_1748919726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE Valid Deletion: Successful removal of all, single, and multiple custom fields returns 204; state verified via GET.",
+              "DELETE Non-Existent Resource: 404 returned for unknown bundleId and when DB has no bundles.",
+              "DELETE Concurrency: Simultaneous deletes for the same field show idempotent 204 responses and consistent remaining fields.",
+              "Input validation: Invalid bundleId pattern, invalid/empty customField UUID, and missing X-Killbill-CreatedBy yield 400.",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment accepted; backward compatibility covered.",
+              "Query parameters: customField collectionFormat=multi (repeated params) handled; extra unsupported params ignored.",
+              "Resilience/security: 401 for invalid token; 503/504 when services are unavailable/degraded; header injection rejected.",
+              "Integration/regression/performance: Unrelated bundles unaffected; DB consistency checked after delete; deletion of 1000 fields meets SLA."
+            ],
+            "gaps": [
+              "Soft deletes: No scenario to confirm hard vs soft deletion semantics or audit/history visibility of deletions.",
+              "Response headers and schema: No checks for Content-Type (application/json) on errors or that 204 has no body; error payload structure not validated.",
+              "Mixed-validity multi-delete: No test where one customField is invalid and others valid to define all-or-nothing vs partial success behavior.",
+              "Duplicate customField parameters: No test for idempotency when the same UUID is repeated in the query.",
+              "Concurrency variants: No tests for concurrent \"delete all\" vs \"delete subset\" or sequential repeated deletions to validate idempotent outcomes.",
+              "Authorization/permissions: No 403 Forbidden scenario for authenticated but unauthorized principal/tenant.",
+              "Header boundary/encoding: No limits/encoding tests for X-Killbill-CreatedBy and X-Killbill-Reason (only Comment boundary is covered).",
+              "Server error/rollback: No simulation of 500 Internal Server Error and verification of atomicity (no partial deletions).",
+              "Content negotiation: No tests for Accept header handling and negotiated response media type."
+            ],
+            "recommendations": [
+              "Add an audit/soft-delete verification scenario (e.g., check audit logs/history endpoints or tombstone flags) or explicitly document hard-deletion semantics.",
+              "Validate response headers and payloads: assert Content-Type on error responses, enforce empty body for 204, and verify standard error schema/fields.",
+              "Add a mixed-validity multi-delete case (e.g., customField=<valid>&customField=<invalid>) and assert expected outcome (preferably 400 with no changes).",
+              "Add a test with duplicate customField values to confirm idempotency and response code.",
+              "Add concurrency cases for simultaneous delete-all vs delete-some and sequential repeated deletes to confirm final state and idempotent status codes.",
+              "Introduce a 403 Forbidden test using an authenticated user lacking required permissions/tenant access.",
+              "Extend header validation for X-Killbill-CreatedBy and X-Killbill-Reason with max/min length, non-ASCII, and disallowed characters.",
+              "Simulate an internal failure (e.g., DB exception) to assert 500 mapping and transactional rollback (no partial deletion).",
+              "Add Accept header tests to confirm media type negotiation and consistent error formatting."
+            ],
+            "usage": {
+              "completion_tokens": 7951,
+              "prompt_tokens": 6309,
+              "total_tokens": 14260,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7232,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

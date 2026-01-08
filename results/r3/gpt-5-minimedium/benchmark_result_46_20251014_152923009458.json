@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-14T15:29:23.009428",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:28:42.817696",
+    "benchmark_end_time": "2025-10-14T15:29:23.009423",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 40.191727,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Successful path (204) is implemented (TC01, TC19).",
+              "Non-Existent Resource: 404 cases covered for missing account and empty DB (TC02, TC16, TC18).",
+              "Invalid Input Validation: Malformed/invalid accountId patterns covered (TC03, TC10, TC12).",
+              "Authentication: Unauthenticated and expired-token cases covered (TC05, TC06).",
+              "Authorization Happy Path: Admin-authenticated happy path covered (Background + TC01, others).",
+              "Unsupported Methods: Method-not-allowed behavior covered (TC11).",
+              "Service/Dependency Failures: Cache-service-unavailable and degraded-performance scenarios covered (TC07, TC08).",
+              "Security: SQL injection and XSS attempts via accountId covered (TC14, TC15).",
+              "Concurrency / Performance: Concurrent DELETE behavior and performance target covered (TC13).",
+              "Query Parameter Tolerance: Extra query parameters are tolerated (TC09).",
+              "Edge / State Variations: No-accounts and partially-populated DB states covered (TC16, TC18).",
+              "Transient Network Recovery / Retry: Retry after transient network failure covered (TC17)."
+            ],
+            "gaps": [
+              "Role-based Authorization (Forbidden): No test for an authenticated non-admin user (should likely return 403) to verify admin-only access is enforced.",
+              "Idempotency / Repeat Deletes: No explicit test of repeated DELETE on same account to confirm idempotency semantics (should define whether repeated calls return 204, 404, or another code).",
+              "Soft-delete semantics / Side-effects: No test verifying that only account-level caches are invalidated (and that global/shared caches or other accounts remain unaffected).",
+              "Response Headers and Content-Type: Tests check empty body but do not assert response headers (Content-Type: application/json) or other caching-related headers.",
+              "HTTP Method Variants: No tests for other relevant verbs like HEAD/OPTIONS to verify allowed methods and CORS/OPTIONS behavior.",
+              "Partial-failure / Transactional Behavior: No tests for partial failures (e.g., some sub-caches invalidated, others failed) and how the API reports/rolls back such states.",
+              "Rate Limiting / Throttling: No tests for rate limiting or repeated high-frequency calls beyond the concurrent performance test.",
+              "Audit / Logging / Monitoring Side-effects: No tests that validate audit trail, event emission, or logs if required by policy."
+            ],
+            "recommendations": [
+              "Add a negative authorization test: authenticated non-admin user attempts DELETE -> expect 403 (forbidden) or other documented behavior.",
+              "Add idempotency/regression tests: send repeated DELETEs to the same account and assert documented behavior (204 on subsequent calls or 404); add cleanup to assert cache state after repeated calls.",
+              "Add assertions for response headers: verify Content-Type is application/json (even when body is empty) and any relevant caching headers or diagnostic headers.",
+              "Add tests that validate scope of invalidation: after invalidation, verify caches for that account are cleared and caches for other accounts remain intact (to ensure no unintended global invalidation).",
+              "Add tests for HEAD/OPTIONS and CORS if applicable to confirm allowed methods and preflight behavior.",
+              "Add partial-failure tests: simulate some dependent cache shards failing and assert appropriate status code and error reporting (or compensating behavior), to clarify transactional semantics.",
+              "Add rate limiting/load-protection tests: spike requests and verify 429 or other throttling behavior if the system enforces it.",
+              "If auditing is required, add tests to verify an audit event or log entry is created for admin cache invalidation operations."
+            ],
+            "usage": {
+              "completion_tokens": 1804,
+              "prompt_tokens": 4640,
+              "total_tokens": 6444,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

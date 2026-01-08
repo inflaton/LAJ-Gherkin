@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "95_2025-09-28T16:24:21.273079",
+    "jira_id": "95",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/tags - Add tags to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T16:22:02.602970",
+    "benchmark_end_time": "2025-09-28T16:24:21.273075",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 138.670105,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "95_qe_sup-gpt4.1_agent-gpt4.1_1748922214.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST - Valid Payload: Successful creation returns 201 with a JSON array of Tag objects; required X-Killbill-CreatedBy header and optional Reason/Comment are exercised.",
+              "POST - Validation/Invalid Payloads: Invalid paymentId format, missing required header, malformed JSON, invalid/nullable tag UUIDs all return 400.",
+              "POST - Duplicate Submission/Idempotency: Duplicate tag UUIDs and re-adding existing tags do not create duplicates; concurrency scenario asserts consistent, duplicate-free outcome.",
+              "POST - Large Payloads/Performance: Maximum-size array and peak-load performance scenario are included.",
+              "Error handling per story: 404 for non-existent payment; 400 for malformed body/invalid identifiers.",
+              "Security: Unauthorized user yields 401/403; malicious payload is rejected (400).",
+              "Dependency failure: Service unavailability handled with 503."
+            ],
+            "gaps": [
+              "Server error handling for 500 Internal Server Error is not covered (only 503 is tested).",
+              "Content negotiation/headers: No assertions that response Content-Type is application/json; no tests for 415 Unsupported Media Type (wrong/missing Content-Type) or 406 Not Acceptable (unsupported Accept).",
+              "Missing request body: No test for absent body when body is required (should return 400).",
+              "Unknown tag-definition UUID (valid UUID that does not exist): Not covered; expected 400 or 404 needs to be defined and tested.",
+              "Atomicity: Mixed valid/invalid tag IDs scenario does not assert that zero tags are applied on error (all-or-nothing behavior).",
+              "Schema fidelity: Tag object is not validated against the full /definitions/Tag contract (only select fields checked).",
+              "Persistence verification: No follow-up GET to confirm tags were actually persisted to the payment.",
+              "Boundary beyond allowed limits: No test for exceeding the maximum allowed number of tags (expect 400/413).",
+              "Header value validation: No negative tests for empty/overlong X-Killbill-CreatedBy or length/character constraints on Reason/Comment.",
+              "Authorization nuance: 401 vs 403 not disambiguated with distinct causes (missing credentials vs insufficient permissions)."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate an internal server error (e.g., DB failure) and assert HTTP 500 with proper error payload.",
+              "Verify content negotiation: assert response Content-Type=application/json on success/error; add tests for 415 when Content-Type is not application/json and 406 when Accept is unsupported.",
+              "Add a test for missing request body (no payload) returning 400 with an appropriate error.",
+              "Add a test for an unknown-but-well-formed tagDefinitionId to define/verify expected behavior (400 validation error or 404 not found).",
+              "Ensure atomicity: for mixed valid/invalid arrays, assert 400 and that no tags are added (post-condition verification).",
+              "Validate the response schema against the official Tag definition (JSON Schema or contract test), not just presence of a few fields.",
+              "Add a boundary test for exceeding the maximum allowed tag count, expecting 400 or 413 Payload Too Large.",
+              "Introduce header value constraints tests: empty/whitespace/overly long X-Killbill-CreatedBy; oversized Reason/Comment; verify sanitization is enforced.",
+              "Add post-condition checks (via a GET of payment tags) after successful POST to confirm tags are persisted and match expectations.",
+              "Split authorization tests: one case for missing/invalid token expecting 401; another for authenticated user lacking scope/permission expecting 403."
+            ],
+            "usage": {
+              "completion_tokens": 6968,
+              "prompt_tokens": 6214,
+              "total_tokens": 13182,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6208,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

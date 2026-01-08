@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-10-14T21:39:47.444069",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:38:34.836428",
+    "benchmark_end_time": "2025-10-14T21:39:47.444064",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 72.607636,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "POST Valid Payload: Multiple happy-path scenarios validate 201 Created, Location header, and DB association (TC01, TC03, TC04, TC05, TC22, TC26).",
+              "Header Handling: Required X-Killbill-CreatedBy and optional X-Killbill-Reason/Comment are exercised (TC02, TC05, TC13).",
+              "Validation Errors: Invalid/missing accountId -> 400 (TC07, TC08); non-existent account -> 404 (TC09); malformed JSON -> 400 (TC10); missing required fields -> 400 (TC11); invalid email format -> 400 (TC12); empty body -> 400 (TC17).",
+              "Large Payloads: Boundary payload tested (TC16).",
+              "Security/Negative Inputs: SQL injection and XSS attempts validated (TC23, TC24); unicode/special chars regression considered (TC21).",
+              "Resilience/Perf: External dependency down -> 503 (TC15); slow DB and latency thresholds (TC19); transient network retry flow (TC25); concurrency behavior (TC20).",
+              "Extra Inputs: Extra body fields (TC06) and unexpected query params (TC18) are exercised.",
+              "Response Metadata: Location header presence checked; array response validated in some scenarios (TC01, TC04)."
+            ],
+            "gaps": [
+              "Duplicate Submission/Idempotency: No scenario for posting the same email twice (expect 409/422 or dedupe). TC25 retry does not assert no-duplicate creation.",
+              "Deterministic Assertions: Several tests allow multiple outcomes (e.g., 201 or 400/422) leading to weak pass criteria (TC06, TC13, TC14, TC16, TC18, TC21).",
+              "Response Contract Consistency: Specification states response is a JSON array; many scenarios assert a single object. Schema validation of array elements and Content-Type: application/json are not consistently verified.",
+              "Media Type/Content Negotiation: No tests for missing/incorrect Content-Type -> 415 or unacceptable Accept header -> 406; response Content-Type not asserted.",
+              "Server Error Handling: No explicit 500 Internal Server Error simulation and handling.",
+              "Header Validation Depth: No tests for blank/whitespace or excessively long X-Killbill-CreatedBy; behavior for invalid characters not covered.",
+              "Location Header Correctness: Only presence is checked; not validated to point to the exact created resource (or list) and format per contract.",
+              "Schema Strictness: TC06 is ambiguous; no clear assertion whether unknown fields are rejected with 400 or ignored per schema.",
+              "Audit/Metadata: No verification that X-Killbill-* headers are persisted in audit logs/metadata.",
+              "Rate Limiting/429: Not covered; may be a non-functional requirement if applicable."
+            ],
+            "recommendations": [
+              "Add a duplicate email test: post the same AccountEmail twice and assert expected behavior (e.g., 409 Conflict or deduped 201 with no duplicate row). Extend TC25 to assert no duplication after retry.",
+              "Make tests deterministic: replace all \u201c201 or 400/422/503 depending on API behavior\u201d with a single, spec-aligned expected status and behavior (clarify with API owners).",
+              "Unify response assertions to a JSON array per spec and validate against AccountEmail schema (required fields, types). Assert response Content-Type: application/json.",
+              "Add media-type tests: missing/wrong Content-Type returns 415; unacceptable Accept header returns 406.",
+              "Introduce a controlled service-layer failure to assert 500 with the correct error payload structure.",
+              "Expand header validation: empty/whitespace or overlong X-Killbill-CreatedBy -> 400; confirm optional headers omitted still succeed; document and test allowed character set.",
+              "Validate Location header points to the created email resource (or the decided list URL), including scheme/host/path format.",
+              "Clarify schema strictness for unknown fields and update TC06 to assert either 400 rejection with details or successful ignore with documented behavior.",
+              "Add audit assertions to confirm X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs and retrievable.",
+              "Optionally include rate limiting (429) scenarios if the API enforces throttling for POSTs."
+            ],
+            "usage": {
+              "completion_tokens": 4170,
+              "prompt_tokens": 6487,
+              "total_tokens": 10657,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3264,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

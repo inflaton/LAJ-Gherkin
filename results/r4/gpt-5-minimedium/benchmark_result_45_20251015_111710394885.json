@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-15T11:17:10.394851",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:16:42.906695",
+    "benchmark_end_time": "2025-10-15T11:17:10.394846",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 27.488151,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01 and TC02 cover successful invalidation of all caches and a specific cache with expected 204 responses.",
+              "Non-Existent Resource: TC03 verifies the 400 error when a specified cache does not exist.",
+              "Cache Not Alive: TC04 verifies the 400 error when a specified cache exists but is not alive.",
+              "Input Validation: TC05, TC10, TC11, TC15 validate empty, overly long, special-character and previously problematic cacheName formats.",
+              "Authorization: TC06 covers unauthenticated/unauthorized access yielding 401/403 and protects against invalid invalidation by unauthorized users.",
+              "Server Error Handling: TC07 covers internal errors with a 500 response.",
+              "No-data / Empty state: TC08 covers the case where no caches exist and expects 204 + empty body.",
+              "Query Parameter Robustness: TC09 covers unsupported extra query params and TC12 covers case-sensitivity of cacheName.",
+              "Performance & Scalability: TC13 and TC14 cover a large number of caches and concurrent requests respectively, including acceptable response time constraint.",
+              "Correct Side-Effects Assertion: Most scenarios assert that caches are (or are not) invalidated as part of the Then steps."
+            ],
+            "gaps": [
+              "Response Headers / Content-Type: Tests do not assert Content-Type or other response headers (story mentions producing application/json). 204 responses may be empty, but error responses and header expectations are not validated.",
+              "Error Response Schema: There is no explicit verification of the structure/fields of error responses (JSON error format, error codes/messages beyond free-text).",
+              "Idempotency: No tests verify idempotency of DELETE (repeating the same DELETE should remain safe / return consistent status).",
+              "Fine-grained Authorization: TC06 lumps unauthenticated and unauthorized; there are no separate tests for authenticated-but-not-admin (403) vs unauthenticated (401) or role/privilege checks.",
+              "Soft Delete / Persistence Semantics: No tests cover whether cache invalidation is a soft or permanent effect, or whether caches can be restored/repopulated afterward (if applicable).",
+              "Rate Limiting / Throttling: No tests cover rate limiting, throttling, or behavior under sustained high request rates beyond concurrency spot tests.",
+              "Race Conditions on Specific Cache: While TC14 checks 10 concurrent \"all caches\" deletes, there are no concurrency tests targeting concurrent invalidation of the same specific cache (race on single resource).",
+              "HTTP Method Handling: No tests check for disallowed methods (e.g., POST/GET on this endpoint should return 405) or that only DELETE is accepted.",
+              "Boundary/Encoding Variants: Although long and special-character names are tested, there is no explicit coverage for multiple cacheName parameters, URL-encoding edge-cases beyond one example, or Unicode / non-ASCII names.",
+              "Monitoring/Operational Impact: The story warns about temporary performance impact; tests do not validate system resource usage (CPU, memory), or that invalidation pauses/queues executions to protect stability beyond response time check)."
+            ],
+            "recommendations": [
+              "Add header assertions: verify Content-Type for error responses (application/json) and verify any API-specific headers (e.g., Retry-After, Cache-Control where applicable).",
+              "Validate error response schema: assert structured JSON error fields (error code, message, details) for 4xx/5xx responses to ensure clients can parse errors reliably.",
+              "Add idempotency tests: repeat the same DELETE twice (or more) and assert the second call returns the expected safe result (204 or defined behavior) and no additional side-effects occur.",
+              "Split authorization tests: add separate scenarios for unauthenticated (401) and authenticated-but-insufficient-privileges (403) and include role-based checks to ensure only admins can invalidate caches.",
+              "Add soft-delete / persistence checks if relevant: test that invalidated caches behave as documented (e.g., permanently cleared vs can be repopulated) and whether any metadata persists.",
+              "Introduce rate-limiting tests: simulate sustained/high-rate requests and verify proper throttling or rate-limit responses (429) if applicable.",
+              "Add targeted concurrency/race tests on single cache names: simulate multiple concurrent DELETE?cacheName=accounts requests and concurrent delete vs other cache-modifying operations to find race conditions.",
+              "Method validation tests: verify that non-DELETE methods return 405 and that Content-Type and Accept headers are handled correctly.",
+              "Expand encoding/boundary tests: include multiple cacheName params, URL-encoded unicode names, and medium boundary lengths (e.g., 256, 512) to complement the 1024 test.",
+              "Operational impact checks: extend performance tests to include resource usage and system stability under invalidation (e.g., CPU/memory spikes, GC pauses) or define SLOs and assert compliance."
+            ],
+            "usage": {
+              "completion_tokens": 2108,
+              "prompt_tokens": 3739,
+              "total_tokens": 5847,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

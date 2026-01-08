@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-13T22:49:35.491621",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:47:21.446817",
+    "benchmark_end_time": "2025-10-13T22:49:35.491617",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 134.0448,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid POST requests (minimum and full payloads) \u2014 TC01, TC02, TC26 verify 201, response JSON Bundle and Location header.",
+              "BillingPolicy permutations \u2014 TC03 covers START_OF_TERM, END_OF_TERM, IMMEDIATE and TC10 covers an illegal value returning 400.",
+              "Query parameter validation \u2014 requestedDate positive/negative checks (TC04, TC09) and pluginProperty variations (multiple, empty, large) via TC05, TC18, TC20.",
+              "Header handling \u2014 required X-Killbill-CreatedBy present/missing (TC11) and optional headers (X-Killbill-Reason/X-Killbill-Comment) and length checks (TC02, TC21).",
+              "Path and resource existence checks \u2014 invalid bundleId format (TC08), non-existent bundle -> 404 (TC06), non-existent target account -> 404 (TC07, TC23, TC22).",
+              "Authentication & authorization basic check \u2014 unauthorized token -> 401 (TC13).",
+              "Server & integration error handling \u2014 dependency unavailable -> 503 (TC14) and inconsistent dependent data -> 500 (TC24).",
+              "Security testing \u2014 SQL injection and XSS attempts are tested and rejected (TC15, TC16).",
+              "Resilience / retry behavior \u2014 transient network recovery and retry handling (TC17).",
+              "Business/edge cases \u2014 transfer-to-same-account regression (TC25), extra/unsupported params ignored (TC19).",
+              "Response contract basics \u2014 Location header presence and response body is a Bundle JSON are asserted (TC01, TC02).",
+              "Performance & concurrency (broad) \u2014 response-time, peak load, concurrent requests and resource utilization covered at a high level (TC27\u2013TC30, TC29).",
+              "Accessibility & error messaging \u2014 machine-readable codes and human-readable descriptions covered (TC31)."
+            ],
+            "gaps": [
+              "Duplicate submissions / idempotency handling is not explicitly tested (no test for repeated identical POSTs or idempotency-key behavior).",
+              "Malformed JSON and Content-Type handling is missing \u2014 no tests for missing/incorrect Content-Type or syntactically invalid JSON payloads (415/400).",
+              "Invalid target accountId format (non-UUID) is not explicitly tested; acceptance criteria require 400 for invalid target accountId format.",
+              "Default billingPolicy behavior when billingPolicy is omitted (should default to END_OF_TERM) is not explicitly asserted.",
+              "Concurrent transfers for the same bundle (race condition) are not covered \u2014 TC29 tests concurrency across multiple bundles but not competing operations on a single bundle to reveal locking/conflict behavior.",
+              "Role-based access / 403 Forbidden scenarios are not covered (only 401 unauthorized is present).",
+              "Rate limiting / throttling behavior is not tested (429 scenarios and retry/backoff policies absent).",
+              "PluginProperty element-type validation (non-string entries, nested objects) is not present \u2014 tests only cover presence, emptiness, size, and XSS.",
+              "RequestedDate boundary semantics (past vs future dates, timezone handling, far-past/far-future) are not thoroughly tested beyond \"today\" and invalid format.",
+              "Detailed response-schema assertions are high-level \u2014 tests assert \"valid Bundle object\" but do not verify transfer-specific fields (e.g., effective transfer date applied to entitlements, billing dates, accountId field in nested subscription objects)."
+            ],
+            "recommendations": [
+              "Add idempotency/duplicate-submission tests: send the same POST twice (with and without an Idempotency-Key header) and assert the expected behavior (either idempotent success with identical resource/201 or a safe conflict response like 409).",
+              "Add malformed payload and Content-Type tests: omit or set Content-Type incorrectly and send invalid JSON \u2014 expect 415 or 400 and clear error payload.",
+              "Add explicit invalid target accountId format test: send a non-UUID accountId and assert 400 with a clear validation error matching acceptance criteria.",
+              "Assert default billingPolicy: add a test that omits billingPolicy and verifies the system uses END_OF_TERM (check effective dates / billing behavior in the returned Bundle/entitlements).",
+              "Add concurrency tests on the same bundle: run two simultaneous transfer requests for the same bundle to different targets and assert correct locking/atomicity (one succeeds, the other fails or is queued) and no data corruption.",
+              "Add RBAC tests to exercise 403 Forbidden: use a valid token lacking transfer privileges and assert 403 and appropriate error code/message.",
+              "Add rate-limiting tests: burst requests to verify throttling/429 behavior and document expected retry/backoff; include SLA bounds for performance tests.",
+              "Add pluginProperty type validation tests: include non-string elements (numbers, objects) and assert 400 validation errors; also assert max element size/overall payload limits.",
+              "Add requestedDate boundary tests: past dates, far-future dates and timezone offsets to validate acceptance/rejection and correct effective date handling.",
+              "Tighten response-schema assertions: check specific Bundle fields post-transfer (accountId equals target, effectiveTransferDate matches requestedDate/billingPolicy behavior, entitlements/subscriptions reflect policy), and assert produced Content-Type is application/json and Location header URL format."
+            ],
+            "usage": {
+              "completion_tokens": 9097,
+              "prompt_tokens": 7734,
+              "total_tokens": 16831,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 8000,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

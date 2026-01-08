@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-14T19:58:12.981892",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:56:16.990345",
+    "benchmark_end_time": "2025-10-14T19:58:12.981885",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 115.99154,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01, TC02, TC08, TC09 and TC13 cover successful invalidation of all caches, a specific cache, no caches configured, and behavior with unsupported query parameters, asserting 204 where applicable.",
+              "Non-Existent / Not-Alive handling: TC03 and TC04 verify 400 responses when cache does not exist or is not alive.",
+              "Query parameter validation: TC05, TC10, TC11, TC12 and TC15 exercise empty value, excessive length, special characters, case-sensitivity and previously problematic formats.",
+              "Authorization failures: TC06 covers unauthenticated/invalid token behavior (401/403).",
+              "Server error handling: TC07 covers 500 responses when the cache subsystem is unavailable.",
+              "Concurrency and race conditions: TC14 tests 10 concurrent DELETE requests to validate stability and consistent 204 responses.",
+              "Performance at scale: TC13 verifies behavior with 1000 caches and asserts an acceptable response time target.",
+              "HTTP response code coverage: The suite asserts the main expected codes (204 for success, 400 for client errors, 500 for server errors) across scenarios."
+            ],
+            "gaps": [
+              "Response headers and content-type verification is missing: tests do not assert Content-Type, Content-Length or other response headers despite the acceptance note \"Produces: application/json\" (ambiguous for 204).",
+              "Error payload schema and structured fields are not validated: tests expect an error message but do not assert a machine-readable JSON error schema (error.code, error.message, etc.).",
+              "Idempotency and repeated-call behavior is not tested: no scenario calls DELETE twice to verify consistent/defined behavior.",
+              "Authenticated non-admin role not explicitly tested: TC06 covers unauthenticated or invalid token but does not assert behavior for an authenticated user lacking admin privileges (403 vs 401 distinction).",
+              "Rate limiting and throttling are not covered: concurrency is tested but no tests attempt to trigger rate limits or assert 429 responses.",
+              "HTTP method handling (405) is missing: no tests validate that non-DELETE methods are rejected appropriately for this endpoint.",
+              "Partial failure and atomicity are not exercised: there is no test simulating partial cache-subsystem failure to verify whether invalidation is transactional or best-effort and how the API reports it.",
+              "Parameter parsing edge cases are incomplete: repeated cacheName params, multiple values, whitespace-only values, trimming behavior, and more encoding edge-cases are not covered beyond a few examples.",
+              "Soft-delete semantics / cache metadata persistence: not addressed (if relevant to the system semantics), no test verifies whether cache objects remain in metadata after invalidation.",
+              "Observability and deeper system impact: besides a single response-time assertion, there are no tests for metrics, logs or resource usage under invalidation load."
+            ],
+            "recommendations": [
+              "Add header assertions: verify Content-Type for error responses and clarify expected headers for 204 responses (Content-Type may be omitted for 204; if the API should return application/json on success, add tests accordingly).",
+              "Define and test an error schema: add JSON-schema checks for 4xx/5xx responses asserting fields like error.code, error.message and error.details to make errors machine-parsable.",
+              "Add idempotency tests: call DELETE for the same cacheName multiple times and assert defined, repeatable behavior (e.g., 204 on first and subsequent calls or documented alternative).",
+              "Add a test for an authenticated non-admin user to assert 403 forbidden to ensure only admins can invalidate caches.",
+              "Add rate-limiting / throttling tests: ramp up requests to trigger and verify configured protections (429 or other configured behavior), including sustained high-rate scenarios.",
+              "Add method-not-allowed tests (e.g., POST/GET/PATCH to this endpoint) and assert 405 responses and Allow headers where appropriate.",
+              "Add partial-failure tests: simulate partial cache-subsystem failures and assert the API response and whether invalidation is atomic or best-effort; document expected behavior and test accordingly.",
+              "Add parameter-parsing edge-case tests: repeated cacheName parameters, multiple cacheName values, whitespace-only values, exact boundary length tests (max allowed and +1), and additional encoding/UTF-8 edge cases.",
+              "Clarify the spec about \"Produces: application/json\" vs 204 empty responses and update acceptance criteria and tests to match the intended contract.",
+              "Add E2E verification that invalidation actually clears cache entries: pre-populate a cache key, call invalidate, then verify the key is no longer retrievable (not just status codes).",
+              "If required by non-functional requirements, add observability and system-impact tests that assert metrics/logs and measure CPU/memory impact during large-scale invalidations beyond a single response-time assertion."
+            ],
+            "usage": {
+              "completion_tokens": 6955,
+              "prompt_tokens": 3739,
+              "total_tokens": 10694,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5952,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

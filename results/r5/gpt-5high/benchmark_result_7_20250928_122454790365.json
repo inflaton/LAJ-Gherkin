@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-09-28T12:24:54.790339",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T12:21:52.709040",
+    "benchmark_end_time": "2025-09-28T12:24:54.790335",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 182.081295,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Deleting all fields when no customField is provided and deleting a specific subset via multi-valued customField (TC01, TC02, TC13, TC14, TC18).",
+              "Headers: Required X-Killbill-CreatedBy present/missing and optional X-Killbill-Reason/Comment usage (TC03, TC07).",
+              "Input validation: invalid accountId format, invalid customField UUID(s), duplicates, extra unsupported query param ignored (TC05, TC08, TC09, TC14).",
+              "Authorization negative: insufficient permissions -> 401/403 (TC10).",
+              "Idempotency: repeated DELETEs yield 204 and no side effects (TC15).",
+              "Non-existent resource handling for account (TC06).",
+              "Error handling: backend failure 500 and timeout/504 (TC11, TC12).",
+              "Concurrency/performance under load (TC16).",
+              "Post-deletion verification and integration consistency via subsequent GET and dependent services (TC01, TC02, TC04, TC17)."
+            ],
+            "gaps": [
+              "Soft delete/audit behavior not verified (e.g., audit trail records with CreatedBy/Reason/Comment).",
+              "Mixed-validity list not covered: behavior when some customField IDs are valid and some invalid (partial vs full failure).",
+              "Non-existent customField IDs (valid UUIDs that do not exist or are not linked to the account) are not tested.",
+              "Authorization variants: missing/invalid auth token not tested (only insufficient permissions covered).",
+              "Rate limiting/throttling (429, Retry-After) not covered.",
+              "Response headers/schema: no checks that 4xx/5xx errors are application/json and conform to an error schema; no header checks for 204 (no body/Content-Type).",
+              "Header edge cases: empty/whitespace X-Killbill-CreatedBy or overly long/invalid Reason/Comment not tested.",
+              "Query param edges: customField present but blank (customField=), whitespace, or URL-encoding nuances not tested.",
+              "Concurrency race with create/update (simultaneous add while delete runs) not covered.",
+              "Contract ambiguity: non-existent account returns 204 in tests; add scenario for 404 if that is the intended contract."
+            ],
+            "recommendations": [
+              "Add audit/soft-delete tests: verify deletion is reflected in retrieval but audit history contains entries with CreatedBy/Reason/Comment.",
+              "Add scenario mixing valid and invalid customField IDs to define contract (reject all with 400 vs ignore invalid and delete valid) and ensure no partial success unless specified.",
+              "Add tests where customField IDs are valid UUIDs but not associated with the account or do not exist, and assert expected status/behavior.",
+              "Add authorization-negative tests for missing/invalid/expired credentials and assert correct 401 vs 403 mapping.",
+              "Introduce rate limiting tests that trigger 429 and validate Retry-After behavior.",
+              "Assert response headers/body: 204 has no body; 4xx/5xx return application/json with documented error schema and correlation ID if applicable.",
+              "Add header validation edges: blank X-Killbill-CreatedBy, and size/character constraints for Reason/Comment.",
+              "Add query parameter edge cases: customField= (empty), URL-encoded values, and ensure collectionFormat=multi parsing remains robust.",
+              "Add concurrency test with simultaneous creation of custom fields during deletion to ensure atomicity and lack of ghost records.",
+              "Clarify expected status for deleting a non-existent account (204 vs 404) and update tests accordingly to match the API contract."
+            ],
+            "usage": {
+              "completion_tokens": 7170,
+              "prompt_tokens": 5440,
+              "total_tokens": 12610,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

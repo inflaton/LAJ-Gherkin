@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "19_2025-10-14T21:23:52.958397",
+    "jira_id": "19",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/search/{searchKey} - Search accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:23:17.123469",
+    "benchmark_end_time": "2025-10-14T21:23:52.958388",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 35.834919,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "19_qe_sup-gpt4.1_agent-gpt4.1_1748917082.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Happy-path retrieval with only path parameter (TC01) and with each valid query parameter (TC02) and combinations (TC03).",
+              "Empty Response: Covered for no matches (TC04) and empty database (TC05).",
+              "Pagination: Basic and combined pagination via offset/limit (TC02, TC03) and large dataset pagination/performance (TC15).",
+              "Query Parameters: Broad coverage of valid flags (accountWithBalance, accountWithBalanceAndCBA, audit FULL/MINIMAL) and invalid values for integers, booleans, enums (TC02, TC03, TC07, TC08); extra/unexpected parameters ignored (TC14).",
+              "Authorization: Unauthorized access scenarios with missing/invalid tokens returning 401 (TC09, TC10).",
+              "Error Handling: 4xx for invalid inputs (TC06\u2013TC08, TC12, TC13, TC17) and 5xx for service/downstream failures and timeouts (TC11, TC16, TC19).",
+              "Security/Injection: SQL injection and XSS attempts handled with appropriate 4xx and no data impact (TC12, TC13).",
+              "Default Behavior: Absence of audit and balance/CBA info when not requested (TC01)."
+            ],
+            "gaps": [
+              "Rate Limiting: No tests for throttling/429 or behavior under burst traffic distinct from pure concurrency performance.",
+              "Caching Behavior: No validation of ETag/Last-Modified, Cache-Control, or conditional GET (If-None-Match/If-Modified-Since).",
+              "Pagination Edge Cases: No coverage for limit=0, very large limit exceeding server max, very large offset beyond result set (should return empty page), verification of default limit=100 and default offset=0 when omitted.",
+              "Content-Type/Produces: No assertions on response headers like Content-Type=application/json and charset.",
+              "Schema Validation: No explicit validation against the Account schema (#/definitions/Account), including required fields and types, or presence/absence of balance/CBA/audit fields when toggled.",
+              "Audit=NONE Explicit: No scenario requesting audit=NONE to verify behavior vs. default and ensure no audit fields are returned.",
+              "Authorization Variants: No 403 Forbidden scenario (e.g., authenticated but not authorized) if applicable to this endpoint.",
+              "SearchKey Variants: No tests for unicode/UTF-8 search keys, URL-encoded keys, or case sensitivity/normalization requirements.",
+              "Conflict of Flags: While both accountWithBalance and accountWithBalanceAndCBA=true are used together, there is no assertion about precedence or documented expected behavior when they conflict (e.g., If CBA flag implies balance, what if one true and the other false?).",
+              "Large Dataset Pagination Consistency: Performance is tested, but not correctness across consecutive pages (e.g., no duplicates/overlaps between pages, stable ordering)."
+            ],
+            "recommendations": [
+              "Add rate limiting tests: send bursts to trigger 429, verify Retry-After headers and backoff behavior.",
+              "Add caching tests: verify Cache-Control and ETag headers on successful responses; perform conditional GET to validate 304 Not Modified when applicable.",
+              "Extend pagination tests: add limit=0, limit above allowed max (expect 400 or clamped), offset beyond results (expect empty array), and verify defaults (no params returns at most 100 with offset=0).",
+              "Assert response headers: Content-Type=application/json; charset presence; no unexpected headers leaking internals.",
+              "Introduce schema validation against the Account definition for required/optional fields and data types; verify balance/CBA/audit fields appear only per flags.",
+              "Add scenario with audit=NONE explicitly and confirm no audit data is returned; compare with default behavior.",
+              "If authorization model supports it, add a 403 Forbidden test for an authenticated user lacking permissions.",
+              "Add tests for URL-encoded and unicode search keys (e.g., accented characters, non-Latin scripts) and confirm matching rules (case sensitivity).",
+              "Clarify and test precedence when accountWithBalance and accountWithBalanceAndCBA are provided together with conflicting values; ensure consistent documented behavior.",
+              "For large datasets, add multi-page traversal tests to verify consistent ordering and no overlaps/omissions across pages (e.g., pages 1\u20133 with stable sort key)."
+            ],
+            "usage": {
+              "completion_tokens": 1755,
+              "prompt_tokens": 6048,
+              "total_tokens": 7803,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 832,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

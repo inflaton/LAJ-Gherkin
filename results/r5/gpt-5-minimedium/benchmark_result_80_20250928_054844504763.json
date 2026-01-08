@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-09-28T05:48:44.504723",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:48:08.425691",
+    "benchmark_end_time": "2025-09-28T05:48:44.504717",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 36.079026,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Payload: Multiple success scenarios (single credit, multiple credits, with invoiceId) verify resource creation and response 201.",
+              "POST semantics: Tests cover malformed body, missing required fields, invalid types (pluginProperty), duplicate submission/idempotency, very large payloads / payload-too-large handling, and server-unavailable/timeouts.",
+              "Query parameters: autoCommit true and pluginProperty multi-value variants are tested (TC04, TC05).",
+              "Headers: Required header X-Killbill-CreatedBy and optional headers X-Killbill-Reason and X-Killbill-Comment are tested, including behavior when missing (TC10) and when XSS payloads are used (TC20).",
+              "Error handling: 400 (malformed request / validation), 404 (account or invoice not found), 403 (insufficient permissions), 503 (service/plugin unavailable), and 504 (timeout) scenarios are present.",
+              "Response expectations: Response body validation (JSON array of InvoiceItem) and Location header presence are asserted in success scenarios (TC01/TC02).",
+              "Business rules: CBA vs invoice-specific credit behavior when invoiceId is omitted is tested (TC07).",
+              "State & Integration: Tests cover database state variations (empty DB, existing invoices/credits), plugin integration error/unavailable states, and logs/plugin-mock verification points (TC26-29).",
+              "Security: SQL injection and XSS attempts are covered (TC19, TC20).",
+              "Performance & Stress: Response time under normal & peak load and resource utilization under stress are included (TC32-TC34).",
+              "Edge cases: Empty body, extra unexpected fields, max credits per request, and timeout conditions are included (TC21, TC22, TC23, TC24, TC25)."
+            ],
+            "gaps": [
+              "Authentication nuance (401) vs required header handling: There is a test for missing X-Killbill-CreatedBy returning 400 (TC10), but no explicit test for 401 Unauthorized when authentication credentials are missing/invalid.",
+              "Content-Type handling and response headers: No tests assert request Content-Type validation (e.g., application/json required) or response Content-Type, nor detailed validation of caching headers (Cache-Control, ETag) on responses.",
+              "Schema / strict validation: While presence/matching fields are checked, there are no explicit tests asserting full InvoiceItem schema validation (field types, min/max numeric ranges, zero amount behavior, maximum string lengths, strictly-enforced enums for itemType).",
+              "Invoice/account mismatch: No scenario where an invoiceId is supplied that exists but belongs to a different account (should likely return 404 or validation error).",
+              "Positive/zero amount behavior is ambiguous: TC13 allows either 201 or 400 but doesn\u2019t assert a single expected behavior; no firm test for zero amount or exact normalization rules.",
+              "Internal server errors (500): No explicit simulation of database failures or internal 500 errors (only plugin errors and 503/504 are covered).",
+              "Idempotency mechanism: TC30 tests duplicate-credit-on-retry but does not specify or test an idempotency key/behavioral contract (retries with/without idempotency keys and their semantics).",
+              "Rate limiting and throttling: No tests for rate limits (429) or API throttling under burst traffic.",
+              "Location header content validation for batch creates: Location presence is checked, but there is no validation of Location values for multiple created resources (per-item Location/links) or format of returned identifiers.",
+              "Concurrency / race conditions: No explicit concurrency tests for race conditions when adjusting the same invoice/account concurrently (beyond load/performance)."
+            ],
+            "recommendations": [
+              "Add explicit authentication tests that distinguish between missing/invalid credentials (401) and insufficient permissions (403).",
+              "Add tests asserting request and response Content-Type headers and schema compliance (e.g., enforce application/json and validate response Content-Type).",
+              "Define and test strict InvoiceItem schema rules: numeric ranges, zero-amount behavior, allowed itemType values, and maximum lengths for string fields (reason/comment), then add tests asserting those validations produce deterministic responses (400 with clear messages).",
+              "Add a test where invoiceId exists but belongs to a different account to ensure the API rejects cross-account adjustments (expected 404 or validation error).",
+              "Clarify and lock down system behavior for positive amounts and zero amounts, then adjust TC13 to assert a single expected outcome; add tests for normalization/conversion rules if applicable.",
+              "Simulate internal server/database failures to validate 500 responses and graceful degradation / retry guidance.",
+              "Implement explicit idempotency tests using an idempotency key header (if supported) and retries without it to verify duplicate suppression behavior.",
+              "Add rate-limiting/throttling tests to validate 429 responses and system behavior under bursts.",
+              "Validate Location header contents for batch operations: ensure created resource identifiers are returned and link format is as documented.",
+              "Add concurrency tests that attempt simultaneous adjustments to the same invoice/account to expose race conditions (check balance/invoice consistency after concurrent writes)."
+            ],
+            "usage": {
+              "completion_tokens": 2478,
+              "prompt_tokens": 8287,
+              "total_tokens": 10765,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1408,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-14T01:29:37.248471",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T01:28:18.825152",
+    "benchmark_end_time": "2025-10-14T01:29:37.248467",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 78.423315,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Method - Valid Deletion: Multiple scenarios validate successful deletion returning 204 and confirm the email is removed from the account (TC01, TC02, TC12, TC13, TC14).",
+              "DELETE Method - Non-Existent Resource: Proper 404 handling when account or email does not exist, including the case where the account has no emails (TC03, TC04, TC09).",
+              "DELETE Method - Concurrency: Race condition covered with concurrent deletes; only one succeeds and the rest return 404 (TC15).",
+              "Header Validation: Required X-Killbill-CreatedBy enforced (TC07); optional X-Killbill-Reason and X-Killbill-Comment accepted (TC02).",
+              "Input Validation: Invalid UUID format and invalid email (including XSS) return 400 (TC05, TC06, TC16).",
+              "Authorization: Unauthorized access with invalid/expired token returns 401 (TC10).",
+              "Server Error Handling: Dependency/service failure returns 503 with appropriate error (TC11).",
+              "Resilience/Recovery: Transient network failure with retry succeeds (TC19).",
+              "Regression/Compatibility: Uppercase email handling and legacy client behavior validated (TC17, TC18)."
+            ],
+            "gaps": [
+              "DELETE Method - Soft Deletes: No explicit verification of soft vs hard delete semantics (e.g., confirm resource is permanently removed and not just flagged; attempt recovery or verify with a follow-up GET/list).",
+              "Response Headers and Media Type: No assertions that error responses use Content-Type: application/json per spec, nor that 204 responses have no body; no validation of standardized error schema.",
+              "URL Encoding of Path Parameter: No tests for URL-encoded email values or special characters (e.g., user+tag@example.com, percent-encoded @ as %40, spaces, unicode/punycode).",
+              "Idempotency (sequential): No scenario for repeating the same DELETE sequentially (first 204 then 404 or consistent idempotent behavior as defined).",
+              "Authorization - Forbidden: No test for 403 when token is valid but lacks required scope/permissions (if applicable).",
+              "Audit/Header Edge Cases: No boundary tests for header lengths, empty optional headers, or header injection (e.g., newline characters) on X-Killbill-* headers.",
+              "Rate Limiting/Throttling: No stress tests to observe behavior under high-frequency DELETE calls (if enforced by the platform)."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification scenario: after DELETE, perform a GET of account emails to ensure the email is truly removed and not retrievable; if soft-delete is intended, verify the deleted flag and behavior explicitly.",
+              "Assert response headers and payload shape: verify Content-Type: application/json for error responses; ensure 204 responses have no body; validate error schema (code/message) across 400/401/403/404/503.",
+              "Add URL-encoding scenarios: DELETE using URL-encoded emails (e.g., user%2Btag%40example.com) and other special/unicode characters to confirm correct path parsing.",
+              "Add idempotency scenario: perform two sequential DELETEs for the same email and document/validate expected statuses (e.g., 204 then 404).",
+              "Extend authorization coverage with a 403 Forbidden test using a valid token lacking delete permissions (if RBAC applies).",
+              "Include header boundary tests: very long X-Killbill-CreatedBy/Reason/Comment, empty optional headers, and header injection attempts should be handled safely.",
+              "If applicable to your platform, add rate limiting tests to ensure proper responses and headers (e.g., 429, Retry-After) under burst DELETE requests."
+            ],
+            "usage": {
+              "completion_tokens": 3675,
+              "prompt_tokens": 5675,
+              "total_tokens": 9350,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2880,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

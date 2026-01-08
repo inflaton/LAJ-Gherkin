@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-15T15:44:13.469399",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:42:30.431660",
+    "benchmark_end_time": "2025-10-15T15:44:13.469393",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 103.037733,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Valid Deletion: Success with required header and removal verified (TC01); success with optional headers (TC02); boundary-length emails still deletable (TC12, TC13).",
+              "DELETE Non-Existent Resource: 404 when account or email not found, including accounts with no emails (TC03, TC04, TC09).",
+              "DELETE Concurrency: Parallel deletes yield one 204 and the rest 404 (TC15).",
+              "Validation/Bad Request: 400 for invalid accountId and email formats (TC05, TC06), missing required header (TC07), and injection payload in email param (TC16).",
+              "Authorization: 401 for invalid/expired auth token (TC10).",
+              "Server error handling and resilience: 503 on dependency failure (TC11) and retry after transient network issue succeeds (TC19).",
+              "Non-functional checks: Performance threshold under 500ms (TC14).",
+              "Regression/compatibility: Uppercase email handling (TC17) and legacy client compatibility (TC18).",
+              "Robustness: Extra, unsupported query parameter doesn\u2019t break deletion (TC08)."
+            ],
+            "gaps": [
+              "Soft deletes: No scenario verifying whether deletion is soft vs hard (e.g., deleted flag or audit trail) per DELETE guidelines.",
+              "Response contract: No assertions for Content-Type: application/json on error responses; no check that 204 responses have an empty body/Content-Length: 0.",
+              "Path parameter encoding: No tests for emails requiring URL-encoding or special characters (e.g., user+tag@example.com, percent-encoded, or Unicode/IDN).",
+              "Idempotency (sequential): No test deleting the same email twice sequentially to confirm expected behavior (first 204, second 404).",
+              "Authorization 403: No scenario for authenticated but unauthorized user expecting 403 (if enforced by service).",
+              "Audit propagation: No verification that X-Killbill-CreatedBy/Reason/Comment are persisted to audit logs or history."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification scenario: after DELETE, use a read/audit endpoint to confirm email is marked deleted or an audit entry exists, not only absence from listing.",
+              "Add response contract checks: assert 204 has no body (Content-Length: 0) and error responses include Content-Type: application/json with a structured error schema.",
+              "Add URL-encoding and special-character tests: delete user%2Btag%40example.com and an IDN address (punycode) to verify correct decoding and matching.",
+              "Add a sequential idempotency test: delete an existing email, then delete it again; expect 404 on the second attempt.",
+              "Add a 403 Forbidden scenario for a user with valid token but insufficient permissions (if applicable to the API).",
+              "Verify audit headers persistence: ensure CreatedBy/Reason/Comment are recorded in audit logs/history for the delete action.",
+              "Optional hardening: send a DELETE with an unexpected request body and verify it is ignored or rejected per API contract."
+            ],
+            "usage": {
+              "completion_tokens": 3925,
+              "prompt_tokens": 5675,
+              "total_tokens": 9600,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3264,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

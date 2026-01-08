@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-13T04:37:55.925585",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:37:36.184708",
+    "benchmark_end_time": "2025-10-13T04:37:55.925581",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 19.740873,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Success paths for invalidating all caches and a specific cache are covered (TC01, TC02).",
+              "Non-Existent Resource: Invalid cache name behavior is covered (TC03).",
+              "Invalid Input / Validation: Empty cacheName, overly long cacheName, special characters, previously problematic formats, and mixed-case checks are covered (TC05, TC10, TC11, TC12, TC15).",
+              "Authorization: An unauthorized-access scenario is present (TC06).",
+              "Server Error Handling: Internal errors in cache subsystem are covered (TC07).",
+              "Empty Response Handling: Behaviour for no caches/configured caches is covered (TC08).",
+              "Extra/Unsupported Parameters: Behaviour when unknown query params are present is covered (TC09).",
+              "Concurrency and Performance: High-volume invalidation and concurrent requests scenarios are included (TC13, TC14)."
+            ],
+            "gaps": [
+              "Produces / Response Headers: The story specifies \"Produces: application/json\", but there are no assertions about response Content-Type, content negotiation, or header correctness (e.g., Content-Type, Content-Length).",
+              "Response Body Expectations on Success: Acceptance criteria say successful operation returns 204 and produces application/json \u2014 tests assert empty body but do not assert the presence/absence of JSON-related headers or whether an empty JSON payload vs no-body is required. This ambiguity is not covered.",
+              "Rate Limiting / Throttling: There are no tests that exercise client/request rate limits or server throttling behavior (spikes beyond TC14).",
+              "Detailed Authorization Semantics: TC06 allows 401 or 403 but does not assert which is expected in which condition, nor tests role-based access (admin vs non-admin) or token expiry/invalid scopes.",
+              "Edge concurrency race conditions on targeted cache: Concurrency test covers multiple deletes for all caches (TC14) but does not cover race where one request deletes a specific cache while another manipulates or deletes the same cache concurrently (targeted-cache race).",
+              "Soft Delete / Auditability: No tests verify whether invalidation is logged, audited, or whether any soft-delete-like state is recorded (if applicable).",
+              "Content validation for error responses: Error scenarios assert existence of an error message but do not validate error codes or structured error JSON schema (fields like code, message, details).",
+              "Negative/Malformed Query Syntax: Tests cover empty and long values and special characters but do not cover malformed query syntax (e.g., multiple cacheName parameters, percent-decoding edge cases, or binary/non-UTF8 payloads in the query)."
+            ],
+            "recommendations": [
+              "Add assertions for response headers and Content-Type (expect application/json when specified) and clarify whether 204 responses should include any JSON body or must be empty. Include tests that explicitly validate Content-Type, Content-Length, and any cache-related headers.",
+              "Clarify and codify authorization semantics: Add tests distinguishing 401 (unauthenticated) vs 403 (authenticated but not authorized) and include role-based checks (admin vs non-admin).",
+              "Add rate-limiting/throttling tests: simulate bursts of requests beyond expected limits and assert 429 or other negotiated behavior.",
+              "Add targeted-cache concurrency tests: simulate concurrent requests that target the same cache (one invalidation and one other operation) to detect race conditions and ensure consistent outcomes.",
+              "Add structured error response validations: enforce a schema for error responses (error code, message, possible details) and add assertions for those fields in error scenarios.",
+              "Add tests for malformed query syntaxes: multiple cacheName parameters, non-UTF8 query content, and percent-encoding edge cases to ensure robust parsing and defensive validation.",
+              "If audit/logging is required, add tests to assert invalidation is recorded (audit trail) or any soft-delete-like state changes are present."
+            ],
+            "usage": {
+              "completion_tokens": 1134,
+              "prompt_tokens": 3739,
+              "total_tokens": 4873,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

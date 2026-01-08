@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "90_2025-10-15T10:29:46.195312",
+    "jira_id": "90",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Add custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:29:34.321085",
+    "benchmark_end_time": "2025-10-15T10:29:46.195308",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 11.874223,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "90_qe_sup-gpt4.1_agent-gpt4.1_1748921815.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: multiple happy-path scenarios (single, multiple, required/optional headers) cover successful creation and response body checks (TC01-TC04, TC18).",
+              "Invalid Payload: malformed JSON, missing body, empty array and extra/unknown fields are covered (TC08, TC09, TC10, TC11).",
+              "Path Parameter Validation: invalid UUID format and non-existent invoice item scenarios are covered (TC05, TC06, TC22, TC23).",
+              "Authorization: unauthorized / invalid credentials scenario is present (TC12).",
+              "Large Payloads & Limits: maximum/large payload edge case is considered (TC14).",
+              "Concurrency and Duplicate Handling: concurrent requests, duplicate field name/regression and retry semantics to avoid duplication are covered (TC16, TC17, TC25).",
+              "Validation Edge Cases: length limits, special characters and injection/XSS attempts are explicitly tested (TC19, TC20, TC21).",
+              "Service Error Handling: service-unavailable scenario is covered (TC13).",
+              "Performance: basic response-time expectation for normal payload is included (TC15).",
+              "Persistence/Integration: retrieval/verification after creation covered (TC18)."
+            ],
+            "gaps": [
+              "Server-side 500/Internal Error handling: no explicit test simulating DB failure or generic 500 response (guideline: Server Error Handling for POST).",
+              "Idempotency / Duplicate Submission semantics not explicit: scenarios discuss duplicates (TC17/TC25) but there is no definitive test asserting the API's expected behavior for repeated identical POSTs (e.g., same payload sent twice) and how duplicates are detected/resolved.",
+              "Exact schema/contract validation for response and request: tests assert \u201ccontains created objects\u201d but do not assert full schema compliance (field types, presence/absence of generated fields like createdDate, id).",
+              "Content-Type / Accept headers: no tests for missing/incorrect Content-Type or Accept headers (e.g., application/json required).",
+              "Header validation beyond X-Killbill-CreatedBy: optional headers (X-Killbill-Reason, X-Killbill-Comment) are included in one scenario, but tests for malformed/overlong header values or handling when optional headers are present but empty are missing.",
+              "Duplicate submission race-resolution: while concurrency is tested, there is no test asserting transactional integrity in the face of partial failures (e.g., half succeed/half fail) and eventual consistency.",
+              "Error message content and localization: tests check for presence of an error but do not validate error codes/body schema or consistent error structure for 4xx/5xx responses.",
+              "Rate limiting / throttling: no tests for rate limiting behavior under high request rates (POST-specific guideline).",
+              "Caching and pagination: not applicable to POST resource creation and therefore not tested (note: no GET caching tests present to validate subsequent retrieval behavior beyond TC18)."
+            ],
+            "recommendations": [
+              "Add a test that simulates a server-side failure returning 500 to validate how the API surfaces internal errors and that clients get a proper 5xx error (Server Error Handling).",
+              "Add explicit idempotency / duplicate-submission tests: send the identical POST twice and assert whether the API rejects duplicates, deduplicates, or creates new entries; assert expected status codes and resulting database state.",
+              "Add strict schema/contract assertions for request and response bodies: validate required/optional fields, types, and any server-generated fields in the response (IDs, timestamps).",
+              "Add tests for Content-Type and Accept header handling (missing/incorrect Content-Type should produce 400).",
+              "Expand header validation tests: include malformed or excessively long X-Killbill-CreatedBy/Reason/Comment values and empty-but-present header cases to check header validation/error responses.",
+              "Add tests for transactional integrity under partial failures during multiple-object creation (e.g., if one custom field fails validation, are others persisted?).",
+              "Add tests that verify error response structure and message content for 4xx and 5xx responses so clients can reliably parse errors.",
+              "If rate-limiting is supported by the platform, add POST rate-limiting/throttling tests to validate behavior under bursts of requests.",
+              "Document and assert the expected behaviour for TC11 (extra fields) and TC14 (large payload) rather than leaving outcome as \"201 or 400\" \u2014 pick the expected contract and enforce it with tests to avoid ambiguity."
+            ],
+            "usage": {
+              "completion_tokens": 1193,
+              "prompt_tokens": 6336,
+              "total_tokens": 7529,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

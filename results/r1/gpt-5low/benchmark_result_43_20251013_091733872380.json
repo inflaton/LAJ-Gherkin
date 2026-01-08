@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-10-13T09:17:33.872348",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:17:06.435767",
+    "benchmark_end_time": "2025-10-13T09:17:33.872342",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 27.436575,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "PUT - Valid Request: Multiple happy-path updates return 204 and assert DB state changes (TC01, TC02, TC13, TC14, TC15, TC23, TC24, TC25, TC26).",
+              "PUT - Non-Existing Resource: 404 handling for missing payment/transaction and mismatched IDs (TC06, TC07, TC12, TC27).",
+              "PUT - Concurrency Issues: Concurrent updates scenario validates consistency and lack of corruption (TC17).",
+              "Input Validation: UUID format validation for path params (TC04, TC05), missing required header (TC03), missing body (TC09), malformed JSON (TC10), and invalid/inconsistent state data (TC08).",
+              "Authorization: 401 Unauthorized when credentials are missing/invalid (TC11).",
+              "Operational robustness: Backend timeouts/degradation handling covered (TC16, TC22).",
+              "Performance/Load: High-load behavior validated (TC21).",
+              "Optional headers behavior: Presence/absence combinations and effects validated (TC02, TC24), including whitespace/case variations (TC26).",
+              "Resilience to unexpected input: Extra/unsupported body fields and query parameters are ignored without error (TC13, TC25).",
+              "Security hardening: SQLi and XSS payload handling covered (TC18, TC19)."
+            ],
+            "gaps": [
+              "PUT - Partial Update rule: It is unclear whether partial updates are allowed. Tests only cover \"required fields only\" (TC23) but do not assert rejection when partial updates should not be allowed, nor explicitly confirm that partial updates are officially supported.",
+              "Idempotency of PUT: No scenario verifies that repeating the exact same update is idempotent (same final state, consistent 204/appropriate status).",
+              "State-transition matrix coverage: No positive matrix validating allowed transitions across transaction types (e.g., AUTH -> CAPTURE, REFUND states) and how they propagate to the associated payment state; only an invalid transition negative case exists (TC08).",
+              "Response semantics: Story mentions Produces application/json alongside 204; no tests verify Content-Type/Accept negotiation or confirm correct headers for a 204 response (typically no body).",
+              "Authorization/permissions depth: Only 401 is tested. No 403 Forbidden scenario for authenticated but non-admin users attempting the admin update.",
+              "Server error handling: No explicit test for unexpected 5xx (e.g., DB failure) distinct from timeout/degraded services.",
+              "Audit/traceability: No validation that CreatedBy/Reason/Comment are captured in audit logs/history as expected for an administrative operation.",
+              "Boundary/limits for headers and payload sizes: While body max values are tested (TC14), no explicit limits/validation for header lengths (Reason/Comment) or very large AdminPayment payloads."
+            ],
+            "recommendations": [
+              "Clarify and codify partial update behavior for AdminPayment: if not allowed, add a scenario asserting 400 when optional-but-present fields are omitted; if allowed, add explicit scenarios proving only provided fields change and others remain intact.",
+              "Add an idempotency test: send the same PUT twice and assert identical final state and consistent status code, with no duplicate side effects.",
+              "Expand state-transition coverage: add positive scenarios for each allowed transaction state transition and verify corresponding payment state updates; keep TC08 as the negative guardrail.",
+              "Verify response headers and content negotiation: assert behavior of Content-Type/Accept on 204 (no body) or adjust to 200 with JSON if the API truly \u201cproduces\u201d application/json; align tests with the documented contract.",
+              "Add a 403 Forbidden scenario for an authenticated user lacking admin privileges to ensure proper authorization enforcement.",
+              "Introduce a controlled 500 Internal Server Error simulation (e.g., DB error) to verify error mapping and message structure distinct from timeouts (TC16) or partial degradation (TC22).",
+              "Add audit assertions: after successful/failed updates, verify audit logs/history capture X-Killbill-CreatedBy, Reason, and Comment as appropriate.",
+              "Add boundary tests for header sizes and large payloads: extremely long Reason/Comment values and very large AdminPayment bodies to confirm validation, limits, and graceful failures."
+            ],
+            "usage": {
+              "completion_tokens": 1602,
+              "prompt_tokens": 6337,
+              "total_tokens": 7939,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

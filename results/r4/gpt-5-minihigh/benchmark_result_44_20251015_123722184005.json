@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-15T12:37:22.183972",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:35:56.517363",
+    "benchmark_end_time": "2025-10-15T12:37:22.183968",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 85.666605,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid request handling (default parameters) \u2014 covered by TC01.",
+              "Explicit pagination handling (offset and limit) and offset-only behavior \u2014 covered by TC02 and TC13.",
+              "Parameter validation for negative and non-integer values \u2014 covered by TC06 and TC07.",
+              "Required and optional header handling including auditing metadata (X-Killbill-CreatedBy, Reason, Comment) \u2014 covered by TC03, TC05, TC16.",
+              "Authentication and authorization error handling (missing header, invalid/expired token) \u2014 covered by TC05 and TC08.",
+              "Empty-result handling when no parked accounts exist \u2014 covered by TC04.",
+              "Server or dependency failure handling (service unavailable) \u2014 covered by TC09 (503).",
+              "Large-scale processing and max-limit edge cases \u2014 covered by TC10 and TC12.",
+              "Concurrency and retry/recovery scenarios to avoid duplicate invoice generation \u2014 addressed by TC15 and TC18 (partial verification of once-only processing).",
+              "Security testing for header injection attempts \u2014 covered by TC14.",
+              "Handling of unexpected query parameters (foo=bar) \u2014 covered by TC11.",
+              "Response content type asserted as application/json in success scenarios \u2014 covered across TC01, TC03, TC04, TC10, TC12.",
+              "Regression and backward-compatibility scenarios for header parsing and older clients \u2014 covered by TC16 and TC17.",
+              "Accessibility of API documentation \u2014 covered by TC19."
+            ],
+            "gaps": [
+              "Rate limiting / throttling is not explicitly tested (how the API responds to rapid repeated requests, expected 429 and Retry-After semantics).",
+              "Explicit idempotency / duplicate-submission verification is not deterministically proven: TC15 and TC18 touch retry and concurrency, but there is no DB-level verification that duplicate requests produce no duplicate invoices in a repeatable test.",
+              "Detailed response JSON schema and content validation is missing (no assertions on invoice object fields, types, or per-account mapping of generated invoices).",
+              "500 Internal Server Error scenarios (e.g., forced DB errors) are not explicitly covered; only 503 service-unavailable is tested.",
+              "Header validation beyond presence is not covered (length limits, charset constraints, malformed header formatting).",
+              "Boundary test for exceeding maximum allowed limit (e.g., limit > maximum) is missing; only an example max is tested positively.",
+              "Content negotiation / Accept header behavior is not tested (how the server behaves with unsupported Accept values).",
+              "Audit persistence verification is missing: tests do not assert that provided createdBy/reason/comment are stored in audit logs or persisted to DB.",
+              "Performance SLAs are not defined or strictly asserted: TC12 references acceptable thresholds but does not assert numeric SLA/P95/P99 values.",
+              "Caching behavior is not addressed; while POST is typically not cached, there is no explicit N/A documentation or tests if any intermediate caches are relevant."
+            ],
+            "recommendations": [
+              "Add explicit rate-limiting tests: submit bursts of requests and assert expected 429 responses, Retry-After headers, and graceful degradation behavior.",
+              "Add deterministic idempotency tests: submit identical requests (sequential and concurrent) and verify via DB/audit that invoices are created exactly once for each account.",
+              "Introduce JSON schema validation tests for success and error responses: assert required fields, types, counts, and per-account invoice linkage.",
+              "Simulate and test 500 Internal Server Error conditions (for example by mocking DB exceptions) and assert safe 5xx responses without sensitive information.",
+              "Add header validation tests for length and format (e.g., overly long X-Killbill-CreatedBy or invalid characters) and assert appropriate 4xx responses and sanitized logging.",
+              "Add boundary tests for limit values above the supported maximum and assert the correct 4xx or server-enforced cap behavior.",
+              "Add content negotiation tests: send unsupported Accept headers to assert correct Content-Type selection or 406 responses.",
+              "Verify audit log persistence: assert that createdBy, reason, and comment are recorded in audit logs or DB rows and are retrievable.",
+              "Define concrete performance SLAs (e.g., P95 < X ms) and encode them into automated load tests; extend TC12/TC18 with measurable thresholds and resource utilization checks.",
+              "If caching is relevant in the deployment path, either document caching as N/A for this POST or add tests for Cache-Control/ETag behavior where applicable."
+            ],
+            "usage": {
+              "completion_tokens": 8024,
+              "prompt_tokens": 5207,
+              "total_tokens": 13231,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

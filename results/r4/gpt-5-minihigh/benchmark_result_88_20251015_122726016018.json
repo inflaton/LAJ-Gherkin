@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-15T12:27:26.015991",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:26:20.780071",
+    "benchmark_end_time": "2025-10-15T12:27:26.015987",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 65.235916,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Endpoint existence and happy path: success removal scenarios for no tagDef (remove all) and for specific tagDef subset (TC01, TC02) with correct 204 response and empty body.",
+              "Path parameter validation: valid, invalid (non-UUID) and non-existent invoiceItemId scenarios are covered (TC09, TC08).",
+              "Query parameter variations: absence of tagDef, subset deletion, tagDef containing IDs not present on the invoice item, empty tagDef, malformed UUID values, and very large lists are exercised (TC01, TC02, TC05, TC06, TC13, TC14).",
+              "Header handling: required X-Killbill-CreatedBy present and missing cases, optional X-Killbill-Reason/X-Killbill-Comment presence, special characters and XSS/injection attempts in headers are tested (TC03, TC10, TC15, TC18).",
+              "Authentication and authorization basics: invalid/expired auth token returns 401 (TC11); missing required header covered (TC10).",
+              "Error status coverage: 204 success, 400 bad requests for invalid/malformed inputs, 404 not found, 401 unauthorized, and 503 service unavailable are asserted (TC01, TC09, TC08, TC11, TC12, TC13).",
+              "Idempotency/empty-state behavior: removing when no tags returns 204 and leaves the item unchanged (TC04).",
+              "Concurrency/performance: a high-concurrency scenario is present to detect race conditions/performance issues (TC17).",
+              "Integration/regression/accessibility: audit integration failure, regression for special characters, and API documentation accessibility are included (TC19, TC18, TC20).",
+              "Request/response basic semantics: tests assert empty response body for successful 204 responses and presence of error messages for error cases."
+            ],
+            "gaps": [
+              "Soft delete semantics not covered: there is no test verifying whether tags are hard-deleted vs flagged (deleted flag) or retained for audit purposes.",
+              "Collection format for tagDef (collectionFormat=multi) not explicitly tested: no explicit checks for tagDef=uuid1&tagDef=uuid2 vs comma separated lists or how the API expects multiple parameters.",
+              "Content-Type / Produces header not validated: tests do not assert response Content-Type for 204 and for error responses (spec states application/json).",
+              "Authorization scope / permissions (403 Forbidden) not covered: no tests for authenticated but unauthorized users (insufficient RBAC/ACL) returning 403.",
+              "Rate limiting and throttling not covered: burst requests / 429 behavior and limits are not tested (TC17 is performance oriented but not rate limit verification).",
+              "Server error handling (500 Internal Server Error) not simulated: there is no explicit test for unexpected internal failures and their error responses.",
+              "Error response schema/structure not validated: tests assert messages exist but do not validate consistent JSON error schema, error codes, or fields.",
+              "Concurrency race details missing: TC17 covers concurrency/performance broadly but lacks focused tests for race conditions (e.g., two concurrent deletes of the same tag set and final-state determinism).",
+              "Audit logging positive verification not covered: TC19 covers audit service unavailability but not the happy-path verification that audit records are written when the service is available.",
+              "Injection coverage incomplete: injection/XSS tests target headers but do not explicitly test path/query parameters (invoiceItemId and tagDef) for injection threats.",
+              "Boundary and limit tests incomplete: header length boundaries, explicit tagDef list size limits and deterministic expectation (413 vs 204) are not fully specified or asserted."
+            ],
+            "recommendations": [
+              "Add explicit collection-format tests for tagDef: verify that collectionFormat=multi is supported (tagDef=uuid1&tagDef=uuid2) and document/verify behavior for comma-separated lists per API spec.",
+              "Add a soft-delete verification test: after DELETE, verify database state or subsequent GET calls to confirm whether tags are removed or marked deleted, and assert audit log entries contain X-Killbill-CreatedBy/Reason/Comment when applicable.",
+              "Assert response Content-Type: add checks that error responses return application/json and clarify behavior for 204 responses (no body vs content-type presence) to match \"Produces: application/json\".",
+              "Add authorization scope tests (403): create a valid token that lacks delete permission and assert a 403 Forbidden with a clear error payload.",
+              "Add deterministic rate-limiting tests: send controlled bursts to validate 429 behavior or configured throttling and document thresholds; separate from generic concurrency/performance tests.",
+              "Simulate internal server errors (500): inject/imitate a DB or service failure and assert a proper 5xx response and that client-facing messages are consistent and safe.",
+              "Validate error response schema: create schema-driven tests for error payloads (fields like code, message, type, details) for each error type (400, 401, 403, 404, 500, 503).",
+              "Add focused concurrency/race tests: two or more simultaneous DELETEs targeting overlapping tag sets and assert final tag state is deterministic and free of corruption; include repeated-deletion idempotency checks (delete twice -> 204 both times).",
+              "Add positive audit logging test: when audit service is available, assert that an audit event is recorded with expected metadata; when unavailable, assert the system fails gracefully and documents partial failure (TC19 expansion).",
+              "Expand injection tests to path and query parameters: attempt injection/malicious values in invoiceItemId and tagDef and assert 400/422 and no unexpected behavior; include header-length and comment-length boundary tests and document limits."
+            ],
+            "usage": {
+              "completion_tokens": 6760,
+              "prompt_tokens": 5394,
+              "total_tokens": 12154,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5568,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

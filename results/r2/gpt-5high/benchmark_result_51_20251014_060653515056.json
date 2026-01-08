@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-14T06:06:53.515020",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:04:03.045331",
+    "benchmark_end_time": "2025-10-14T06:06:53.515015",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 170.469684,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST Valid Payload: Multiple success paths return 201 with Location header and a Bundle object (TC01, TC02, TC03, TC04, TC05, TC18, TC19, TC21, TC26).",
+              "Input Validation: Invalid UUID format, invalid date, invalid billingPolicy, missing required header, and missing body all return 400 (TC08\u2013TC12).",
+              "Non-Existing Resources: 404 for missing bundle or target account, including empty/partial DB states (TC06, TC07, TC22, TC23).",
+              "Authorization: 401 for invalid/missing auth token (TC13).",
+              "Server Error Handling: 503 dependency unavailable and 500 inconsistent dependency data (TC14, TC24).",
+              "Billing Policy Variants: START_OF_TERM, END_OF_TERM, IMMEDIATE success paths verified (TC03).",
+              "Query Parameters: requestedDate today, billingPolicy variations, pluginProperty multi-value and empty array covered (TC03\u2013TC05, TC18).",
+              "Large Payloads: pluginProperty large payload handled with 201 or 413 (TC20).",
+              "Resilience and Concurrency: Retry after transient network failure (TC17); performance under normal/peak load and concurrent calls (TC27\u2013TC30).",
+              "Security Hardening: SQL injection/XSS attempts rejected with 400 (TC15, TC16).",
+              "Response Location header presence and correctness asserted (TC01, TC02).",
+              "Error responses accessibility and clarity asserted (TC31)."
+            ],
+            "gaps": [
+              "Duplicate Submission/Idempotency: No scenario repeating the same POST with identical payload to ensure idempotent behavior or proper 409/second 200/201 handling.",
+              "Default billingPolicy: No assertion that omission defaults to END_OF_TERM and that behavior aligns with the default.",
+              "Response Headers: No verification that Content-Type is application/json on success/error responses.",
+              "Response Schema: No strict validation that the returned Bundle matches the documented schema (e.g., fields, types) and that accountId equals the target account post-transfer.",
+              "Request Body Field-Level Validation: Body present but missing accountId, null/empty accountId, or invalid accountId format (e.g., non-UUID) not tested.",
+              "requestedDate Boundary/Timezone: No tests for past/future dates, timezone offsets, DST/leap-day handling, or normalization rules.",
+              "Plugin Property Encoding: No explicit check that collectionFormat=multi is respected in the query string (repeated keys), correct URL-encoding of special characters, or behavior with duplicate keys.",
+              "Authorization 403: No scenario for authenticated users lacking permission (RBAC) receiving 403.",
+              "Rate Limiting/Throttling: No tests for burst requests yielding 429 or appropriate headers.",
+              "Concurrent Transfer of the Same Bundle: No race-condition test where two transfers happen simultaneously, ensuring one fails cleanly (e.g., 409/precondition failure) without data corruption.",
+              "Header Limits Negative Path: Max length is tested, but no scenario exceeding allowed lengths to ensure 400 with clear errors.",
+              "Ambiguity in billingPolicy ILLEGAL: Story lists ILLEGAL in the enum yet treats it as invalid; needs clarification or a test using a truly invalid value."
+            ],
+            "recommendations": [
+              "Add a duplicate submission scenario: perform the same POST twice; assert second response is 409 Conflict or returns the same resource/Location without duplicating work.",
+              "Add a default billingPolicy test: omit billingPolicy and assert END_OF_TERM is applied, including effective dates and proration if applicable.",
+              "Assert response headers: verify Content-Type: application/json and that Location matches the expected canonical URL pattern.",
+              "Add JSON schema validation for the Bundle response and verify critical fields (bundleId unchanged, accountId updated to target, state/status transitions).",
+              "Expand body validation: test body present but missing accountId, null/empty accountId, and invalid accountId format; assert 400 with clear error codes.",
+              "Extend requestedDate coverage: test past and future dates, timezone offsets (e.g., Z, +05:30), DST boundaries, and leap days; verify server normalization rules.",
+              "Strengthen pluginProperty tests: assert repeated query parameters (pluginProperty=a&pluginProperty=b) are accepted, special characters are URL-encoded safely, and duplicate keys behavior is defined; include a boundary test that definitively triggers 413 and validates error shape.",
+              "Add authorization (RBAC) scenario: authenticated but unauthorized caller receives 403, with machine-readable error code.",
+              "Introduce rate limiting test: burst POSTs to elicit 429 Too Many Requests (if applicable) and verify Retry-After headers.",
+              "Add a concurrency/race test: two simultaneous transfers of the same bundle to different targets; assert one succeeds and the other fails deterministically (e.g., 409).",
+              "Add negative header length tests: exceed allowed limits for X-Killbill-Reason/Comment and assert 400 with clear error details.",
+              "Clarify billingPolicy enum: if ILLEGAL is not valid, remove from enum in the spec and test an actually invalid value; if it is valid, add a success-path test for ILLEGAL and document semantics."
+            ],
+            "usage": {
+              "completion_tokens": 6924,
+              "prompt_tokens": 7734,
+              "total_tokens": 14658,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

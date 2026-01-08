@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "23_2025-10-14T07:10:31.558256",
+    "jira_id": "23",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/invoices - Retrieve account invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T07:07:06.281167",
+    "benchmark_end_time": "2025-10-14T07:10:31.558253",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 205.277086,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "23_qe_sup-gpt4.1_agent-gpt4.1_1748917429.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple scenarios verify successful 200 responses returning a JSON array of Invoice objects with default behavior and various filters (TC01, TC02, TC03, TC04, TC05, TC06, TC07).",
+              "Empty Response: Covered for accounts with no invoices and for filters that match nothing (TC08, TC25).",
+              "Query Parameters: Broad coverage of valid and invalid combinations, including date range, partial dates, boolean flags, audit levels (FULL/MINIMAL), unsupported params, and error conditions like startDate > endDate (TC02, TC03, TC04, TC05, TC06, TC07, TC09, TC21, TC23, TC24).",
+              "Error Handling: 400 for invalid account ID format, 404 for non-existent account, 400/422 for malicious or invalid inputs (TC10, TC11, TC15, TC26).",
+              "Authorization: 401 responses for missing and invalid tokens (TC12, TC13).",
+              "Operational Resilience: Service downtime (503), slow downstream leading to 200 or 504, concurrency consistency, and large dataset performance are exercised (TC14, TC16, TC17, TC18).",
+              "Security Hardening: SQL injection and XSS attempts in parameters are rejected (TC15, TC27).",
+              "Regression/Compatibility: Specific regression around unpaidInvoicesOnly and backward compatibility without query params (TC19, TC20)."
+            ],
+            "gaps": [
+              "Pagination: No explicit verification of pagination mechanics (e.g., limit/offset or pagination headers/links), page boundaries, or navigating subsequent pages; TC16 mentions pagination but does not assert behavior.",
+              "Caching Behavior: No checks for ETag/If-None-Match, Last-Modified/If-Modified-Since, Cache-Control, or 304 Not Modified.",
+              "Rate Limiting: No scenarios to trigger or validate 429 Too Many Requests and related headers (Retry-After, X-RateLimit-*).",
+              "Authorization (403): Missing test for authenticated user lacking permission (Forbidden).",
+              "Content Negotiation/Headers: No assertions on Content-Type=application/json or behavior with unsupported Accept headers (e.g., 406). Story states produces application/json but it is not verified.",
+              "Schema Contract: No validation that each Invoice object conforms to the API schema (required fields, types, enum values), nor that audit payload matches FULL/MINIMAL/NONE definitions.",
+              "Query Param Validation Depth: No tests for invalid date formats (non-ISO dates like 2023-13-01), out-of-range dates (e.g., February 30th), invalid boolean values (yes/1/TRUE), or invalid audit enum values beyond XSS; audit=NONE default behavior not asserted.",
+              "Path Param Edge Cases: No test for empty/blank/whitespace accountId and URL-encoded oddities; only malformed and extremely long values are covered.",
+              "Ambiguity in Combined Flags: Semantics when unpaidInvoicesOnly=true with includeVoidedInvoices=true and withMigrationInvoices=true may need clarification and explicit expected outcomes (TC24 mentions inclusion but does not reconcile business rules about voided vs unpaid).",
+              "Performance Metrics: TC16 sets a 2s target but does not specify environment/threshold validation steps or repeatability; no memory/streaming checks."
+            ],
+            "recommendations": [
+              "Add pagination tests: request with explicit limit/offset (or API-specific pagination controls), assert pagination headers/links, and retrieve multiple pages (first, middle, last, empty page).",
+              "Implement caching scenarios: capture ETag/Last-Modified from a 200 response, re-GET with If-None-Match/If-Modified-Since to assert 304, and verify Cache-Control directives.",
+              "Introduce rate limiting tests: burst requests to trigger 429, validate Retry-After and X-RateLimit-* headers, and proper recovery after backoff.",
+              "Add 403 Forbidden coverage: authenticated user lacking necessary scope/role/tenant should receive 403.",
+              "Assert headers and content negotiation: verify Content-Type=application/json; send unsupported Accept (e.g., text/xml) and expect 406 or documented behavior.",
+              "Validate response schema: enforce JSON schema checks for Invoice and audit blocks for FULL/MINIMAL/NONE; ensure required fields and data types are correct.",
+              "Expand input validation: test invalid date formats (YYYY-DD-MM, non-existent dates), invalid booleans (yes/1), and invalid audit enum values (e.g., PARTIAL); add explicit test for audit=NONE and confirm no audit details are returned.",
+              "Cover path parameter edge cases: empty, whitespace, URL-encoded values, and case normalization, expecting 400 as appropriate.",
+              "Clarify and codify combined-flag behavior: write explicit scenarios for unpaidInvoicesOnly with includeVoidedInvoices/withMigrationInvoices to align with business rules on what constitutes \u201cunpaid.\u201d",
+              "Strengthen performance tests: define environment, sample sizes, and acceptable thresholds; consider chunked/streaming responses if applicable; measure and assert deterministically.",
+              "Refactor TC23 into two independent scenarios (startDate-only, endDate-only) to keep tests atomic and clearer pass/fail reporting.",
+              "Explicitly assert produces application/json by checking the Content-Type header in success responses."
+            ],
+            "usage": {
+              "completion_tokens": 8095,
+              "prompt_tokens": 6428,
+              "total_tokens": 14523,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6976,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

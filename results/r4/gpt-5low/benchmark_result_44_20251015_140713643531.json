@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-15T14:07:13.643503",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T14:06:26.996711",
+    "benchmark_end_time": "2025-10-15T14:07:13.643499",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 46.646788,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "POST Valid Request: Successful triggering with default params, explicit offset/limit, and optional headers (TC01, TC02, TC03, TC13).",
+              "Empty dataset handling: No parked accounts returns 200 with clear indication (TC04).",
+              "Query Parameters Validation: Negative/zero, non-integer, partial input defaulting, and explicit pagination window are tested (TC02, TC06, TC07, TC13).",
+              "Required/Optional Headers: Required X-Killbill-CreatedBy enforced; optional Reason/Comment supported and auditable (TC03, TC05, TC16, TC17).",
+              "Authorization: Invalid/expired token returns 401/403 (TC08).",
+              "Server/Dependency Unavailable: 503 scenario covered (TC09).",
+              "Security: Injection attempt in headers does not leak sensitive info (TC14).",
+              "Concurrency/Duplicate Effects: Retries and concurrent requests do not double-generate invoices (TC15, TC18).",
+              "Performance/Large Scale: Large number of parked accounts and response time expectations covered (TC10, TC12, TC18).",
+              "Extra params behavior considered (TC11)."
+            ],
+            "gaps": [
+              "Server Error Handling (500): No scenario simulating internal errors like database failure returning 500 with safe error body.",
+              "Rate Limiting/Throttling: No tests for burst traffic limits or 429 Too Many Requests and related headers.",
+              "Pagination boundaries: No tests for boundary conditions such as offset exactly at end, offset beyond range, or next-page progression consistency across multiple calls.",
+              "Deterministic handling of unexpected query params: TC11 allows 200 or 400; expected behavior should be asserted consistently (ignore vs reject).",
+              "Response schema/content: Tests do not validate response body structure (e.g., counts processed, list of account IDs, status) beyond content-type.",
+              "Authorization by role: No scenario where a valid non-admin principal is forbidden (403) while valid token exists.",
+              "Input size/constraints: No explicit tests for maximum allowed limit enforcement (error on exceeding max) or very large header values/unicode handling.",
+              "Content-Type and body handling: No tests for unexpected request body or wrong Content-Type (e.g., 415 or ignore body) despite consumes application/json."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate an internal server error (e.g., DB failure) and assert 500 with a sanitized JSON error payload.",
+              "Introduce rate-limiting tests: rapid successive POSTs leading to 429, including Retry-After header expectations.",
+              "Expand pagination tests: offset at dataset end returns 200 with zero processed; offset beyond range; sequential paging across multiple calls maintaining no overlap or gaps.",
+              "Make unexpected parameter handling deterministic: decide to ignore unknown params (200) or reject (400) and assert accordingly.",
+              "Define and validate the response schema: include fields like processedCount, limit, offset, requestId, and maybe errors; assert their presence and types.",
+              "Add a role-based authorization scenario: valid token for non-admin user results in 403.",
+              "Test numeric upper bounds: request limit above the maximum should return 400 with a clear validation message; also test very large/Unicode header values for CreatedBy/Reason/Comment.",
+              "Add Content-Type/body robustness tests: sending an unintended JSON body or wrong Content-Type should be either ignored or return 415, per API contract, and assert the chosen behavior."
+            ],
+            "usage": {
+              "completion_tokens": 1698,
+              "prompt_tokens": 5207,
+              "total_tokens": 6905,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

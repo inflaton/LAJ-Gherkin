@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "74_2025-10-14T16:30:05.245157",
+    "jira_id": "74",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/plan - Retrieve plan for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T16:29:16.203412",
+    "benchmark_end_time": "2025-10-14T16:30:05.245153",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 60,
+    "average_generation_time_seconds": 49.041741,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 60,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "74_qe_sup-gpt4.1_agent-gpt4.1_1748920805.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 60,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01, TC02, TC03, TC04, TC13, TC19) validate successful retrieval for combinations of subscriptionId and requestedDate and boundary dates.",
+              "Empty/No-Data Responses: TC03, TC04 and TC11 address behavior when no matching plan exists or DB is empty.",
+              "Query Parameters: Extensive coverage of parameter combinations including both provided, only one provided, neither provided, extra parameters (TC01\u2013TC04, TC14).",
+              "Authorization: TC09 covers missing/invalid authentication resulting in 401.",
+              "Input Validation / Error Responses: Invalid subscriptionId and requestedDate formats are tested (TC05, TC06, TC08) as well as non-existent ID (TC07).",
+              "System/Dependency Errors: TC10 covers backend/service unavailability (503).",
+              "Edge Cases & Data Integrity: Overlap (TC12), boundary dates (TC13), and empty DB (TC11) are included.",
+              "Performance & Load: TC15 and TC16 cover response time under normal and concurrent load.",
+              "Security: Injection and XSS attempts are covered (TC17, TC18).",
+              "Regression & Compatibility: Previously failing scenarios and legacy client behavior are covered (TC19, TC20)."
+            ],
+            "gaps": [
+              "Pagination: No tests for pagination or handling of large result sets (GET guideline).",
+              "Caching Behavior / HTTP Headers: No assertions for caching headers (ETag, Cache-Control), Last-Modified, or conditional GET behavior despite the API producing application/json.",
+              "Rate Limiting / Throttling: No tests that verify behavior under many rapid requests that trigger rate limits (distinct from performance timing).",
+              "Content Negotiation & Response Headers: No tests verifying Content-Type, Accept handling, or Vary headers (the story states \"Produces: application/json\").",
+              "Ambiguous expected status codes: Several scenarios allow multiple possible status codes (e.g., TC03, TC04, TC11, TC12) whereas the acceptance criteria expects defined behavior (200 for success, >=400 for errors). Tests should assert the exact expected code per implementation contract.",
+              "Missing explicit behavior for \"no plan for given subscription+date\": There is not a focused test asserting the exact expected status/code/body when a valid subscriptionId + requestedDate yields no active plan (only general/ambiguous coverage exists).",
+              "Authorization granularity: No tests for forbidden (403) vs unauthorized (401) or role-based access control behaviour.",
+              "Negative/Boundary data combinations: Not covered \u2014 e.g., well-formed requestedDate outside any subscription timeline for an existing subscription (explicit 404 or empty response), or very old/future dates to validate time-range handling.",
+              "Error payload schema: Tests do not assert the structure/schema of error responses (error codes/messages), only the presence of an error message."
+            ],
+            "recommendations": [
+              "Add pagination tests: create large datasets and verify pagination parameters (limit/offset or page/size), response structure, and links/meta where applicable.",
+              "Validate caching headers and conditional GETs: assert presence and correctness of ETag, Cache-Control, Last-Modified headers and behavior for If-None-Match / If-Modified-Since (return 304 where appropriate).",
+              "Add rate-limiting tests: issue rapid repeated requests to validate HTTP 429 handling and Retry-After header behavior.",
+              "Tighten expected outcomes: replace ambiguous \"200 or default\" allowances with explicit expected behavior per API contract; add tests asserting the exact status code and response body shape for each case (including \"no plan\" for a subscription/date).",
+              "Add Content-Type and Accept header tests: ensure responses are application/json and that unsupported Accept values are handled correctly.",
+              "Expand authorization tests: include 403/role-based scenarios, and token-expiry cases; assert error schemas for auth failures.",
+              "Add explicit negative scenarios for a valid subscriptionId + requestedDate with no matching plan (assert 404 or empty JSON as agreed) and test extreme dates.",
+              "Assert error response schema: add tests that validate the structure and fields of error responses (code, message, parameters) to ensure clients can reliably parse errors.",
+              "Add large-scale performance and chaos tests: simulate high-volume traffic and intermittent dependency failures to validate graceful degradation and sensible HTTP codes (e.g., circuit-breaker behavior).",
+              "Document expected semantic behaviors in the acceptance criteria: clarify which status codes are definitive for empty results, overlapping plans, and validation failures so tests can assert exact outcomes."
+            ],
+            "usage": {
+              "completion_tokens": 2168,
+              "prompt_tokens": 4829,
+              "total_tokens": 6997,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

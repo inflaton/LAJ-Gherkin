@@ -1,0 +1,97 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-10-15T16:22:00.012739",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:20:12.805512",
+    "benchmark_end_time": "2025-10-15T16:22:00.012734",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 107.207222,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST: Valid payloads covered (single and multiple items, with/without invoiceId, autoCommit, pluginProperty, required/optional headers) via TC01\u2013TC07, TC26\u2013TC27, TC31.",
+              "POST: Invalid payloads and validation covered (missing header, malformed JSON, missing fields, invalid UUID, invalid currency, invalid pluginProperty type, empty body, extra fields) via TC10\u2013TC12, TC14\u2013TC16, TC19, TC21\u2013TC22; positive-amount behavior explored in TC13.",
+              "POST: Duplicate submission/idempotency covered by TC30.",
+              "POST: Large payloads and limits (max items, very large payloads, timeout) covered by TC23\u2013TC25.",
+              "Error handling per story: 400 for invalid account/malformed body (TC11\u2013TC12, TC14), 404 for unknown account/invoice (TC08\u2013TC09).",
+              "Query parameters: autoCommit and pluginProperty both happy-path and invalid forms covered (TC04\u2013TC05, TC16) plus default behavior without params (TC31).",
+              "Headers: Required X-Killbill-CreatedBy enforced (TC10) and optional X-Killbill-Reason/Comment verified (TC06).",
+              "Success response semantics: 201 Created, JSON array body, and Location header presence verified (TC01).",
+              "Integration/server unavailability: plugin unavailable/error (TC28\u2013TC29) and API unavailable 503 (TC17).",
+              "Security: SQL injection and XSS input hardening covered (TC19\u2013TC20).",
+              "Non-functional performance/stress scenarios included (TC32\u2013TC34)."
+            ],
+            "gaps": [
+              "Content negotiation: No assertion on response Content-Type application/json; no tests for 415 Unsupported Media Type when Content-Type is missing/incorrect; no Accept header behavior.",
+              "Ambiguous positive amount behavior: TC13 allows 201 or 400; story suggests positives should be treated as credits (stored negative). Expected result should be deterministic.",
+              "Array atomicity/partial failure: No test for mixed valid/invalid items to confirm all-or-nothing behavior and error reporting; no order preservation checks.",
+              "Multi-account payloads: No scenario where items target different accountIds in one request (should be rejected or defined).",
+              "Cross-entity consistency: No test where invoiceId does not belong to the provided accountId (expect 400/404).",
+              "Default autoCommit=false behavior not explicitly asserted (ensure omission does not commit).",
+              "General 500 error handling: No simulated database/internal failure returning 500 beyond plugin-specific errors.",
+              "Rate limiting/throttling: No scenarios validating 429 or throttling behavior under bursts.",
+              "Numeric boundaries/precision: No tests for amount=0, extreme magnitudes, decimal precision/rounding, or currency/account currency consistency.",
+              "Location header semantics for multi-create: No assertion on how Location is populated when multiple resources are created.",
+              "Schema conformance: No strict validation of returned InvoiceItem schema and enums (e.g., itemType must be CREDIT_ADJ or CBA_ADJ) and rejection/omission of unknown fields in responses.",
+              "Idempotency mechanism not specified: TC30 lacks explicit mechanism (e.g., Idempotency-Key) and does not cover concurrent retries."
+            ],
+            "recommendations": [
+              "Assert content negotiation: verify response Content-Type=application/json; add tests for 415 when Content-Type is missing/wrong and optionally 406 for unacceptable Accept.",
+              "Make TC13 deterministic: specify that positive amounts are accepted and stored as negative (201) or are rejected (400), then assert accordingly.",
+              "Add transactional array tests: include a payload mixing valid/invalid items to confirm all-or-nothing behavior and clear error messages; also verify item order is preserved when successful.",
+              "Add a test with different accountIds in the same array and define expected rejection (400) or supported behavior.",
+              "Test invoiceId that belongs to a different account and assert 400/404 per API contract.",
+              "Explicitly verify default autoCommit=false by checking invoice remains uncommitted when the parameter is omitted.",
+              "Introduce a simulated database/internal failure path to validate 500 error handling and error body structure.",
+              "Include rate limiting tests to validate 429 or documented throttling behavior under bursty load.",
+              "Add numeric boundary/precision tests: zero and very large amounts, high-precision decimals, and currency compatibility with account settings.",
+              "Define and test Location header behavior for multiple created items (absent, collection URL, or first resource).",
+              "Add strict schema validation for response InvoiceItem objects, including enum values and absence of unknown fields.",
+              "Specify and test an idempotency strategy (e.g., Idempotency-Key header) including concurrent retry scenarios to prevent duplicate credits."
+            ],
+            "usage": {
+              "completion_tokens": 4727,
+              "prompt_tokens": 8287,
+              "total_tokens": 13014,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3712,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

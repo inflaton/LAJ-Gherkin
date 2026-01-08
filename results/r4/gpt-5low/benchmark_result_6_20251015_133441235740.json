@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-15T13:34:41.235709",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:33:57.776276",
+    "benchmark_end_time": "2025-10-15T13:34:41.235704",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 43.459428,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "PUT - Valid Request: Multiple success paths verify 204 and that custom fields are updated (TC01, TC02, TC03, TC04, TC15, TC16, TC17, TC24, TC27, TC28).",
+              "PUT - Non-Existing Resource: Attempt to update a non-existent account returns an error (TC07).",
+              "Request validation: Required header X-Killbill-CreatedBy present/absent handling (TC01, TC02, TC08).",
+              "Request validation: Body presence and JSON well-formedness (TC09, TC10).",
+              "Schema validation: Invalid CustomField objects rejected (TC11); duplicate names rejected (TC23); extra properties ignored (TC17); max lengths accepted (TC16).",
+              "UUID format validation for accountId (TC06).",
+              "Optional headers handling for X-Killbill-Reason and X-Killbill-Comment (TC02).",
+              "Unsupported headers are ignored (TC05).",
+              "Security input validation: SQLi/XSS payloads rejected (TC20, TC21).",
+              "Large payload handling including near-limit and 413 on exceed (TC26).",
+              "Operational errors: 401 unauthorized (TC12), 502 dependency failure (TC14), 503 service down (TC13), 504 timeout (TC19).",
+              "Concurrency at scale: concurrent requests across accounts succeed and maintain consistency (TC25)."
+            ],
+            "gaps": [
+              "PUT - Partial Update semantics: No scenario clarifies whether PUT replaces the full set vs allows partial updates; no test that a subset payload does/does not leave unspecified fields intact.",
+              "PUT - Concurrency/race on the same resource: No tests for simultaneous updates to the same account (e.g., last-write-wins, optimistic locking, ETag/If-Match).",
+              "Idempotency of PUT: No scenario repeats the same request and verifies stable 204 and no unintended side effects.",
+              "Content negotiation and headers: No explicit tests enforcing Content-Type: application/json on request, or verifying Produces/absence of body for 204 (e.g., no unexpected response body, correct headers).",
+              "Error code alignment: Story specifies 400 for invalid accountId or malformed body, but behavior for non-existent account is undefined; tests assume 400 (TC07). Consider verifying/aligning with 404 if that is the API standard.",
+              "Validation depth for CustomField schema: No explicit tests around allowed keys/values enumerations, data types per definition, or constraints like max number of fields per account (beyond length and count examples).",
+              "Authorization granularity: Only 401 unauthenticated is tested; no 403 forbidden/insufficient permissions scenario if RBAC applies.",
+              "Auditability: Headers Reason/Comment covered, but no test that audit records actually store CreatedBy/Reason/Comment values (only TC27 mentions audit logs in general).",
+              "State transitions on empty array (TC15): Assumes removal of all custom fields, but this behavior is not specified in the story; needs confirmation and explicit coverage of expected side-effects (e.g., audit entries, downstream systems)."
+            ],
+            "recommendations": [
+              "Add a scenario to define and verify PUT semantics: full replacement vs partial. Example: start with fields A,B; send payload with only A; assert whether B is removed (replace) or remains (partial is rejected).",
+              "Add concurrency tests targeting the same account: two clients updating overlapping fields concurrently; verify deterministic outcome, or enforce optimistic locking with If-Match/ETag and 412 on conflict if applicable.",
+              "Add an idempotency test: repeat the exact same PUT request and verify 204, no duplicate entries, and unchanged resulting state.",
+              "Add content negotiation tests: reject requests without Content-Type: application/json (415), accept with correct header; verify 204 has no response body and response headers (e.g., no misleading Content-Type).",
+              "Clarify and test the non-existent account behavior: if API should return 404 Not Found, add a scenario asserting 404; otherwise document 400 explicitly.",
+              "Deepen CustomField schema tests against the official definition: invalid data types, enumerated value violations, per-field length/range constraints, maximum number of fields per account, and duplicate key-value combinations.",
+              "Add authorization/permission tests for 403 Forbidden when authenticated user lacks rights to modify the account.",
+              "Augment auditability verification: assert that CreatedBy/Reason/Comment are persisted and retrievable via audit endpoints or logs for the modified fields.",
+              "Confirm and formalize behavior for empty array payload (TC15): if intended to remove all fields, add explicit post-condition checks in system of record and dependent systems (e.g., reporting, cache invalidation)."
+            ],
+            "usage": {
+              "completion_tokens": 1774,
+              "prompt_tokens": 6919,
+              "total_tokens": 8693,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

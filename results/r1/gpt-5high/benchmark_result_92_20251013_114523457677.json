@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-13T11:45:23.457644",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T11:43:25.956026",
+    "benchmark_end_time": "2025-10-13T11:45:23.457639",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 117.501613,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Success paths verified for removing all custom fields (no query param) and specific subsets (customField present) with 204 and empty body; includes 0-field, 1-field, duplicates, and large lists (collectionFormat=multi).",
+              "DELETE - Non-Existent Resource: 404 when the invoice item does not exist.",
+              "Validation - Path parameter: 400 on invalid invoiceItemId UUID format.",
+              "Validation - Query parameter: 400 for malformed customField values and for mixed valid/invalid inputs; duplicates tolerated; extra/unexpected query params handled.",
+              "Headers: Required X-Killbill-CreatedBy enforced (400 when missing); optional X-Killbill-Reason/X-Killbill-Comment accepted; long Comment handled; header casing/formatting regression covered.",
+              "Authorization: 401 for expired/invalid authentication token.",
+              "Resilience/Error Handling: 503 when dependent service unavailable; injection attempts rejected (400/422).",
+              "Performance/Robustness: Under heavy load still returns 204 within acceptable response time.",
+              "Idempotency-adjacent: Deleting when no custom fields remains returns 204 (no-op behavior)."
+            ],
+            "gaps": [
+              "DELETE - Concurrency: No scenarios for race conditions (simultaneous DELETEs on the same invoice item or fields) or conflict handling.",
+              "DELETE - Soft deletes/audit: No validation whether deletions are soft vs hard, nor checks that CreatedBy/Reason/Comment are persisted in audit logs.",
+              "Authorization - 403: No scenario for authenticated but unauthorized user/role (insufficient permissions).",
+              "Rate limiting/throttling: No tests for 429 responses or Retry-After headers under burst traffic.",
+              "Error contract/headers: No assertions that error responses are JSON with expected schema and Content-Type; no header checks for 204 (e.g., Content-Length = 0, absence of Content-Type).",
+              "Query parameter edge cases: customField present but empty; whitespace/encoding around IDs; valid UUIDs that do not exist or do not belong to the invoice item.",
+              "Explicit idempotency: No repeated identical DELETE request verifying consistent 204 and no side effects.",
+              "Cross-entity validation: No test attempting to delete custom field IDs that belong to a different invoice item and asserting expected behavior (reject/ignore)."
+            ],
+            "recommendations": [
+              "Add concurrency tests: fire two parallel DELETEs (same invoice item/fields) and define expected outcome (both 204 idempotent or 204 then 204/404; or 409 if conflicts are enforced).",
+              "Verify deletion model and audit: after DELETE, confirm fields are not retrievable (hard delete) or are flagged as deleted (soft delete) and that audit logs capture CreatedBy/Reason/Comment.",
+              "Include RBAC/permission test: valid token without delete permission should return 403.",
+              "Add rate-limiting scenarios: burst of DELETEs leading to 429 with proper Retry-After/backoff behavior (if applicable).",
+              "Validate error schema and headers: assert application/json error payload for 400/404/401/503 with expected fields; and for 204 verify no body and appropriate headers.",
+              "Extend query-param validation: customField provided but empty, values with whitespace/URL-encoding, and valid UUIDs that are non-existent or not associated with the invoice item.",
+              "Add explicit idempotency test: issue the same DELETE twice (same customField list) and expect 204 both times with no adverse effects.",
+              "Add cross-entity test: attempt to delete customField IDs belonging to another invoice item and assert the defined error (400/404) or ignore semantics per API contract."
+            ],
+            "usage": {
+              "completion_tokens": 7894,
+              "prompt_tokens": 5523,
+              "total_tokens": 13417,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

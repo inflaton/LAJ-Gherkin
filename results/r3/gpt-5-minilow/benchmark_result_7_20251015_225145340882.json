@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-10-15T22:51:45.340848",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T22:51:29.782730",
+    "benchmark_end_time": "2025-10-15T22:51:45.340841",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 15.558111,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple success scenarios (remove all, remove specific, remove when none present) validate expected 204 behaviour.",
+              "Query Parameters: Tests validate single, multiple, duplicate, invalid and large-number customField query parameter usages.",
+              "Header handling: Required header (X-Killbill-CreatedBy) presence and absence tested; optional headers (X-Killbill-Reason, X-Killbill-Comment) tested.",
+              "Error handling: Invalid accountId format, invalid customField IDs, and security-related malformed inputs (SQLi, XSS) are covered with expected 400 responses.",
+              "Non-existent resource: Deleting custom fields for a non-existent account is covered (expected 204 per spec).",
+              "Idempotency / Regression: Re-deleting an already deleted custom field is covered (regression test).",
+              "Concurrency & Performance: High-concurrency and performance under load are included (100 concurrent requests, acceptable latency check).",
+              "Integration & Consistency: Tests verify data consistency across dependent services after deletion.",
+              "Dependency & Network failures: Scenarios for backend service failure (500) and network timeout (504/timeout) are present.",
+              "State variations: Partially populated accounts and max-size lists are included."
+            ],
+            "gaps": [
+              "Pagination / GET-specific guidelines: The standard guidelines mention pagination and caching for GET; there are no tests targeting pagination on GET of custom fields (e.g., very large lists and paging behavior).",
+              "Caching behavior and response headers: No checks for caching or response headers (Cache-Control, ETag, Content-Type) on DELETE or subsequent GET.",
+              "Partial-failure semantics for mixed customField lists: No explicit scenario where some provided customField IDs exist and others do not (how partial matches are handled\u2014error vs ignore vs partial success).",
+              "Soft-delete vs hard-delete semantics: No tests asserting whether deletion is soft (logical) or hard (physical) and how archived/soft-deleted records behave on subsequent operations.",
+              "Concurrency race conditions at finer granularity: While there is a performance/concurrency test, there is no focused test for race conditions like two concurrent requests removing overlapping subsets of custom fields and verifying no lost updates or inconsistent states beyond \"all succeed\".",
+              "Authorization granularity: There is an unauthorized scenario, but no tests for role-based differences (401 vs 403 distinction per exact auth failure types) or token expiry/invalid credentials formats.",
+              "Input validation edge cases for headers: Length/characters/encoding of X-Killbill-Reason and X-Killbill-Comment (very long strings, non-UTF8) are not tested.",
+              "Response content-type and API contract details: No assertions about response content-type for error bodies, nor consistent error schema checks."
+            ],
+            "recommendations": [
+              "Add pagination tests for GET /accounts/{accountId}/customFields when account has very large numbers of custom fields: verify page sizes, next/prev links or offsets, and consistent ordering.",
+              "Add tests asserting caching and response headers (Cache-Control, ETag) on GET and verify DELETE invalidates/changes caches as appropriate.",
+              "Add a test for mixed valid+invalid customField IDs in the same request to confirm partial-success semantics (should either ignore non-existing IDs, return 204, or return a 4xx describing the invalid IDs) and ensure the behaviour matches the API contract.",
+              "Add tests to assert soft-delete semantics if applicable (e.g., deleted flag present, ability to restore) and verify behavior of dependent services for soft vs hard deletes.",
+              "Create targeted concurrency/race-condition tests where two requests attempt overlapping deletes and then verify final state deterministically (no lost deletes or inconsistent intermediate states).",
+              "Expand authorization tests to cover different failure types: invalid token (401), insufficient permissions (403), expired token, and role-based restrictions.",
+              "Add header validation tests for X-Killbill-Reason and X-Killbill-Comment: overly long values, invalid encodings, and disallowed characters to ensure robust validation and clear error messages.",
+              "Add assertions for error response schema and content-type for 4xx/5xx responses to ensure clients can parse errors reliably.",
+              "Add rate-limiting/throttling tests (short burst of requests) to verify server responds with 429 or expected behaviour under high request rates."
+            ],
+            "usage": {
+              "completion_tokens": 1164,
+              "prompt_tokens": 5440,
+              "total_tokens": 6604,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

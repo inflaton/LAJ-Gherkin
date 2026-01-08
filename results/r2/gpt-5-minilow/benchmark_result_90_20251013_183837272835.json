@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "90_2025-10-13T18:38:37.272804",
+    "jira_id": "90",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Add custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:38:08.964479",
+    "benchmark_end_time": "2025-10-13T18:38:37.272798",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 28.308319,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "90_qe_sup-gpt4.1_agent-gpt4.1_1748921815.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: multiple scenarios (TC01, TC02, TC03, TC04, TC10, TC18) validate successful creation for single, multiple, and empty-array payloads and verify response bodies and status 201.",
+              "Invalid Payload: malformed JSON, missing body and invalid JSON format are covered (TC08, TC09).",
+              "Path Parameter Validation: invalid UUID format and non-existent IDs covered (TC05, TC06, TC22, TC23) with expected 400/404 handling.",
+              "Required Headers: presence and absence of required X-Killbill-CreatedBy header covered (TC01, TC02, TC07).",
+              "Optional Headers: scenarios include use of optional headers (X-Killbill-Reason, X-Killbill-Comment) (TC01).",
+              "Authorization: unauthorized client scenario present (TC12) to check 401/403 responses.",
+              "Error Conditions / Server Unavailability: simulated service unavailable scenario present (TC13) for 503 behavior.",
+              "Edge Cases & Validation Boundaries: large payload, max/min lengths, special characters, injection/XSS attempts are included (TC14, TC19, TC20, TC21).",
+              "Concurrency & Duplicate Handling: concurrent requests and duplicate-name regression scenario present (TC16, TC17).",
+              "Persistence/Integration: verification that created fields are persisted and retrievable via GET (TC18).",
+              "Performance: response time threshold check for normal and degraded load present (TC15, TC24).",
+              "Recovery: retry semantics for transient network failure present (TC25)."
+            ],
+            "gaps": [
+              "Duplicate Submission / Idempotency: no explicit test for repeated identical POST requests to verify whether duplicates are created, rejected, or deduplicated (distinct from TC17 which focuses on duplicate names within a single request).",
+              "Per-field Validation: missing/invalid individual CustomField properties (e.g., missing \"name\", invalid \"value\" data type, invalid metadata) are not explicitly tested.",
+              "Content-Type and Headers Validation: tests do not check missing/incorrect Content-Type header, response Content-Type, or other response headers such as Location or ETag.",
+              "Exact Error Body Schema/Status Codes: many scenarios state \"400 or 201\" or \"401 or 403\" depending on behavior \u2014 tests do not assert exact API contract for these variants or error schemas; no test covers 500 Internal Server Error (generic server/db failure) distinct from 503.",
+              "Rate Limiting / Throttling: no tests for rate limits or server behavior under many rapid requests (rate-limiting headers, quotas).",
+              "Duplicate Submission Concurrency Race: while concurrency is covered, there is no focused test asserting atomicity/transactional behavior under simultaneous identical submissions to prevent duplication.",
+              "Size & Binary Payloads: no tests for extremely large JSON strings in individual fields or boundary of payload size causing 413 behavior beyond \"maximum number\" of objects.",
+              "Schema Strictness and Unknown Fields Behavior: TC11 is vague \u2014 there is no definitive assertion or separate positive/negative tests to confirm whether extra/unknown fields are ignored or cause errors.",
+              "Security Response Verification: while injection attempts are included, there is no explicit assertion that stored values are sanitized (e.g., verifying stored value encoding on retrieval) or that security headers are set.",
+              "Rate-limit / Caching / Pagination from GET: GET-specific guidelines (pagination, caching, ETag, Cache-Control) for retrieving custom fields are not covered in detail as part of integration (TC18 only checks presence)."
+            ],
+            "recommendations": [
+              "Add idempotency/duplicate-submission tests: craft tests that POST the same payload multiple times (immediately and after a retry) and assert whether duplicates are created, a 409 is returned, or deduplication occurs; include assertions on stored state to confirm expected behavior.",
+              "Add per-field validation tests: missing \"name\", empty \"name\", overly long \"name\" or \"value\", invalid types (number instead of string), and ensure API returns precise validation errors and correct status codes.",
+              "Assert Content-Type and response headers: add tests that send requests without or with incorrect Content-Type and assert proper 415/400 behavior; check response Content-Type, Location, ETag, Cache-Control where applicable.",
+              "Clarify and assert exact error contracts: replace ambiguous \"400 or 201\" expectations with specific, documented behavior. Add tests for 500 Internal Server Error simulation (e.g., DB failure) separate from 503 to ensure server error handling and logging.",
+              "Rate limiting and throttling tests: simulate many requests in a short window to validate 429 or other rate-limit responses and the presence of retry-after headers.",
+              "Tighten TC11 (unknown fields): split into two explicit tests \u2014 one asserting that extra fields are ignored and creation succeeds, another asserting that the API rejects unknown fields \u2014 depending on documented contract.",
+              "Add payload size boundary tests: test extremely large field values and payload sizes to observe 413 behavior and verify server resource handling.",
+              "Security validation on persistence: for XSS/SQL injection inputs, after creation perform a GET and assert stored values are escaped/encoded and that no execution occurs; include tests for relevant security headers.",
+              "Explicitly test authorized vs. forbidden roles: expand TC12 to clearly differentiate 401 (unauthenticated) from 403 (authenticated but unauthorized role), and include role-based access control tests if applicable.",
+              "Add deterministic concurrency tests for duplicate prevention: implement coordinated concurrent identical POSTs and verify single creation or appropriate conflict resolution, including DB state assertions."
+            ],
+            "usage": {
+              "completion_tokens": 1550,
+              "prompt_tokens": 6336,
+              "total_tokens": 7886,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 384,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

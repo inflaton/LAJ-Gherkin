@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "9_2025-10-13T04:28:25.272361",
+    "jira_id": "9",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/block - Block an account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:28:04.712544",
+    "benchmark_end_time": "2025-10-13T04:28:25.272357",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 20.559813,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "9_qe_sup-gpt4.1_agent-gpt4.1_1748916388.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple successful scenarios (TC01-TC05, TC15-TC17, TC20, TC23-TC24) verify resource creation and response 201.",
+              "Optional Params & Headers: TC02, TC03, TC04 cover requestedDate, pluginProperty and optional headers (Reason, Comment) as query/header combinations.",
+              "Invalid Payloads & Validation: TC09, TC10, TC14 cover missing body, malformed JSON, and unsafe input; TC16/TC17 test boundary lengths and minimal values.",
+              "Path Parameter Validation: TC07 and TC13 check invalid accountId formats and injection attempts, producing 400.",
+              "Non-Existent Resource: TC06 checks 404 when account not found.",
+              "Authorization: TC11 covers unauthorized (401) cases.",
+              "Server/Downstream Errors: TC12 and TC22 simulate database and plugin service unavailability (503).",
+              "Duplicate Submission: TC23 specifically targets a regression for duplicate BlockingState entries.",
+              "Large Payload & Performance: TC20, TC25, and TC26 address large payloads, concurrency, and resource utilization under load.",
+              "Integration: TC21 integrates plugin behavior for pluginProperty interactions.",
+              "Edge Cases & Robustness: TC15 (empty pluginProperty), TC18 (extra query params), TC19 (slow downstream) test robustness and graceful handling."
+            ],
+            "gaps": [
+              "Content-Type & Response Media Type: No explicit test verifying request Content-Type required (application/json) or response Content-Type and produces header; the API spec requires consumes/produces application/json.",
+              "400 vs 500 Server Errors: No test for a generic 500 Internal Server Error (server-side bug) \u2014 only 503 is covered.",
+              "Authorization / Permission Levels: Tests include an unauthenticated 401 case (TC11) but lack scenarios for authenticated but unauthorized users (403) or role-based permission checks.",
+              "Schema Validation Details: Although malformed JSON is tested, there are no granular tests for invalid BlockingState schema fields (e.g., wrong data types for specific fields, required fields missing inside BlockingState object).",
+              "Content-Length / Large Header Handling: No tests for excessively long header values (e.g., X-Killbill-CreatedBy length limits) or missing/incorrect header value formats beyond existence.",
+              "Duplicate Submission Concurrency: Duplicate submission regression exists (TC23) but no explicit test for idempotency or race conditions causing duplicates when identical requests are retried concurrently.",
+              "Rate Limiting / Throttling: No tests verify rate limiting behavior when many rapid requests come from the same client (distinct from high concurrency across different accounts).",
+              "Caching and Related Headers: No tests check caching behavior or presence/absence of caching headers (ETag, Cache-Control) in responses, even if less relevant for POST, some infra expects it.",
+              "Pagination / GET-related guidelines: Not applicable to this POST endpoint, but if response lists BlockingState objects with potential for many entries, pagination handling is not tested."
+            ],
+            "recommendations": [
+              "Add Content-Type tests: Verify server rejects requests with missing or incorrect Content-Type and that responses include Content-Type: application/json.",
+              "Add 500 Internal Server Error test: Simulate unexpected server exceptions to ensure 500 responses are handled/returned and logged appropriately.",
+              "Add authorization-level tests (403): Include scenarios where an authenticated user lacks permission to apply a block and the service returns 403.",
+              "Add fine-grained schema validation tests: Create cases with incorrect data types per BlockingState fields, missing required fields inside the BlockingState object, invalid enum values, and verify 400 responses with clear validation messages.",
+              "Add header validation tests: Test excessively long or malformed X-Killbill-CreatedBy/Reason/Comment and verify behavior (reject, truncate, or 400 as appropriate).",
+              "Add idempotency/duplicate-concurrency tests: Simulate repeated identical requests (retries) and concurrent identical requests to verify duplicates are not created and the API handles idempotency or dedup rules.",
+              "Add rate limiting tests: Verify behavior when many requests originate from the same client in a short timeframe (expected 429 or throttling behavior), distinct from high concurrency across accounts.",
+              "Add response contract/schema assertions: Verify response JSON array structure exactly matches the BlockingState schema (field names, types, required fields) and that effective dates and pluginProperties are correctly represented.",
+              "Add negative plugin interaction tests: Beyond plugin unavailable (503), test plugin returning malformed responses or plugin-side validation failures to ensure graceful handling and correct error propagation."
+            ],
+            "usage": {
+              "completion_tokens": 1276,
+              "prompt_tokens": 7115,
+              "total_tokens": 8391,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

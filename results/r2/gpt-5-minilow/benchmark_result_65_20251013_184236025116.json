@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "65_2025-10-13T18:42:36.025092",
+    "jira_id": "65",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/block - Block a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:42:05.743798",
+    "benchmark_end_time": "2025-10-13T18:42:36.025088",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 30.28129,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "65_qe_sup-gpt4.1_agent-gpt4.1_1748920218.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01, TC02, TC03, TC04, TC13\u2013TC15) verify successful creation (HTTP 201) using valid BlockingState payloads, required and optional headers, and query params.",
+              "Invalid Payload / Validation: TC08 (malformed body), TC11 (invalid requestedDate format), TC06 (invalid bundleId format) and TC12 (extra params) cover input validation and malformed inputs.",
+              "Missing / Non-existent Resource: TC05 and TC07 explicitly cover behavior when the target bundle does not exist (HTTP 404).",
+              "Authentication / Authorization: TC18 covers invalid/missing authentication token (HTTP 401). TC09 covers missing required header X-Killbill-CreatedBy (400/401).",
+              "Required fields / Missing Body: TC10 verifies behavior for missing request body (HTTP 400).",
+              "Optional parameters and headers: TC02\u2013TC04 cover combinations of optional headers (Reason, Comment), query params (requestedDate, pluginProperty), and their effects on response.",
+              "Large Payload & Limits: TC16 covers large payload/size limits and expected outcomes (201 or 400 if exceeded).",
+              "Concurrency & Race: TC22 covers concurrent requests and consistency of created blocking states.",
+              "Fault / Integration handling: TC17 covers service unavailability (503), TC28 covers dependent-service failure (502/503), and TC21 covers transient network errors with retry behavior.",
+              "Security: TC19 and TC20 cover injection and XSS attempts and that inputs are sanitized or rejected.",
+              "Performance & Stress: TC25\u2013TC27 cover response time and resource utilization under normal/peak/bulk load.",
+              "Regression & Compatibility: TC23 and TC24 cover regressions (special characters) and backward compatibility concerns.",
+              "Response content: Several scenarios assert response is JSON array of BlockingState objects and that expected fields/effective dates/plugin properties are present (TC01, TC02, TC03, TC04, TC13\u2013TC15)."
+            ],
+            "gaps": [
+              "Duplicate Submission: No explicit scenario tests duplicate submissions (idempotency/detection of replays) or behavior for repeated identical requests.",
+              "Exact Schema & Field-level Validation: While responses are asserted to contain expected fields, there is no explicit negative test for individual BlockingState fields (e.g., invalid enum values for stateName, numeric ranges, or boolean constraints like isBlockChange) beyond general malformed-body tests.",
+              "HTTP 500 / Server Error Handling: While service-unavailable and dependency errors are covered (502/503), explicit simulation of internal server errors (500) such as DB failures and corresponding behavior is not present.",
+              "Authorization granularity (403): Tests include authentication failures (401) but not permission/authorization scenarios returning 403 (e.g., authenticated user lacks permission to block a bundle).",
+              "Duplicate/Idempotency-related race conditions: Concurrency is tested (TC22) but not the specific race where duplicate or conflicting blocking states are created and how conflicts are resolved.",
+              "PluginProperty header format / limits: pluginProperty usage is tested for multiple values but not edge cases like invalid property formats, extremely large numbers of plugin properties, or duplicates in pluginProperty.",
+              "Boundary value testing for individual fields: There are tests for max/min and large payload, but not targeted boundary tests for each required field (e.g., maximum length for stateName vs service field).",
+              "Response headers and metadata: No tests verify presence/contents of non-body response headers (e.g., Location header on create, Content-Type correctness beyond implicit JSON).",
+              "Rate limiting / throttling: No tests for rate limiting or throttling behavior for repeated rapid requests (distinct from performance load tests).",
+              "Logging / Audit headers: X-Killbill-CreatedBy is covered, but there are no assertions that the value is persisted/audited or returned in server logs/response headers."
+            ],
+            "recommendations": [
+              "Add Duplicate-Submission tests: Introduce scenarios that POST the same BlockingState twice (immediate retry and delayed retry) to verify idempotency or duplication handling and expected status codes or duplicate detection behavior.",
+              "Add explicit 500 server-error simulation: Create a test that simulates a database or unexpected server failure to confirm the API returns HTTP 500 and a clear error payload.",
+              "Add Authorization (403) tests: Add scenarios where the authentication token is valid but the user lacks permissions, expecting 403 Forbidden.",
+              "Field-level boundary tests: Add targeted tests for each BlockingState field (stateName, service, isBlockChange, isBlockEntitlement, isBlockBilling) validating min/max lengths, allowed enum values, and invalid types to ensure schema-level validation is comprehensive.",
+              "PluginProperty edge cases: Add tests for invalid pluginProperty formats, extremely large arrays of pluginProperty entries, and duplicate pluginProperty entries to ensure the service handles these robustly.",
+              "Response header checks: Assert presence and correctness of headers such as Content-Type, and if applicable Location or request-tracking headers produced on creation.",
+              "Duplicate/concurrent conflict resolution: Extend concurrency tests to assert how conflicts are resolved (ordering, last-write-wins, error on conflict) when competing blocking states target the same logical effect.",
+              "Rate limiting / throttling tests: Add scenarios to validate API behavior under many rapid requests from the same client (verify 429 or other throttling indicators if applicable).",
+              "Detailed schema conformance tests: Use JSON Schema validation against the BlockingState definition for both request and response bodies to ensure strict conformance and include negative tests for invalid enum values and type mismatches.",
+              "Audit/logging verification: Where feasible, add tests to verify that the X-Killbill-CreatedBy and other auditing headers are persisted and visible through audit endpoints or logs (integration-level)."
+            ],
+            "usage": {
+              "completion_tokens": 1400,
+              "prompt_tokens": 7893,
+              "total_tokens": 9293,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

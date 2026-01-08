@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-10-15T02:30:48.738599",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:28:04.406118",
+    "benchmark_end_time": "2025-10-15T02:30:48.738596",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 89,
+    "average_generation_time_seconds": 164.332478,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 89,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 89,
+            "covered": [
+              "POST - Valid Payload: Positive flows for single and multiple credits, with and without invoiceId, including CBA vs CREDIT_ADJ behavior; verifies 201, response JSON array, and Location header (single item).",
+              "POST - Query Parameters: autoCommit=true path validated with commit verification; pluginProperty passed as multi-valued query parameter and integration verified.",
+              "POST - Headers: Required X-Killbill-CreatedBy covered (both presence and absence). Optional X-Killbill-Reason and X-Killbill-Comment set and verified via audit/GET.",
+              "POST - Invalid Payload: Malformed JSON, empty body, missing required fields, invalid accountId format, unsupported currency, invalid pluginProperty type, and positive amount behavior are exercised.",
+              "POST - Duplicate Submission: Retry/idempotency scenario to prevent duplicate credits on retry.",
+              "POST - Large Payloads and Limits: Maximum allowed items success, very large payload resulting in 413/400, and timeout behavior (504) under heavy load.",
+              "POST - Server/Integration Errors: 404 for account/invoice not found; 503 when API or plugin system is unavailable; plugin error path returning 400/500.",
+              "Security: SQL injection and XSS attempts are covered with appropriate sanitization/validation expectations.",
+              "State and Business Effects: Creation when account has no data vs existing data; balance impact; new credit invoice creation without invoiceId.",
+              "Non-functional: Performance under normal and peak load, and resource utilization under stress; backward compatibility without pluginProperty/autoCommit."
+            ],
+            "gaps": [
+              "Request body shape: No test that sends a single object (non-array) to validate that the API enforces a top-level JSON array per spec.",
+              "Content negotiation: Request Content-Type=application/json and response Content-Type=application/json are not asserted; no test for wrong content type (e.g., text/plain) returning 415; no Accept header variations.",
+              "Default autoCommit behavior: Missing a scenario that omits autoCommit and verifies invoice is not committed by default (default=false).",
+              "Atomicity for multi-item requests: No scenario where a multi-item array contains one invalid item to confirm all-or-nothing behavior or defined partial success semantics.",
+              "Cross-account validation: No test ensuring all items in the array must have the same accountId and that mixed accountIds are rejected.",
+              "invoiceId/account consistency: No scenario where invoiceId does not belong to the provided accountId (and malformed invoiceId format) to verify correct 400/404 handling.",
+              "Numeric validation edges: No tests for zero amount, extremely large amounts, precision/scale limits, or negative zero handling.",
+              "Query parameter validation: No test for autoCommit with a non-boolean value or unknown query parameters; pluginProperty edge cases (empty values, URL-encoded items, duplicates) not covered.",
+              "Internal server errors: No explicit simulation of a core database/storage failure returning 500 distinct from 503 service unavailable.",
+              "Location header semantics for multiple creates: No assertion on how Location or equivalent links are returned when creating multiple credits.",
+              "Authentication 401: Insufficient permissions (403) covered, but no scenario for missing/invalid auth token leading to 401.",
+              "Response schema conformance: Limited assertions on full InvoiceItem schema in responses (required fields present, unexpected fields absent) across all success cases, especially multi-item responses."
+            ],
+            "recommendations": [
+              "Add a scenario posting a single InvoiceItem object (not array) to assert a 400/415 error and confirm the API requires a JSON array.",
+              "Assert Content-Type and Accept headers: success returns application/json; wrong Content-Type yields 415; test with Accept variations.",
+              "Add a test where autoCommit is omitted to verify default=false (no commit) and contrast with autoCommit=true behavior via subsequent GET/audit.",
+              "Introduce a multi-item request where one item is invalid to verify transactional atomicity (expect failure of whole request) and error shape.",
+              "Add a scenario with mixed accountIds in the array to ensure the API rejects cross-account payloads.",
+              "Test invoiceId/account mismatch and malformed invoiceId format to validate correct 400/404 behavior.",
+              "Create numeric boundary tests: amount=0, very large amounts, high-precision decimals, and negative zero handling per business rules.",
+              "Validate query parameters rigorously: autoCommit with non-boolean value, unknown query params handling, and pluginProperty edge cases (empty strings, URL-encoded values, duplicates).",
+              "Simulate a backend database failure to assert 500 Internal Server Error handling and error body contract.",
+              "Define and assert Location (or links) behavior for multi-create responses (e.g., Location omitted, multiple Link headers, or IDs in body).",
+              "Add a 401 Unauthorized scenario (missing/invalid auth token) distinct from 403 Forbidden.",
+              "Strengthen response schema checks for InvoiceItem fields in all success cases, ensuring only allowed fields are returned and values are correct (itemType for CBA vs CREDIT_ADJ, currency, amount, ids)."
+            ],
+            "usage": {
+              "completion_tokens": 7904,
+              "prompt_tokens": 8287,
+              "total_tokens": 16191,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6848,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

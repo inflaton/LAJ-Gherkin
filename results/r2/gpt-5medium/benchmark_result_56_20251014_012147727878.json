@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "56_2025-10-14T01:21:47.727848",
+    "jira_id": "56",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/customFields - Add custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T01:20:29.941674",
+    "benchmark_end_time": "2025-10-14T01:21:47.727844",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 77.78617,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "56_qe_sup-gpt4.1_agent-gpt4.1_1748919557.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "POST/Valid Payload: Multiple success paths verify 201 and JSON array response, including with/without optional headers and bundles with/without existing custom fields (TC01\u2013TC04, TC19).",
+              "Invalid Payload: Comprehensive checks for malformed JSON, empty body/array, schema omissions, unsupported fields, and duplicate field names within a single request (TC08\u2013TC12, TC18).",
+              "Path/Header validation: Invalid UUID format (TC05), missing required X-Killbill-CreatedBy (TC07), and presence of optional headers (TC02).",
+              "Resource existence: 404 when bundle not found (TC06).",
+              "Operational/Resilience: Unauthorized (401) (TC14), service unavailable (503) including dependency failure (TC15, TC20), and network timeout handling expectations (TC16).",
+              "Performance/Security: Large-but-within-limits payload (TC17), concurrency behavior (TC22), and input hardening for SQLi/XSS attempts (TC23\u2013TC24)."
+            ],
+            "gaps": [
+              "Duplicate submission: No test for resubmitting the same payload for the same bundle (idempotency/deduplication behavior or expected duplicate creation).",
+              "Server error handling (500): No scenario simulating internal errors (e.g., DB failure) returning 500, as required by POST guidelines.",
+              "Content negotiation/media type: No checks for response Content-Type=application/json or 415 Unsupported Media Type when Content-Type is missing/wrong; no 406 Accept negotiation tests.",
+              "Large payload beyond limits: Only success within limits is tested; no scenario for exceeding size/count limits (expected 400/413 or documented behavior).",
+              "Authorization breadth: 403 Forbidden (valid token but insufficient permissions) not covered, if RBAC applies.",
+              "Header value validation: No tests for invalid/empty X-Killbill-CreatedBy value, or length/character constraints on CreatedBy/Reason/Comment.",
+              "Persistence/E2E: No follow-up GET to verify created custom fields persist and match what was created.",
+              "Response semantics: No validation of additional standard headers (e.g., lack/presence of Location if applicable) and no strict schema validation against #/definitions/CustomField beyond superficial matching.",
+              "Duplicate against existing fields: No scenario for adding a field name that already exists on the bundle (conflict vs allow).",
+              "Rate limiting (429): Not covered for bursts; useful as a non-functional check if enforced by the API.",
+              "Ambiguous spec test: TC21 leaves outcome undefined for case sensitivity; it should assert a clear expected result."
+            ],
+            "recommendations": [
+              "Add a duplicate submission scenario: send the exact same payload twice to the same bundle and assert the expected behavior (e.g., duplicates rejected with 409, ignored via idempotency key, or allowed).",
+              "Introduce 500 Internal Server Error simulation (e.g., forced DB exception) to verify proper error mapping and body redaction.",
+              "Add media type tests: verify response Content-Type=application/json on success; send requests with missing/incorrect Content-Type to assert 415; optionally test Accept header mismatch for 406.",
+              "Extend large payload coverage: test payloads exceeding documented limits (size/count) and assert the correct error (400/413) and message.",
+              "If RBAC applies, add 403 Forbidden for authenticated user lacking permission to modify bundles.",
+              "Validate header values: tests for empty/too-long/invalid characters in X-Killbill-CreatedBy, Reason, and Comment.",
+              "Add E2E persistence: after successful POST, GET the bundle\u2019s custom fields and verify the newly created items are present and correct.",
+              "Tighten schema checks: validate response against #/definitions/CustomField, including required fields, types, and disallowing unknown properties.",
+              "Cover duplicates vs existing: attempt to add a custom field whose name already exists on the bundle and assert expected behavior (reject/override/allow).",
+              "Optionally add rate limiting burst tests to verify 429 or throttling behavior if applicable.",
+              "Clarify and finalize TC21: specify the exact expected behavior for case sensitivity and assert it deterministically.",
+              "Remove or relocate out-of-scope tests (e.g., TC25 documentation accessibility and client retry policy in TC16) to non-API acceptance test suites, or clearly mark them as NFR tests."
+            ],
+            "usage": {
+              "completion_tokens": 4000,
+              "prompt_tokens": 6302,
+              "total_tokens": 10302,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3072,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

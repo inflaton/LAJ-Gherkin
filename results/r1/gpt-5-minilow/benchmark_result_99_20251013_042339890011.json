@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "99_2025-10-13T04:23:39.889987",
+    "jira_id": "99",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoicePayments/{paymentId}/customFields - Modify custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:23:15.050742",
+    "benchmark_end_time": "2025-10-13T04:23:39.889983",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 24.839241,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "99_qe_sup-gpt4.1_agent-gpt4.1_1748922485.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid Request (PUT): Multiple success scenarios (TC01-TC04, TC17) validate successful updates, creation from empty, removal/empty-array behavior, and subsequent GET to confirm persistence.",
+              "Path parameter validation: TC05 checks invalid UUID format and TC06 checks UUID-not-found (404).",
+              "Header validation: TC01/TC02/TC07 cover required header X-Killbill-CreatedBy and optional headers (X-Killbill-Reason, X-Killbill-Comment).",
+              "Request body validation: TC08, TC09, TC10 cover missing body, malformed JSON, and invalid CustomField objects.",
+              "Authorization and authentication: TC11 covers missing/invalid auth token producing 401.",
+              "Server/error handling: TC12 covers database/unexpected server errors returning 500.",
+              "Security and input validation: TC13 covers injection-like values and expects rejection.",
+              "Edge/performance cases: TC14, TC15, TC19, TC20 cover large number of items, max-length values, concurrency/performance, and large payload sizes.",
+              "Extra/unexpected data handling: TC16 covers unexpected properties in the body.",
+              "Duplicate handling/regression: TC18 addresses duplicate custom field names and expected behavior/regression check."
+            ],
+            "gaps": [
+              "PUT-specific semantics: There's no explicit test that verifies whether PUT is treated as full-replacement vs partial-update for custom fields (i.e., what happens to unspecified existing fields when a subset is provided) \u2014 important because PUT semantics should be clear.",
+              "Concurrency/race-condition correctness: TC19 addresses concurrent requests at a high level (performance), but there is no deterministic test for race conditions/conflicts (e.g., two concurrent updates that modify overlapping fields and expected conflict resolution/last-writer-wins behavior).",
+              "Authorization scope/permission errors: Tests cover 401 (unauthenticated) but not 403 (authenticated but unauthorized) or role-based permission failures.",
+              "Content-Type / Accept headers and response headers: No tests verify required Content-Type (application/json) on request, nor that responses have appropriate headers (e.g., Content-Type, or that success 204 has no body). The story mentions consuming application/json for request body; this is not explicitly validated.",
+              "Response body assertions for success: Success is 204 (no content) per story. Tests assert DB changes, but do not validate that response body is empty or that correct response headers or status semantics are followed (e.g., no payload returned).",
+              "Producer/consumer media type validation: No negative tests for wrong Content-Type (e.g., text/plain) to expect 400/415.",
+              "Rate limiting / throttling: No tests for rate limiting or server throttling behavior under high request rates.",
+              "Payload size/HTTP limits: Large payload tests exist, but there are no tests for server responses when payload exceeds allowed limits (e.g., expecting 413 Payload Too Large).",
+              "Idempotency / duplicate submissions: No tests exercise duplicate request handling (re-sending same PUT twice) to verify idempotency and side-effects.",
+              "Field-level schema validation completeness: The CustomField schema (required properties, types, allowed lengths, allowed characters, namespace/keys constraints) is not exhaustively tested beyond basic malformed/invalid scenarios.",
+              "Caching/pagination: Not applicable to this PUT API but still no tests around caching headers where relevant (e.g., related GET responses)."
+            ],
+            "recommendations": [
+              "Add explicit tests to verify PUT semantics regarding full replacement vs partial update: e.g., existing custom fields A,B; send body with only A -> assert whether B is removed or retained per API contract.",
+              "Add deterministic concurrency/race-condition tests: perform two concurrent updates that conflict on the same field and assert defined resolution (last-writer-wins or conflict response).",
+              "Add authorization/permission tests for 403 scenarios: authenticated but insufficient privileges should return 403.",
+              "Validate Content-Type and Accept behavior: add tests sending wrong Content-Type and assert 415 or 400 as appropriate; assert that successful 204 responses have no body and include expected headers.",
+              "Add idempotency/duplicate-submission tests: send identical PUT twice and assert no unintended duplication or side-effects.",
+              "Add tests for payloads exceeding allowed limits expecting 413 or configured limit behavior, and tests for very large payloads to confirm graceful failure modes.",
+              "Expand schema validation tests to cover all required fields of CustomField, allowed character sets, and boundary values (e.g., empty strings, nulls where not allowed).",
+              "Include rate-limiting / throttling tests (multiple rapid requests) to verify server returns 429 or handles backpressure properly.",
+              "If the API is expected to produce application/json on errors, assert error response Content-Type and structure; add checks for standard error codes/messages.",
+              "Document expected behavior for empty-array semantics (TC04) and make assertions explicit \u2014 whether empty array removes all custom fields or is a no-op; add separate tests for both behaviors if ambiguous."
+            ],
+            "usage": {
+              "completion_tokens": 1368,
+              "prompt_tokens": 5796,
+              "total_tokens": 7164,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-10-13T21:44:08.914907",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T21:42:13.600504",
+    "benchmark_end_time": "2025-10-13T21:44:08.914902",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 115.314398,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid requests: TC01/TC02/TC22 validate successful retrieval for subscriptionId + requestedDate and subscriptionId-only flows returning 200 and a Product JSON.",
+              "Query parameter combinations: TC01-TC04, TC07, TC14, TC12, TC13 exercise presence/absence and some invalid parameter combinations (missing, invalid format, extra params).",
+              "Error handling: TC05 (404 subscription not found), TC06 (400 invalid date), TC08 (400 invalid UUID), TC09 (401 unauthorized), TC10/TC21 (503/502 service or dependency failures), and TC11 (empty DB -> 404) verify common error cases.",
+              "Schema & Content-Type: Background references a Product schema and TC01/TC02/TC22 require the response to be a valid Product object; TC01 explicitly asserts Content-Type application/json.",
+              "Security: TC16 and TC17 include SQL injection and XSS negative tests to ensure input sanitization and non-disclosure of sensitive errors.",
+              "Non-functional & integration: TC15 and TC20 cover performance/load expectations; TC21 covers downstream dependency failure; TC22 checks catalog-subscription data consistency.",
+              "Edge/boundary/regression: TC12, TC13, TC18 and TC19 cover future/past dates, boundary date regression and backward compatibility.",
+              "Accessibility: TC23 ensures API documentation accessibility for assistive tech."
+            ],
+            "gaps": [
+              "Rate limiting / throttling: No tests exercise or assert rate limit behavior (429 responses, Retry-After header) under burst traffic.",
+              "Caching behavior and conditional GET: No tests verify ETag, Cache-Control, Last-Modified, or If-None-Match/304 semantics.",
+              "Authorization scope/permission (403): Tests cover missing auth (401) but not authenticated-yet-forbidden cases (403, token scopes, expired tokens).",
+              "Consistent behavior for omitted/ambiguous parameters: Several scenarios (TC03/TC04/TC07) allow \"200 or appropriate error\" \u2014 acceptance criteria are ambiguous and tests do not assert a single, deterministic behavior for omission of both parameters.",
+              "Comprehensive schema & header validation: Only primary success scenarios validate the Product schema and Content-Type; many success/error cases lack field-level assertions and header checks (Content-Type present on all responses, error payload schema).",
+              "Date/time nuances: No tests for timezone offsets, date-time vs date-only parsing, inclusive/exclusive boundary semantics or multiple product changes on the same timestamp beyond a single boundary test.",
+              "Error payload contract: Missing tests that assert the structure/fields of error responses (consistent error codes/messages and no leaking of sensitive info).",
+              "Large/malformed inputs beyond SQLi/XSS: No tests for extremely long strings, URL encoding edge-cases, or other malformed query strings.",
+              "Pagination: Not explicitly tested \u2014 if the endpoint can return multiple products when subscriptionId is omitted, pagination handling is not covered; if the endpoint is strictly single-resource, pagination is N/A and should be clarified in the spec."
+            ],
+            "recommendations": [
+              "Clarify the specification for omitted parameters (subscriptionId and requestedDate) \u2014 pick a deterministic behavior (return default, list, or error) and update tests to assert that behavior explicitly.",
+              "Add rate-limiting tests that simulate bursts and assert correct enforcement (429 responses) and presence of Retry-After headers.",
+              "Add caching tests: assert ETag/Cache-Control/Last-Modified headers on successful responses and validate conditional GET behavior (If-None-Match -> 304) to prevent unnecessary payloads.",
+              "Add authorization/permission tests for authenticated-but-forbidden scenarios (403), token expiry, and scope-based access control.",
+              "Expand schema/contract validation: run contract tests against the Product schema for all successful responses and assert field-level values for critical fields; add error-schema assertions for 4xx/5xx responses.",
+              "Add date/time edge-case tests: timezone offsets, ISO-8601 datetime inputs vs date-only inputs, and multiple product-change events on the same timestamp to validate inclusive/exclusive semantics.",
+              "Add negative tests for large/malformed inputs (very long strings, unusual encodings), and assert safe error messages without sensitive details.",
+              "If the API can return multiple products when subscriptionId is omitted, add pagination tests (limit/offset or page tokens) and verify stable ordering; otherwise mark pagination as not applicable in the API spec.",
+              "Ensure all success and error scenarios assert Content-Type and any required headers (caching, security), and include tests for header-based protections (CSP, HSTS as relevant).",
+              "Add automated load and SLO-driven performance tests (including latency/throughput under normal and peak loads) and include assertions for acceptable response-time thresholds."
+            ],
+            "usage": {
+              "completion_tokens": 6949,
+              "prompt_tokens": 5044,
+              "total_tokens": 11993,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5952,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

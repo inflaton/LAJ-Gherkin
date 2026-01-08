@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "95_2025-10-14T16:36:10.394726",
+    "jira_id": "95",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/tags - Add tags to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T16:34:56.408048",
+    "benchmark_end_time": "2025-10-14T16:36:10.394720",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 73.986672,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "95_qe_sup-gpt4.1_agent-gpt4.1_1748922214.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01, TC02, TC03) verify successful creation with required and optional headers and correct 201 response.",
+              "Empty Request Body: TC04 verifies behavior when an empty array is submitted (returns 201 and empty array).",
+              "Request Validation (malformed/invalid): TC08 (malformed JSON), TC09 (invalid tag UUID format), TC10 (unexpected fields), and TC17 (null/partial elements) cover many invalid-payload cases.",
+              "Path parameter validation: TC06 covers invalid paymentId format; TC05 and TC18 cover non-existent payment (404).",
+              "Required header validation: TC07 verifies missing required X-Killbill-CreatedBy results in proper error.",
+              "Optional headers: TC02 covers X-Killbill-Reason and X-Killbill-Comment handling.",
+              "Duplicate and idempotency: TC11 and TC19 check duplicate entries and idempotent behavior (no duplicate tag objects returned).",
+              "Performance/large payloads: TC12 (load) and TC14 (very large array / boundary) cover performance and large-payload handling.",
+              "Concurrency/resilience: TC20 covers concurrent requests while TC13 simulates dependency failure (503) to test service unavailability handling.",
+              "Security: TC15 (unauthorized user) and TC16 (malicious payload/XSS) cover authorization and input-sanitization/security scenarios.",
+              "Response body basics: Tests assert response is JSON array of Tag objects and check presence of key fields (paymentId, tagDefinitionId, metadata)."
+            ],
+            "gaps": [
+              "Server-side error scenarios (500): There is no explicit test for internal server errors (e.g., database failures producing 500), beyond the 503 dependency-unavailable case.",
+              "Non-existent tag definition handling: There is no explicit scenario for a well-formed tagDefinition UUID that is syntactically valid but not found in the system (expected behavior unclear: 4xx vs 404).",
+              "Response headers and content-type: No tests verify response Content-Type (application/json), or other response headers (e.g., Cache-Control, ETag when applicable).",
+              "Unsupported Media Type / content-type request validation: No test for missing/incorrect Content-Type header (e.g., 415).",
+              "Detailed schema/type validation on Tag objects: Tests check presence of fields but do not assert field data types, formats (UUID formats), timestamps, or createdBy/reason propagation in returned Tag objects.",
+              "Rate limiting / throttling: No explicit tests for API rate limits (e.g., many rapid requests resulting in 429), beyond concurrency/performance scenarios.",
+              "Conflict/unique-constraint error handling: No explicit test for server responses when underlying DB uniqueness constraints or race conditions produce conflicts (distinct from dedup logic already present).",
+              "Negative checks for optional header validation: No tests for invalid values/lengths in X-Killbill-Reason or X-Killbill-Comment.",
+              "Behavior on partial success: No scenario for mixed input where some tagDefinitionIds are valid and others are invalid \u2014 expected transactional behavior (all-or-nothing vs partial apply) is not tested."
+            ],
+            "recommendations": [
+              "Add a 500 Internal Server Error test: simulate DB failure or unhandled exception to assert the API returns 500 and a meaningful error body (server error handling per POST guideline).",
+              "Add test for non-existent tag definition UUIDs: submit syntactically-valid UUIDs that do not map to tag definitions and assert the defined behavior (404 or validation error) and error messaging.",
+              "Validate response headers and content-type: add assertions that responses include Content-Type: application/json and, if applicable, other headers; add a test for incorrect/missing request Content-Type producing 415.",
+              "Tighten Tag object schema validation: add tests asserting field types and formats (UUID format for tagDefinitionId and paymentId, timestamps present and ISO format, createdBy matches request header, reason/comment presence when provided).",
+              "Add rate-limiting/throttling tests: simulate many rapid requests to verify 429 behavior or throttling policy (if applicable) and document expected behavior.",
+              "Test partial-success transactional semantics: create a scenario with a mix of valid and invalid tag IDs to verify whether the operation is atomic or partial and assert the correct rollback/partial-apply behavior.",
+              "Add tests for conflict scenarios and uniqueness at DB level: simulate race conditions producing DB constraint violations and assert acceptable error handling and idempotency guarantees.",
+              "Add negative tests for optional headers: invalid/oversized X-Killbill-Reason and X-Killbill-Comment values to ensure header validation is enforced where necessary.",
+              "Explicitly assert behavior for repeated identical requests over time (idempotency): beyond single-call duplicate dedup, verify repeated POSTs return expected status and do not create extra artifacts."
+            ],
+            "usage": {
+              "completion_tokens": 2298,
+              "prompt_tokens": 6214,
+              "total_tokens": 8512,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-15T20:19:26.276882",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T20:17:01.220106",
+    "benchmark_end_time": "2025-10-15T20:19:26.276878",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 145.056772,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST - Valid Payload: Success cases for single and multiple tags return 201 with a JSON array of Tag objects; optional headers (X-Killbill-Reason, X-Killbill-Comment) exercised; association with the invoice item verified.",
+              "POST - Invalid Payload: Missing required header (X-Killbill-CreatedBy), malformed JSON, empty array, invalid invoice item id format, invalid tag definition ids, null/empty elements, and unsupported extra fields produce appropriate 4xx responses.",
+              "POST - Large Payloads: Very large array scenario covered with expectations for 201 or 413.",
+              "POST - Duplicate Submission/Deduplication: Duplicate tag ids within the same request and re-adding an already existing tag do not create duplicates.",
+              "Validation of path parameter: UUID format for invoiceItemId enforced with a 400 on bad format.",
+              "Error handling: 404 for non-existent invoice item; 503 for service unavailability and dependency failure; 504 for timeout.",
+              "Authorization/Security: 401 for missing/invalid auth token; malicious payload rejected with 400/422.",
+              "Non-functional: Performance under heavy load validated with a response time threshold."
+            ],
+            "gaps": [
+              "Response contract alignment: Story says the response body represents the created tags; TC04 expects old + new tags in the response, which may contradict the spec.",
+              "Produces application/json: No explicit assertions on response Content-Type header for success and error paths.",
+              "Missing test for absent body or wrong Content-Type (e.g., text/plain) leading to 400/415.",
+              "Server error handling: No explicit 500 Internal Server Error simulation (e.g., database failure).",
+              "Duplicate submissions across requests: No test that posting the same payload twice behaves deterministically (idempotency across calls).",
+              "Unknown tag definition id (well-formed UUID that does not exist) not covered; expected status (400 vs 404) unspecified.",
+              "Atomicity: No scenario mixing valid and invalid tag ids in one array to assert all-or-nothing behavior.",
+              "Schema validation depth: Returned Tag object not validated against #/definitions/Tag beyond tagDefinitionId presence.",
+              "Content negotiation: No tests for Accept/Content-Type negotiation (e.g., 406/415).",
+              "Rate limiting/throttling: No 429 coverage for bursts (if applicable).",
+              "Authorization 403: No test for authenticated but unauthorized user (insufficient permissions), if applicable.",
+              "UUID format edge cases: No tests for uppercase/lowercase, hyphen placement edge cases in ids."
+            ],
+            "recommendations": [
+              "Add assertions on response headers (Content-Type: application/json) for 201 and error paths; validate the response against the Tag JSON schema.",
+              "Add scenarios for missing request body and wrong Content-Type to verify 400/415 behavior.",
+              "Clarify the response contract (created tags only vs full set) and update TC04 (and related cases) to match the agreed behavior.",
+              "Add a test that posts the same valid payload twice to the same invoice item to verify deterministic behavior and no duplicate tags.",
+              "Add a mixed-validity payload test (one valid, one invalid tag id) to confirm atomicity (expected 400 and no partial creation).",
+              "Add a scenario for a well-formed but non-existent tag definition UUID and define the expected status code.",
+              "Simulate an internal server failure (e.g., DB exception) and assert a 500 response with a consistent error contract.",
+              "Optionally include 403 Forbidden and 429 Too Many Requests if the platform enforces authorization scopes and rate limits.",
+              "Broaden input validation: wrong data types in the array (number/boolean/object) and edge cases for X-Killbill-CreatedBy (empty/oversized).",
+              "Add explicit checks for Accept header negotiation (e.g., Accept: text/plain -> 406) if supported by the API."
+            ],
+            "usage": {
+              "completion_tokens": 7931,
+              "prompt_tokens": 6738,
+              "total_tokens": 14669,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

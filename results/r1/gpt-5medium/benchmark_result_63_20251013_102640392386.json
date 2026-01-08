@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-13T10:26:40.392360",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:25:27.583982",
+    "benchmark_end_time": "2025-10-13T10:26:40.392356",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 72.808374,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT/Valid Request: Happy-path pauses covered with required header only (TC01) and with optional requestedDate and pluginProperty (TC02, TC03, TC05).",
+              "Headers: Required X-Killbill-CreatedBy validated (TC01, TC10); optional Reason/Comment captured and audited (TC04, TC05).",
+              "Input validation: bundleId UUID format (TC06), SQLi (TC13), XSS in headers (TC14), requestedDate past/malformed (TC17, TC18), pluginProperty type/format (TC19), extra unexpected params ignored (TC15).",
+              "Non-existing resource: 404 for non-existent bundle/empty DB (TC07, TC20).",
+              "State validation: Already paused and invalid states return 400 (TC08, TC09).",
+              "Concurrency: Multiple concurrent PUTs lead to single success and proper failures (TC21).",
+              "Performance/load: Bulk pausing response-time target and stability (TC22).",
+              "Integration failures: Upstream service unavailable 503 (TC12) and dependent plugin 502 (TC25).",
+              "Side effects: Bundle pause affects all active subscriptions and doesn\u2019t impact unrelated bundles (TC01, TC23); downstream propagation verified (TC26)."
+            ],
+            "gaps": [
+              "Response headers: No checks that error responses produce application/json as per spec; no assertion that 204 responses have no body and appropriate headers.",
+              "Idempotency/repeatability: No explicit sequential repeat-call test (pause same bundle twice) verifying stable 400 and no additional side effects.",
+              "Server error handling: No simulation/assertion of 500 Internal Server Error (e.g., DB exception) and error payload schema.",
+              "Authorization granularity: 401 covered (TC11), but no 403 Forbidden scenario for authenticated user lacking permission; no test for missing/expired auth token versus invalid CreatedBy semantics.",
+              "requestedDate boundaries: No tests for boundary dates (today/current date behavior), invalid-but-well-formed dates (e.g., 2025-02-30), or leap day handling.",
+              "Plugin property encoding/shape: No scenario verifying collectionFormat=multi via repeated query params, duplicate keys, URL encoding, and very long single values/keys.",
+              "Method semantics: No test that a request body (when body is N/A) is rejected with 400/415; no 405 Method Not Allowed on incorrect methods.",
+              "Rate limiting/backoff: No coverage for 429 Too Many Requests or Retry-After headers under burst traffic distinct from performance tests.",
+              "Audit completeness: CreatedBy recorded in audit trail not explicitly asserted (only Reason/Comment verified).",
+              "Atomicity: No scenario proving all-or-nothing pause across subscriptions if a partial failure occurs (no partial pauses)."
+            ],
+            "recommendations": [
+              "Add assertions for headers: verify error responses include Content-Type: application/json and that 204 responses return no body and appropriate headers.",
+              "Add an idempotency test: call pause twice sequentially on the same bundle; assert first 204 then 400 with no duplicate events/audit entries.",
+              "Introduce a 500 error simulation (e.g., force DB failure) and validate status, error schema, and observability (correlation IDs/logging).",
+              "Expand auth tests: include 403 Forbidden for authenticated-but-unauthorized user and a scenario with missing/expired auth token yielding 401.",
+              "Strengthen date validation: tests for requestedDate equal to today, invalid calendar dates (2025-02-30), and leap day (2028-02-29); clarify expected behavior for \"today\".",
+              "Verify pluginProperty collectionFormat=multi by sending repeated pluginProperty= entries; include duplicate keys, URL-encoded values, and extreme-length single values; assert correct parsing and limits.",
+              "Add negative method tests: POST/GET/DELETE on the pause endpoint return 405; sending any request body with PUT is rejected (400/415).",
+              "Include rate limiting scenarios: burst requests leading to 429 with Retry-After and ensure graceful client guidance.",
+              "Audit verification: assert CreatedBy, Reason, Comment, timestamp, and bundleId appear in audit logs for success and failures where applicable.",
+              "Test atomicity: simulate a failure while pausing one subscription in the bundle and assert transactional rollback (no partial pauses) with appropriate error code."
+            ],
+            "usage": {
+              "completion_tokens": 4188,
+              "prompt_tokens": 6254,
+              "total_tokens": 10442,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3264,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

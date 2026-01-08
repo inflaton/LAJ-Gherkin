@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-09-28T11:21:57.378292",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:20:29.004880",
+    "benchmark_end_time": "2025-09-28T11:21:57.378287",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 88.373407,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT - Valid Request: Success paths verify state change to paused for the bundle and all active subscriptions (TC01), scheduling via requestedDate (TC02, TC05), pluginProperty handling (TC03, TC05), and audit headers Reason/Comment recorded (TC04).",
+              "PUT - Non-Existing Resource: 404 for valid-but-missing bundleId (TC07, TC20).",
+              "PUT - Concurrency Issues: Multiple concurrent pause requests handled so only one succeeds; others fail due to already paused/invalid state (TC21).",
+              "Validation and Errors: Invalid UUID format 400 (TC06), already paused 400 (TC08), canceled/invalid state 400 (TC09), missing required header 400 (TC10).",
+              "Authorization: Unauthorized user returns 401 (TC11).",
+              "Resilience/Availability: 503 service unavailable (TC12) and dependency failure 502 when plugin service is down (TC25).",
+              "Input robustness: Large pluginProperty array (TC16), malformed requestedDate (TC18), invalid pluginProperty format (TC19), unexpected extra params ignored (TC15).",
+              "Security hardening: SQL injection in path rejected without side-effects (TC13) and XSS payload in headers rejected (TC14).",
+              "Performance/Scalability: Load/perf expectations under many requests (TC22).",
+              "Regression/Isolation and Integration: Pausing one bundle doesn\u2019t affect others (TC23); downstream consistency verified (TC26)."
+            ],
+            "gaps": [
+              "Response headers/content: The story specifies Produces: application/json; there are no checks for Content-Type header, and no assertion that 204 responses have an empty body.",
+              "requestedDate boundaries: No tests for same-day (today) effective dates, timezone/tenant timezone handling, end-of-month/leap day, or date-time supplied when only date is allowed (should be rejected).",
+              "pluginProperty collectionFormat=multi: No scenario sending repeated query parameters (pluginProperty=...&pluginProperty=...) and verifying correct parsing, de-duplication, percent-encoding, or behavior with empty values.",
+              "Idempotency/retry semantics for scheduled pauses: No sequential retry test when a future-dated pause is already scheduled (should fail predictably and not create duplicate events).",
+              "500 Internal Server Error handling: No scenario simulating an unexpected server/db failure returning 500 with a meaningful error body.",
+              "Authorization granularity: Only 401 is covered; no 403 Forbidden scenario for authenticated-but-not-authorized users/roles.",
+              "Contract checks for success responses: No verification of absence of body for 204, nor presence/absence of standard headers (e.g., Date, request id/correlation id if applicable).",
+              "Data validation depth: No limits/length tests for X-Killbill-Reason/Comment (e.g., very long strings), nor explicit test for non-ASCII headers besides pluginProperty.",
+              "Test clarity: TC13 Given step implies a bundle exists with an injection payload as ID, which is contradictory to the invalid UUID format requirement; step wording should indicate sending a malicious bundleId in the request URL.",
+              "Ambiguity in expected outcomes: TC16 allows 204 or 413; expectations should be deterministic based on documented limits."
+            ],
+            "recommendations": [
+              "Add response contract checks for success cases: assert 204 responses have no body and validate Content-Type header compliance with Produces: application/json (or explicitly assert it is absent on 204 if that is the contract).",
+              "Extend requestedDate tests: include today\u2019s date, tenant timezone vs UTC handling, end-of-month/leap day, and rejection of date-time formats when only date is allowed.",
+              "Add pluginProperty multi-value query tests: send repeated pluginProperty params, include URL-encoded characters, duplicates, and blank values to confirm correct parsing and validation.",
+              "Add an idempotency test for scheduled pauses: attempt the same future-dated pause twice sequentially and verify the second call fails with a clear, consistent error without creating duplicate events.",
+              "Introduce a 500 Internal Server Error scenario by simulating a persistence failure and assert proper error structure and masking of internal details.",
+              "Add a 403 Forbidden scenario for authenticated users lacking the required permissions/roles to differentiate from 401.",
+              "Harden validation tests: include boundary tests for X-Killbill-Reason and X-Killbill-Comment (max length, non-ASCII), and verify they are recorded correctly in audit logs.",
+              "Clarify/fix TC13 preconditions: change Given to reflect sending a malicious bundleId in the request rather than asserting such a bundle exists.",
+              "Resolve ambiguity in TC16 by defining system limits for pluginProperty size and asserting a single expected status (e.g., 413 with clear error) once limits are exceeded.",
+              "Optionally, add a post-schedule verification: for future requestedDate, confirm no pause is effective before the date and that the pause event triggers at/after the requestedDate."
+            ],
+            "usage": {
+              "completion_tokens": 4637,
+              "prompt_tokens": 6254,
+              "total_tokens": 10891,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3584,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

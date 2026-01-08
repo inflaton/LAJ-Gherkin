@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "85_2025-09-28T09:28:02.819542",
+    "jira_id": "85",
+    "jira_title": "Implement/Test API: GET /1.0/kb/export/{accountId} - Export account data",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:27:37.224443",
+    "benchmark_end_time": "2025-09-28T09:28:02.819536",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 25.595093,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "85_qe_sup-gpt4.1_agent-gpt4.1_1748921476.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "GET: Valid Request \u2013 200 with application/octet-stream and archive content verified (TC01, TC02, TC14).",
+              "GET: Error handling \u2013 400 for invalid/missing inputs (invalid UUID, missing required header, injection attempt) (TC03, TC04, TC11).",
+              "GET: Error handling \u2013 404 for non-existent account and missing path segment (TC05, TC07, TC12).",
+              "GET: Authorization \u2013 401 for missing/invalid token (if required) (TC18).",
+              "Robustness/Resilience \u2013 graceful behavior with extra/legacy headers and unsupported method (200 with extra headers, legacy header, 405 for POST) (TC06, TC15, TC16).",
+              "Performance/Scale \u2013 large export size and acceptable latency; slow downstream within timeout; timeout -> 504 (TC08, TC09, TC17).",
+              "Reliability \u2013 concurrent requests for same account return consistent 200 and valid archives (TC13)."
+            ],
+            "gaps": [
+              "Caching Behavior: No checks for Cache-Control, ETag, Last-Modified, or Content-Disposition headers appropriate for downloadable exports.",
+              "Authorization depth: No 403 Forbidden scenario for authenticated user lacking required permissions/roles.",
+              "Rate Limiting: No scenarios validating throttling/429 responses under burst traffic beyond simple concurrency success.",
+              "Header validation edge cases: No tests for empty/whitespace or overly long X-Killbill-CreatedBy; no validation of optional headers when present but empty/oversized.",
+              "Response body integrity: No verification of archive integrity (e.g., checksum, ability to unzip/parse expected structure).",
+              "Error schema consistency: No assertions on error response structure (error code, message, type) for 400/404/500/504 to ensure consistent API contract.",
+              "Content negotiation: No Accept header handling or 406 Not Acceptable case; ensure server returns octet-stream regardless or negotiates correctly.",
+              "Observability: No tests ensuring correlation/request IDs or audit headers are returned/logged (if part of API standards)."
+            ],
+            "recommendations": [
+              "Add caching-related checks: assert Cache-Control (likely no-store), ETag/Last-Modified (if supported), and Content-Disposition with a safe filename (e.g., accountId-based).",
+              "Add authorization depth: include a 403 Forbidden scenario where the token is valid but lacks export scope/role.",
+              "Add rate limiting scenarios: burst 100+ requests within a window and assert 429 responses with Retry-After as per platform policy.",
+              "Strengthen header validation: test X-Killbill-CreatedBy as empty, whitespace-only, and over max length; test optional X-Killbill-Reason/Comment when present but empty/oversized and ensure correct handling.",
+              "Verify archive integrity: download response, compute checksum (if provided), and assert it is a valid archive with expected top-level entries (accounts, invoices, payments, etc.).",
+              "Standardize error schema checks: for 400/404/500/504, assert presence of fields like errorCode, message, and requestId and correct Content-Type (application/json) for error responses.",
+              "Add Accept header tests: send Accept: application/octet-stream (200) and Accept: application/json (define expected behavior) and, if unsupported, expect 406.",
+              "Optionally add HEAD method behavior: verify headers match GET (Content-Type, Content-Length if available) without body, if HEAD is supported."
+            ],
+            "usage": {
+              "completion_tokens": 1511,
+              "prompt_tokens": 5510,
+              "total_tokens": 7021,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-09-28T15:44:36.046023",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T15:42:24.992839",
+    "benchmark_end_time": "2025-09-28T15:44:36.046020",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 131.053181,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST Method - Valid Payload: Multiple happy paths (minimal, all optional params, each billingPolicy, requestedDate, pluginProperty) verify 201, JSON Bundle body, and Location header.",
+              "POST Method - Invalid Payload: Missing body, missing required header, invalid bundleId UUID, invalid requestedDate, invalid billingPolicy (ILLEGAL), security inputs (SQLi/XSS), and extra params behavior are exercised.",
+              "POST Method - Large Payloads: pluginProperty near limits with expected 201/413 handling.",
+              "POST Method - Validation: Path/header/query/body validations, header max lengths, and empty arrays covered.",
+              "POST Method - Server Error Handling: 500 (inconsistent dependency) and 503 (dependency unavailable) scenarios included.",
+              "Authorization: 401 unauthorized covered (beyond POST guidelines but relevant).",
+              "Not Found Handling: 404 for missing bundle and missing target account covered per story.",
+              "Response Semantics: Location header presence/format and Bundle associated with target account asserted.",
+              "State/Environment Variations: Empty DB, partial data, and transient network retry covered.",
+              "Performance/Concurrency: Normal/peak load, concurrent requests, and resource utilization scenarios present (non-essential but valuable)."
+            ],
+            "gaps": [
+              "POST Method - Duplicate Submission: No scenario for replaying the same transfer (idempotency/dedup) to ensure graceful handling (e.g., 201 with same result or 409).",
+              "Body Field-Level Validation: No case where body is present but accountId field is missing/null/empty; only \u201cno body\u201d is tested.",
+              "Target accountId format validation: No test for invalid target accountId format (non-UUID) resulting in 400.",
+              "Content negotiation: No tests for missing/incorrect Content-Type (expect 415) or incorrect Accept header (e.g., 406).",
+              "Default behaviors not asserted: No verification that billingPolicy defaults to END_OF_TERM and that requestedDate omission results in expected effective date.",
+              "Response headers: No explicit check for Content-Type: application/json on successful and error responses.",
+              "pluginProperty multi-format: Although multiple values are used, there is no explicit assertion that repeated query parameters (collectionFormat=multi) are parsed and applied correctly.",
+              "Error body schema: Tests look for \u201cerror message\u201d but do not assert machine-readable error codes/fields for 4xx/5xx (except high-level accessibility check).",
+              "Atomicity of TC03: Multiple When/Then steps in one scenario may hide policy-specific defects; better split for isolation and clearer reporting."
+            ],
+            "recommendations": [
+              "Add a duplicate submission/idempotency scenario: post the same transfer twice (with and without an idempotency key if supported) and assert server behavior (201 with same resource or 409 Conflict, and no duplicate side effects).",
+              "Add body field-level validation: body present without accountId, accountId null/empty/whitespace -> 400 with clear validation error.",
+              "Validate target accountId format: non-UUID/incorrect pattern -> 400 as per schema.",
+              "Test content negotiation: missing Content-Type or Content-Type != application/json -> 415; unacceptable Accept header -> 406.",
+              "Assert default behaviors: when billingPolicy is omitted, verify END_OF_TERM is applied; when requestedDate is omitted, assert the effective date per spec (e.g., \u201ctoday/now\u201d semantics).",
+              "Check response headers: assert Content-Type: application/json on 201 and error responses; continue verifying Location is absolute and points to the transferred bundle.",
+              "Explicitly verify collectionFormat=multi for pluginProperty by sending repeated keys (e.g., pluginProperty=key1%3Dval1&pluginProperty=key2%3Dval2) and asserting both are honored.",
+              "Strengthen error schema checks: assert presence of machine-readable error code, message, and requestId/correlationId for 4xx/5xx.",
+              "Split TC03 into three scenarios (START_OF_TERM, END_OF_TERM, IMMEDIATE) for atomicity and clearer failure diagnostics.",
+              "Consider adding timezone/boundary tests for requestedDate (e.g., end-of-day, different time zones) if the API behavior depends on local vs UTC interpretation."
+            ],
+            "usage": {
+              "completion_tokens": 6078,
+              "prompt_tokens": 7734,
+              "total_tokens": 13812,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5184,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

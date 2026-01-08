@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-10-15T10:48:52.991787",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:48:33.405497",
+    "benchmark_end_time": "2025-10-15T10:48:52.991780",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 19.586283,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Core success path: happy path (201), response body JSON array and Location header are tested (TC01, TC02, TC03, TC04, TC05).",
+              "Path parameter validation: invalid UUID and missing accountId are tested (TC07, TC08).",
+              "Resource-not-found behavior: non-existent account -> 404 is tested (TC09).",
+              "Request body validation: malformed JSON, empty body, missing required fields, invalid email format, extra/unsupported fields, large payloads covered (TC10, TC11, TC12, TC06, TC16, TC17).",
+              "Header validation: required CreatedBy and optional Reason/Comment are explicitly tested (TC02, TC05, TC13).",
+              "Authorization/error handling: unauthorized/invalid token scenario is present (TC14).",
+              "Resilience and server-failure scenarios: external dependency down, slow DB, transient network, and service unavailability/timeouts are included (TC15, TC19, TC25).",
+              "Concurrency and integration: concurrent requests and downstream consistency / subsequent GET verification are present (TC20, TC26).",
+              "Security/regression: SQL injection, XSS, unicode and regression/backwards-compatibility scenarios are included (TC21, TC22, TC23, TC24).",
+              "Accessibility/documentation: checks for clear/ descriptive error messages and documentation guidance are present (TC27)."
+            ],
+            "gaps": [
+              "Ambiguous expected outcomes: several scenarios allow multiple possible status codes (e.g., \"201 or 400\", \"400 or 401\", \"401 or 403\", \"400 or 422\"). The story/spec defines precise expected codes for key cases (e.g., missing CreatedBy is required -> should assert 400), so tests need deterministic expectations.",
+              "Duplicate submission / idempotency: no explicit test for duplicate POSTs (resubmitting same payload) and how duplicates are handled (e.g., deduplication, conflict 409).",
+              "Location header verification: tests assert presence of Location header but do not validate its format, correctness (points to the new resource URL), or that it matches the created resource ID.",
+              "Content-Type / Produces: no explicit assertions that responses include correct Content-Type (application/json) or that requests with wrong Content-Type are rejected.",
+              "Exact response body schema validation: tests check presence of AccountEmail object but do not validate full schema (field types, timestamps, server-assigned IDs) or that the returned array contains only the account\u2019s emails.",
+              "Deterministic server error coverage: tests cover 503/timeouts but not explicit 500 Internal Server Error behavior or structured error payloads when server failures occur.",
+              "Duplicate-email business rules: no tests for business rules around adding the same email twice for an account (whether allowed, rejected, or flagged).",
+              "Rate limiting / throttling: no tests for rate limits or server behavior under high request rate (distinct from concurrency correctness).",
+              "Assertions for headers semantics: X-Killbill-CreatedBy is tested for presence but not for content validation (e.g., empty string, invalid user id) or audit effects.",
+              "Cleanup/data isolation: scenarios don\u2019t mention test data cleanup or idempotent setup/teardown; risk of inter-test interference is not addressed."
+            ],
+            "recommendations": [
+              "Make expected outcomes deterministic: update scenarios that currently allow multiple codes to assert the single expected behavior per API contract (e.g., missing X-Killbill-CreatedBy -> 400 as required by story; invalid token -> 401/403 should be decided and asserted).",
+              "Add duplicate submission tests: verify behavior when the same AccountEmail payload is POSTed twice (expect 201 + no duplicate, or 409, and database state).",
+              "Validate Location header value: add assertions that Location is a well-formed URL and points to the newly created email resource (and that resource returned by GET at that URL matches the response body).",
+              "Assert Content-Type and schema: add checks that responses have Content-Type: application/json and that returned AccountEmail objects conform to the schema (field presence, data types, server-assigned fields like id/createdDate).",
+              "Add explicit 500 / structured error tests: simulate server-side exception paths to ensure the API returns expected 5xx codes and consistent error payloads for monitoring/alerts.",
+              "Test duplicate-email business rules: add scenarios for adding an email address already present for the account and for adding the same email across different accounts if applicable to business rules.",
+              "Add rate-limiting/throttling tests: include high-frequency request tests to validate proper rate-limiting responses (429) or throttling behavior.",
+              "Tighten header validation tests: include negative cases for invalid CreatedBy values (empty/invalid user identifier) and assert audit effects stored in DB (who/why/comment).",
+              "Include test data lifecycle steps: define setup and teardown steps to ensure tests are isolated and repeatable (clean inserted emails after tests).",
+              "Remove or replace ambiguous \u201c201 or 400\u201d style assertions with two separate scenarios when behavior is implementation-dependent: one that asserts acceptance behavior (201) and another that asserts strict rejection (400) so the intended behavior is explicit."
+            ],
+            "usage": {
+              "completion_tokens": 2058,
+              "prompt_tokens": 6487,
+              "total_tokens": 8545,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

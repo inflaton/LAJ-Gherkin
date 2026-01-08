@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-15T00:37:15.412386",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T00:35:18.584142",
+    "benchmark_end_time": "2025-10-15T00:37:15.412381",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 116.828239,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Method - Valid Deletion: Success path returning 204 with empty body is covered (TC01, TC17, TC19).",
+              "DELETE Method - Non-Existent Resource: 404 for unknown account is covered across states (TC02, TC16, TC18).",
+              "Input Validation: 400 for invalid accountId format covered (TC03, TC10, TC12) including injection/XSS attempts (TC14, TC15).",
+              "Authentication: 401 for unauthenticated and invalid/expired tokens covered (TC05, TC06).",
+              "Resiliency: 503 for dependency unavailability and degraded performance covered; retry after transient network failure covered (TC07, TC08, TC17).",
+              "Unsupported Methods: 405 for GET on this endpoint covered (TC11).",
+              "Query Parameters: Extra, unexpected query parameter handled without breaking success path (TC09).",
+              "Performance: Concurrent DELETE requests and SLA assertion present (TC13)."
+            ],
+            "gaps": [
+              "DELETE Method - Concurrency: No scenario for simultaneous DELETEs against the same account or race conditions between multiple admins; idempotency of repeated DELETE on the same account not verified.",
+              "Authorization (role-based): No test for an authenticated but non-admin user receiving 403 Forbidden.",
+              "Response headers/content negotiation: No assertions that error responses (400/404/503) use Content-Type: application/json as specified, or that 204 responses have no body/Content-Type.",
+              "Error response schema: No validation of a canonical error structure (e.g., error code, message, type).",
+              "Spec precision: TC10 allows 404 or 400; behavior should be deterministic (400 for invalid format, 404 for well-formed but non-existent).",
+              "Unsupported methods breadth: Only GET checked; no tests for POST/PUT/PATCH/HEAD/OPTIONS returning 405.",
+              "Effect verification: Cache invalidation is asserted but not verified via observable behavior (e.g., subsequent GET exhibiting cache miss or refreshed data).",
+              "Path parameter edge cases not exercised (e.g., leading/trailing spaces, uppercase UUIDs, URL-encoded hyphens/characters)."
+            ],
+            "recommendations": [
+              "Add idempotency test: invoke DELETE twice on the same account; expect 204 both times, no side effects or errors.",
+              "Add concurrency test on the same account from two admin sessions to detect races; ensure both respond 204 and system remains consistent.",
+              "Add role-based authorization test: authenticated non-admin should receive 403 Forbidden.",
+              "Assert headers: for 400/404/503 validate Content-Type: application/json; for 204 assert empty body, Content-Length=0, and absence of Content-Type.",
+              "Validate a standard error schema (e.g., fields like code and message) for all error responses.",
+              "Tighten TC10: if the accountId violates UUID format, expect 400; if it is well-formed but unknown, expect 404.",
+              "Extend unsupported-methods coverage to POST/PUT/PATCH/HEAD/OPTIONS with 405.",
+              "Verify the side effect of cache invalidation by checking a downstream read before/after (e.g., headers/ETag or observable cache-miss) to prove caches were actually invalidated.",
+              "Add input normalization tests (uppercase UUIDs, surrounding whitespace, URL-encoded UUID) and define whether normalization is allowed or should trigger 400."
+            ],
+            "usage": {
+              "completion_tokens": 6874,
+              "prompt_tokens": 4640,
+              "total_tokens": 11514,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6144,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

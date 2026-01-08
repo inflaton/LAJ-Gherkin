@@ -1,0 +1,81 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "97_2025-10-13T12:31:33.335875",
+    "jira_id": "97",
+    "jira_title": "Implement/Test API: GET /1.0/kb/invoicePayments/{paymentId}/customFields - Retrieve payment custom fields",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T12:29:22.066074",
+    "benchmark_end_time": "2025-10-13T12:31:33.335871",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 131.269797,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "97_qe_sup-gpt4.1_agent-gpt4.1_1749544689.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Request: Happy paths covered for default audit (NONE) and explicit FULL/MINIMAL; responses are HTTP 200 with a JSON array.",
+              "Empty Response: Case with no custom fields returns HTTP 200 and empty array.",
+              "Query Parameters: audit handled comprehensively (default, FULL, MINIMAL, NONE explicitly, and INVALID -> 400); unknown params ignored.",
+              "Path Parameter Validation: Invalid UUID formats, special chars, injection, and trailing spaces -> 400; syntactically valid but non-existent -> 404.",
+              "Authorization: 401 responses covered for missing and invalid credentials.",
+              "Resilience/Performance: Large datasets, response time, concurrent load, transient retry, dependency failure (502), and service down (503) scenarios included."
+            ],
+            "gaps": [
+              "Response Headers: No assertions that Content-Type is application/json for success and error responses, despite spec stating Produces: application/json.",
+              "Schema/Contract Validation: No field-level validation against the CustomField definition (e.g., id, objectId, objectType, name, value, createdDate, updatedDate; audit fields differ by audit level).",
+              "Authorization (403): No scenario for authenticated user lacking sufficient privileges (if RBAC applies), only 401 cases are covered.",
+              "Rate Limiting: No tests validating throttling behavior or 429/X-RateLimit-* headers under burst traffic; TC24 focuses on performance, not throttling semantics.",
+              "Caching Behavior: No validation of caching headers (ETag/Last-Modified, Cache-Control) or conditional requests (If-None-Match/If-Modified-Since).",
+              "Pagination: Likely not applicable (no pagination params in spec). If server-side pagination/truncation exists for very large arrays, it is not validated."
+            ],
+            "recommendations": [
+              "Add header assertions for all responses (200/4xx/5xx) to verify Content-Type: application/json and correct charset.",
+              "Introduce contract/schema validation for CustomField objects (types and required fields) and verify audit fields differ across NONE/MINIMAL/FULL as expected.",
+              "Add a 403 scenario for an authenticated user without required permissions (or document N/A if the endpoint is not permission-gated).",
+              "Add rate limiting tests: send a burst to trigger/verify 429, X-RateLimit-* headers, and client backoff behavior; or explicitly validate absence of rate limiting if that is the intended behavior.",
+              "Add caching tests: verify Cache-Control/ETag (or Last-Modified) presence and support for conditional GET (If-None-Match/If-Modified-Since) resulting in 304 when appropriate; or document that responses are non-cacheable.",
+              "Clarify pagination expectations in the spec; if not supported, add a test asserting the full set is returned without pagination headers; if supported, add tests for page size, next links/headers, and boundaries.",
+              "Validate error payload schema for 400/404/5xx (consistent fields like code, message, type) beyond checking for a generic message."
+            ],
+            "usage": {
+              "completion_tokens": 7375,
+              "prompt_tokens": 5216,
+              "total_tokens": 12591,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6720,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

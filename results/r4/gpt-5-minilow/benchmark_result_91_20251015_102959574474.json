@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-15T10:29:59.574443",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:29:46.195822",
+    "benchmark_end_time": "2025-10-15T10:29:59.574438",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 13.378616,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01-TC05, TC21, TC22) validate successful updates for valid payloads, required/optional headers, no-prior-fields and pre-existing-fields cases.",
+              "Non-Existing Resource: TC07, TC24, TC25 test behavior when an invoice item is not found (404).",
+              "Invalid Payload / Malformed Body: TC08, TC10, TC11 cover malformed JSON, empty body, and unsupported fields leading to 400 errors.",
+              "Input Validation: TC06 checks invalid invoiceItemId format (400). TC14 covers injection/security-type validation leading to 400/422.",
+              "Headers / Authorization: TC02 and TC03 verify required and optional header combinations. TC13 covers missing/invalid authentication (401).",
+              "Large Payloads & Limits: TC12 and TC21 exercise large payload and maximum-size payload performance/acceptance behavior (204 or 413).",
+              "Server / Dependency Errors: TC15 (DB unavailable -> 500), TC19 (dependent service unavailable -> 503), TC16 (timeout -> 504) are present.",
+              "Idempotency & Regression: TC17 verifies repeated requests idempotency; TC18 checks a regression preventing data loss.",
+              "Performance / Load: TC20 covers parallel updates for many items to validate throughput and correctness under load.",
+              "Edge Cases: TC22 (minimum values) and TC23 (unexpected URL params) are present."
+            ],
+            "gaps": [
+              "PUT Method - Partial Update Semantics: No explicit scenario verifies whether partial payloads are accepted or rejected (i.e., if PUT must be full replacement vs. partial).",
+              "Concurrency / Race Conditions: While there are performance tests and idempotency, there is no explicit test for concurrent conflicting updates (race condition, lost update detection, optimistic locking or ETag/concurrency control).",
+              "Field-level Validation Coverage: Tests do not enumerate or assert individual CustomField schema constraints (required fields within each CustomField object, types, lengths, allowed characters) beyond generic malformed/unsupported fields.",
+              "Response Content Contract on Success: The spec expects 204 and 'produces: application/json' \u2014 tests do not assert response content-type or that the body is empty/non-empty for 204 responses.",
+              "Audit / Header Effects: No tests assert that optional headers (Reason, Comment) are recorded in audit logs or reflected in metadata; only presence/acceptance is tested.",
+              "Duplicate Submission Handling: No explicit test for duplicate submissions semantics beyond idempotency (e.g., repeated but differing payloads or duplicate CustomField entries within payload).",
+              "Rate Limiting / Throttling: No tests for rate limit behavior when many requests fire in short time window.",
+              "Validation error detail: Tests check for 400/422 but don't assert the structure/fields of error responses (error codes, machine-readable error fields).",
+              "Pagination/Caching (not directly applicable to PUT): While not required for PUT, there's no check for caching or related headers for side-effecting endpoints (e.g., ensuring no caching headers are added incorrectly)."
+            ],
+            "recommendations": [
+              "Add explicit partial-update tests that send incomplete CustomField objects or omit existing fields to confirm PUT semantics (full replace vs. partial update) and expected status codes.",
+              "Add concurrency tests that perform simultaneous conflicting updates to the same invoice item to verify locking/last-write-wins/optimistic concurrency behavior and absence of race conditions.",
+              "Add field-level schema validation tests that iterate required and optional attributes of CustomField objects: missing required attributes, wrong types, too-long strings, invalid char sets and assert precise error responses.",
+              "Assert response headers and body contract even on 204: verify Content-Type, absence/presence of body, and any audit-related headers. If audit/metadata is required, add tests to confirm X-Killbill-Reason and X-Killbill-Comment are persisted to audit logs or resource metadata.",
+              "Add duplicate-submission scenarios: send the same request twice and also conflicting second request to verify how duplicates and conflicting updates are resolved or rejected.",
+              "Add rate-limiting tests (burst requests) to validate throttling behavior and appropriate 429 responses if applicable.",
+              "Improve error-response assertions: verify structure, error codes, and human/machine readable messages for 400/401/404/413/422/500/503/504 cases to ensure client can programmatically handle errors.",
+              "If the API advertises 'produces: application/json' for errors/success, include tests asserting that format for error payloads and document that 204 responses are empty per HTTP semantics."
+            ],
+            "usage": {
+              "completion_tokens": 1162,
+              "prompt_tokens": 6450,
+              "total_tokens": 7612,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

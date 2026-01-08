@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "9_2025-09-28T10:59:56.285520",
+    "jira_id": "9",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/block - Block an account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:58:42.444353",
+    "benchmark_end_time": "2025-09-28T10:59:56.285517",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 73.841164,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "9_qe_sup-gpt4.1_agent-gpt4.1_1748916388.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST/Valid Payload: Multiple success paths with minimal and full inputs (TC01\u2013TC05) returning 201 and JSON array of BlockingState.",
+              "Optional inputs: requestedDate and pluginProperty combinations, including empty array and extra params handling (TC02\u2013TC04, TC15, TC18).",
+              "Headers: Required X-Killbill-CreatedBy present/missing, optional Reason/Comment used (TC01\u2013TC02, TC08).",
+              "Validation: Invalid accountId format and injection attempts (TC07, TC13), malformed/missing body (TC09\u2013TC10), malicious payload blocked (TC14).",
+              "Non-existing resource: 404 when account not found (TC06).",
+              "Authorization: 401 for missing auth token (TC11).",
+              "Server error handling: 503 for DB outage and plugin outage (TC12, TC22).",
+              "Large payloads: Near-maximum payload successfully processed (TC20).",
+              "Performance/resilience: Concurrency, sustained load, and downstream slowness within limits (TC19, TC25\u2013TC26).",
+              "Plugin interactions: Happy path and failure when plugin is unavailable (TC21\u2013TC22).",
+              "Regression/backward compatibility checks (TC23\u2013TC24)."
+            ],
+            "gaps": [
+              "Duplicate submission behavior is not covered (same request sent twice) to verify idempotency or duplicate detection semantics.",
+              "requestedDate validation gaps: invalid formats (e.g., 2024-13-01), out-of-range dates, and timezone handling not tested.",
+              "BlockingState schema negative tests: missing required fields, invalid enum values, unexpected fields, and type mismatches are not exercised.",
+              "pluginProperty validation gaps: wrong types (string instead of array), illegal characters/lengths, duplicate keys/values, and multi-parameter encoding not tested.",
+              "Server error 500 path not covered; only 503 scenarios are tested. Need generic unhandled error case and standard error body validation.",
+              "Authorization 403 (authenticated but not permitted) not covered.",
+              "Response headers not asserted: no checks for Content-Type application/json (and charset) per produces clause, nor consistent error response structure.",
+              "Concurrency on the same account not tested (simultaneous blocks to one account to detect race conditions/order).",
+              "Audit metadata behavior (Reason/Comment propagation to audit logs or response metadata) not verified.",
+              "Input size boundary negatives: exceeding maximum field lengths and payload size should return 400/413, only max-allowed success is tested."
+            ],
+            "recommendations": [
+              "Add a duplicate submission scenario: send the identical POST twice and verify expected behavior (second call 200/409/no-op vs duplicate row).",
+              "Add requestedDate negative tests: invalid format ('07/01/2024'), invalid date ('2024-02-30'), timezone offsets, past vs future semantics, and boundary at 00:00Z.",
+              "Create BlockingState schema-negative cases: missing required fields, invalid enum/state transitions, wrong data types, unexpected additional fields -> expect 400 with clear errors.",
+              "Add pluginProperty validation tests: single string (not array) -> 400, extremely long values -> 400, duplicates collapsed/allowed, URL-encoded multi parameters, illegal characters handling.",
+              "Introduce a forced 500 Internal Server Error path (e.g., null pointer/unknown exception via test harness) and assert status and standardized error body.",
+              "Add a 403 Forbidden scenario for an authenticated user lacking permission to block accounts.",
+              "Assert response headers: Content-Type application/json on 201 and error responses; ensure bodies match documented error schema.",
+              "Test concurrent blocks on the same account (N simultaneous POSTs) to verify correctness of resulting BlockingState set and absence of race-induced duplicates.",
+              "Verify audit propagation: X-Killbill-Reason and X-Killbill-Comment are captured in audit logs/metadata and optionally reflected in response if applicable.",
+              "Add input size negative tests: fields exceeding max lengths and payload > max limit -> expect 400/413 with appropriate error messaging."
+            ],
+            "usage": {
+              "completion_tokens": 3932,
+              "prompt_tokens": 7115,
+              "total_tokens": 11047,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3072,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

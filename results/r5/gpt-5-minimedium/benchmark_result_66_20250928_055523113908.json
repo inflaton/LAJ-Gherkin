@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-09-28T05:55:23.113879",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:54:44.229488",
+    "benchmark_end_time": "2025-09-28T05:55:23.113875",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 87,
+    "average_generation_time_seconds": 38.884387,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 87,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 87,
+            "covered": [
+              "Valid Request: Happy path (TC01) verifies updating externalKey and returned 204 and DB change.",
+              "Required header validation: TC02 verifies missing X-Killbill-CreatedBy -> 400.",
+              "Path parameter validation: TC03 (malformed id -> 400) and TC04 (non-existent -> 404) cover format and not-found handling.",
+              "Request body validation: TC06 (missing body), TC07 (malformed JSON), TC08 (missing externalKey) cover common invalid payloads.",
+              "Business validation: TC05 covers conflict when externalKey already used by another bundle in same account.",
+              "Optional headers and audit info: TC14 verifies X-Killbill-Reason and X-Killbill-Comment handling (happy path).",
+              "Edge cases / input validation: TC09 (extra fields), TC10 (very long key), TC11 (empty key), TC19 (special chars), TC20 (leading/trailing spaces) provide broad coverage of input validation scenarios.",
+              "Concurrency and integration: TC17 covers concurrent updates; TC13 covers dependency/unavailable service (503).",
+              "Auth: TC12 covers missing/invalid authentication token (401/403).",
+              "Regression/perf/accessibility: TC16 (large payload), TC18 (regression case), TC22 (backward compatibility), TC23 (response time), TC24 (documentation accessibility) add useful non-functional checks."
+            ],
+            "gaps": [
+              "Cross-account conflict: No explicit test verifies that re-using an externalKey in a different account is allowed (the story permits uniqueness per account).",
+              "Produces / Content-Type verification: Story specifies produces application/json \u2014 tests do not assert response Content-Type headers for success (204) or error responses (400/404/503).",
+              "Partial-update semantics / idempotency: PUT semantics (is updating only externalKey via partial payload allowed/expected and is it idempotent) are not explicitly asserted beyond TC09. There is no test that verifies repeated identical PUTs are idempotent or how full vs partial bundle objects are handled.",
+              "Exact error codes for conflicts: Story indicates 400 for invalid argument conflicts; tests do not assert or distinguish 400 vs 409 semantics for race/conflict (TC17 mentions 409 as possible but no deterministic test).",
+              "Duplicate submissions / retry behavior: No test for duplicate request submission or deduplication handling.",
+              "Content negotiation / Accept header and Content-Type mismatch: No tests for requests with incorrect or missing Content-Type/Accept headers to assert the \"consumes: application/json\" requirement is enforced.",
+              "Validation of header values: No tests for invalid X-Killbill-CreatedBy value formats (too long, empty) or for empty/invalid X-Killbill-Reason contents.",
+              "Error response bodies and structured error schema: Tests assert presence of error messages but do not validate the error response structure or fields (error codes/messages) consistently.",
+              "HTTP-level limits and status semantics: No tests for payload too-large (413) or timeout behavior; large-payload test (TC16) is ambiguous about expected code.",
+              "Rate limiting / throttling and caching: Not covered (rate limiting and caching are not tested)."
+            ],
+            "recommendations": [
+              "Add a test validating cross-account behavior: attempt to rename bundleA in account1 to an externalKey that exists in account2 and assert it succeeds (or behaves as documented).",
+              "Assert response Content-Type for both success and error responses: add checks that error responses are application/json and define expected error body schema; for 204 verify no body and acceptable headers per API contract.",
+              "Add explicit idempotency tests: repeat the same PUT request twice and assert second request is either 204 (idempotent) or behaves per documented contract; also add a test that updates with a full Bundle object vs minimal {externalKey} to clarify partial-update semantics.",
+              "Clarify and assert conflict status codes: add deterministic tests for update conflicts that assert either 400 or 409 per API decision (update acceptance tests should not leave ambiguity).",
+              "Add duplicate-submission/replay tests: simulate replays (same payload & headers) and verify duplicate handling (especially for audit headers).",
+              "Add tests for Content-Type/Accept enforcement: send requests with missing or wrong Content-Type/Accept to ensure 415/406 or 400 are returned as defined.",
+              "Add header-value validation tests: X-Killbill-CreatedBy empty/oversize, X-Killbill-Reason oversize/invalid chars to confirm validation rules and error messages.",
+              "Define and validate an error response schema: add tests that assert error JSON contains consistent fields (code, message, field) for 400/404/503 cases.",
+              "Make TC16 explicit about expected behavior for too-large payloads (413) and add a test for server-side limits and timeouts.",
+              "Add rate-limiting / throttling tests and a test for caching headers if applicable for this endpoint (even if PUT is not cacheable, assert no-cache or appropriate response headers)."
+            ],
+            "usage": {
+              "completion_tokens": 2405,
+              "prompt_tokens": 6051,
+              "total_tokens": 8456,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1344,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-14T14:25:05.411526",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:24:38.308692",
+    "benchmark_end_time": "2025-10-14T14:25:05.411520",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 27.102828,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Successful deletion scenarios present (TC01, TC02, TC12, TC13, TC17, TC18).",
+              "Non-Existent Resource: Missing account and missing email scenarios present (TC03, TC04, TC09).",
+              "Input Validation: Invalid accountId and invalid email format scenarios (TC05, TC06) plus XSS/injection case (TC16).",
+              "Required Header Validation: Missing required header checked (TC07).",
+              "Authorization: Unauthorized token scenario covered (TC10).",
+              "Concurrency: Concurrent deletion race condition covered (TC15).",
+              "Transient/Recovery and Dependency Failures: Transient network retry and downstream service unavailable scenarios covered (TC19, TC11).",
+              "Performance: A basic response-time SLA check included (TC14).",
+              "Edge cases: Very long and minimal-length email addresses covered (TC12, TC13).",
+              "Backward compatibility/regression: Regression and legacy client scenarios included (TC17, TC18)."
+            ],
+            "gaps": [
+              "Soft Delete Semantics: No tests verify whether deletion is soft (marked deleted) versus hard delete (permanent removal) or that related audit/logging/metadata are updated.",
+              "Idempotency Semantics: While concurrency is tested, there is no explicit test asserting idempotency guarantees beyond expected 204 then 404 responses (e.g., repeated identical DELETE beyond concurrent window).",
+              "Authorization Scopes/Roles: Only invalid-token (401) is tested; there are no tests for forbidden access (403) where a valid token lacks sufficient permissions/roles.",
+              "Header Validation Variants: No tests for invalid or malformed X-Killbill-CreatedBy values (too long, empty string) or for optional headers causing validation issues.",
+              "Detailed Error Codes/Body Structure: Tests assert presence of error messages but do not validate standardized error payload structure (fields, codes) or exact HTTP response bodies for all error cases.",
+              "Rate Limiting and Throttling: No tests covering rate limiting or behavior under heavy request bursts.",
+              "Caching Behavior: No tests for caching-related headers or behavior (ETag, Cache-Control) \u2014 likely irrelevant for DELETE but still useful for clients to observe cache invalidation.",
+              "Logging/Audit Trail: No checks that the deletion is recorded in audit logs or that X-Killbill-CreatedBy/Reason/Comment are persisted.",
+              "Boundary/value limits for accountId length/format variations beyond simple invalid format: no tests for extremely long accountId or unicode characters.",
+              "Content Negotiation / Accept Headers: No tests for Accept/Content-Type headers or behavior when client asks for different media types."
+            ],
+            "recommendations": [
+              "Add tests to assert soft-delete vs hard-delete semantics and check that deleted email is not retrievable via GET and that audit metadata (deletedBy, deletedReason, deletedDate) is recorded when applicable.",
+              "Add explicit idempotency tests: issue the same DELETE multiple times serially and assert consistent responses and side effects (first 204, subsequent 404 or idempotent 204 depending on API contract).",
+              "Add role/permission tests to cover 403 Forbidden scenarios where the token is valid but lacks deletion permissions.",
+              "Expand header validation tests: include malformed/empty X-Killbill-CreatedBy, excessively long header values, and verify optional headers are recorded but not required.",
+              "Standardize error-response validation: validate error JSON schema (fields like code, message, type) and exact status/body combinations for all error scenarios.",
+              "Introduce rate-limiting / throttling tests (burst of DELETEs) to observe 429 or other protective behaviors.",
+              "If applicable, add caching-related checks to ensure server instructs caches correctly or invalidates caches after deletion (verify absence/presence of Cache-Control / ETag behavior where relevant).",
+              "Add tests to verify audit/log persistence: ensure X-Killbill-CreatedBy/X-Killbill-Reason/X-Killbill-Comment values appear in audit logs or resource history.",
+              "Add boundary tests for accountId (very long, unicode, edge-case characters) and email local-part/domain edge cases beyond length (unicode, sub-addressing, plus-addressing).",
+              "Add content-negotiation tests (Accept header variations) to ensure consistent error/empty responses and response media types."
+            ],
+            "usage": {
+              "completion_tokens": 1101,
+              "prompt_tokens": 5675,
+              "total_tokens": 6776,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

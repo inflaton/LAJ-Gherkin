@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-14T06:21:14.715742",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:18:22.848006",
+    "benchmark_end_time": "2025-10-14T06:21:14.715737",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 171.867731,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT Valid Request: 204 returned and externalKey updated (TC01, TC14, TC21, TC22).",
+              "Non-Existing Resource: 404 when bundleId not found or no bundles exist (TC04, TC15).",
+              "Concurrency Issues: Only one of concurrent updates succeeds; others fail appropriately (TC17).",
+              "Request Validation: required body and field; 400 on missing body, malformed JSON, missing externalKey, empty externalKey (TC06\u2013TC08, TC11).",
+              "Path Parameter Validation: 400 on malformed bundleId; 404 on non-existent (TC03, TC04).",
+              "Header Handling: required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment supported; extra headers tolerated (TC02, TC14, TC21).",
+              "Business Rule: 400 when externalKey already used by another bundle in same account (TC05).",
+              "Input edge cases explored: long key, special characters, leading/trailing spaces (TC10, TC19, TC20).",
+              "Authentication/Authorization errors covered with 401/403 (TC12).",
+              "Dependency failure handled with 503 (TC13).",
+              "Performance checks for response time and large payloads (TC16, TC23)."
+            ],
+            "gaps": [
+              "PUT Partial Update semantics: No assertion that only externalKey changes and other Bundle fields remain unchanged or are rejected when sent in the payload (TC09 only asserts success).",
+              "Content-Type/Accept enforcement: No negative test for missing or wrong Content-Type (e.g., text/plain) leading to 415/400; no verification of response Content-Type/empty body for 204.",
+              "Idempotency: No test updating to the same externalKey (no-op) or repeating the same request to confirm consistent 2xx/4xx behavior.",
+              "Header value validation depth: No tests for empty/whitespace X-Killbill-CreatedBy, overly long values, or invalid characters.",
+              "Cross-account uniqueness: No scenario proving that a duplicate externalKey in a different account is allowed (uniqueness is per account).",
+              "Error contract: Scenarios do not validate the structured error schema (fields like code, type, message) returned by the API.",
+              "Ambiguous expectations: Several scenarios allow multiple possible outcomes (e.g., 204 or 400/409 in TC10, TC16, TC17, TC18, TC19, TC20), which weakens assertiveness and traceability to requirements.",
+              "No explicit check that success 204 responses return no body and that response headers (e.g., Content-Length, Content-Type) are correct for 204."
+            ],
+            "recommendations": [
+              "Add a scenario that sends additional valid Bundle fields (e.g., accountId, bundleId) and assert that only externalKey changes and other fields are unchanged or rejected with 400.",
+              "Add negative tests for missing/wrong Content-Type and verify 415 Unsupported Media Type (or 400 if that is the contract); also assert that 204 responses have no body and appropriate headers.",
+              "Add idempotency tests: updating to the existing externalKey; repeating the same update request; define the expected status code and behavior.",
+              "Extend header validation: blank/whitespace X-Killbill-CreatedBy, very long values, and invalid characters should be validated with expected errors.",
+              "Add a cross-account duplicate-key test to confirm the uniqueness constraint is scoped to the same account only.",
+              "Validate error payload structure against the API\u2019s error schema to ensure consistent error handling.",
+              "Resolve ambiguous outcomes by agreeing on exact expected status codes/messages for limits, special characters, spacing, large payloads, and concurrency conflicts; update scenarios to assert a single expected result.",
+              "Optionally add a 500 Internal Server Error simulation to complement 503 and document behavior."
+            ],
+            "usage": {
+              "completion_tokens": 7033,
+              "prompt_tokens": 6051,
+              "total_tokens": 13084,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6208,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-09-28T11:37:15.177867",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:35:32.595504",
+    "benchmark_end_time": "2025-09-28T11:37:15.177861",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 102.582357,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "POST - Valid Payload: Successful creation with single and multiple tags returning 201 and a JSON array of Tag objects (TC01, TC02, TC03, TC04, TC05).",
+              "POST - Invalid Payload: Malformed JSON, empty list, invalid UUIDs, null/empty entries, and unsupported fields return proper 400s (TC07, TC09, TC10, TC11, TC12, TC24).",
+              "POST - Validation: Path param UUID format enforced; required header X-Killbill-CreatedBy enforced; optional headers supported (TC03, TC06, TC07).",
+              "Non-Existing Resource: 404 when invoice item not found, including empty DB state (TC08, TC15).",
+              "Large Payloads: Very large arrays handled with 201 or 413 expectation (TC19).",
+              "Security Negative: Malicious payload rejected (400/422) (TC18).",
+              "Authorization: Unauthorized access returns 401 (TC16).",
+              "Service Error Handling (partial): Upstream/service down (503) and timeout (504) covered (TC17, TC21, TC25).",
+              "Business Rules: Duplicate tag IDs deduplicated within request and pre-existing tag not duplicated (TC13, TC20).",
+              "State/Boundary: Item with existing tags, no tags, partially populated DB, and max-tags boundary (TC04, TC05, TC22, TC23).",
+              "Performance: Acceptable response time under simulated load (TC14)."
+            ],
+            "gaps": [
+              "POST - Server Error Handling: No scenario for 500 Internal Server Error (e.g., database failure) and validation of error payload shape.",
+              "POST - Duplicate Submission: No test for resubmitting the exact same POST (idempotency/at-least-once retry) to ensure no duplicate tags are created and expected status (201/200/409).",
+              "Content-Type/Accept Handling: No test for missing/incorrect Content-Type resulting in 415, nor assertion that response Content-Type is application/json as per produces.",
+              "Missing Body/Type Mismatch: No scenario for completely missing body or sending a non-array type (e.g., object/string) resulting in 400.",
+              "Atomicity with Mixed Inputs: No test where one valid and one invalid tagDefinitionId are sent together to confirm all-or-nothing behavior and no partial creation.",
+              "Response Schema Depth: Tests do not validate full Tag schema (e.g., required fields, objectType=INVOICE_ITEM, objectId equals path invoiceItemId, UUID formats).",
+              "Authorization (Forbidden): No scenario for authenticated but not authorized user returning 403.",
+              "Header Boundary Cases: No tests for extreme/invalid values in X-Killbill-CreatedBy/Reason/Comment (e.g., overly long, unicode) and their persistence/auditability."
+            ],
+            "recommendations": [
+              "Add a scenario that simulates an internal server error (e.g., forced DB failure) and assert a 500 response with standardized error payload.",
+              "Add idempotency/duplicate-submission tests: POST the same payload twice and verify no duplicate tags are created; define expected status code (201 on first, 200 or 204 on second, or 409 if conflict).",
+              "Add Content-Type/Accept coverage: send Content-Type other than application/json to assert 415; also assert the response Content-Type is application/json for successful and error responses.",
+              "Add tests for missing request body and for non-array bodies (string/object) to ensure 400 with clear validation errors.",
+              "Add a mixed-validity test (e.g., [\"valid-uuid\", \"invalid-uuid\"]) to confirm atomicity: request should fail with 400 and create no tags.",
+              "Strengthen schema assertions: validate complete Tag object structure per definition (ids are UUIDs, objectType=INVOICE_ITEM, objectId equals invoiceItemId, tagDefinitionId matches input, and any other required fields).",
+              "Include a 403 Forbidden scenario for authenticated users lacking permission to tag invoice items.",
+              "Add header boundary tests: extreme length/unicode for X-Killbill-CreatedBy/Reason/Comment; verify they are persisted in audit logs and retrievable.",
+              "Optionally, add a concurrency test where two requests add the same tag concurrently to ensure only one tag is created (no duplicates)."
+            ],
+            "usage": {
+              "completion_tokens": 4763,
+              "prompt_tokens": 6738,
+              "total_tokens": 11501,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3840,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

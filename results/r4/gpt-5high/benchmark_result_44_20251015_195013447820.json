@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-15T19:50:13.447780",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:47:56.106574",
+    "benchmark_end_time": "2025-10-15T19:50:13.447776",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 137.341202,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST: Valid Payload \u2013 multiple success paths (default params, explicit offset/limit, optional headers) return 200 and application/json (TC01, TC02, TC03, TC10, TC13, TC16, TC17).",
+              "Empty dataset handling \u2013 no parked accounts returns 200 with clear indication of no work done (TC04).",
+              "Pagination/Query Parameters \u2013 defaults, explicit values, partial input, and max-limit edges covered; extra param handling attempted (TC01, TC02, TC10, TC11, TC13).",
+              "Validation/Invalid Payload \u2013 negative/zero and non-integer values for offset/limit; missing required header; clear error messages (TC05, TC06, TC07).",
+              "Authorization \u2013 invalid/expired token yields 401/403 (TC08).",
+              "Server Error Handling \u2013 service unavailability 503 path exercised (TC09).",
+              "Duplicate submission/idempotency \u2013 retry on transient failure and concurrent requests do not double-generate invoices (TC15, TC18).",
+              "Performance/Scale \u2013 large data volume and concurrency with response-time expectations (TC12, TC18).",
+              "Security hardening \u2013 header injection attempt is rejected without leaking sensitive info (TC14).",
+              "Auditing/Regression \u2013 optional headers recorded, parsing regression covered, backward compatibility with older clients (TC03, TC16, TC17)."
+            ],
+            "gaps": [
+              "Server error handling not comprehensive \u2013 no coverage for 500 Internal Server Error (e.g., DB failure) or 504 Gateway Timeout; no scenario for partial processing failure semantics.",
+              "Rate limiting/throttling \u2013 no test for 429 Too Many Requests or operational throttles under burst traffic.",
+              "Authorization granularity \u2013 no scenario for authenticated non-admin role receiving 403 (role-based access control).",
+              "Response body/schema \u2013 tests only assert content-type; no validation of response JSON structure (e.g., processedCount, offset, limit, errors) or schema stability.",
+              "Non-parked accounts unaffected \u2013 no explicit assertion that non-parked accounts were not invoiced in success paths.",
+              "Pagination boundaries \u2013 no test for offset beyond total parked accounts or near end-of-list (should return 200 with zero or truncated results) and no assertion on consistent ordering across pages.",
+              "Content negotiation and media type \u2013 no tests for invalid/missing Accept header (406) or unsupported Content-Type/unexpected request body (415/400).",
+              "Numeric boundary/overflow \u2013 no scenarios for extremely large int64 offset/limit values and their handling.",
+              "Idempotency on serial duplicates \u2013 no scenario for two identical, back-to-back successful POSTs ensuring the second performs no additional work and returns an idempotent response.",
+              "Ambiguity in TC11 \u2013 expected outcome is \u201c200 or 400\u201d; behavior should be deterministic per spec."
+            ],
+            "recommendations": [
+              "Add server-error scenarios: simulate DB failure/processing exception to assert 500 with safe error body; add long-running operation leading to 504, and define partial-failure behavior (continue vs abort, error summary).",
+              "Introduce rate-limiting tests: rapid-fire requests yielding 429, with retry-after header where applicable.",
+              "Add RBAC test: authenticated user without admin privileges should receive 403; distinguish from 401 for unauthenticated.",
+              "Define and validate response schema: assert fields such as processedCount, requestedLimit, effectiveOffset, and any error summaries; add a contract test.",
+              "Explicitly verify non-parked accounts remain untouched in all success scenarios by sampling both parked and non-parked accounts post-call.",
+              "Add pagination edge tests: offset equal to/greater than total parked accounts; offset near end with partial page; verify consistent ordering across repeated page fetches.",
+              "Test content negotiation/media type: wrong/missing Accept (expect 406); unsupported Content-Type or unexpected JSON body (expect 415/400) per API spec.",
+              "Cover numeric extremes: very large offset/limit (near int64 boundaries) and confirm proper validation/error handling without overflow.",
+              "Add idempotency test for serial duplicates: invoke the same request twice; the second should not generate additional invoices and should return a clear, consistent outcome.",
+              "Make TC11 deterministic: decide whether extra/unknown query parameters are ignored (200) or rejected (400) and update the assertion accordingly; also add tests for header length/encoding edge cases (e.g., very long Reason/Comment, Unicode).",
+              "Optionally move TC19 (documentation accessibility) to documentation/QMS tests; keep this feature focused on API behavior."
+            ],
+            "usage": {
+              "completion_tokens": 9033,
+              "prompt_tokens": 5207,
+              "total_tokens": 14240,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 8064,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

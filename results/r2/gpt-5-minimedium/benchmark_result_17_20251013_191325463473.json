@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-10-13T19:13:25.463437",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:12:41.657319",
+    "benchmark_end_time": "2025-10-13T19:13:25.463419",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 43.8061,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Successful creation (happy path) including 201 response, response body as JSON array, Location header and DB association (TC01, TC03, TC04, TC05).",
+              "Header coverage: required X-Killbill-CreatedBy and optional X-Killbill-Reason / X-Killbill-Comment are exercised (TC02, TC05, TC13).",
+              "Input validation: missing required fields, malformed JSON, invalid email format, invalid accountId format, missing path parameter are covered (TC10, TC11, TC12, TC07, TC08, TC17).",
+              "Error handling for non-existent account (404) and unauthorized access (401/403) are present (TC09, TC14).",
+              "Resilience & infra errors: external dependency / service-unavailable scenario (503) and slow DB/timeouts/response-time measurement are included (TC15, TC19).",
+              "Security tests: SQL injection and XSS attempts are considered (TC23, TC24).",
+              "Boundary/concurrency/regression/integration: large payload boundaries, concurrent requests, unicode/special characters, back-compat, retry after transient network failure, and downstream consistency are included (TC16, TC20, TC21, TC22, TC25, TC26).",
+              "Behavior with unexpected parameters/fields: tests include extra request-body fields and extra query parameters (TC06, TC18).",
+              "Documentation/UX: accessibility of error messages and API docs is included (TC27)."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency: there is no explicit test for submitting the same payload twice (e.g., same email) to validate whether duplicates are rejected, idempotent, or create duplicates.",
+              "Explicit 500 / internal server error behavior: TC15 covers 503 for external dependency failures, but there is no explicit test asserting 500 Internal Server Error handling and the APIs behavior when the service itself fails unexpectedly.",
+              "Precise response schema validation: tests assert that a JSON array is returned but do not explicitly validate full AccountEmail object fields, types, presence/absence of specific attributes, or error field formats (e.g., error codes, message structure).",
+              "Location header format and contents: tests check Location presence but do not assert the exact URL pattern or that it contains the new resource ID in the expected format.",
+              "Behavior when adding an email that already exists for the account: tests do not clarify expected behavior (reject as conflict 409 vs allow duplicate entry) or test for conflict responses.",
+              "Content-Type and response headers: no explicit tests assert Content-Type, charset, or other relevant response headers (e.g., caching headers if applicable).",
+              "Validation of header values: tests cover presence/missing of headers, but not invalid/empty X-Killbill-CreatedBy or malformed header values and how API responds.",
+              "Rate limiting / throttling: there are no tests for rate limiting / throttling behavior under high request rates.",
+              "Observability/audit logging: no tests verify that X-Killbill-* headers are recorded in audit/logs or appear in any server-side metadata.",
+              "Ambiguity in \u201cacceptance or rejection\u201d tests: some scenarios (TC06, TC16, TC18, TC21, TC23, TC24) allow either 201 or 400/422 depending on API behavior; they do not assert a single expected behavior and therefore leave acceptance criteria ambiguous."
+            ],
+            "recommendations": [
+              "Add an explicit duplicate-submission test: POST the same AccountEmail twice and assert expected behavior (preferably define spec: 201 + duplicate allowed, or 409 conflict, or idempotent behavior).",
+              "Add a test that forces a 500 Internal Server Error (e.g., simulate server crash or mock fatal exception) to verify client-observable behavior and error payload format.",
+              "Add strict schema validation tests: assert each field of returned AccountEmail objects (id, email, isPrimary, createdDate, etc.), types, and required/optional fields, and assert the exact error schema for 4xx/5xx responses.",
+              "Tighten Location header assertions: verify full URL pattern, presence of resource UUID, and that the UUID matches the created resource in the response body/DB.",
+              "Define and test behavior when adding an already-existing email: decide expected outcome (reject vs allow duplicate) and codify tests accordingly.",
+              "Assert response headers explicitly: check Content-Type, charset, and any relevant headers (e.g., Location format, caching headers if applicable), even for POST responses.",
+              "Add tests for invalid X-Killbill-* header values (empty strings, excessively long values, special characters) and assert resulting behavior (400 vs acceptance).",
+              "Add rate-limiting tests (burst of requests) to ensure proper throttling and correct status codes when limits are exceeded.",
+              "Add tests to verify that X-Killbill-* headers are propagated to audit logs or metadata (integration test or mock verification) if thats part of acceptance requirements.",
+              "Remove ambiguous expectations: for tests that currently allow multiple possible outcomes (e.g., TC06, TC16, TC18, TC21, TC23, TC24), decide on the expected API behavior in the story and make the assertions deterministic so failures indicate regressions."
+            ],
+            "usage": {
+              "completion_tokens": 2264,
+              "prompt_tokens": 6487,
+              "total_tokens": 8751,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

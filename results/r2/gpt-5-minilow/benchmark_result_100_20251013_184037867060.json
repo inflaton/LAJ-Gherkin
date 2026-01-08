@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-13T18:40:37.867033",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:40:13.748610",
+    "benchmark_end_time": "2025-10-13T18:40:37.867029",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 24.118419,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC06, TC07, TC10, TC15, TC20, TC23) validate successful removals including full, partial, single, and bulk removals.",
+              "Query Parameters: Good coverage of query param permutations \u2014 specific IDs, multiple IDs, unexpected additional params, many IDs, and malformed IDs (TC02, TC05, TC06, TC07, TC10, TC13, TC15, TC16).",
+              "Header Requirements: Required header presence and missing-header behaviour tested (TC01, TC02, TC03, TC11). Optional headers X-Killbill-Reason and X-Killbill-Comment tested (TC03).",
+              "Input Validation: Invalid paymentId format and malformed customField IDs are tested (TC08, TC13, TC16).",
+              "Authentication / Authorization: Invalid token scenario tested (TC12) yielding 401.",
+              "Error Responses: Non-existent resource handled (TC09 -> 404) and invalid formats return 400 (TC08, TC13, TC16).",
+              "Resilience & Performance: Service unavailability and degraded performance cases are included (TC14, TC19).",
+              "Integration: Audit log integration present for both available and unavailable states (TC21, TC22).",
+              "Regression & Backward Compatibility: Regression and legacy client scenarios are present (TC20, TC23)."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No scenarios explicitly cover concurrent deletes or race conditions (e.g., two clients deleting overlapping sets of custom fields simultaneously, or delete happening while another operation updates fields).",
+              "Soft Delete / Data Persistence Semantics: No tests verify soft-delete semantics or whether records are soft-deleted vs physically removed, nor checks on eventual consistency in downstream reads.",
+              "Idempotency & Duplicate Requests: No explicit test for idempotency (repeating the same DELETE should be safe and return the expected status).",
+              "Authorization Scope / Permissions (403): While invalid token (401) is covered, there is no test for forbidden access (403) when an authenticated user lacks required permissions/role.",
+              "Deterministic behavior for non-existent customField IDs: TC10 assumes 204 with no removal, but there is no test asserting whether request should be partially successful vs ignored \u2014 ambiguity not covered for mixed existent/non-existent IDs besides TC16 which treats invalid format as 400.",
+              "Audit/logging error-handling determinism: TC22 lists two possible outcomes (204 or 503) but does not assert expected behavior; lack of deterministic expectation leaves integration gap.",
+              "Rate Limiting & Throttling: No tests for burst traffic or rate limiting.",
+              "Input size limits and server constraints: While large numbers (100, 1000) are present, there is no explicit assertion on server limits, max allowed query parameters, or expected error when limits exceeded (e.g., 413 or 400).",
+              "Response Headers & Content-Type: No checks of response headers (e.g., Content-Type, caching, correlation IDs) or JSON error schema validation for error responses.",
+              "Security: Further injection/XSS tests exist (TC17, TC18) but there is no coverage for header length limits, header encoding, or escaping in audit logs.",
+              "Soft failures vs transactional guarantees: No tests assert transactional behavior (if removal of some IDs fails, are others rolled back?)."
+            ],
+            "recommendations": [
+              "Add concurrency tests: simulate concurrent DELETE requests and concurrent update/delete sequences to check for race conditions, locking, and consistent results.",
+              "Add idempotency/duplicate-request tests: invoke the same DELETE twice and assert the second call\u2019s status and behavior (204 or appropriate response) and that no unintended side effects occur.",
+              "Add permission/authorization tests for insufficient privileges (expect 403) to distinguish from unauthenticated (401).",
+              "Clarify and test expected behavior for mixed existent/non-existent customField IDs: add tests asserting whether request should remove existing IDs and ignore non-existing ones (and return 204), or return partial errors \u2014 and make the behavior deterministic in assertions.",
+              "Make audit/log integration deterministic: decide expected outcome when audit service is down (e.g., still 204 with degraded audit or 503) and add tests that assert the chosen behavior and error payload.",
+              "Add tests for server limits and error handling for extreme input sizes: probe for maximum allowed customField params and expect defined error (e.g., 413 or 400) when exceeding limits; document acceptable maximum and enforce via tests.",
+              "Add tests for response headers and error schema: validate Content-Type, any correlation IDs, and standardized error JSON structure on failures.",
+              "Add transactional behavior tests: verify whether partial failures roll back or partially succeed and assert the chosen semantics.",
+              "Add rate-limiting/throttling tests: simulate bursts to verify 429 or the configured behavior.",
+              "Extend security tests: include header length/encoding limits and verify that header values are sanitized in logs (no unescaped XSS persisted)."
+            ],
+            "usage": {
+              "completion_tokens": 1335,
+              "prompt_tokens": 6120,
+              "total_tokens": 7455,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

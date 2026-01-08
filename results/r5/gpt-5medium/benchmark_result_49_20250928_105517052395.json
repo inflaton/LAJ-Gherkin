@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-09-28T10:55:17.052370",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:54:11.053158",
+    "benchmark_end_time": "2025-09-28T10:55:17.052366",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 65.999208,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Method - Valid operation: Happy path returns 204 with empty body and verifies host state is out of rotation (TC01, TC12).",
+              "Error handling breadth: 400 invalid body (TC09), 401 no/invalid auth (TC02, TC03), 409 already out of rotation and no hosts available (TC04, TC14), 500 internal error (TC06), 503 service unavailable (TC05).",
+              "Concurrency: Concurrent DELETE requests behavior validated; first succeeds, subsequent handled appropriately (TC11).",
+              "HTTP semantics: 405 for wrong method (TC07); extra query params are safely ignored with 204 (TC08); no request body required and enforced (TC09).",
+              "Performance: Response time SLAs under normal and concurrent load (TC10, TC11).",
+              "State verification/regression: Confirms system state change and follow-up status query (TC12).",
+              "Security hardening: Basic header injection handling covered (TC13)."
+            ],
+            "gaps": [
+              "Authorization depth: No scenario for authenticated but insufficient privileges (403) or expired/disabled tokens.",
+              "Content negotiation/headers: No assertions that error responses set Content-Type: application/json as per \u201cProduces\u201d; no test for 415 when a Content-Type is sent with an unexpected body; no test for 406 when unacceptable Accept header is sent; no header checks on 204 (e.g., absence of body-related headers).",
+              "Idempotency clarity: Repeated DELETE behavior is not asserted deterministically (e.g., always 204 vs 409); idempotent semantics should be defined and verified.",
+              "Soft-delete behavior: Since this is a reversible operational state, there is no test proving the host remains present and can be brought back into rotation (soft delete semantics).",
+              "Rate limiting/throttling: No scenarios for burst/admin misuse leading to 429 or graceful degradation.",
+              "Retry guidance: 503 scenario does not validate presence/format of Retry-After header for clients to back off.",
+              "Negative environmental edge: No test for endpoint misconfiguration/feature disabled (e.g., healthcheck ops disabled or node not eligible), expecting 404/501/409 as defined."
+            ],
+            "recommendations": [
+              "Add RBAC/authorization tests: authenticated non-admin or wrong scope returns 403; include expired/disabled token scenario.",
+              "Assert headers and content negotiation: verify error responses include Content-Type: application/json; add tests for 415 when a Content-Type is provided with a body, and 406 for unacceptable Accept header; explicitly assert that 204 responses have no body.",
+              "Define and test idempotency: specify expected code for repeated DELETE on an already out-of-rotation host and add a scenario to enforce it consistently.",
+              "Validate soft-delete semantics: after taking host out of rotation, confirm the host still exists and can be returned to rotation via the companion API; verify audit/state flags if available.",
+              "Introduce rate-limiting/throttling tests: send bursts of DELETEs and expect 429 or documented behavior; ensure proper headers like Retry-After for throttling.",
+              "Enhance 503 scenario: verify Retry-After header presence/format to guide client retries.",
+              "Add environmental edge case: simulate disabled healthcheck operations or ineligible node and verify documented response (e.g., 404/501/409) and error schema."
+            ],
+            "usage": {
+              "completion_tokens": 3859,
+              "prompt_tokens": 3433,
+              "total_tokens": 7292,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3136,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

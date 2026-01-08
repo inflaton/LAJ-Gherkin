@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "77_2025-10-13T19:08:00.630918",
+    "jira_id": "77",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/priceList - Retrieve priceList for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:07:38.394746",
+    "benchmark_end_time": "2025-10-13T19:08:00.630914",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 22.236168,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "77_qe_sup-gpt4.1_agent-gpt4.1_1748920942.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple positive scenarios (TC01, TC02, TC03, TC04, TC21, TC18) validate successful retrieval with different combinations of subscriptionId and requestedDate and edge/date-boundary behavior.",
+              "Empty Response / No Data: TC13 covers behavior when the DB has no subscriptions/price lists and expects 404 or empty/default response.",
+              "Query Parameters: Many permutations are tested \u2014 valid, omitted, malformed, oversized, extra/unexpected (TC01-TC04, TC05, TC07, TC11, TC12, TC19).",
+              "Authorization: TC08 explicitly tests missing/invalid token; background ensures auth tokens are considered for positive tests.",
+              "Error Handling for Missing/Invalid Resources: TC05 (bad format), TC06 (non-existent subscription), TC07 (bad date), TC19 (malformed/partial) cover 4xx error cases as specified in the story.",
+              "Dependency and Integration Failures: TC20 covers dependent catalog service failure (502) and TC09 covers service unavailability (503).",
+              "Security Input Validation: TC10 (injection), TC22 (XSS) cover common injection/XSS vectors and confirm no internal details are leaked.",
+              "Performance/Load: TC14 and TC15 include response-time expectations under normal and peak load, and TC17 covers retry behavior after transient failure.",
+              "Large Data Volume: TC18 addresses correctness and performance when many price list changes exist for a subscription.",
+              "Regression / Boundary Cases: TC21 checks a previously fixed date-boundary issue."
+            ],
+            "gaps": [
+              "Pagination: No tests cover pagination behavior or pagination-related query parameters for large datasets (important per GET guidelines).",
+              "Caching Behavior: There are no scenarios validating caching headers (ETag, Cache-Control), conditional GETs, or proper cache-related response behaviors.",
+              "Rate Limiting / Throttling: While performance tests exist, there are no explicit tests for rate limiting (429 responses) or behavior when request quotas are exceeded.",
+              "Authorization Nuances: There is testing for unauthorized (401) but no explicit tests for forbidden access (403) or role-based access scenarios if applicable.",
+              "Content/Schema Validation Details: Positive scenarios assert a \"valid PriceList JSON object\" but there are no explicit schema/field-level tests (required fields, types, enums, boundary values) or contract tests against the PriceList definition.",
+              "Pagination-related performance: Large-data performance (TC18) is present but not tied to pagination; scenarios don\u2019t verify page size limits, cursors, offsets, or combined performance when paginating.",
+              "Caching + Concurrency: No tests combine caching behavior with concurrent requests to ensure cache coherence and correct ETag/If-None-Match handling under concurrency.",
+              "Rate-limiting + retry semantics: TC17 covers retry after transient network failure but not retries in presence of server-side rate limiting or backoff behavior.",
+              "Response Content-headers and Content negotiation: Tests check content-type for application/json but do not validate other headers (Content-Length, charset) or accept-header negotiation.",
+              "Error body structure: Error scenarios assert message existence but do not verify standardized error schema (error codes, subcodes, correlation IDs) required for client handling."
+            ],
+            "recommendations": [
+              "Add pagination tests: create scenarios for endpoints returning many items and verify pagination query parameters (limit/offset or cursor), page boundaries, and combined correctness/performance when paginating.",
+              "Add caching tests: validate presence and correctness of Cache-Control and ETag headers, test conditional GETs with If-None-Match and If-Modified-Since returning 304 when appropriate, and ensure no sensitive data is leaked via caching headers.",
+              "Add rate-limiting tests: simulate rapid-fire requests to validate 429 responses, Retry-After header behavior, and client-friendly error messages; include tests for graceful degradation when limits are hit.",
+              "Cover authorization nuances: add tests for 403 Forbidden where applicable (insufficient privileges), and role-based access if the API differentiates clients.",
+              "Add schema/contract tests: assert that the PriceList JSON matches the canonical schema (required fields, types, nested objects) and include negative tests for missing/invalid fields in the response.",
+              "Test error body standardization: verify error payload structure (error code, message, details, correlation id) across 4xx/5xx to ensure clients can reliably parse errors.",
+              "Combine caching/concurrency and pagination/performance tests: validate behavior when many concurrent clients request the same resource and when cached responses are served under load.",
+              "Add content negotiation and header validation: test Accept header handling and other response headers (Content-Length, charset) to ensure robust client interoperability.",
+              "Include rate-limited retry semantics: verify client retry/backoff behavior expectations when server returns 429 and interaction with idempotency/retry logic."
+            ],
+            "usage": {
+              "completion_tokens": 1205,
+              "prompt_tokens": 4977,
+              "total_tokens": 6182,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

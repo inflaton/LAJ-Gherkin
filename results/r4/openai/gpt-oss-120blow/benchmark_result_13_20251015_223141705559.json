@@ -1,0 +1,71 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-15T22:31:41.705522",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T22:31:28.560440",
+    "benchmark_end_time": "2025-10-15T22:31:41.705514",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "openai/gpt-oss-120b",
+      "temperature": 0.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 13.145074,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple successful closure scenarios (default, all true, all false, individual flags, combinations) verify correct 204 response and side\u2011effects.",
+              "Non\u2011Existent Resource: TC12 confirms idempotent 204 when the account does not exist.",
+              "Authorization: TC10 validates 401 responses for missing or invalid authentication tokens.",
+              "Required Headers: TC09 checks 400 response when X\u2011Killbill\u2011CreatedBy header is missing.",
+              "Input Validation: TC08 (invalid UUID), TC15 (SQL injection), TC13 (extra unsupported query param) ensure proper 400 handling.",
+              "Idempotency: (already closed) and TC17 (retry after transient failure) confirm repeatable behavior.",
+              "Error Handling: TC14 simulates a database outage and expects a 500 response.",
+              "Performance Concurrency: TC07 (large data set) and TC18 (10 concurrent deletions) test scalability and acceptable response time.",
+              "Security: TC16 validates sanitisation of potentially malicious header values.",
+              "Regression & Compatibility: TC19, TC20 ensure previously fixed bugs stay fixed and older clients remain supported.",
+              "Documentation & Accessibility: TC21 checks that API docs and error messages are clear and accessible."
+            ],
+            "gaps": [
+              "Rate Limiting: No scenario verifies the API\u2019s behavior when the same client issues many requests in a short period.",
+              "Concurrency \u2013 race condition: While TC18 tests concurrent deletions, it does not explicitly cover a race where two requests try to delete the same account at the same instant and how the system resolves it.",
+              "Soft Delete verification: Tests confirm the account is marked as closed, but they do not assert that the record remains in the database (soft\u2011delete) versus being permanently removed.",
+              "Caching behavior: No checks for caching headers (e.g., ETag, Cache\u2011Control) on DELETE responses, even though some implementations may include them."
+            ],
+            "recommendations": [
+              "Add a rate\u2011limiting test that sends a burst of DELETE requests from the same token and asserts the appropriate 429 response.",
+              "Create a race\u2011condition test where two parallel DELETE calls target the same active account and verify that only one performs the state change while the other receives a safe idempotent response.",
+              "Extend the successful\u2011closure tests to query the database after the operation and confirm the account record still exists with a \u2018closed\u2019 flag (soft delete) rather than being physically removed.",
+              "Include a test that inspects response headers for caching directives (e.g., ETag, Cache\u2011Control) to ensure they conform to the API\u2019s contract."
+            ],
+            "usage": {
+              "completion_tokens": 1055,
+              "prompt_tokens": 6381,
+              "total_tokens": 7436
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

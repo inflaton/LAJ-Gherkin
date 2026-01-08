@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-09-28T09:26:26.816093",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:25:40.533762",
+    "benchmark_end_time": "2025-09-28T09:26:26.816089",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 46.282327,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE/Valid Deletion: Multiple success paths (all tags, specific tags, optional headers, no tags, extra params) return 204 with empty body (TC01\u2013TC07, TC18).",
+              "DELETE/Non-Existent Resource: 404 for unknown invoiceItemId (TC08).",
+              "Input validation: 400 for invalid invoiceItemId format and malformed/partial tagDef; handling empty tagDef; unknown tag IDs are ignored (TC06, TC09, TC13, TC16).",
+              "Auth error handling: 401 for invalid/expired token (TC11).",
+              "Operational errors: 503 when service unavailable (TC12).",
+              "Large input boundaries: very large tagDef list with expectation 204 or 413 (TC14).",
+              "Security hardening: rejects malicious header payloads (TC15).",
+              "Concurrency (non-functional): high-concurrency performance and integrity expectations (TC17).",
+              "Integration behavior: dependent service (audit logging) outage handling expectations (TC19)."
+            ],
+            "gaps": [
+              "DELETE/Concurrency per guideline: No explicit race test where a second DELETE occurs after the first removed tags (idempotency and outcome of subsequent DELETEs not verified).",
+              "DELETE/Soft Deletes per guideline: No scenario clarifies whether tag removal is soft vs hard; no verification of soft-delete semantics or recovery if applicable.",
+              "Response headers/media type: Story lists produces: application/json but 204 has no body; tests do not assert Content-Type on error responses or absence/presence of headers on 204.",
+              "Authorization/permissions: 401 covered, but no 403/forbidden scenario for authenticated user lacking permission.",
+              "Server error handling: No 5xx behavior beyond 503; e.g., 500 on DB failure not covered.",
+              "Audit trail side-effects: No verification that X-Killbill-CreatedBy/Reason/Comment are persisted in audit logs when successful.",
+              "Idempotency/repeatability: No test that repeating the same DELETE (with/without tagDef) yields consistent, acceptable status (e.g., 204 vs 404) and no adverse effects.",
+              "Validation nuance: No check for duplicate tagDef UUIDs and how duplicates are handled; no explicit test of query collection format (multi) vs comma-separated fallback."
+            ],
+            "recommendations": [
+              "Add race/idempotency scenarios: perform DELETE twice (once succeeds with 204, second returns defined behavior: 204 idempotent or 404) and when another user deletes in between.",
+              "Clarify and test soft-delete semantics. If tags are hard-deleted, document N/A; if soft-deleted, add tests to verify flags/audit and recovery.",
+              "Assert response headers: for errors ensure Content-Type: application/json and error schema; for 204 ensure no body and appropriate headers.",
+              "Add RBAC/authorization tests: authenticated but unauthorized user receives 403.",
+              "Simulate internal failures (e.g., DB outage) to validate 500 and error payload format.",
+              "Verify audit logging side-effects: confirm entries recorded using X-Killbill-CreatedBy/Reason/Comment on success and that outages degrade as designed.",
+              "Test handling of duplicate tagDef values and strictly validate the multi-valued query format (repeated tagDef=uuid vs comma-separated)."
+            ],
+            "usage": {
+              "completion_tokens": 1926,
+              "prompt_tokens": 5394,
+              "total_tokens": 7320,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

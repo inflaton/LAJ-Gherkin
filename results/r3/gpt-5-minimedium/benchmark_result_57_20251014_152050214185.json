@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "57_2025-10-14T15:20:50.214156",
+    "jira_id": "57",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/customFields - Modify custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:19:41.128892",
+    "benchmark_end_time": "2025-10-14T15:20:50.214152",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 69.08526,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "57_qe_sup-gpt4.1_agent-gpt4.1_1748919636.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid PUT request with proper body and required header -> TC01, TC02 (includes optional headers).",
+              "Required header validation (X-Killbill-CreatedBy present/missing) -> TC01, TC06.",
+              "Empty array to remove all custom fields -> TC03.",
+              "Invalid bundleId format -> TC04 (400) and non-existent bundle -> TC05 (404).",
+              "Malformed/missing request body validation -> TC07, TC08.",
+              "Unsupported/extra fields in payload validation -> TC09.",
+              "Authentication failure -> TC10 (401).",
+              "Dependency/service unavailable and internal errors -> TC11 (503) and TC20 (500).",
+              "Input validation/security (SQL injection) and special characters handling -> TC12, TC19.",
+              "Edge cases: maximum number of custom fields, max value length, empty value -> TC13, TC14, TC15.",
+              "URL extras tolerant behavior -> TC16.",
+              "Performance under normal and peak load -> TC17, TC18.",
+              "Retry/recovery on transient network failure -> TC21.",
+              "State variations: create when none, update when existing, partial update scenario -> TC22, TC23, TC24.",
+              "Backward compatibility/regression scenario -> TC25."
+            ],
+            "gaps": [
+              "PUT-specific semantics - Partial Update policy unclear: acceptance criteria do not state whether partial updates (merge) are allowed or whether the PUT should fully replace custom fields. Tests include a \"partial update\" scenario (TC24) but there is no explicit test that verifies the API's documented behavior (accept vs reject) for partial payloads. Need test that asserts correct behavior per spec.",
+              "Concurrency / race conditions: there is load/performance testing (TC18) but no explicit concurrency correctness tests for race conditions or conflicting updates (e.g., two concurrent conflicting PUTs and verifying final state / optimistic locking / versioning).",
+              "Content-Type and response headers: tests do not assert Content-Type request/response headers or behavior when Content-Type is missing/incorrect. The story notes \"Consumes: application/json\" and \"Produces: application/json\" but there are no assertions for these headers or for 204 body semantics (204 typically has no body).",
+              "Idempotency / duplicate submissions: no test covers duplicate/ repeated identical submissions and how they are handled (e.g., idempotency guarantees).",
+              "Authorization scope/permissions (403): only 401 unauthorized token missing is tested (TC10). There are no tests for authenticated but unauthorized users (403) or role-based access control.",
+              "Validation of individual CustomField schema types and constraints beyond malformed JSON and extra fields: e.g., invalid data types for required fields, missing required properties on CustomField objects, duplicate keys in payload are not explicitly tested.",
+              "BundleId format positive validation: while invalid bundleId is tested (TC04), there is no explicit test asserting valid UUID pattern acceptance (positive validation for bundleId format).",
+              "Rate limiting / throttling and rate-limit error responses: absent."
+            ],
+            "recommendations": [
+              "Clarify and codify expected PUT semantics for custom fields (full replace vs partial merge). Add explicit test(s) asserting the accepted behavior. If partial updates are NOT allowed, add negative tests that partial payloads are rejected with appropriate status (4xx). If allowed, add tests covering merge rules and precedence.",
+              "Add concurrency correctness tests: run two or more concurrent conflicting PUTs and assert deterministic final state (or proper conflict response), and test optimistic locking/version behavior if present.",
+              "Add tests for Content-Type header handling: send requests with missing or incorrect Content-Type and assert 415 or 400 as appropriate; assert response Content-Type and that 204 responses have no body (and correct headers).",
+              "Add idempotency/duplicate submission tests: repeat identical requests to verify safe behavior and expected status codes.",
+              "Add authorization scope tests (403): test authenticated users lacking permissions vs admins to verify authorization semantics.",
+              "Expand schema validation tests: include cases with invalid data types for CustomField properties, missing required fields within each CustomField, duplicate custom field keys in the same array, and very large payloads beyond defined limits (to exercise validation and error handling).",
+              "Add a positive bundleId format test to assert accepted UUID patterns and a negative test (already present) for invalid format to ensure server-side format validation.",
+              "Add rate-limiting/throttling tests to check system behavior and error responses under aggressive request rates, distinct from performance tests which focus on throughput and timing."
+            ],
+            "usage": {
+              "completion_tokens": 2166,
+              "prompt_tokens": 6139,
+              "total_tokens": 8305,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

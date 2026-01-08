@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-15T10:54:29.647530",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:54:03.757574",
+    "benchmark_end_time": "2025-10-15T10:54:29.647518",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 25.889944,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC07, TC20) verify successful deletion (204) for full and partial removals.",
+              "Query Parameters: Good coverage of query param permutations \u2014 absent (remove all), single ID, multiple IDs, extra unexpected params, large numbers of params (TC05, TC06, TC07, TC15).",
+              "Path parameter validation: Invalid format and non-existent payment are covered (TC08 -> 400, TC09 -> 404).",
+              "Header validation: Required header presence/absence tested (TC03, TC11) and optional headers handled (TC03).",
+              "Authentication/Authorization: Valid and invalid tokens covered (TC12).",
+              "Input validation: Malformed customField IDs, SQL injection-like input and partial-invalid mixes covered (TC13, TC16, TC18).",
+              "Edge & performance: Large payload and performance under load are covered (TC15, TC19).",
+              "Error handling & service availability: Service unavailable and dependent-service integration covered (TC14, TC21, TC22).",
+              "Idempotency-ish behavior: Non-existent customField deletes still return 204 (TC10) which exercises idempotent delete behavior.",
+              "Security edge-cases: XSS in headers and injection attempts are included (TC17, TC18).",
+              "Regression and backward-compatibility: Regression and legacy client tests present (TC20, TC23)."
+            ],
+            "gaps": [
+              "Produces / Content-Type: No assertion that the response includes the expected Content-Type (story says produces application/json). Tests only assert empty body and status code.",
+              "Status code / error body schema: Tests assert presence of error messages but do not validate error response schema/fields, consistent error codes beyond basic 400/401/404/503, or message formats.",
+              "Authorization granularity: There is coverage for unauthenticated (401) but no tests for insufficient privileges (403) or role-based authorization rules.",
+              "Concurrency / Race conditions: No explicit concurrent delete/update scenarios (e.g., two clients deleting the same custom fields simultaneously or delete while another process adds/removes fields).",
+              "Soft-delete semantics: No tests to verify whether deletion is soft (flagging) vs hard delete in DB or to validate auditing/retention policies beyond audit-log integration presence.",
+              "Idempotency repeat-call behavior on same payment: While TC10 covers non-existent customField, there is no explicit test for repeating the same DELETE on the same payment twice (to verify idempotency and status codes).",
+              "Limits & server-side constraints: Although large payloads are exercised, there is no test asserting server limits (e.g., maximum allowed query parameters, 413 responses, or behavior when exceeding URL length or parameter count limits).",
+              "Rate limiting / throttling: No tests for API rate limits or behavior under burst requests.",
+              "Caching headers: No tests for caching behavior or headers like ETag/Cache-Control (even if not typical for DELETE, produced header expectations were in guidelines).",
+              "Error content detail for 400 vs 422: TC17 allows either 400 or 422; tests do not assert which is expected \u2014 ambiguity may hide missing validation rules."
+            ],
+            "recommendations": [
+              "Add assertions for response headers including Content-Type (expect application/json) and any other required headers from the API contract.",
+              "Define and test the error response schema (fields, codes, and message formats) for all error responses (400, 401, 404, 422, 503) and assert against it to avoid ambiguous expectations.",
+              "Add tests for 403 Forbidden to cover authorization scenarios where authenticated users lack required privileges or roles.",
+              "Introduce concurrency tests: parallel DELETE requests and combinations of DELETE + add/remove customField operations to detect race conditions and verify consistency.",
+              "Add explicit idempotency test: call DELETE twice on the same resource (same payment and/or same customField IDs) and assert stable, specified responses (e.g., both return 204).",
+              "Test server limits and error behavior when exceeding URL/query parameter length or count (expect 413 or a well-defined error), and confirm behavior for very large numbers of query parameters beyond the exercised 1000 case.",
+              "Clarify and tighten TC17 expected status (choose 400 or 422) and add precise validation tests for header sanitization and allowable character sets/lengths for X-Killbill-CreatedBy, Reason, and Comment.",
+              "If soft-delete semantics or audit retention exist, add tests that verify database state (deleted flag) and retention/audit trail entries; otherwise assert hard-delete semantics explicitly.",
+              "Add rate-limiting tests (burst requests) and document expected behavior (429) so clients can be validated.",
+              "Where relevant, verify integration side-effects (audit log content and format) in more detail (e.g., audit record fields: who, when, what IDs were removed)."
+            ],
+            "usage": {
+              "completion_tokens": 2194,
+              "prompt_tokens": 6120,
+              "total_tokens": 8314,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

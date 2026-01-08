@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "27_2025-09-28T10:06:52.206323",
+    "jira_id": "27",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/paymentMethods - Add a payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:05:43.370935",
+    "benchmark_end_time": "2025-09-28T10:06:52.206318",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 68.835383,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "27_qe_sup-gpt4.1_agent-gpt4.1_1748917729.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Payload: Multiple success paths verify 201 creation and response content (e.g., TC01, TC02, TC03, TC04, TC08, TC11).",
+              "Response Contract: Verifies Location header presence and PaymentMethod JSON in success (TC01).",
+              "Path Parameter Validation: Valid UUID usage and invalid format returning 400 (TC14).",
+              "Query Parameters: isDefault, payAllUnpaidInvoices, controlPluginName (multi), pluginProperty (multi), and combined usage (TC02, TC03, TC04, TC08).",
+              "Handling Unexpected Parameters: Extra/unknown query parameter ignored (TC09).",
+              "Headers: Required X-Killbill-CreatedBy present and enforced (TC01 Background, TC16 -> 400). Optional X-Killbill-Reason/Comment handled (TC05).",
+              "Request Body Validation: Minimal vs large payloads (TC10, TC11); malformed JSON (TC12); missing required fields (TC13).",
+              "Error Scenarios per story: 400 for invalid accountId/body (TC12\u2013TC14) and 404 for non-existent account (TC15).",
+              "Server Error Handling: 503 when plugin service down (TC18) and 500 on inconsistent plugin data (TC27).",
+              "Security/Validation Hardening: SQL injection and XSS attempts rejected (TC19, TC20).",
+              "Duplicate/Concurrency: Network retry without duplicates (TC21) and concurrent POSTs processed without duplicates (TC23).",
+              "Performance/Resilience: Response time under normal and peak load (TC28, TC29); timeout behavior (TC22).",
+              "Integration Effects: Downstream sync after creation (TC26)."
+            ],
+            "gaps": [
+              "Content Negotiation: No explicit checks for Content-Type enforcement (415 on non-JSON) or response Content-Type=application/json; no Accept header/406 behavior.",
+              "Schema Contract Validation: No automated schema validation against the PaymentMethod definition for both request and response (only high-level value checks).",
+              "Query Parameter Type Validation: No tests for invalid boolean values (e.g., isDefault=abc) or malformed multi-value encodings; no tests for duplicate/empty controlPluginName handling.",
+              "Body Field-Level Validation: No tests for unknown/extra fields in PaymentMethod body and how they are handled (ignored vs rejected).",
+              "Authorization Granularity: 401 covered, but no 403 Forbidden coverage for authenticated users lacking permission.",
+              "Server Error Handling Breadth: No simulation of database/storage failure leading to 500 distinct from plugin-related failures.",
+              "Audit Verification: TC05 asserts audit fields \u201cif applicable\u201d but does not retrieve and verify audit trail entries/history to confirm headers are persisted.",
+              "Idempotency/Duplicate Submission Semantics: No explicit coverage for repeated identical POSTs (success-response lost) with/without an Idempotency-Key (if supported) beyond network retry scenario.",
+              "Location Header Validation Depth: Only presence checked in a single success case (TC01); not validated for correctness/format across other success paths.",
+              "payAllUnpaidInvoices Edge Cases: No scenarios where invoice payment attempts partially fail and how errors are surfaced (e.g., 207-like behavior or aggregated errors) if applicable."
+            ],
+            "recommendations": [
+              "Add content negotiation tests: send non-JSON or wrong Content-Type -> expect 415; verify response Content-Type=application/json; test unacceptable Accept -> 406 (if supported).",
+              "Introduce JSON schema validation for both request and response against the PaymentMethod definition to ensure strict contract adherence.",
+              "Add query param negative tests: isDefault/payAllUnpaidInvoices with non-boolean values; malformed/duplicate multi-value params; empty controlPluginName behavior.",
+              "Add a test with extra/unknown fields in the PaymentMethod body and verify whether they are ignored or rejected per API spec.",
+              "Add a 403 Forbidden scenario for authenticated user lacking rights to add payment methods to the account.",
+              "Simulate a database/storage outage to assert 500 Internal Server Error distinct from plugin failures and confirm error body format.",
+              "Enhance audit verification by retrieving audit logs/history after creation to assert CreatedBy/Reason/Comment are persisted and correctly attributed.",
+              "Add explicit duplicate submission tests: resend the same payload immediately (with and without Idempotency-Key if available) and assert no duplicate resource is created.",
+              "Extend Location header checks to validate absolute URL/format and presence across scenarios that also set isDefault/payAllUnpaidInvoices/plugins.",
+              "If business rules exist for invoice auto-pay edge cases, add scenarios to cover partial payment failures and expected response semantics."
+            ],
+            "usage": {
+              "completion_tokens": 3790,
+              "prompt_tokens": 7438,
+              "total_tokens": 11228,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2816,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

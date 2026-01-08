@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-13T10:00:53.743091",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:00:01.790582",
+    "benchmark_end_time": "2025-10-13T10:00:53.743087",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 51.952505,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Method - Valid Deletion: Success path returning 204 and empty body is covered (TC01, TC08, TC12).",
+              "DELETE Method - Non-Existent Resource: Host already out of rotation and no hosts available are covered (TC04, TC14).",
+              "DELETE Method - Concurrency: Concurrent requests behavior and responses are covered (TC11).",
+              "DELETE Method - Soft Delete behavior: State-based effect is verified by checking host marked out of rotation and via a follow-up status query (TC12).",
+              "Authorization negatives: No token and invalid token return 401 (TC02, TC03); header injection security checks included (TC13).",
+              "Request body handling: Body is not expected; malicious/non-empty body yields 400 (TC09).",
+              "Operational errors: Service down (503) and internal errors (500) are covered (TC05, TC06).",
+              "HTTP method safety: Wrong method returns 405 (TC07).",
+              "Story acceptance criteria: 204 on success and >=400 on errors are exercised across multiple error codes."
+            ],
+            "gaps": [
+              "Response headers: The story says Produces: application/json; tests do not validate Content-Type headers (especially on error responses) or confirm correct headers with 204 (no body, Content-Length 0).",
+              "Authorization 403: No scenario for authenticated but unauthorized (non-admin) user receiving 403.",
+              "Idempotency/retry semantics: No explicit sequential repeat DELETE test (post-success repeat) to confirm safe idempotent behavior (e.g., 409 and no state change).",
+              "Soft delete completeness: No verification that the host can be brought back into rotation (to prove it is not permanently removed), if a corresponding endpoint exists.",
+              "Unsupported media type: No scenario for 415 when an inappropriate Content-Type is sent with a body on DELETE.",
+              "Error payload format: Tests assert presence of error messages but not a standardized JSON schema (e.g., code, message, details) across 4xx/5xx responses.",
+              "Query parameter validation: TC08 allows extra params; no scenario asserts that unknown/invalid params are rejected (400) if the API contract disallows them."
+            ],
+            "recommendations": [
+              "Add header assertions: for 204 verify empty body and Content-Length 0; for error responses verify Content-Type: application/json and consistent error schema.",
+              "Add a 403 Forbidden scenario using valid credentials lacking admin privileges to cover authorization properly.",
+              "Add an idempotency test: issue DELETE twice sequentially; assert first returns 204, second returns 409 (or defined behavior) with no additional side effects.",
+              "Validate soft-delete behavior end-to-end: confirm the host still exists and can be returned to rotation via the appropriate API (if available).",
+              "Add a 415 Unsupported Media Type scenario when sending a Content-Type with a body on DELETE (if the API enforces media types).",
+              "Standardize error contract checks: assert JSON structure for errors (fields like errorType/code/message) across 400/401/405/409/500/503.",
+              "Clarify and test query parameter rules: if the endpoint accepts none, add a scenario expecting 400 on unknown params; if they are ignored, document that and keep TC08 as-is."
+            ],
+            "usage": {
+              "completion_tokens": 3652,
+              "prompt_tokens": 3433,
+              "total_tokens": 7085,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2944,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

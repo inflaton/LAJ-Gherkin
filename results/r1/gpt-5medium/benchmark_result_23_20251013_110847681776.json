@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "23_2025-10-13T11:08:47.681752",
+    "jira_id": "23",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/invoices - Retrieve account invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T11:07:20.219230",
+    "benchmark_end_time": "2025-10-13T11:08:47.681748",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 87.462518,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "23_qe_sup-gpt4.1_agent-gpt4.1_1748917429.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Successful 200 responses with correct filtering across many combinations (startDate/endDate, withMigrationInvoices, unpaidInvoicesOnly, includeVoidedInvoices, audit=FULL/MINIMAL).",
+              "Empty Response: 200 with empty array when no invoices exist or filters yield no results.",
+              "Query Parameters: Broad coverage of valid combos and edge cases (partial dates, startDate > endDate -> 400, unsupported params ignored, security inputs like SQLi/XSS rejected).",
+              "Authorization: 401 for missing/invalid tokens.",
+              "Error Handling: 400 for invalid accountId/malformed UUID and oversized path; 404 for non-existent account.",
+              "Resilience/Availability: 503 service unavailable; potential 504 on slow downstream; concurrent request consistency.",
+              "Performance: Large data-volume scenario with response-time assertion.",
+              "Regression/Compatibility: Backward compatibility with no query params; regression on unpaidInvoicesOnly behavior."
+            ],
+            "gaps": [
+              "Pagination: No concrete assertions for pagination mechanics (e.g., page size params, next/prev links, total counts); TC16 notes \"may be paginated\" but does not validate it.",
+              "Caching Behavior: No checks for ETag/Last-Modified or Cache-Control headers, nor conditional GET (If-None-Match/If-Modified-Since) behavior.",
+              "Rate Limiting: No tests for throttling/429 responses under burst traffic distinct from simple concurrency.",
+              "Response Headers/Content Negotiation: No verification of Content-Type=application/json or Accept handling as stated in story (Produces: application/json).",
+              "Schema Validation: No validation against the Invoice schema definition (#/definitions/Invoice) or structure of audit fields for each level.",
+              "Audit Defaults/Invalid Enum: No test for default audit=NONE when omitted, and no simple invalid enum value (e.g., audit=FOO) returning 400/422.",
+              "Date Format Validation: Missing tests for malformed/unsupported date formats (e.g., 2023-13-40, non-ISO), and timezone boundary handling if applicable.",
+              "Authorization 403: No scenario for forbidden/insufficient permissions or scopes (if the API distinguishes 401 vs 403).",
+              "Server Error 500: No test simulating internal errors (e.g., DB failure) returning 500 for GET.",
+              "Deterministic Ordering: No assertion on sort order of returned invoices (if the API specifies ordering)."
+            ],
+            "recommendations": [
+              "Add explicit pagination scenarios: request first page with limit, verify item count, presence/values of pagination metadata (e.g., next/prev links or offset/limit), and navigate to subsequent pages.",
+              "Add caching tests: assert ETag/Last-Modified and Cache-Control headers on 200; send If-None-Match/If-Modified-Since to expect 304 Not Modified when appropriate.",
+              "Introduce rate-limiting tests: burst N requests within a short window to validate 429 Too Many Requests (or confirm not applicable).",
+              "Verify response headers: assert Content-Type=application/json; optionally test Accept header variations and ensure JSON is returned.",
+              "Validate response schema: check each item conforms to #/definitions/Invoice; validate required fields and types and audit sections for FULL and MINIMAL.",
+              "Cover audit defaults and invalids: a) omit audit to verify default NONE behavior; b) use an invalid value (audit=FOO) to assert 400/422.",
+              "Add invalid date format tests: non-ISO strings, out-of-range dates; include timezone-related cases (UTC vs account timezone) if defined.",
+              "Consider a 403 forbidden test if the platform enforces permission scopes distinct from authentication failures.",
+              "Simulate internal error path: mock DB/service failure to ensure 500 handling and error body contract.",
+              "If the API defines ordering, add an assertion (e.g., newest-first by invoiceDate) to ensure deterministic results."
+            ],
+            "usage": {
+              "completion_tokens": 4286,
+              "prompt_tokens": 6428,
+              "total_tokens": 10714,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3456,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

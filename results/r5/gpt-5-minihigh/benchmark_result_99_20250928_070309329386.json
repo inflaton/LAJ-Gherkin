@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "99_2025-09-28T07:03:09.329353",
+    "jira_id": "99",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoicePayments/{paymentId}/customFields - Modify custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:00:40.767321",
+    "benchmark_end_time": "2025-09-28T07:03:09.329349",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 148.562028,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "99_qe_sup-gpt4.1_agent-gpt4.1_1748922485.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid PUT request flow: success cases returning 204 and updating/creating custom fields (TC01, TC02, TC03, TC17).",
+              "Header handling: required X-Killbill-CreatedBy present; optional X-Killbill-Reason and X-Killbill-Comment exercised (TC01, TC02, TC07).",
+              "PaymentId validation: invalid UUID format => 400, valid-but-not-found => 404 (TC05, TC06).",
+              "Request body validation: missing body, malformed JSON and invalid CustomField objects => 400 (TC08, TC09, TC10).",
+              "Authorization & security: missing/invalid auth token => 401 and an injection attempt scenario is included (TC11, TC13).",
+              "Server error handling: DB/unavailable scenario -> 500 (TC12).",
+              "Edge cases / performance inputs: very large numbers of custom fields, very large payload sizes, and max-length values (TC14, TC15, TC20).",
+              "Extra/unexpected properties and duplicate-name regression scenarios are included (TC16, TC18).",
+              "Concurrency / race conditions: concurrent PUT requests for the same resource are covered (TC19).",
+              "Integration verification: subsequent GET used to verify data consistency after update (TC17).",
+              "Empty-array case (remove or no-op) is present (TC04) - the scenario exists to validate behavior when the request body is an empty array."
+            ],
+            "gaps": [
+              "Partial-update semantics: no explicit test asserts whether PUT is intended to be a full-replace or can accept/merge partial CustomField objects; partial-update acceptance/rejection is not exercised.",
+              "Idempotency / duplicate submission: no explicit test verifying that repeating the same PUT produces idempotent results (no duplicate entries, stable state).",
+              "Rate limiting / throttling: no tests for API rate limits (429) or behavior under request bursts.",
+              "Caching & response headers: no checks for response headers (Content-Type, ETag, Cache-Control) or verification of the \"Produces: application/json\" contract for error responses.",
+              "Ambiguity in empty-array and duplicate-name behavior: TC04 and TC18 leave the expected outcome open (\"removed or remain unchanged\" / \"400 or 204\"). Tests should assert a single specified behavior.",
+              "Header-value validation & audit-trail: CreatedBy value constraints (empty, too long, invalid characters) and verification that CreatedBy is recorded in audit logs/DB are not covered.",
+              "Performance acceptance criteria missing: performance tests (TC14/TC19/TC20) state response-time expectations but do not define measurable thresholds or resource limits to assert against.",
+              "Schema completeness: while invalid objects are tested, there are no enumerated tests for each required/optional CustomField property, type boundaries, and precise length limits.",
+              "Concurrency conflict resolution: there is no test for conflicting concurrent updates that set different values for the same custom field and assert the conflict handling or final resolution logic."
+            ],
+            "recommendations": [
+              "Add an explicit test to assert PUT semantics for partial payloads (full replace vs partial merge). The API contract must be clarified, then add tests that assert the correct behavior.",
+              "Create idempotency tests: send the same PUT twice and verify no duplicates are created and final state is identical; test repeated replays after failure/timeout.",
+              "Add rate-limiting tests that simulate bursts and verify correct throttling behavior (expected HTTP 429 or configured behavior).",
+              "Add assertions for response headers: verify Content-Type on error responses, and if caching applies add ETag/Cache-Control tests for relevant endpoints or responses.",
+              "Clarify and codify expected behavior for empty arrays and duplicate custom field names, then update TC04 and TC18 to assert the precise expected outcome (delete vs no-op, reject vs last-write-wins).",
+              "Add header-validation tests for X-Killbill-CreatedBy (empty string, extremely long values, invalid characters) and corresponding audit-log checks to ensure CreatedBy is recorded in DB/audit metadata.",
+              "Define measurable performance SLAs and add performance tests that assert response-time thresholds, memory/resource usage, and throughput under load (include automation for CI).",
+              "Expand schema validation tests to cover each CustomField property: required fields, allowed types, boundary values, and maximum lengths; include negative tests for each missing/invalid property.",
+              "Add concurrency-conflict tests: run conflicting concurrent updates that attempt to set different values for the same custom field and assert how conflicts are resolved (locking, last-write-wins, or explicit conflict error).",
+              "Where possible, convert ambiguous scenarios into deterministic acceptance criteria so tests can assert a single expected result (e.g., define whether empty-array removes fields)."
+            ],
+            "usage": {
+              "completion_tokens": 8361,
+              "prompt_tokens": 5796,
+              "total_tokens": 14157,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7360,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

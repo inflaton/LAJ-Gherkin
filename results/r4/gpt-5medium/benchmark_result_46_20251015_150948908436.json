@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-15T15:09:48.908406",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:08:34.789078",
+    "benchmark_end_time": "2025-10-15T15:09:48.908403",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 74.119325,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Method - Valid Deletion: 204 with empty body and verification of cache invalidation (TC01, TC09, TC17, TC19).",
+              "DELETE Method - Non-Existent Resource: 404 when account does not exist or system has no accounts (TC02, TC16, TC18).",
+              "DELETE Method - Concurrency: Concurrent DELETEs succeed with 204; basic performance target asserted (TC13).",
+              "Input Validation: 400 for invalid accountId formats and injections (TC03, TC12, TC14, TC15, TC10).",
+              "Path Handling: Missing accountId in path returns 404 (TC04).",
+              "AuthN: 401 for unauthenticated/invalid tokens (TC05, TC06).",
+              "HTTP Semantics: 405 for unsupported method (GET) on the endpoint (TC11).",
+              "Resilience: 503 when cache service unavailable or under degraded conditions (TC07, TC08).",
+              "Robustness: Extra query params ignored, still 204 (TC09).",
+              "Recovery: Transient network failure with retry succeeds (TC17)."
+            ],
+            "gaps": [
+              "Content negotiation/headers: Story specifies produces application/json; no assertions on Content-Type for error responses or header behavior for 204.",
+              "Idempotency: No explicit test that repeating DELETE on the same account remains safe (e.g., multiple sequential calls to same accountId all return 204).",
+              "Authorization/roles: No scenario for authenticated but insufficient privileges (403) versus unauthenticated (401).",
+              "Concurrency depth: No test for simultaneous DELETEs to the same accountId (race on same key) and verifying consistent outcomes.",
+              "Scope verification: No validation that only the targeted account\u2019s caches are invalidated and other accounts/global caches remain unaffected.",
+              "Error response schema: Tests only check presence of an error message, not a structured error body (code, message, details) per API conventions.",
+              "Method coverage breadth: Only GET checked for 405. No checks that POST/PUT/PATCH on the same path return 405."
+            ],
+            "recommendations": [
+              "Add header assertions: verify Content-Type: application/json for 400/404/503 responses; for 204 verify no conflicting Content-Type or explicitly verify absence/body semantics.",
+              "Add idempotency tests: send DELETE twice (and multiple times) for the same accountId; all should return 204 and system state should remain consistent.",
+              "Add authorization test for insufficient privileges (authenticated non-admin) expecting 403.",
+              "Add concurrency-on-same-account scenario: multiple concurrent DELETEs to the same accountId; ensure all return 204 and no errors or inconsistent states.",
+              "Validate scope: after invalidation for account A, verify caches for account B and any global caches are unchanged.",
+              "Assert error schema: validate standard error shape (fields like errorType/errorCode/message) in 400/404/503 responses.",
+              "Expand 405 coverage: verify POST/PUT/PATCH on /1.0/kb/admin/cache/accounts/{accountId} return 405 with appropriate error."
+            ],
+            "usage": {
+              "completion_tokens": 3037,
+              "prompt_tokens": 4640,
+              "total_tokens": 7677,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2368,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

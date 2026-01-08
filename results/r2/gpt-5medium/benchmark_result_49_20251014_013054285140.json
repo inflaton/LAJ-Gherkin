@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-14T01:30:54.285093",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T01:29:37.248966",
+    "benchmark_end_time": "2025-10-14T01:30:54.285088",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 77.036122,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Method - Valid Deletion: Success path returns 204 and updates host state (TC01, TC12).",
+              "DELETE Method - Non-Existent/Invalid State: 409 when host already out of rotation or none available (TC04, TC14).",
+              "DELETE Method - Concurrency: Concurrent DELETE requests handled; only one succeeds, others receive 409/204 as appropriate with timing checks (TC11).",
+              "DELETE Method - Soft-delete-like behavior: Host remains but flagged out of rotation and is verifiable via status query (TC12).",
+              "Error Handling: 500 internal error (TC06), 503 service unavailable (TC05), 405 method not allowed (TC07), 400 invalid/malicious body (TC09).",
+              "Authorization: 401 for missing or invalid credentials (TC02, TC03).",
+              "Security Hardening: Malicious headers are rejected with 400/401 (TC13).",
+              "Performance: Response-time expectations under normal and concurrent load (TC10, TC11).",
+              "Input Robustness: Extra query parameters do not break the operation (TC08)."
+            ],
+            "gaps": [
+              "Response headers/contract: Story states Produces: application/json, but tests do not assert Content-Type header semantics for 204 or errors; no checks for headers consistency.",
+              "Authorization breadth: No scenario for authenticated but insufficient privileges (403 Forbidden).",
+              "Idempotency (sequential): No explicit sequential repeat-call test verifying first 204 then subsequent 204/409 with no side effects (beyond concurrency).",
+              "Unsupported media type: No 415 test when a Content-Type is sent with an unsupported or non-empty body on DELETE.",
+              "Rate limiting/throttling: No scenario for burst traffic receiving 429 or equivalent handling (if applicable/policy-defined).",
+              "Spec alignment for extra query params: Behavior is assumed as OK (204) but not defined by story; lack of test asserting they are ignored vs rejected."
+            ],
+            "recommendations": [
+              "Add header/contract checks: assert Content-Type behavior. For 204, confirm empty body and either absent Content-Type or agreed header; for error responses, assert application/json and error schema.",
+              "Add a 403 Forbidden scenario: valid auth with insufficient admin role should be denied.",
+              "Add a sequential idempotency scenario: call DELETE twice on the same host; expect first 204, second 409 or 204 per contract; verify host state remains out of rotation.",
+              "Add a 415 Unsupported Media Type test: send a payload with an unsupported Content-Type or any body when body is N/A; expect 415 or defined 400.",
+              "Consider a 429 rate limiting test under burst conditions if the platform enforces throttling.",
+              "Clarify and codify behavior for extraneous query parameters; update tests to either assert rejection (400) or explicit ignoring with no side effects."
+            ],
+            "usage": {
+              "completion_tokens": 3697,
+              "prompt_tokens": 3433,
+              "total_tokens": 7130,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3072,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

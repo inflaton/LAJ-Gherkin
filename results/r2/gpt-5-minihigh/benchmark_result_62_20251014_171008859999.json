@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "62_2025-10-14T17:10:08.859929",
+    "jira_id": "62",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles/search/{searchKey} - Search bundles",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T17:07:15.837920",
+    "benchmark_end_time": "2025-10-14T17:10:08.859920",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 72,
+    "average_generation_time_seconds": 173.022,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 72,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "62_qe_sup-gpt4.1_agent-gpt4.1_1748919997.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 72,
+            "covered": [
+              "Valid request / happy path: TC01 verifies 200, application/json and an array of Bundle objects that match the searchKey.",
+              "Pagination basics and boundaries: TC02 (offset+limit), TC07 (offset > total), TC08 (limit=0), TC26 (large offset/limit) and TC19 (large-volume) cover many pagination behaviours and large-data retrieval.",
+              "Audit parameter handling: TC03 (audit=FULL), TC04 (audit=MINIMAL) and TC05 (combined with pagination) validate retrieval of audit information at different levels.",
+              "Empty / DB states: TC06, TC23 and TC24 cover no-results, partially populated DB and empty DB behaviours (200 + empty array).",
+              "Error handling: invalid searchKey (TC09), negative pagination (TC10/TC11), invalid audit (TC12), service unavailable (TC15), server error (TC16) and timeout (TC25) are exercised.",
+              "Security-related inputs: Injection attempt is tested (TC17) and the test asserts errors should not leak sensitive information.",
+              "Authorization: Missing and invalid authentication tokens are tested (TC13, TC14) and expected 401 responses are present.",
+              "Query-parameter robustness: Unexpected extra params are ignored (TC18) and combined parameter scenarios are covered (TC05); substring matching covered by TC27.",
+              "Performance & concurrency: Basic performance tests (TC19) and concurrency / consistency checks (TC20) are present.",
+              "Regression/backward-compatibility and accessibility: TC21 (backward compatibility) and TC22 (accessibility/UI) are included for broader coverage."
+            ],
+            "gaps": [
+              "Caching behaviour: No tests for ETag/Cache-Control or conditional GET (If-None-Match) and no verification of 304 responses.",
+              "Rate limiting / throttling: There are no tests to exercise rate limits (429) or verify Retry-After headers under request spikes.",
+              "Default parameter semantics: No explicit tests assert the documented defaults (offset=0, limit=100, audit=NONE) when query parameters are omitted.",
+              "Bundle schema validation: Tests assert \"Bundle objects\" are returned but do not validate required fields, data types or the precise structure of Bundle and audit objects (e.g., id, accountId, externalKey, createdDate, audit fields).",
+              "Query-parameter type/format validation: Missing tests for non-integer values (e.g., offset=abc, limit=1.5), extremely large/overflow values (beyond int64) and non-numeric formats.",
+              "Content negotiation & headers: Limited checks for Content-Type (only in TC01). No systematic checks for Content-Type on error responses, Accept header behaviour, or CORS headers.",
+              "Authorization scope / 403 scenarios: No test where a valid token lacks sufficient privileges and the API should return 403.",
+              "Path / searchKey encoding and length: No tests for URL-encoded characters, UTF-8/unicode searchKey inputs, reserved characters, or excessively long searchKey (URI length / 414 handling).",
+              "Pagination metadata: If the API provides pagination headers (Link, X-Total-Count, etc.), no tests validate those headers or their correctness across pages.",
+              "Error response schema & leakage: Apart from the injection test, there are no assertions that error payloads follow a stable schema (error.code, message) or that they do not include stack traces or sensitive backend details."
+            ],
+            "recommendations": [
+              "Add TC28 - Default parameters: call the endpoint without offset/limit/audit and assert offset defaults to 0, limit defaults to 100 (response size <=100) and audit defaults to NONE (no audit block present).",
+              "Add TC29 - Schema validation for Bundle: validate each returned Bundle object against a JSON schema (required fields and types: id, accountId, externalKey, bundleName, createdDate, etc.) and verify audit block contents for FULL vs MINIMAL.",
+              "Add TC30 - Non-integer and overflow pagination: test offset=abc, limit=1.5, offset/limit beyond int64 and expect 4xx with a stable error schema; ensure negative and malformed types are handled consistently.",
+              "Add TC31 - Caching / conditional GET: exercise ETag and If-None-Match; expect 200 on first fetch and 304 when unchanged; validate Cache-Control / ETag headers exist and are correct.",
+              "Add TC32 - Rate limit / throttling: send bursts of requests to trigger throttling and assert 429 responses and presence/semantics of Retry-After header (or configured behaviour).",
+              "Add TC33 - Content negotiation & headers: verify Content-Type is application/json for success and error responses; test Accept: */* and an unsupported Accept to validate behaviour (e.g., 406 or fallback to JSON). Also validate CORS headers if applicable.",
+              "Add TC34 - Authorization scope tests: use a token with insufficient privileges and assert 403 with a structured error payload; verify 401 vs 403 semantics are correct across scenarios.",
+              "Add TC35 - Path encoding & length: test URL-encoded searchKey values (spaces, slashes, plus, UTF-8 characters), and very long searchKey to observe 414 or graceful handling.",
+              "Add TC36 - Pagination metadata and links: if API exposes Link or X-Total-Count, add tests to assert header correctness and that pagination across pages returns expected, non-overlapping results.",
+              "Add TC37 - Error payload and security: assert error responses follow a stable schema (error.code, message), and verify no stack traces, SQL, or other sensitive internals are exposed for any error condition."
+            ],
+            "usage": {
+              "completion_tokens": 9453,
+              "prompt_tokens": 5050,
+              "total_tokens": 14503,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 8192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-09-28T10:01:17.650193",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:00:05.670601",
+    "benchmark_end_time": "2025-09-28T10:01:17.650189",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 71.979588,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Method - Valid Deletion: Full and partial deletions are validated, including removing all fields (no query param) and specific fields via multi-valued customField parameter; 204 with empty body is asserted and follow-up GET verifies state.",
+              "Input Validation: Invalid accountId format returns 400; invalid customField UUID returns 400; security hardening with SQLi/XSS payloads is exercised.",
+              "Headers: Required X-Killbill-CreatedBy is enforced (400 when missing); optional X-Killbill-Reason and X-Killbill-Comment accepted.",
+              "Edge States: Accounts with no custom fields handled (204, GET empty); duplicates in query and large lists are covered.",
+              "Authorization: Unauthorized/forbidden access is handled (401/403).",
+              "Error Handling & Resilience: Backend failure (500) and network timeout/504 covered; test asserts no partial completion.",
+              "Concurrency & Performance: High-concurrency deletes (100 parallel) with performance expectations; idempotency is checked (re-deleting same field returns 204).",
+              "Integration Consistency: Dependent services reflect deletion results.",
+              "Non-Existent Resource (account): Deleting with a valid but non-existent accountId returns 204 (idempotent behavior covered; contract should confirm)."
+            ],
+            "gaps": [
+              "Soft Deletes and Audit Trail: No verification whether deletions are soft vs hard; no checks that CreatedBy/Reason/Comment are recorded in audit logs or retrievable via audit endpoints.",
+              "Non-Existent customField IDs: No scenario where valid UUIDs that are not attached to the account are requested for deletion; behavior for mixed valid/invalid IDs in the same request is not covered.",
+              "Authorization Code Specificity: 401 vs 403 are not asserted separately with clear preconditions (unauthenticated vs authenticated-but-forbidden).",
+              "Rate Limiting/Throttling: No tests for burst deletes hitting rate limits (e.g., 429) or verifying rate-limit headers if applicable.",
+              "Additional Concurrency Edges: No race tests for DELETE vs GET consistency or DELETE vs concurrent creation of custom fields by another user; no verification of audit CreatedBy differences under concurrent actors.",
+              "Response Headers for 204: No assertions about headers for 204 responses (e.g., absence of Content-Type/body, Content-Length=0) to ensure correct semantics.",
+              "Contract Clarification for Non-Existent Account: While TC06 expects 204, there is no scenario covering alternative contract (e.g., 404) if that is the intended behavior."
+            ],
+            "recommendations": [
+              "Add scenarios to verify soft-delete behavior and audit logging: confirm that deletions appear in audit/history endpoints with CreatedBy, Reason, and Comment; if soft-deleted, verify includeDeleted filtering.",
+              "Create tests for deleting non-existent customField IDs: (a) all IDs valid format but not present -> expected status, (b) mixture of valid-present and valid-absent -> expected status and final state, (c) mixture of valid and invalid UUIDs -> expected error handling.",
+              "Split authorization into two explicit scenarios: unauthenticated -> 401; authenticated without permission -> 403.",
+              "Introduce rate-limiting tests for DELETE: burst requests leading to 429 if enforced; validate Retry-After and X-RateLimit headers when applicable.",
+              "Add race-condition scenarios: concurrent DELETE and GET should not expose inconsistent reads; concurrent DELETE by different users should be idempotent and correctly audited; concurrent DELETE vs creation should end in a well-defined final state.",
+              "Enhance 204 response validation: assert no response body and appropriate headers (e.g., no Content-Type or Content-Length=0) per HTTP spec and service conventions.",
+              "Confirm the contract for deleting on non-existent accounts; if the API should return 404, add a scenario to assert that behavior; otherwise, document idempotent 204 explicitly in tests and story."
+            ],
+            "usage": {
+              "completion_tokens": 4161,
+              "prompt_tokens": 5440,
+              "total_tokens": 9601,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3328,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

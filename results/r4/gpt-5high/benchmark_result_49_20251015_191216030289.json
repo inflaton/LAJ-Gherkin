@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-15T19:12:16.030253",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:10:53.277186",
+    "benchmark_end_time": "2025-10-15T19:12:16.030247",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 82.753061,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid operation: Happy path returns 204 with empty body and host state is set to out-of-rotation (also verified via follow-up status query).",
+              "DELETE - Error handling: 401 for missing/invalid auth, 400 for disallowed body on DELETE, 500 for internal error, 503 for service unavailability.",
+              "DELETE - Conflict states: 409 when host is already out of rotation and when no hosts are available for the operation.",
+              "DELETE - Concurrency: Concurrent DELETEs tested; first succeeds, subsequent requests handled with conflict/success responses and timing constraints.",
+              "Method constraints: 405 returned when using an invalid HTTP method (GET).",
+              "Robustness: Extra query parameters are ignored; operation still succeeds with 204.",
+              "Performance: Response time validated under normal and concurrent load.",
+              "Security hardening: Malicious header injection scenario covered (400/401).",
+              "Request contract: Request body is N/A verified; non-empty/malicious body returns 400.",
+              "Regression: Post-operation verification ensures host is actually out of rotation."
+            ],
+            "gaps": [
+              "Content negotiation/headers: No assertions for the declared \"Produces: application/json\" (e.g., Content-Type on error responses) or Accept header handling (e.g., 406 for unacceptable media types).",
+              "Authorization roles: No test for 403 Forbidden when credentials are valid but lack admin privileges.",
+              "Deterministic idempotency expectation: Concurrency test allows \"409 or 204\" for subsequent requests; expected behavior should be defined and asserted consistently.",
+              "Non-existent host context: No scenario for when the executing node is unknown/not registered in the cluster (DELETE guideline: Non-Existent Resource).",
+              "Error payload schema: Tests only check for an error message, not a structured JSON error format (e.g., fields like code/message/status).",
+              "Soft-delete semantics verification: No scenario confirming reversibility (e.g., bringing the host back into rotation via the corresponding API) to demonstrate this is a state toggle rather than a destructive action."
+            ],
+            "recommendations": [
+              "Add tests to assert Content-Type: application/json for error responses and to validate Accept header negotiation (e.g., 406 when Accept does not include application/json).",
+              "Add a scenario for 403 Forbidden using a valid token without admin privileges to cover authorization/roles.",
+              "Make idempotency expectations explicit: define and enforce the exact status for repeated calls (e.g., second DELETE returns 409). Add a sequential repeat-call scenario to complement the concurrency test.",
+              "Add a scenario for an unknown/unregistered host node to validate proper handling (404/409) for non-existent resource context.",
+              "Validate a standard JSON error schema across 4xx/5xx responses (keys like error code, message, status) in addition to checking the presence of a message.",
+              "If applicable, add a scenario that puts the host back into rotation via the complementary API to prove the out-of-rotation change is reversible (soft-delete-like behavior).",
+              "Optionally, cover additional method/metadata behavior: verify Allow header on 405, and document/verify OPTIONS if the API supports it."
+            ],
+            "usage": {
+              "completion_tokens": 7082,
+              "prompt_tokens": 3433,
+              "total_tokens": 10515,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

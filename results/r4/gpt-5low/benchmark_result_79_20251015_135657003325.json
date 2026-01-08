@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "79_2025-10-15T13:56:57.003296",
+    "jira_id": "79",
+    "jira_title": "Implement/Test API: GET /1.0/kb/credits/{creditId} - Retrieve a credit by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:56:10.690836",
+    "benchmark_end_time": "2025-10-15T13:56:57.003292",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 46.312456,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "79_qe_sup-gpt4.1_agent-gpt4.1_1748921053.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: Happy-path retrieval for both CREDIT_ADJ and CBA_ADJ (TC01, TC02, TC15) with 200 and application/json.",
+              "Error Handling: 400 for invalid UUID/path input including malformed, truncated, whitespace, and injection attempts (TC05, TC12, TC13, TC16, TC17).",
+              "Error Handling: 404 for non-existent IDs or absence of credits (TC03, TC04, TC11, TC14, TC18).",
+              "Error Handling: 503 when DB unavailable (TC10).",
+              "Authorization: 401 for missing and invalid/expired tokens (TC06, TC07).",
+              "Query Parameters: Extra/unknown query parameter is ignored while still returning 200 (TC08).",
+              "Performance/Resilience: Degraded-load latency and concurrent requests covered (TC09, TC19).",
+              "Produces/Content-Type: application/json verified on success (TC01, TC02).",
+              "Backward compatibility sanity check included (TC20).",
+              "Security hardening: SQLi/XSS attempts yield 400 and no compromise (TC12, TC13)."
+            ],
+            "gaps": [
+              "Caching Behavior: No checks for ETag/Last-Modified, Cache-Control, or conditional GET (If-None-Match/If-Modified-Since).",
+              "Rate Limiting/Throttling: No scenarios validating 429 Too Many Requests or headers like Retry-After when request bursts exceed limits (performance \u2260 rate limiting).",
+              "Authorization granularity: No coverage for 403 Forbidden (e.g., authenticated but insufficient permissions/tenant mismatch).",
+              "Response schema depth: Success body validated only as a generic InvoiceItem; no field-level schema validation (required fields, types, enum for type, amount/currency formats, IDs).",
+              "Accept/content negotiation: No scenario for unsupported Accept leading to 406 or honoring Accept: application/json explicitly.",
+              "Error response contract: No validation of standard error payload structure (errorCode, message, type) for 400/401/404/503.",
+              "Observability headers: No checks for correlation/request IDs or server/version headers if required by API standards.",
+              "UUID format edge cases: No explicit tests for uppercase vs lowercase hex, hyphenless UUIDs, or variant/version-specific UUIDs if enforced by server."
+            ],
+            "recommendations": [
+              "Add caching scenarios: verify Cache-Control and ETag on 200; re-issue with If-None-Match to expect 304 Not Modified; ensure no caching on 4xx/5xx where applicable.",
+              "Add rate-limiting scenarios: burst  requests to trigger 429 and validate Retry-After and that legitimate traffic later recovers.",
+              "Add authorization depth: scenario where user is authenticated but lacks permission/tenant access to expect 403; ensure no data leakage.",
+              "Strengthen schema validation: assert full InvoiceItem schema (id, invoiceId, accountId, amount, currency, itemType \u2208 {CREDIT_ADJ, CBA_ADJ}, createdDate, etc.) and data types/ranges.",
+              "Validate error response schema consistently for 400/401/404/503 (structured fields, codes, messages).",
+              "Test content negotiation: request with Accept: application/json returns 200; with unsupported Accept returns 406 or documented behavior; ensure 'Produces' is honored.",
+              "Add observability header checks: X-Request-Id or equivalent and traceability headers if part of API standards.",
+              "Expand UUID edge cases: uppercase hex, hyphenless UUID rejected as 400; confirm exact regex/pattern adherence and error messaging.",
+              "Clarify TC14: a UUID cannot be \u201cvery large\u201d; replace with a syntactically valid RFC 4122 UUID that does not exist (already covered by TC04) or remove as redundant."
+            ],
+            "usage": {
+              "completion_tokens": 1646,
+              "prompt_tokens": 4626,
+              "total_tokens": 6272,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 832,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

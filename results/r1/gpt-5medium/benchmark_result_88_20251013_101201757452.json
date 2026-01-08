@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-13T10:12:01.757424",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:10:40.900716",
+    "benchmark_end_time": "2025-10-13T10:12:01.757419",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 80.856703,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Method - Valid Deletion: Successful removal with and without tagDef returns 204 and updates tags correctly (TC01, TC02, TC03, TC04, TC05, TC06).",
+              "Non-Existent Resource: 404 when invoice item does not exist (TC08).",
+              "Input Validation: Invalid invoiceItemId format (400), malformed/empty tagDef (400), unexpected/extra params handling (TC07, TC09, TC13, TC16).",
+              "Required/Optional Headers: Required X-Killbill-CreatedBy enforced (400 on missing), optional Reason/Comment accepted; special characters handled (TC03, TC10, TC18).",
+              "Authentication: 401 for invalid/expired token (TC11).",
+              "Service Resilience: 503 when service unavailable; integration dependency unavailable handled with 204/207 expectation (TC12, TC19).",
+              "Limits and Size: Very large tagDef lists handled (204 or 413, depending on limits) (TC14).",
+              "Security Hardening: Malicious payloads in headers rejected (400/422) (TC15).",
+              "Performance/Concurrency (throughput): High concurrency processed within thresholds without data corruption (TC17).",
+              "Response Semantics: 204 responses asserted to have empty body across success paths."
+            ],
+            "gaps": [
+              "DELETE Concurrency Semantics: No explicit scenario for two users deleting the same/overlapping tags on the same invoice item concurrently; no explicit idempotent repeat-delete scenario verifying stable 204 and no-op on second call.",
+              "Soft Deletes/Auditing: No verification that deletions are recorded in audit logs and that CreatedBy/Reason/Comment are persisted and retrievable.",
+              "Authorization/RBAC: No scenario for authenticated user lacking permission to modify tags (403 Forbidden).",
+              "Response Headers/Content Negotiation: No assertions on Content-Type for error responses or header behavior for 204 (e.g., absence of Content-Type/body), despite API stating produces application/json.",
+              "Duplicate tagDef Values: Behavior with duplicate UUIDs in tagDef not tested.",
+              "Mixed-Validity tagDef: Request containing both valid and invalid UUIDs in tagDef lacks a defined/verified outcome (ignore invalid vs. 400).",
+              "Collection Format (multi): No scenario explicitly sending repeated tagDef parameters (tagDef=...&tagDef=...) to verify correct parsing/handling and URL encoding.",
+              "Server Error Handling: No simulation/expectation for unexpected 500 Internal Server Error (e.g., database failure) and error schema.",
+              "Rate Limiting/Throttling: No tests for API behavior under very high request rates beyond concurrency timing (e.g., 429)."
+            ],
+            "recommendations": [
+              "Add explicit idempotency tests: repeat the same DELETE twice (with and without tagDef) and assert 204 both times and unchanged state; add concurrent deletes on the same invoice item by different users to ensure consistent final state and no 409/partial failures.",
+              "Verify auditing/soft-delete semantics: assert that an audit entry is created with CreatedBy/Reason/Comment and can be retrieved; include negative test where audit write fails to confirm documented behavior.",
+              "Introduce RBAC test: authenticated user without tag modification privilege should receive 403 Forbidden.",
+              "Validate response headers: for 204 ensure no body and appropriate headers; for error responses ensure Content-Type application/json and validate error schema fields (code, message, requestId).",
+              "Add tests for duplicate tagDef values to ensure they are de-duplicated or handled per spec without errors.",
+              "Add mixed-validity tagDef test (some valid, some malformed) and pin expected behavior (reject all with 400 or process valid and ignore invalid).",
+              "Test collectionFormat=multi explicitly by sending repeated tagDef parameters and verify correct parsing, including URL-encoded values.",
+              "Include a server-side failure simulation to assert 500 handling and consistent error response contract.",
+              "Consider rate limiting/throttling tests to verify behavior under sustained high request rates (e.g., 429 with Retry-After if applicable)."
+            ],
+            "usage": {
+              "completion_tokens": 4581,
+              "prompt_tokens": 5394,
+              "total_tokens": 9975,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3712,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

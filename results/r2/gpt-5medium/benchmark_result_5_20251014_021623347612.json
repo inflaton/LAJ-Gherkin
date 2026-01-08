@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "5_2025-10-14T02:16:23.347584",
+    "jira_id": "5",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/customFields - Add custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T02:14:57.198616",
+    "benchmark_end_time": "2025-10-14T02:16:23.347579",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 86.148963,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "5_qe_sup-gpt4.1_agent-gpt4.1_1748916088.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "POST - Valid Payload: Multiple success scenarios verify 201 with correct JSON response, with required and optional headers, and across different account states (no existing fields, existing fields).",
+              "POST - Invalid Payload: Broad coverage for malformed/empty body, empty array, missing required header, unsupported fields, duplicate field names, incorrect data types, null handling, and invalid accountId format.",
+              "POST - Large Payloads: Boundary tests for maximum allowed payload and exceeding size are included.",
+              "POST - Validation: Header requirements, UUID pattern validation, schema validation (including max/min values), and input sanitization checks (SQL/XSS) are exercised.",
+              "Authorization: 401 for missing/invalid auth token is covered (if auth required).",
+              "Resilience/Performance/Concurrency: Transient failure retry, 503 service unavailability, performance under normal/peak load, and concurrent requests with data integrity checks are covered.",
+              "Integration/Regression: Scenarios for dependent service inconsistency, regression of prior bugs, and backward compatibility are included.",
+              "Query handling: Unexpected query parameter tolerated with success case validated."
+            ],
+            "gaps": [
+              "POST - Duplicate Submission: No scenario for reposting the exact same payload (idempotency/duplicate handling) to ensure no duplicate custom fields or proper conflict handling.",
+              "POST - Server Error Handling: No explicit 500 Internal Server Error simulation (e.g., database failure) and expected handling/contract.",
+              "Status code alignment: Non-existent account uses 400 instead of likely 404 Not Found; payload-too-large commonly returns 413 rather than 400; expectations should be aligned with API spec.",
+              "Response contract fidelity: TC05 expects the response body to include both newly created and previously existing fields; the story states the response represents the created fields only. This is a mismatch and should be corrected.",
+              "Content negotiation and media type: No tests for missing/incorrect Content-Type (415 Unsupported Media Type), Accept header negotiation (406 Not Acceptable), or asserting response Content-Type is application/json as per Produces.",
+              "Persistence verification: No post-creation GET to confirm fields are actually persisted and retrievable, beyond relying on the immediate POST response.",
+              "Partial success semantics: For arrays containing mixed valid/invalid items, no test verifies whether the API rejects the entire batch (atomic) or allows partial creation, and how errors are reported.",
+              "Authorization depth: No 403 Forbidden scenario for authenticated but unauthorized users/roles (if applicable).",
+              "Auditing assertions: No verification that CreatedBy/Reason/Comment are persisted to audit logs/metadata as expected.",
+              "Rate limiting/429: No explicit test for throttling behavior on burst POSTs (if applicable)."
+            ],
+            "recommendations": [
+              "Add duplicate submission/idempotency scenarios: POST the same array twice (with and without an idempotency key if supported) and verify behavior (no duplicates, 200/409/201 as per spec).",
+              "Simulate server-side failures to validate 500 handling and error payload structure; include database outage and timeout cases.",
+              "Align status codes with API contract: add tests for 404 on non-existent account, and 413 for payload too large if that is the intended behavior; update TC10 and TC15 expectations accordingly.",
+              "Fix TC05 to assert the response contains only the newly created custom fields (and optionally verify pre-existing fields via a subsequent GET).",
+              "Add content negotiation tests: wrong/missing Content-Type -> 415; unacceptable Accept -> 406; assert response Content-Type is application/json for success/error.",
+              "Verify persistence by performing a GET of the account custom fields after POST to ensure data was stored and is consistent.",
+              "Define and test atomicity: send an array with one invalid CustomField among valid ones; assert whether the entire request fails or partial success is returned, and validate the error format.",
+              "Expand authorization tests with 403 Forbidden for insufficient permissions and verify error body.",
+              "Add auditing checks: confirm CreatedBy/Reason/Comment are recorded in audit logs or metadata accessible via subsequent retrieval.",
+              "Consider adding rate limiting tests (429 Too Many Requests) under burst conditions if the API enforces throttling."
+            ],
+            "usage": {
+              "completion_tokens": 4395,
+              "prompt_tokens": 6650,
+              "total_tokens": 11045,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3520,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

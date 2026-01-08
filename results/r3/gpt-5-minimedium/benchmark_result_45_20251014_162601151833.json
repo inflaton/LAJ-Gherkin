@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-14T16:26:01.151804",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T16:23:56.486185",
+    "benchmark_end_time": "2025-10-14T16:26:01.151800",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 124.665615,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Successful invalidation of all caches and of a specific cache (TC01, TC02, TC08).",
+              "Non-Existent Resource: Error when requested cache does not exist (TC03).",
+              "Not-Alive Resource: Error when the cache exists but is not alive (TC04).",
+              "Query Parameter Validation: Empty cacheName, overly large cacheName, special characters, mixed-case and previously problematic formats are tested (TC05, TC10, TC11, TC12, TC15).",
+              "Authorization: Unauthorized access case is covered (TC06 covers 401/403).",
+              "Server Error Handling: Internal error scenario covered (TC07 returns 500).",
+              "Unsupported/Extra Params: Handling of extra query parameters is covered (TC09).",
+              "Concurrency: Concurrent invalidation requests are covered (TC14).",
+              "Performance / Scale: Large number of caches performance test is included (TC13).",
+              "Response Semantics: Tests assert 204 and empty body on success as required (TC01, TC02, TC08, TC09, TC13)."
+            ],
+            "gaps": [
+              "Role-based Authorization: No test explicitly verifies that an authenticated non-admin (valid token but insufficient privileges) receives 403 while an admin gets 204; TC06 conflates unauthenticated and invalid token but does not assert role-based access control.",
+              "Idempotency / Repeated Requests: No explicit test that repeated DELETEs (same request twice sequentially) are idempotent and return the expected status (e.g., 204 or an acceptable idempotent response).",
+              "Partial Failure / Partial Success: No test covering partial failures where some caches invalidate successfully while others fail (e.g., subsystem errors affecting subset of caches).",
+              "Response Headers and Content-Type: No tests confirm HTTP headers (Content-Type, Cache-Control, ETag, or other relevant headers) or the \u201cProduces: application/json\u201d contract for error responses.",
+              "Rate Limiting / Throttling: Apart from concurrency functional checks, there are no tests for rate limiting or throttling behavior under high-request rates.",
+              "Detailed Encoding / Injection Handling: While special characters are tested, there is no explicit test for proper URL encoding/decoding or protection against injection-like payloads beyond a single example.",
+              "Boundary and Format Variants: Although a 1024-char case is present, other boundary sizes (e.g., exactly maximum allowed length, 1 character, whitespace-only names) are not covered.",
+              "HTTP Method Semantics: No tests that ensure other HTTP methods (GET/POST/PUT) on this endpoint behave properly (405s or rejection), which could be important for API correctness and safety."
+            ],
+            "recommendations": [
+              "Add role-specific authorization tests: verify authenticated admin vs authenticated non-admin (ensure 403 for non-admin and 204 for admin).",
+              "Add idempotency tests: call DELETE twice (or more) for the same cacheName and for \"no cacheName\" to assert acceptable, idempotent behaviour and consistent status codes.",
+              "Add partial-failure scenarios: simulate the cache subsystem failing for a subset of caches and assert correct partial error reporting or transactional semantics.",
+              "Validate response headers and content-type: assert Content-Type for error responses (application/json), and check for any caching-related headers (even if 204) and consistent error payload format.",
+              "Add rate-limiting and throttling tests: send a burst of requests exceeding expected rate limits to verify 429 or other protective behaviour (or confirm no rate limiting if out of scope).",
+              "Expand encoding/security tests: include separately encoded inputs, whitespace-only cacheName, percent-encoded values, and attempts that resemble injection to ensure input sanitization and correct 400 responses.",
+              "Add additional boundary tests for cacheName lengths (min length, exactly allowed max, slightly above max) and for multiple cacheName parameters supplied.",
+              "Add HTTP method tests to ensure unsupported methods return appropriate responses (405/allowed methods only).",
+              "Add an audit/side-effect verification test (if required): confirm logging/audit entries are created for cache invalidation actions by admin users."
+            ],
+            "usage": {
+              "completion_tokens": 2152,
+              "prompt_tokens": 3739,
+              "total_tokens": 5891,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "61_2025-10-15T02:56:51.986608",
+    "jira_id": "61",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles/pagination - List bundles",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:54:50.414924",
+    "benchmark_end_time": "2025-10-15T02:56:51.986604",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 121.57168,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "61_qe_sup-gpt4.1_agent-gpt4.1_1748919955.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request: Multiple success scenarios cover default behavior and combinations of offset, limit, and audit (TC01, TC02, TC03, TC04, TC05, TC19, TC20).",
+              "Empty Response: Verified when no bundles exist and when offset exceeds total, returning empty arrays with 200 (TC06, TC07).",
+              "Pagination: Correct handling of offset/limit including large datasets, start index verification, and partial pages (TC02, TC05, TC21).",
+              "Query Parameters: Extensive valid/invalid coverage (negative values, invalid enum, extra params, int64 boundaries, over-max limit, SQL injection) with appropriate 4xx errors (TC08\u2013TC11, TC14\u2013TC16).",
+              "Authorization: 401 for missing/invalid token is covered (TC12).",
+              "Server error handling: Dependency failure (503) and timeout (504) are covered (TC13, TC22).",
+              "Non-functional: Performance under normal and peak load is covered (TC17, TC18)."
+            ],
+            "gaps": [
+              "Rate Limiting: No tests for throttling behavior (e.g., 429 Too Many Requests) or Retry-After headers.",
+              "Caching Behavior: No checks for ETag/Last-Modified, Cache-Control headers, or 304 Not Modified via conditional GET.",
+              "Response headers: Content-Type application/json is not asserted despite Produces: application/json in the story.",
+              "Schema validation: Bundle objects are not validated against #/definitions/Bundle; only high-level assertions are made.",
+              "Authorization depth: No 403 scenario for a valid token lacking required permissions/roles.",
+              "Invalid type handling: No tests for non-integer or decimal values (e.g., offset=abc, limit=10.5), or null/blank parameters.",
+              "Boundary values: limit=0 and limit=1 behaviors are not tested; explicit audit=NONE is not exercised.",
+              "Pagination integrity/ordering: No multi-page continuity test to ensure no gaps/overlaps and deterministic ordering across pages.",
+              "Pagination metadata: If the API exposes pagination headers/links (e.g., Link, X-Total-Count), they are not validated."
+            ],
+            "recommendations": [
+              "Add rate-limiting scenarios: exceed request thresholds to assert 429 Too Many Requests, presence of Retry-After, and consistent throttling within the window.",
+              "Add caching scenarios: assert ETag/Last-Modified and Cache-Control on 200; reissue with If-None-Match/If-Modified-Since to validate 304 Not Modified when applicable.",
+              "Assert response headers: verify Content-Type=application/json (and charset) and that the endpoint honors Accept negotiation if supported.",
+              "Validate schema: enforce JSON Schema or contract checks for Bundle (#/definitions/Bundle), including audit fields presence for NONE/MINIMAL/FULL.",
+              "Add 403 authorization test: use a valid token with insufficient permissions and assert 403 with a clear error payload.",
+              "Type validation tests: offset=abc, limit=abc, limit=10.5, and audit case sensitivity (e.g., audit=full) should return 400 with precise messages.",
+              "Boundary and defaults: test limit=0 (decide expected: 400 vs empty array), limit=1, limit equal to dataset size, and explicit audit=NONE.",
+              "Multi-page integrity: fetch consecutive pages (e.g., limit=50 pages 0 and 1) and assert no overlap, full coverage of expected items, and a defined, deterministic sort order.",
+              "Validate pagination metadata if available: assert Link rel=\"next\"/\"prev\" or X-Total-Count correctness.",
+              "Align unknown parameter behavior: confirm spec intent; if strict, assert 400; if lenient, keep TC15 but also assert that unknown params do not alter results."
+            ],
+            "usage": {
+              "completion_tokens": 6576,
+              "prompt_tokens": 4636,
+              "total_tokens": 11212,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5760,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

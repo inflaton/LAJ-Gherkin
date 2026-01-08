@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-09-28T04:55:28.755551",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:55:10.888219",
+    "benchmark_end_time": "2025-09-28T04:55:28.755548",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 17.867329,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Deletion: TC01, TC12 verify successful DELETE returns 204 and host is marked out of rotation.",
+              "Authorization: TC02 and TC03 cover missing and invalid authentication scenarios (401).",
+              "Idempotency / Already-Deleted: TC04 covers attempting to take an already out-of-rotation host (409).",
+              "HTTP method handling: TC07 validates wrong-method (405).",
+              "Invalid request body & headers: TC09 and TC13 cover malicious/invalid body and header treatment.",
+              "Service/unexpected errors: TC05 and TC06 cover service unavailable (503) and internal errors (500).",
+              "Concurrency & performance: TC10 and TC11 provide performance bounds and concurrent-request behavior.",
+              "Edge / no-resources: TC14 covers the case where there are no hosts in rotation (409).",
+              "Regression check: TC12 ensures the fix for 'host not marked out of rotation' remains validated."
+            ],
+            "gaps": [
+              "Response Content-Type and Response Format: The story mentions 'Produces: application/json' but tests do not assert content-type or error payload schema/fields for success (204) or errors (>=400).",
+              "Non-Existent Resource vs No Hosts: While TC14 covers 'no hosts in rotation', there's no explicit test for targeting a specific host identifier that does not exist (Non-Existent Resource semantics for DELETE).",
+              "Soft Delete / Persistence Semantics: Tests assert that host is 'marked out of rotation' but do not validate persistence details (e.g., audit/log entries, timestamp, or soft-delete flags) or how the status is retrievable through the system.",
+              "Idempotency semantics completeness: Only one 'already out' scenario (409) is present; idempotency behavior under repeated identical requests could be clarified (should DELETE be idempotent and return 204 on repeated calls or 409?).",
+              "Response body on 204: The acceptance criteria expect empty body for success but also 'Produces: application/json' \u2014 the tests don't reconcile or assert which is authoritative (empty body vs application/json headers).",
+              "Error payload validation: Error message contents are asserted in broad terms but not schema, codes, or localization; tests don't validate structure (error code, message fields).",
+              "Authentication scopes/roles: Tests cover presence/validity of token but do not validate role/permission differences (403) vs 401, nor token expiry scenarios.",
+              "Rate limiting / throttling: The standard guidelines call out rate limits; test suite only covers basic concurrency/performance but not rate-limit enforcement or 429 responses.",
+              "Caching / headers: No tests for caching/chunking/connection headers (ETag, Cache-Control) though included in guidelines for other methods.",
+              "Large payloads / malformed headers: TC09 and TC13 cover malicious payloads/headers but not very large or extreme header sizes and different malformed encodings which could trigger different server behavior."
+            ],
+            "recommendations": [
+              "Assert Content-Type and error response schema: Add checks that responses (especially error responses) include expected Content-Type: application/json and follow a defined error schema (fields, codes). Clarify expected behavior for 204 (empty body vs json).",
+              "Add Non-Existent-Resource test: If the API can address a specific host, add a test for deleting a non-existing host and assert a clear status (404 or 409) per API contract.",
+              "Clarify and test idempotency: Define expected behavior for repeated DELETE calls (should subsequent identical calls return 204 or 409) and add tests to validate it.",
+              "Persistence/side-effects verification: Add tests that validate persistence of 'out of rotation' state (querying status endpoint, checking DB flag/audit log entries, timestamp correctness).",
+              "Role/permission scenarios: Add tests for insufficient privileges (403), expired token, and token scope variations to ensure correct authz handling beyond simple valid/invalid token checks.",
+              "Rate limiting and throttling: Add tests that hit the endpoint rapidly to validate rate-limiting behavior and 429 responses, if applicable.",
+              "Error payload structure and localization: Add assertions for standardized error codes/messages and behavior under different locales or message formats.",
+              "Large/malformed inputs: Include tests for very large request bodies/headers and different malformed encodings to ensure robust error handling rather than unexpected 5xxs.",
+              "Soft-delete semantics: If marking out of rotation implies soft-delete semantics, add tests that verify the host can be restored, the record remains queryable, and deletion is reversible if required.",
+              "Test interoperability with monitoring/load-balancer: Add integration tests (or contract tests) ensuring external components observe the host state change (e.g., health check endpoints, LB draining)."
+            ],
+            "usage": {
+              "completion_tokens": 1252,
+              "prompt_tokens": 3433,
+              "total_tokens": 4685,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

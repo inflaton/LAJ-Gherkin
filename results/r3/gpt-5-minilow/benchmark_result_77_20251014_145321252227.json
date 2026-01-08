@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "77_2025-10-14T14:53:21.252197",
+    "jira_id": "77",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/priceList - Retrieve priceList for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:52:49.011650",
+    "benchmark_end_time": "2025-10-14T14:53:21.252190",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 32.24054,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "77_qe_sup-gpt4.1_agent-gpt4.1_1748920942.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01\u2013TC04, TC16, TC18, TC21) cover valid parameter combinations, default behavior, large-volume handling and regression/date-boundary behavior.",
+              "Empty Response / No Data: TC13 addresses behavior when database has no subscriptions or price lists (404 or empty/default response).",
+              "Query Parameters: Extensive coverage of combinations \u2014 both provided, only subscriptionId, only requestedDate, omitted parameters, malformed/partial values (TC01\u2013TC04, TC07, TC11, TC19).",
+              "Input Validation & Error Handling: Validation error cases for invalid subscriptionId format, non-existent subscriptionId, invalid date format, malformed/partial params (TC05, TC06, TC07, TC19) present and map to appropriate HTTP error codes per story.",
+              "Authorization: TC08 explicitly covers missing/invalid authentication producing 401 (security/auth path tested).",
+              "Security: Injection and XSS attempt scenarios (TC10, TC22) test common malicious inputs and verify that internal details are not leaked.",
+              "Resilience & Dependency Errors: Service unavailable and dependency-unavailable scenarios covered (TC09 and TC20), plus retry behavior (TC17).",
+              "Performance: Baseline and peak response-time scenarios included (TC14, TC15).",
+              "Extra/Unexpected Parameters: TC12 verifies that extra query parameters are ignored and valid responses returned."
+            ],
+            "gaps": [
+              "Pagination: No scenarios exercise pagination or limits for large datasets returned by the endpoint (standard guideline: Pagination).",
+              "Caching Behavior: No tests validate caching headers or cache semantics (ETag, Cache-Control, Last-Modified) as recommended for GET endpoints.",
+              "Rate Limiting / Throttling: No tests for rate limiting or behavior under excessive request rates (guideline mentions rate limiting).",
+              "Response Content Contract / Schema Validation: Although responses are asserted to be \"valid PriceList JSON\", there are no explicit tests that validate the exact JSON schema fields, types, required/optional properties, or error payload schema (e.g., consistent error object structure, machine-parsable codes).",
+              "HTTP Status Code Granularity: Some scenarios allow multiple possible status codes (e.g., TC03/TC04 say \"HTTP 200 or default\"); the tests do not assert a single defined behavior for ambiguous cases or verify which conditions cause defaults vs errors.",
+              "Caching + Conditional Requests: No tests for conditional GETs (If-None-Match / 304 handling).",
+              "Rate-limit + Retry Policy Interaction: While retry on transient failure is present (TC17), there is no test validating idempotency or client retry behavior in the presence of rate limiting or server side throttling.",
+              "Pagination/streaming for very large result sets: TC18 covers large number of price list changes for a single subscription, but there is no explicit pagination, streaming, or truncated-result handling test.",
+              "Authorization scope/roles: TC08 checks missing/invalid token but does not check permission/roles (401 vs 403) if there are role-based access differences."
+            ],
+            "recommendations": [
+              "Add explicit pagination tests: simulate responses that would return many price lists and verify paging parameters (limit/offset or next links), correct page sizes, and stable ordering.",
+              "Add caching and conditional GET tests: verify ETag and Cache-Control presence, and behavior for If-None-Match / If-Modified-Since returning 304 when appropriate.",
+              "Add rate-limiting tests: simulate many concurrent/rapid requests to verify HTTP 429 or configured throttling behavior and backoff guidance in headers.",
+              "Strengthen schema assertions: add tests that validate the full PriceList JSON schema (required fields, types, nested objects) and consistent error response schema (error codes, messages, no internal traces).",
+              "Disambiguate and assert expected behavior for omitted-parameter cases: replace \"200 or default\" with a single expected outcome per acceptance test or add separate tests for each documented behavior (explicit default vs error).",
+              "Test authorization scopes/roles: if the API differentiates between authenticated but unauthorized clients, add tests for 403 responses and role-based access control.",
+              "Add conditional/negative performance tests: combine peak load with dependency failures and rate-limiting to observe degraded behavior and ensure graceful degradation (timeouts, 5xx vs 502/503/504 distinctions).",
+              "Add tests for caching + retry interaction: ensure clients retry semantics do not bypass caching or cause duplicate side effects (even though GET is idempotent), and verify headers advising client behavior."
+            ],
+            "usage": {
+              "completion_tokens": 1087,
+              "prompt_tokens": 4977,
+              "total_tokens": 6064,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

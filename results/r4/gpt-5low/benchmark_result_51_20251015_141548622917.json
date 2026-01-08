@@ -1,0 +1,97 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-15T14:15:48.622888",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T14:15:02.165208",
+    "benchmark_end_time": "2025-10-15T14:15:48.622883",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 46.457675,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST/Valid Payload: Multiple happy-path scenarios (TC01, TC02, TC03, TC04, TC05, TC18, TC19, TC21, TC26) validate 201 Created, Location header, and Bundle response.",
+              "POST/Invalid Payload: Missing body and header (TC11, TC12), invalid formats/values for path, query, and headers (TC08, TC09, TC10), and invalid input security attempts (TC15, TC16) return 400 as specified.",
+              "POST/Large Payloads: pluginProperty with large entry set and 201 or 413 handling (TC20).",
+              "POST/Validation: Comprehensive input validation on UUID, enum values, date format, optional arrays/fields, and header lengths (TC08\u2013TC10, TC18, TC21).",
+              "POST/Server Error Handling: 500 internal error and 503 dependency unavailable covered (TC24, TC14).",
+              "Error Scenarios per story: 404 for non-existent bundle/account and empty DB states (TC06, TC07, TC22, TC23).",
+              "Authorization: 401 unauthorized covered (TC13).",
+              "Query parameters: requestedDate, billingPolicy (all enum values including ILLEGAL), and pluginProperty combinations and edge cases (TC02\u2013TC05, TC10, TC18, TC20).",
+              "Headers behavior: Required X-Killbill-CreatedBy enforced (TC01, TC11), optional Reason/Comment present and at max length (TC02, TC21).",
+              "Response contract: Confirms Location header and produced JSON body as Bundle on success (TC01, TC02).",
+              "Operational characteristics: Retry after transient failure (TC17) and performance/concurrency under load (TC27\u2013TC30).",
+              "Domain rule: Transfer to same account rejected with 400 (TC25)."
+            ],
+            "gaps": [
+              "POST/Duplicate Submission: No scenario for submitting the same transfer twice (e.g., same bundleId -> same target) to verify idempotent or graceful handling (second call 409/422/200) and Location consistency.",
+              "Idempotency key support: No test for an Idempotency-Key header (if supported) to ensure safe retries do not create inconsistent state.",
+              "Content negotiation: No tests for incorrect/missing Content-Type (e.g., text/plain) or unsupported Accept header; consumes/produces requirements not enforced.",
+              "Strict schema validation: No negative tests for extra/unknown fields in the JSON body or wrong data types inside pluginProperty (non-string entries).",
+              "Authorization/Permissions: 403 Forbidden not covered (e.g., user authenticated but not authorized to transfer the given bundle).",
+              "State verification post-transfer: No assertion that the bundle is no longer associated with the source account and is fully linked to the target across related entities.",
+              "Concurrency correctness: No race-condition tests for simultaneous transfers of the same bundle to different accounts (detect/avoid double-transfer).",
+              "Rate limiting/throttling: No scenarios validating API behavior under request bursts (e.g., 429) distinct from performance timing.",
+              "Boundary testing for requestedDate: No tests for past dates, far-future dates, timezone/format edge cases, or business rules around effective dates.",
+              "Header limits/validation negatives: No tests for Reason/Comment exceeding maximum length or containing invalid characters/encoding.",
+              "Plugin properties encoding and multi-format: No tests verifying collectionFormat=multi behavior at the HTTP layer (repeated query params), URL encoding, or very long individual property values.",
+              "Location header validation depth: Presence checked, but no verification of correctness beyond presence (e.g., follows expected path pattern and resolves via GET)."
+            ],
+            "recommendations": [
+              "Add duplicate submission tests: submit the same request twice and assert expected behavior (idempotent success with same Location, or a documented error like 409). Include tests with/without an Idempotency-Key header if supported.",
+              "Add content negotiation tests: reject non-JSON payloads with 415, enforce Content-Type: application/json, and handle unsupported Accept with 406.",
+              "Strengthen schema validation: negative tests for extra/unknown JSON fields, wrong data types in pluginProperty, and null/empty accountId.",
+              "Add 403 Forbidden test: authenticated user lacking permission to transfer the specified bundle.",
+              "Verify state transitions: after 201, assert the bundle is removed from the source account and appears under the target, and related objects (subscriptions, tags) reflect the new account.",
+              "Add race-condition tests: two concurrent transfers of the same bundle; ensure one succeeds and the other fails with a clear error (e.g., 409) without data corruption.",
+              "Introduce rate limiting tests: burst of requests to validate 429 or documented throttling behavior if applicable.",
+              "Expand requestedDate boundary tests: past and far-future dates, invalid calendar dates (e.g., 2025-02-30), timezone edge cases, and business-rule conformance.",
+              "Header validation negatives: exceed max length for X-Killbill-Reason/Comment and verify proper 400 with clear messages; test non-UTF-8/invalid chars.",
+              "Deep-check Location header: assert it matches the expected URL pattern and that a follow-up GET returns the transferred bundle.",
+              "HTTP-level pluginProperty tests: verify repeated query parameter encoding (collectionFormat=multi) and long single property values/URL encoding handling."
+            ],
+            "usage": {
+              "completion_tokens": 2036,
+              "prompt_tokens": 7734,
+              "total_tokens": 9770,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

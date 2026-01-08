@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-14T14:05:54.914179",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:04:49.725436",
+    "benchmark_end_time": "2025-10-14T14:05:54.914174",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 65.188738,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "PUT - Valid Request: Multiple success scenarios (TC01-TC05, TC24) validate successful modifications including create-from-empty and large arrays.",
+              "PUT - Non-Existing Resource: TC07 explicitly tests non-existent accountId error handling.",
+              "PUT - Input Validation: Malformed JSON, missing body, invalid CustomField schema, missing required header are covered (TC09, TC10, TC11, TC08).",
+              "PUT - Edge Cases: Empty array removal (TC15), max field lengths (TC16), extra properties ignored (TC17), partial-validity mix (TC18) are present.",
+              "PUT - Security Validation: SQL injection and XSS attempts are covered (TC20, TC21).",
+              "PUT - Performance/Concurrency: Concurrent requests (TC25), large payload near limit and 413 handling (TC26), timeout/long operation (TC19) are included.",
+              "PUT - Dependency & Integration: Dependent service failures and integrations with audit/reporting systems are covered (TC14, TC27, TC28).",
+              "Authorization: Unauthorized token scenario is covered (TC12).",
+              "Error Codes: Many expected error codes are checked (400 for various validation issues, 401, 502, 503, 504, 413).",
+              "Regression tests: Duplicate names and backward compatibility checks are present (TC23, TC24)."
+            ],
+            "gaps": [
+              "Partial Update Semantics: No explicit test that partial updates are rejected or behavior when only subset of fields present (besides TC18 mixed validity). The acceptance criteria expects full replacement semantics but no explicit partial-update vs replace assertion.",
+              "Idempotency / Repeated PUT: No test that repeated identical PUT calls are idempotent (PUT semantics verification).",
+              "Header validation details: The required X-Killbill-CreatedBy header presence is tested, but there is no test for invalid or empty CreatedBy value format/content. No tests for wrong Content-Type requests (e.g., missing/incorrect Content-Type leading to 415).",
+              "Authorization/Authorization scope: 403/authorization scopes/roles are not tested \u2014 only 401 (missing/invalid token) is present.",
+              "Response Body/Content-Type: Success response body/content verification is missing (204 should be empty; no explicit test verifies empty body or content-type on error responses).",
+              "Status Code Granularity: Some spec behaviour is ambiguous in story (e.g., 400 used for non-existent account in tests) \u2014 there is no test for 404 vs 400 for non-existent resource to confirm API design decision.",
+              "Schema-level assertions: Although invalid schema is tested, there are no positive tests asserting the exact CustomField schema accepted fields/types and limits besides field length/extra props.",
+              "Rate limiting and throttling: No tests for rate limiting despite performance scenarios.",
+              "Caching / ETag / Cache-Control: Not applicable for PUT generally, but no tests ensure any cache invalidation or relevant headers after update.",
+              "Concurrency race conditions: TC25 tests concurrent requests at a high level; there are no tests for write-write race (last-wins vs optimistic locking) or data conflict errors."
+            ],
+            "recommendations": [
+              "Add an explicit idempotency test: repeat the same PUT twice and assert the second request is a no-op and returns 204 with consistent state.",
+              "Add a partial-update vs replace test: send a payload that omits existing fields and assert whether omission deletes or preserves those fields to confirm expected PUT semantics.",
+              "Add tests for invalid X-Killbill-CreatedBy values (empty string, overly long, invalid characters) and for missing/incorrect Content-Type header (expect 415).",
+              "Add authorization scope/role tests that assert 403 is returned when authenticated user lacks permission to modify custom fields.",
+              "Add explicit assertions for 204 response body being empty and for Content-Type on error responses (and structure of error payloads).",
+              "Add a test to verify whether API returns 404 vs 400 for non-existent account and align tests with API contract (update acceptance criteria if needed).",
+              "Expand concurrency tests to include conflicting concurrent updates that verify locking/merge strategy (detect lost updates or ensure deterministic resolution).",
+              "Include rate-limiting/throttling tests to detect 429 behavior under burst traffic.",
+              "Add schema-positive tests that validate accepted CustomField properties and types (including allowed keys, value types, namespace constraints) and negative tests for unacceptable types.",
+              "If the system exposes audit/cache headers after update, add assertions to verify audit propagation and cache invalidation (or document that PUT does not use caching)."
+            ],
+            "usage": {
+              "completion_tokens": 1223,
+              "prompt_tokens": 6919,
+              "total_tokens": 8142,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

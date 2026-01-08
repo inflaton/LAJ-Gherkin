@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-09-28T11:24:52.441734",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:23:21.712540",
+    "benchmark_end_time": "2025-09-28T11:24:52.441727",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 91,
+    "average_generation_time_seconds": 90.729187,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 91,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 91,
+            "covered": [
+              "POST \u2022 Valid Payload: Single and multiple credit creation, with/without invoiceId (TC01\u2013TC03, TC07).",
+              "POST \u2022 Query Parameters: autoCommit and pluginProperty happy paths covered (TC04\u2013TC05).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional Reason/Comment persisted (TC06, TC10).",
+              "Response Contract: 201 status, JSON array body, Location header presence validated (TC01\u2013TC03).",
+              "Behavioral Notes: CBA creation when no invoiceId; new credit invoice generated; account balance updated (TC07, TC26\u2013TC27).",
+              "Invalid Payload/Validation: Malformed JSON, missing required fields, invalid accountId format, unsupported currency, invalid pluginProperty type, empty body, positive amount handling (TC11\u2013TC16, TC21, TC13).",
+              "Duplicate Submission: Retry does not create duplicates (TC30).",
+              "Large Payloads/Limits: Max allowed items, payload too large, timeout under heavy load (TC23\u2013TC25).",
+              "Error Handling: 404 for missing account/invoice; 503 service/plugin unavailable; plugin error mapped (TC08\u2013TC09, TC17, TC28\u2013TC29).",
+              "Security: Authorization (403), SQLi/XSS input sanitization (TC18\u2013TC20).",
+              "Performance: Response time under normal/peak load; resource utilization under stress (TC32\u2013TC34)."
+            ],
+            "gaps": [
+              "POST \u2022 Server Error Handling: No explicit simulation of database/storage failure returning 500.",
+              "Content Negotiation/Headers: No checks for Content-Type application/json on success; no 415 Unsupported Media Type when sending wrong/missing Content-Type; no Accept header/406 handling.",
+              "Query Params Defaults: No explicit verification that autoCommit defaults to false (i.e., invoice remains uncommitted when param omitted).",
+              "Batch Validation Rules: No scenario mixing valid and invalid items in the same array to confirm full-reject vs partial-create behavior.",
+              "Cross-entity Consistency: No test for invoiceId that belongs to a different accountId (expect 400/404).",
+              "Amount Edge Cases: No test for zero amount, precision/rounding, or excessively large/small numeric ranges.",
+              "itemType Semantics: No test for missing itemType or non-credit itemType to confirm server infers/overrides or rejects as per spec.",
+              "Authorization Variants: 401 unauthenticated case not covered if the API uses auth beyond CreatedBy (story is silent).",
+              "Headers/Response: No assertion that response has Content-Type: application/json; no behavior defined/verified for Location header when multiple resources are created."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate a database/storage exception and assert 500 Internal Server Error with a helpful payload.",
+              "Add content negotiation tests: wrong/missing Content-Type -> 415; assert response Content-Type is application/json on 201/4xx; optionally test Accept header -> 406.",
+              "Verify default behavior when autoCommit is omitted (should be false): ensure invoice remains uncommitted until a separate commit.",
+              "Create mixed-batch tests: one invalid item among many valid items to confirm atomicity (all-or-nothing) and returned error structure.",
+              "Add a test where invoiceId does not belong to the provided accountId; expect 400/404 and no side effects.",
+              "Extend amount validation: zero amount, extreme values, currency/amount precision rules; assert proper rounding/scale handling or validation errors.",
+              "Cover itemType behavior: missing itemType and non-credit itemType provided; verify server sets CREDIT_ADJ/CBA_ADJ or rejects the request.",
+              "If applicable, add a 401 unauthorized test (no auth/invalid token) distinct from 403 insufficient permissions.",
+              "Enhance response header checks: assert Content-Type on success and errors; clarify/verify Location header behavior for multi-create (single vs multiple URIs or absence)."
+            ],
+            "usage": {
+              "completion_tokens": 4946,
+              "prompt_tokens": 8287,
+              "total_tokens": 13233,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4096,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

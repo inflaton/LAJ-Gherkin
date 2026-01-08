@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-14T15:52:20.762633",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:51:20.128743",
+    "benchmark_end_time": "2025-10-14T15:52:20.762627",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 60.633884,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC12, TC13, TC17, TC18) validate successful 204 deletions with required and optional headers.",
+              "Error Handling - Non-Existent Resource: TC03, TC04, TC09 cover 404 responses when account or email is not found.",
+              "Validation Errors (400): TC05 and TC06 verify invalid accountId and invalid email formats produce 400.",
+              "Required Header Validation: TC07 checks missing required header (X-Killbill-CreatedBy) handling.",
+              "Optional Headers: TC02 verifies optional headers (X-Killbill-Reason, X-Killbill-Comment) are accepted.",
+              "Authorization: TC10 tests invalid/expired token producing 401.",
+              "Dependency / Service Failure: TC11 simulates downstream/unavailable service producing 503.",
+              "Concurrency and Race Conditions: TC15 covers concurrent delete behavior and expected mixed responses.",
+              "Security / Input Sanitization: TC16 checks injection/XSS in the email parameter results in validation error.",
+              "Performance: TC14 asserts response time threshold.",
+              "Regression & Compatibility: TC17 and TC18 cover previously fixed bugs and legacy client behavior.",
+              "Resilience / Retry: TC19 verifies retry after transient network failure results in success."
+            ],
+            "gaps": [
+              "Soft-delete semantics / auditability: No tests verify whether deletion is soft (marked deleted) vs hard delete, or whether deleted emails are recoverable/visible to admin or audit logs.",
+              "Response body / produced media type checks: The story specifies produces application/json but DELETE returns 204. There are no explicit assertions that the response body is empty or that appropriate Content-Type/Content-Length headers are present/absent for 204 responses.",
+              "Idempotency semantics not clearly tested: Beyond TC15 concurrent scenario expecting 404 for subsequent requests, there is no explicit test for repeated sequential DELETE calls (should subsequent calls return 404 or be idempotent 204?). The acceptance criteria suggests 404 for not-found but this conflict should be asserted/clarified.",
+              "URL encoding / special characters in path parameter: No tests for emails containing characters that require URL-encoding (e.g., +, %20, slash) to ensure correct path-handling and routing.",
+              "403 / insufficient privileges: There is an authorization negative test (401) but no test for authenticated users without sufficient privileges (403) if the API has role-based access.",
+              "Server 500 / unexpected server error: TC11 covers 503, but there is no test that simulates a generic internal server error (500) or database failure leading to 500.",
+              "Rate limiting and throttling: No tests for rate limiting, abuse protection or how bursts of requests are handled beyond concurrency count in TC15.",
+              "Header validation beyond presence: No tests validate constraints on header values (length, accepted characters for X-Killbill-CreatedBy) or behavior when optional headers are malformed.",
+              "Cache-related headers and behavior: No checks for caching (ETag, Cache-Control) or whether responses include appropriate cache controls even if less relevant for DELETE.",
+              "Multiple identical/duplicate emails and uniqueness: No tests check behavior when account contains duplicate email entries or when email addresses are linked to other resources (impact of referential integrity)."
+            ],
+            "recommendations": [
+              "Add a soft-delete / audit test: Verify whether deletion marks the email as deleted (soft delete) and that audit/entry is recorded, or assert that deletion is permanent depending on spec.",
+              "Assert response headers and body for 204: Add explicit checks that 204 responses have no body and that Content-Type/Content-Length behave as expected (and that produced application/json is respected where applicable).",
+              "Clarify and test idempotency: Add sequential repeat-delete tests to assert expected behavior (e.g., second delete returns 404 or 204) and make acceptance criteria explicit.",
+              "Test URL-encoding and special characters: Add cases for emails containing +, spaces (encoded), slashes or percent-encoded characters to ensure path param handling and routing is correct.",
+              "Add authorization/permission tests: Include a 403 scenario for authenticated users lacking permission or role, if RBAC applies.",
+              "Simulate generic server errors (500): Add tests to simulate DB constraint violations / unexpected exceptions to ensure appropriate 5xx responses and error messaging.",
+              "Add rate-limiting / throttling tests: Verify API behavior under rapid-burst requests (beyond concurrency) and proper 429 or throttling responses if applicable.",
+              "Validate header formats and limits: Add tests for invalid/malformed values in X-Killbill-CreatedBy and optional headers to ensure header validation is enforced and documented.",
+              "Test email uniqueness and effects on related resources: Add tests for accounts with duplicates or emails that are referenced elsewhere to validate deletion behavior and error handling.",
+              "If caching is relevant in your platform, add tests for cache-control/ETag headers or ensure DELETE invalidates caches where applicable."
+            ],
+            "usage": {
+              "completion_tokens": 2257,
+              "prompt_tokens": 5675,
+              "total_tokens": 7932,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

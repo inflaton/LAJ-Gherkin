@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-14T20:45:37.917121",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:45:02.049427",
+    "benchmark_end_time": "2025-10-14T20:45:37.917117",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 35.86769,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "PUT Valid Request: Multiple success paths update custom fields and return 204 (TC01, TC02, TC03, TC04, TC15, TC16, TC17, TC24).",
+              "PUT Non-Existing Resource: Error when accountId is invalid format and when account does not exist (TC06, TC07).",
+              "Validation and Error Handling: Missing required header, missing body, malformed JSON, invalid schema (TC08, TC09, TC10, TC11).",
+              "Security/Robustness: SQLi/XSS inputs rejected (TC20, TC21); unsupported headers ignored (TC05).",
+              "Performance/Limits: Large array and near-maximum payload size, including 413 on exceed (TC04, TC26).",
+              "Server/Network Failures: 401 unauthorized, 502 dependency failure, 503 service down, 504 timeout, and retry on transient errors (TC12, TC14, TC13, TC19, TC22).",
+              "Edge-case semantics: Empty array removes all fields; extra properties ignored; max lengths accepted (TC15, TC17, TC16).",
+              "Integration: Audit logging and external reporting reflect updates (TC27, TC28)."
+            ],
+            "gaps": [
+              "PUT Partial Update semantics: No scenario clarifies whether PUT merges vs replaces the full set when only a subset of fields is provided. There is no test ensuring partial updates are rejected unless allowed.",
+              "Concurrency on same resource: No scenarios for two concurrent PUTs to the same account testing race conditions, last-write-wins, or optimistic locking/versioning behavior.",
+              "Response headers/content negotiation: Story mentions produces application/json, but 204 responses typically have no body. No checks for Content-Type, absence of body, or relevant headers (e.g., Date, request-id).",
+              "Idempotency: No tests verifying that repeating the same PUT request yields the same state and response (idempotent behavior expected for PUT).",
+              "Error code consistency: Non-existent account returns 400 in tests; confirm/cover expected code (often 404) per API contract and add scenario accordingly.",
+              "Schema contract depth: No explicit tests validating required CustomField fields and allowed enum/value ranges beyond a generic invalid schema case (e.g., key/name/value constraints, duplicates behavior under success path).",
+              "Authorization breadth: Only 401 covered; no coverage for 403 (authenticated but not authorized) if applicable to this endpoint."
+            ],
+            "recommendations": [
+              "Add explicit Partial Update scenarios: one where only a subset of existing fields is sent and assert the contract (replace-all vs merge). If merges are not allowed, expect 400; if allowed, verify correct merge semantics.",
+              "Introduce concurrency tests on the same account: two near-simultaneous PUTs with different payloads; validate deterministic outcome, data consistency, and any version/conflict handling.",
+              "Verify idempotency: Send the exact same PUT twice and assert the state and status code remain consistent (204 both times, no duplicate effects).",
+              "Add response header checks: Ensure 204 has no body, appropriate Content-Type behavior, and any required headers (e.g., request-id, correlation-id).",
+              "Clarify and test non-existent resource error code per spec (400 vs 404). Add a scenario for the expected status and message.",
+              "Expand schema validation: Add scenarios for field-level constraints (e.g., allowed characters, max/min length per field, allowed/required keys), and one for duplicate names under success if the system supports overwriting vs rejecting.",
+              "Extend authorization coverage if applicable: Add 403 forbidden for users lacking permissions even with valid auth.",
+              "Document and test audit metadata propagation: Verify X-Killbill-Reason and X-Killbill-Comment are persisted/visible in audit logs, not just that a 204 is returned."
+            ],
+            "usage": {
+              "completion_tokens": 1841,
+              "prompt_tokens": 6919,
+              "total_tokens": 8760,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

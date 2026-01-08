@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-13T09:45:45.075717",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:44:33.628357",
+    "benchmark_end_time": "2025-10-13T09:45:45.075713",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 71.447356,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "POST/Valid Payload: Successful flows with only required fields and with all optional params, including default payment method usage and externalPayment handling (TC01\u2013TC05).",
+              "POST/Invalid Payload & Validation: Extensive input validation for UUIDs, paymentMethodId, amounts (zero/negative, partial, >total), targetDate format, boolean parsing, pluginProperty types, missing/empty required header, and unknown params (TC08\u2013TC16, TC25).",
+              "POST/Duplicate Submission: Retry and idempotency behavior validated to avoid duplicate payments (TC22, TC28).",
+              "POST/Limits & Large Payloads: Boundary tests for extremely large paymentAmount and large pluginProperty arrays (TC23, TC24).",
+              "POST/Server Error Handling: Robust coverage for dependency and system failures (gateway 502/503, DB 500, plugin system 502/503) (TC18, TC19, TC27).",
+              "Authorization/Security: Unauthorized access (401) plus SQLi and XSS hardening scenarios (TC17, TC20, TC21).",
+              "Behavioral edges: Accounts with no unpaid invoices or no invoices return 204 with no processing (TC06, TC07).",
+              "Performance (extra beyond guidelines): Normal and peak response-time and resource-utilization checks (TC30\u2013TC32)."
+            ],
+            "gaps": [
+              "Response semantics: No assertions that 204 responses have no body and appropriate headers; contract says produces application/json, but success body is absent\u2014content-type/empty-body behavior is not validated.",
+              "Authorization nuance: No test for 403 (authenticated but not authorized/insufficient permissions or wrong tenant).",
+              "Missing default payment method: No scenario where the account has no default payment method and no paymentMethodId is provided\u2014expected outcome not validated.",
+              "Concurrency on same resource: No test for two concurrent POSTs for the same account to ensure single charge/locking beyond generic load tests.",
+              "Auditability: Reason/Comment/CreatedBy persistence not verified in audit logs or payment/invoice history.",
+              "Target date semantics: Only format validation covered; no tests for timezone handling, past vs future dates, or boundary conditions at day/time-zone transitions.",
+              "Error contract: Error payload structure (e.g., code, type, message) not asserted beyond presence of a message.",
+              "Unexpected request body: Behavior when a JSON body is sent (despite N/A) is not tested\u2014should be ignored or rejected consistently.",
+              "Plugin property format: Kill Bill commonly uses key=value strings and repeated keys; tests don\u2019t cover encoding, duplicates, or special characters beyond XSS."
+            ],
+            "recommendations": [
+              "Add assertions for 204 responses to confirm no body and verify response headers (Content-Type/absence thereof) per contract; also validate error response schema (code/type/message).",
+              "Include a 403 scenario where the caller is authenticated but lacks permissions or correct tenant to ensure proper authorization handling.",
+              "Add a scenario for accounts without a default payment method when paymentMethodId is omitted; define and verify expected status (e.g., 400/422) and message.",
+              "Create a concurrency test that fires two concurrent payment triggers for the same account to validate idempotency/locking and guarantee no double charge.",
+              "Verify audit persistence: after success, fetch audit logs or payment history and assert CreatedBy/Reason/Comment are stored correctly.",
+              "Extend targetDate tests to cover timezone offsets (e.g., 2025-10-13Z vs local), past vs future dates, and boundary transitions (23:59:59 to 00:00:00).",
+              "Add a scenario sending a non-empty JSON request body to confirm the API either rejects it (400) or ignores it consistently, and document the behavior.",
+              "Expand pluginProperty tests to include key=value formats, duplicate keys, URL-encoded values, and special characters to ensure proper propagation/encoding.",
+              "Optionally, validate behavior when externalPayment=true with and without paymentMethodId to ensure consistent rules are enforced."
+            ],
+            "usage": {
+              "completion_tokens": 4374,
+              "prompt_tokens": 7048,
+              "total_tokens": 11422,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3520,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

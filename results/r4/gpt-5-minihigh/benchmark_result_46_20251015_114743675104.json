@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-15T11:47:43.675076",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:46:44.036750",
+    "benchmark_end_time": "2025-10-15T11:47:43.675071",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 59.638321,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01 verifies successful invalidation returns 204 and empty body.",
+              "Non-Existent Resource: TC02, TC16, TC18 validate 404 behavior when accountId is not found.",
+              "Input validation / Invalid UUID: TC03 and TC12 ensure 400 is returned for malformed accountId formats.",
+              "Authentication: TC05 and TC06 cover missing and expired/invalid tokens returning 401.",
+              "Service Unavailable / Degraded State: TC07 and TC08 cover 503 handling for high load or dependent cache service failures.",
+              "Unsupported Method Handling: TC11 verifies 405 for unsupported HTTP methods (GET) on the DELETE endpoint.",
+              "Extra Query Parameters: TC09 verifies the endpoint tolerates/ignores extra query parameters and returns 204.",
+              "Security: TC14 and TC15 test SQL injection and XSS attempts via the accountId path and expect 400.",
+              "Concurrency / Performance: TC13 exercises concurrent DELETEs and includes a performance SLA (average response time expectation).",
+              "Missing Path Parameter: TC04 checks behavior when accountId is omitted (404 route not found).",
+              "Edge / Large Input: TC10 covers very large or maximum-length accountId inputs (ambiguous expectation captured).",
+              "Transient Network Recovery and Retry: TC17 validates retry behavior after temporary network failures.",
+              "Regression / Backward Compatibility: TC12 (UUID regression) and TC19 (behavior vs previous releases) are present.",
+              "Cache invalidation assertion: TC01 includes an explicit step to assert that account-level caches were invalidated."
+            ],
+            "gaps": [
+              "Authorization (insufficient privileges): No scenario where an authenticated non-admin user attempts the operation and receives 403 Forbidden; role-based access control is not tested.",
+              "Verification of actual cache state: Although TC01 asserts caches are invalidated, there are no concrete checks against the cache backend (e.g., Redis/memcached keys) or follow-up requests to prove the cache was cleared end-to-end.",
+              "Error response schema and Content-Type: Tests check for presence of error messages but do not assert Content-Type: application/json nor validate a stable error schema/fields (code, type, message).",
+              "Idempotency and sequential-delete race conditions: There is no deterministic test for repeated DELETEs (same client calling twice) or a race case where one request deletes and another, slightly later, should observe 404; TC13 only asserts concurrent 204s rather than exploring conflicting outcomes.",
+              "Soft-delete semantics: If accounts can be soft-deleted, there are no tests validating how cache invalidation interacts with soft vs hard deletes.",
+              "Rate limiting / Throttling: No tests exercise rate limits (429) or throttling behavior under high request rates.",
+              "Ambiguous expected outcomes in some tests: TC10 allows 404 or 400 which makes expectations non-deterministic; tests should be precise about expected behavior according to API contract.",
+              "Response headers and caching metadata: No assertions for headers such as Content-Type, Cache-Control, ETag or other operational headers that may be required or relevant for clients.",
+              "Test isolation and cleanup: Feature lacks explicit teardown/fixture steps to guarantee idempotent test runs and avoid cross-test pollution of DB/cache state.",
+              "Error message consistency and machine-readable error codes: Tests look for free-text messages but do not assert structured error identifiers that clients could rely on."
+            ],
+            "recommendations": [
+              "Add an authorization test for an authenticated non-admin user that attempts this DELETE and assert 403 Forbidden (role-based access check).",
+              "Implement concrete cache-verification tests: after DELETE, verify cache keys are removed in the cache backend or perform a follow-up query that would demonstrate stale vs invalidated behavior.",
+              "Assert response headers and schema: for error responses assert Content-Type: application/json and validate a stable error schema (fields like error code, message, timestamp) so clients can parse errors reliably.",
+              "Add idempotency and deterministic race-condition tests: (a) repeat DELETE of the same account sequentially and assert the API behavior expected by contract, (b) create a race where one request deletes and another checks for 404 to cover real-world concurrent conflict outcomes.",
+              "Clarify ambiguous expectations (TC10) and lock expected status codes in tests to match the API contract (400 vs 404).",
+              "Add rate-limiting/throttling tests that send a burst of requests and verify proper handling (429 or backoff behavior) and that the DELETE endpoint fails gracefully under extreme load.",
+              "If the product supports soft deletes, add tests to validate cache invalidation semantics for soft-deleted accounts vs fully deleted accounts.",
+              "Add assertions for response headers relevant to API clients (Content-Type, Content-Length where applicable, and any audit headers).",
+              "Introduce test setup/teardown steps (fixtures) that reset DB and cache state between scenarios to ensure repeatability and avoid flaky tests.",
+              "Improve error assertions to check structured error identifiers or codes (not only free-text) so that clients and automation can rely on stable error semantics."
+            ],
+            "usage": {
+              "completion_tokens": 6878,
+              "prompt_tokens": 4640,
+              "total_tokens": 11518,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

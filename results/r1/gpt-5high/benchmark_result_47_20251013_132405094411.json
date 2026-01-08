@@ -1,0 +1,82 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-13T13:24:05.094382",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T13:22:19.551982",
+    "benchmark_end_time": "2025-10-13T13:24:05.094376",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 105.542394,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "DELETE Valid Deletion: 204 No Content on success with empty body and actual cache invalidation verified (TC01, TC09, TC11, TC13).",
+              "Non-Existent Resource: 404 when tenant context is invalid/non-existent (TC04).",
+              "Concurrency: Multiple concurrent DELETEs return 204 with no race conditions; performance threshold asserted (TC10).",
+              "Error handling across failure modes: 400, 401, 404, 500, 503, 504 covered (TC02, TC03, TC04, TC05, TC06, TC07, TC14).",
+              "Security: Injection attempt in headers rejected with 400/403 (TC08).",
+              "Idempotency: Deleting when cache is already empty still returns 204 and has no side effects (TC09).",
+              "Integration: Dependent services reflect invalidation; no stale data observed (TC12)."
+            ],
+            "gaps": [
+              "Content negotiation/headers: Acceptance criteria states Produces: application/json, but tests do not assert Content-Type on success (where 204 has no body) or on error responses; no validation that error payloads are valid JSON.",
+              "Tenant isolation: No scenario verifying that invalidating tenant A does not affect tenant B.",
+              "Missing tenant context: No test for requests without tenant context header/token producing an appropriate 4xx.",
+              "Authorization roles: No test that an authenticated non-admin (insufficient privileges) receives 403 Forbidden.",
+              "HTTP contract hardening: No test that unsupported methods (e.g., GET/POST) on this endpoint return 405 Method Not Allowed.",
+              "Performance recovery: No assertion that system performance recovers quickly after invalidation or under sustained/high load."
+            ],
+            "recommendations": [
+              "Assert Content-Type: application/json for error responses and validate a consistent error schema; keep 204 responses bodyless.",
+              "Add a multi-tenant isolation test: invalidate cache for tenant A and verify tenant B cache remains unchanged.",
+              "Add a scenario for missing tenant context (no tenant header/token) returning 400/422 with a clear error message.",
+              "Add a role-based access scenario where a valid non-admin user receives 403 Forbidden.",
+              "Optionally add 405 Method Not Allowed tests for unsupported verbs to lock down the API contract.",
+              "Extend performance testing to include spike/sustained load and verify post-invalidation recovery (latency, throughput).",
+              "Add a retry/idempotency scenario: after a 503/504, retrying DELETE succeeds with 204 and no duplicate side effects."
+            ],
+            "usage": {
+              "completion_tokens": 6188,
+              "prompt_tokens": 3389,
+              "total_tokens": 9577,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5632,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

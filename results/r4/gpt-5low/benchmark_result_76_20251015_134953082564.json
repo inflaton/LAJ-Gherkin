@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-10-15T13:49:53.082527",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:48:55.487060",
+    "benchmark_end_time": "2025-10-15T13:49:53.082521",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 57.595461,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request: Happy paths with subscriptionId and requestedDate are covered (TC01), as well as current/default behavior when requestedDate is omitted (TC02, TC19) and boundary-date regression (TC18).",
+              "Query Parameters: Comprehensive combinations including missing params (TC03, TC04, TC07), invalid UUID (TC08), invalid date format (TC06), extra params (TC14), and security-focused invalid inputs (SQLi/XSS in TC16, TC17).",
+              "Empty/No Data: Not-found and empty situations covered (nonexistent subscription TC05, empty DB TC11, date before start TC13, future date TC12).",
+              "Authorization: Unauthorized access handled (TC09).",
+              "Error Handling/Resilience: Service unavailable and dependency failures (TC10, TC21) with appropriate 5xx expectations.",
+              "Performance/Load: Basic concurrency and response time checks (TC15, TC20).",
+              "Content-Type and Schema: Validates JSON and Product schema (TC01, TC02, TC22 ensures data consistency with catalog)."
+            ],
+            "gaps": [
+              "Caching Behavior: No scenarios verify ETag, Last-Modified, or Cache-Control headers, nor conditional requests (If-None-Match/If-Modified-Since).",
+              "Rate Limiting/Throttling: No tests for burst traffic resulting in 429 or related headers (X-RateLimit-*).",
+              "Ambiguous Behavior Clarification: TC03 and TC04 allow 200 or error without asserting the contract; the API behavior when parameters are omitted or ambiguous should be explicit and consistently tested.",
+              "Authorization Variants: No coverage for 403 Forbidden (authenticated but not authorized) if applicable to this endpoint.",
+              "Accept/Content Negotiation: No tests for Accept header variations (e.g., application/json vs unsupported types) and corresponding 406/415 behaviors if enforced.",
+              "Date Semantics: No tests for timezone handling, date boundaries (inclusive/exclusive at midnight), and invalid but well-formed dates (e.g., 2024-02-30).",
+              "Idempotency/Side Effects: No explicit assertion that GET has no side effects (e.g., no mutation, no unexpected headers/cookies).",
+              "Headers/Metadata: No verification of standard headers beyond Content-Type (e.g., correlation/request-id, charset, content-length).",
+              "Security Hardening: No tests for path traversal or header injection via query values, and no test ensuring error responses avoid stack traces or detailed internals across all error paths."
+            ],
+            "recommendations": [
+              "Add caching tests: verify ETag/Last-Modified in 200 responses, issue conditional GETs (If-None-Match/If-Modified-Since) and expect 304; validate Cache-Control directives align with catalog mutability.",
+              "Add rate-limiting tests: generate burst traffic to trigger 429, assert retry-after and X-RateLimit-* headers; ensure normal load remains 200.",
+              "Make behavior explicit for missing/partial parameters: replace TC03/TC04 with concrete expectations per API contract (e.g., 400 when subscriptionId omitted; 400 when both omitted) and remove ambiguous pass criteria.",
+              "Add 403 scenario if RBAC applies: authenticated user lacking permission should receive 403; keep 401 for missing/invalid token.",
+              "Test content negotiation: send Accept: application/json (200) and unsupported Accept (expect 406); test incorrect Content-Type header in request (though GET has no body) returning 415 if validated.",
+              "Expand date tests: include timezone-aware inputs (e.g., Z vs offset), boundary at start/end of day, and invalid calendar dates to ensure consistent 400 handling and correct inclusivity on effective dates.",
+              "Assert GET idempotency/no side effects: repeat requests and confirm identical responses and no server state/log side effects beyond access logs.",
+              "Validate standard headers: presence/format of charset in Content-Type, Content-Length, a request-id/correlation-id, and absence of sensitive headers in errors.",
+              "Harden security coverage: add tests to ensure error responses are sanitized across all 4xx/5xx paths; include header injection attempts in query values and verify they are neutralized."
+            ],
+            "usage": {
+              "completion_tokens": 1662,
+              "prompt_tokens": 5044,
+              "total_tokens": 6706,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

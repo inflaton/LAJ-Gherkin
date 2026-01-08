@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "23_2025-09-28T05:11:23.668881",
+    "jira_id": "23",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/invoices - Retrieve account invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:11:05.018037",
+    "benchmark_end_time": "2025-09-28T05:11:23.668877",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 18.65084,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "23_qe_sup-gpt4.1_agent-gpt4.1_1748917429.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01, TC02, TC03, TC04, TC05, TC06, TC07) cover successful retrieval with various combinations of query parameters and audit levels.",
+              "Empty Response: TC08 and TC25 cover accounts with no invoices and filters that yield empty results.",
+              "Query Parameters: Many combinations are exercised \u2014 startDate/endDate (TC02, TC21, TC22, TC23), boolean flags (withMigrationInvoices, unpaidInvoicesOnly, includeVoidedInvoices in TC03, TC04, TC05, TC07, TC24), audit enum (TC06, TC07), unsupported extra params (TC09), injection/XSS attempts (TC15, TC27).",
+              "Error Handling: Invalid accountId format (TC10) and non-existent account (TC11) are present and match the story's error scenarios; date-range validation (TC21) is covered.",
+              "Authorization: Missing and invalid auth token cases are covered (TC12, TC13).",
+              "Resilience & Integration: Service unavailability, slow downstream, inconsistent downstream data, concurrency and regression scenarios are present (TC14, TC17, TC18, TC28, TC19, TC20).",
+              "Security: Input sanitization & injection/XSS attempts are explicitly tested (TC15, TC27)."
+            ],
+            "gaps": [
+              "Pagination: No explicit tests verify pagination behavior (offset/limit or page headers) or correct handling of large result sets beyond mention of potential pagination in TC16; there is no test of page tokens, next/prev links, or deterministic ordering for paginated results.",
+              "Caching Behavior / HTTP Headers: Tests do not assert response headers (Content-Type, Cache-Control, ETag, Last-Modified) or behavior for conditional requests (If-None-Match / 304 responses).",
+              "Rate Limiting / Throttling: No tests for rate limits (429) or behavior when many requests hit the API in short succession (rate limiting guideline).",
+              "Exact Response Schema & Content Validation: There is no explicit test that validates the Invoice object fields, types, required vs optional fields, or that content-type is application/json as defined in the story.",
+              "403 / Authorization Scopes: While 401 (missing/invalid token) is covered, there is no test for forbidden/insufficient-scope (403) behavior if the API supports role-based access or scopes.",
+              "Pagination performance SLAs & Deterministic Sorting: TC16 mentions performance and possible pagination, but there are no explicit tests for correct ordering, stable sorting across pages, or verifying performance under realistic load with pagination.",
+              "Boundary input validation: Some extreme inputs are covered (very large accountId TC26), but there are missing tests for malformed dates (bad formats), unsupported audit enum values (e.g., audit=UNKNOWN), boolean param invalid types (unpaidInvoicesOnly=notabool), and max length limits on query params.",
+              "Content negotiation / Accept header: No tests verify Accept header handling or behavior if client requests non-JSON response types."
+            ],
+            "recommendations": [
+              "Add explicit pagination tests: verify offset/limit or page token behavior, next/previous links (if any), stable deterministic ordering across pages, and validate responses when requesting specific pages. Include tests for very large result sets that exercise pagination rather than returning massive single responses (convert TC16 into concrete paginated assertions).",
+              "Add caching and conditional request tests: assert Content-Type, Cache-Control, ETag and support for If-None-Match resulting in 304, and validate Last-Modified behavior where applicable.",
+              "Add rate-limiting tests: simulate burst traffic to ensure 429 responses or other throttling behavior is handled, and assert retry-after headers where applicable.",
+              "Add strict response schema validation: include tests that validate required Invoice fields, types, nested objects, and that response content-type is application/json. Consider using JSON Schema or contract tests to lock down the shape of Invoice objects.",
+              "Add 403/authorization-scope tests: if the API uses scopes/roles, add scenarios where a user is authenticated but not authorized to view invoices to assert 403 responses.",
+              "Add negative/invalid parameter tests beyond accountId/date ranges: malformed dates, invalid enum values (audit=UNKNOWN), invalid boolean formats, overly long query parameter values, and verify appropriate 4xx responses (400/422) and helpful error messages.",
+              "Convert vague performance tests into measurable SLAs: make TC16/TC17 assert concrete response-time thresholds per paginated page and check resource usage patterns; use load tests to validate concurrency and performance under realistic loads.",
+              "Add content negotiation tests: verify behavior when Accept header is missing or set to non-JSON, and ensure API either returns JSON or a proper 406 if unsupported."
+            ],
+            "usage": {
+              "completion_tokens": 1201,
+              "prompt_tokens": 6428,
+              "total_tokens": 7629,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-13T04:18:38.450369",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:18:19.299226",
+    "benchmark_end_time": "2025-10-13T04:18:38.450364",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 19.151138,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Numerous success scenarios (TC01-TC05, TC24) verify valid PUT requests return 204 and update/create custom fields as expected.",
+              "Required/Optional Headers: Required header X-Killbill-CreatedBy is tested (TC01, TC08). Optional headers X-Killbill-Reason and X-Killbill-Comment are tested (TC02). Handling of unsupported extra headers is tested (TC05).",
+              "Request Body Validation: Malformed JSON, missing body, invalid CustomField schema, empty array, extra properties, maximum lengths, and mixed valid/invalid objects are covered (TC09-TC11, TC15-TC18, TC16).",
+              "Path parameter validation: Invalid UUID format and non-existent UUID cases are covered (TC06, TC07).",
+              "Error Handling: Client errors covered for malformed input and validation (TC06-TC11, TC18). Server-side and dependency errors are covered (TC13, TC14) as are timeout and transient network behaviors (TC19, TC22).",
+              "Security: SQL injection and XSS payloads are explicitly tested (TC20, TC21).",
+              "Performance/Concurrency: Large array, large payload near limits, and concurrent request scenarios are present (TC04, TC25, TC26).",
+              "Integration: Dependent audit logs and external reporting system consistency are covered (TC27, TC28).",
+              "Regression and backward compatibility: Duplicate name regression and older-client compatibility are covered (TC23, TC24)."
+            ],
+            "gaps": [
+              "PUT Guideline - Partial Update Semantics: While TC18 covers mixed-valid objects, there is no explicit test asserting whether partial updates (e.g., only some fields present for an object) are allowed or rejected per API contract; explicit partial-vs-full update behavior is not asserted.",
+              "Concurrency / Race Conditions: TC25 covers concurrent requests at a high level, but there are no deterministic tests for race conditions (e.g., simultaneous conflicting updates to the same custom field name causing lost updates or versioning behavior).",
+              "Authorization/Permissions Granularity: TC12 covers missing/invalid auth token (401), but there is no test for authenticated-but-forbidden scenarios (403) or role/permission-based access control.",
+              "Exact Response Body/Headers on Success: The story asserts 204 with application/json produced; tests don't assert presence/absence of response headers (Content-Type) for 204 responses or audit-related headers, nor do they validate that a 204 truly has no body as per spec.",
+              "HTTP Status Boundaries: Some boundary status behavior isn't covered: e.g., 413 behavior when payload exceeds limits is mentioned in TC26 but not explicitly tested for the exceed case; 500/Internal Server Error simulation (server-side DB failure) is not explicitly included (TC13/TC14 cover 503/502 but not 500).",
+              "Schema-level content validation: Although many invalid-input scenarios exist, there is no explicit test for individual field type errors (e.g., non-string where string expected), or for violating specific schema constraints beyond missing fields and max-lengths.",
+              "Rate Limiting and Throttling: No tests for rate limiting or API throttling behavior.",
+              "Caching / ETag / Cache-Control: No tests for caching headers or cache-related semantics (not typically expected for PUT but may be relevant for downstream GETs).",
+              "Request/Response Logging and Audit Trails Robustness: Integration tests check audit log is written, but there is no negative test verifying audit failure handling or retries for audit logging failures."
+            ],
+            "recommendations": [
+              "Add an explicit Partial Update semantics test: create scenarios that send partially populated CustomField objects and assert whether the API accepts them, rejects them, or requires full object shapes.",
+              "Add deterministic concurrency/race tests: simulate two simultaneous PUTs that change the same custom field(s) and assert the final state or proper conflict/error responses (e.g., use optimistic locking or version checks if supported).",
+              "Add authorization-role tests: include cases where the caller is authenticated but lacks required permissions to modify account custom fields and assert 403 Forbidden (if the system supports RBAC).",
+              "Assert exact 204 response semantics: verify that successful responses have no response body and verify relevant response headers (Content-Type absence/presence, auditing headers if applicable).",
+              "Test payload-limit boundaries explicitly: include a test that exceeds the API's maximum payload and assert 413, and a separate test at the limit expecting 204 (TC26 should be split into two executed cases).",
+              "Add a 500 Internal Server Error simulation: simulate DB failure or unexpected exception to validate 500 responses and error handling paths (complements existing 502/503 tests).",
+              "Add granular schema validation tests: cover type mismatches per CustomField properties (e.g., non-string id/name/value), invalid enum values, and constraints beyond missing fields.",
+              "Add rate-limiting / throttling tests: simulate repeated requests to assert correct 429 or throttling behavior if the API enforces limits.",
+              "Add negative integration tests for audit/reporting dependencies: simulate audit log/reporting service failures and assert appropriate API behavior (retry, compensation, or fail-fast), and ensure those failure modes are handled gracefully."
+            ],
+            "usage": {
+              "completion_tokens": 1357,
+              "prompt_tokens": 6919,
+              "total_tokens": 8276,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

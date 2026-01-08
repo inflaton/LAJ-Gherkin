@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-14T06:11:23.384747",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:09:27.320380",
+    "benchmark_end_time": "2025-10-14T06:11:23.384744",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 116.064364,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "Valid Payload: Happy paths for single and multiple tags return 201 with a JSON array of Tag objects associated to the invoice item (TC01, TC02, TC03, TC04, TC05, TC22).",
+              "Validation/Invalid Payload: Invalid invoiceItemId format, malformed JSON, empty array, invalid tag UUIDs, extra unsupported fields, null/empty entries, and malicious payload are handled with proper 4xx responses (TC07, TC09, TC10, TC11, TC12, TC24, TC18).",
+              "Required/Optional Headers: Required X-Killbill-CreatedBy enforced (400 when missing) and optional X-Killbill-Reason/Comment exercised (TC06, TC03).",
+              "Resource Existence: 404 for non-existent invoice item and empty database state (TC08, TC15).",
+              "Duplicate Handling: Duplicate tag IDs in request and attempting to add an already-existing tag on the item are handled without duplication (TC13, TC20).",
+              "Large Payloads: Very large array scenario covered with expected 201 or 413 handling (TC19).",
+              "Authorization/Security: 401 when auth token missing/invalid; negative security inputs validated (TC16, TC18).",
+              "Server/Dependency Faults and Timeouts: Service unavailable and downstream dependency failures yield 503; long-running operation yields 504 (TC17, TC21, TC25).",
+              "Non-functional: Performance under load validated with acceptable response time thresholds (TC14)."
+            ],
+            "gaps": [
+              "500 Internal Server Error: No scenario explicitly simulates an unexpected server-side failure (e.g., database exception) returning 500.",
+              "Content Negotiation and Headers: No assertions on response Content-Type application/json; no test for request Content-Type handling or 415 Unsupported Media Type when sending non-JSON.",
+              "Response Schema Depth: Tests don\u2019t validate the full Tag object against #/definitions/Tag (only partial checks of tagDefinitionId/association).",
+              "Duplicate Submission (idempotency) at HTTP layer: No scenario for re-sending the exact same POST (e.g., due to network retry) to confirm no unintended duplicates and consistent status/body.",
+              "Mixed-validity payloads: No test mixing valid and invalid tagDefinitionIds in the same array to define atomic vs partial behavior and expected status code.",
+              "Non-existent but well-formed tagDefinition UUID: Distinct from invalid format\u2014no test to verify behavior when tagDefinition UUID is syntactically valid but does not exist.",
+              "Header validation boundaries: No tests for CreatedBy/Reason/Comment value length, character set, or overly long headers causing 400."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate an internal server error (e.g., force a DB exception) and assert a 500 response with a diagnostic error body.",
+              "Assert Content-Type: application/json in successful responses and add a test sending an incorrect or missing request Content-Type to expect 415 Unsupported Media Type.",
+              "Add schema validation of the Tag response objects to match #/definitions/Tag (all required fields, types, and formats).",
+              "Introduce an idempotent retry scenario: send the same POST twice (with identical body) and verify no duplicate tags are created and that the response remains consistent.",
+              "Create a mixed-validity payload test (e.g., [\"valid-uuid\", \"invalid-uuid\"]) to confirm whether the API rejects the whole request (400) or supports partial success, and document the expected behavior.",
+              "Add a test for a syntactically valid but non-existent tagDefinition UUID to confirm the correct error code and message (e.g., 400 vs 404).",
+              "Include header boundary tests (very long X-Killbill-CreatedBy/Reason/Comment, disallowed characters) to ensure robust input validation and proper error responses."
+            ],
+            "usage": {
+              "completion_tokens": 5813,
+              "prompt_tokens": 6738,
+              "total_tokens": 12551,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4992,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

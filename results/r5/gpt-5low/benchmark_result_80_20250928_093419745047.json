@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-09-28T09:34:19.745013",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:33:31.985589",
+    "benchmark_end_time": "2025-09-28T09:34:19.745008",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 47.759419,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST - Valid Payload: Successful creation with single and multiple InvoiceItems, with and without invoiceId; verifies 201, response body as JSON array, and Location header.",
+              "Query parameters: autoCommit true and pluginProperty (multi) covered, including integration behavior with plugins.",
+              "Headers: Required X-Killbill-CreatedBy covered (present/missing), optional X-Killbill-Reason and X-Killbill-Comment covered.",
+              "Validation (schema and business rules): Missing required fields, malformed JSON, invalid accountId format, unsupported currency, invalid pluginProperty type, empty body, extra fields handling.",
+              "Error Scenarios per story: 400 for invalid inputs/malformed body, 404 for missing account/invoice.",
+              "CBA behavior: No invoiceId creates CBA/credit appropriately.",
+              "Duplicate submission/idempotency: Prevents duplicate credits on retry.",
+              "Large payload handling: 413/400 for oversized requests and 504 timeout scenario.",
+              "Server error handling: 503 API down; plugin failures returning 400/500.",
+              "Security hardening: SQL injection/XSS payload handling.",
+              "Performance: Response time under normal and peak load; high-volume resource utilization.",
+              "State/setup coverage: Empty DB state and populated account state; balance impact validated."
+            ],
+            "gaps": [
+              "Authentication/Authorization: No explicit 401 Unauthorized scenario for missing/invalid auth token or credentials (distinct from business header X-Killbill-CreatedBy).",
+              "Content-Type handling: No test for 415 Unsupported Media Type or missing Content-Type when sending JSON.",
+              "Atomicity/partial failure: No scenario with mixed valid and invalid items in the same array to verify all-or-nothing behavior and error reporting per item.",
+              "Deterministic rule for positive/zero amounts: TC13 is ambiguous; no clear assertion whether positives are auto-negated or rejected; zero amount and boundary/precision cases (e.g., 0, very small decimals, rounding) are not tested.",
+              "Generic 500 paths: No simulation of non-plugin internal server errors (e.g., database failure) returning 500 with appropriate body.",
+              "Location header for multiple resources: Only single-item Location verified; not specified/validated for bulk creates (e.g., absence, list, or first resource).",
+              "Concurrency/race conditions: No scenario for concurrent requests on the same account/invoice to check for race conditions or duplicate prevention beyond simple retry.",
+              "Accept/Content negotiation: No test for invalid/unsupported Accept header (e.g., 406) or correct produces application/json verification.",
+              "Business rule variants: Currency vs account default currency mismatch, cross-account invoiceId rejection, itemType constraints (CREDIT_ADJ vs CBA_ADJ) strictly enforced not fully asserted.",
+              "Rate limiting/throttling: Under peak load performance exists, but no assertions about 429 or backoff behavior if applicable."
+            ],
+            "recommendations": [
+              "Add 401 Unauthorized scenarios for missing/invalid authentication credentials distinct from X-Killbill-CreatedBy.",
+              "Add tests for 415 Unsupported Media Type and missing Content-Type, and verify produces application/json and 406 Not Acceptable when Accept is unsupported.",
+              "Introduce mixed-validity array test to confirm transactional atomicity (all-or-nothing) or defined partial success semantics, including clear error payload structure.",
+              "Split TC13 into explicit cases: (a) positive amount rejected with 400 and clear message; (b) if auto-negation is supported, assert stored amount is negative; add zero-amount and precision/rounding boundary tests.",
+              "Simulate generic internal failures (e.g., forced DB exception) to validate 500 responses and error body/schema.",
+              "Define and verify Location behavior for bulk creation (absent, list of URIs, or link to collection) and document expectations.",
+              "Add concurrency tests: multiple simultaneous POSTs for the same account/invoice to ensure no double-crediting and to validate locking/idempotency under race.",
+              "Expand business rule checks: reject invoiceId that does not belong to the provided account; verify currency compatibility and explicit error when mismatched.",
+              "If applicable, add rate-limiting tests to validate 429 responses and headers (Retry-After)."
+            ],
+            "usage": {
+              "completion_tokens": 1910,
+              "prompt_tokens": 8287,
+              "total_tokens": 10197,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

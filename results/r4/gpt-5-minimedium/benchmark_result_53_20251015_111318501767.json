@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "53_2025-10-15T11:13:18.501734",
+    "jira_id": "53",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/tags - Add tags to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:12:53.952065",
+    "benchmark_end_time": "2025-10-15T11:13:18.501730",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 24.549665,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "53_qe_sup-gpt4.1_agent-gpt4.1_1748919377.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Payload: multiple success scenarios (single, multiple, empty list, initial/no-tags, partially pre-tagged bundle) with expected 201 and persisted tags (TC01, TC03-06, TC26).",
+              "Optional Headers: X-Killbill-Reason and X-Killbill-Comment exercised (TC02).",
+              "Request Validation: malformed JSON, non-array body, invalid tag UUIDs, invalid bundleId format, non-existent bundleId, missing required header, missing body covered (TC08-14, TC12, TC13, TC14, TC10, TC11).",
+              "Authentication: missing/invalid token covered (TC16 -> 401).",
+              "Server / Dependency Failures: service unavailable and slow backend/timeouts covered (TC17 -> 503, TC22 -> 504).",
+              "Large Payloads: maximum allowed and exceeding cases covered (TC20, TC21).",
+              "Duplicate / Idempotency-ish: duplicate tag handling & regression scenario to avoid duplicate Tag objects (TC06, TC26).",
+              "Security / Input Sanitization: injection attack attempt covered (TC18).",
+              "Integration & End-to-end: verification via GET and cross-service consistency covered (TC27, TC28).",
+              "Performance: normal and peak load (concurrent) scenarios included (TC24, TC25).",
+              "Extra-headers tolerance: unsupported headers acceptance tested (TC23).",
+              "Retry / Resilience: transient network retry scenario covered (TC19).",
+              "Accessibility: documentation accessibility is present (TC29)."
+            ],
+            "gaps": [
+              "500 Internal Server Error: no explicit test simulating a 500/uncaught server error path (stack trace, DB exception) to validate generic 5xx handling and error payload.",
+              "Authorization / Forbidden (403): while background mentions permissions, there is no explicit test for an authenticated-but-not-authorized user (403) or role-based access control failures.",
+              "Partial-failure / Transactionality: missing tests for mixed payloads where some tagDefinitionIds exist and others do not (partial success vs all-or-nothing behavior), and expected transactional semantics are unverified.",
+              "Per-request idempotency / duplicate-in-payload: no test for duplicate UUIDs within the same request payload (e.g., [\"id\",\"id\"]) to assert de-duplication or validation behavior.",
+              "Content-Type and Headers validation: no tests for missing/incorrect Content-Type, empty X-Killbill-CreatedBy value, overly long header values, or response headers (Content-Type, Location) validation.",
+              "Response schema strictness: tests check bundleId and tagDefinitionId but do not validate full Tag object schema (timestamps, createdBy, recordId, other required fields) nor Content-Type response header.",
+              "Concurrency race conditions for duplicates: while there is a concurrent performance test, there is no focused concurrency test that races two requests trying to add the same tag to ensure no duplicate DB rows / constraint behavior under race.",
+              "Rate limiting & throttling: no tests for rate-limiting behaviour (429) under excessive request rates.",
+              "Error details/standardized error payload: tests assert error messages exist but do not assert a standardized error schema (code, type, message, parameters).",
+              "Behavior for disabled/inactive tag definitions: no test for tagDefinitionIds that exist but are disabled/archived or not allowed to be assigned."
+            ],
+            "recommendations": [
+              "Add a 500/Internal Server Error test: simulate DB exception or unhandled error path and assert a 500 response and safe error message to clients.",
+              "Add explicit Authorization tests (403): create an authenticated user lacking permission and assert 403 Forbidden and a clear error message.",
+              "Add partial-failure/transactionality tests: send mixed valid+invalid tagDefinitionIds in one request and assert whether operation is atomic (all succeed or all fail) and that partial states are not left inconsistent.",
+              "Test duplicate IDs within same payload: include repeated UUIDs in the JSON array to verify server de-duplicates or returns a validation error.",
+              "Validate Content-Type and headers: include tests for missing/incorrect Content-Type, empty X-Killbill-CreatedBy, and overly long header values; assert proper validation errors.",
+              "Extend response schema assertions: validate the full Tag object schema (all required fields and types) and Content-Type response header equals application/json.",
+              "Add focused concurrency tests for race conditions: concurrently submit requests that add the same tag to the same bundle and assert no duplicate persisted rows and consistent responses.",
+              "Add rate-limiting / throttling tests: hammer the endpoint to elicit 429 responses and verify graceful handling and Retry-After header behavior.",
+              "Add tests for standardized error payloads: assert presence and shape of structured error fields (code/type/message) for 4xx/5xx responses.",
+              "Add tests for special tagDefinition states: verify behavior when tag definitions are disabled, archived, or otherwise not assignable."
+            ],
+            "usage": {
+              "completion_tokens": 2320,
+              "prompt_tokens": 6808,
+              "total_tokens": 9128,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

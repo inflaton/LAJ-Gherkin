@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "57_2025-10-13T18:39:35.165460",
+    "jira_id": "57",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/customFields - Modify custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:39:13.749912",
+    "benchmark_end_time": "2025-10-13T18:39:35.165456",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 21.415544,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "57_qe_sup-gpt4.1_agent-gpt4.1_1748919636.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "PUT Method - Valid Request: Several scenarios (TC01, TC02, TC13, TC14, TC15, TC22, TC23, TC24, TC25) verify successful updates and variations of valid payloads.",
+              "PUT Method - Non-Existing Resource: TC05 checks 404 when bundle not found.",
+              "PUT Method - Validation / Invalid Payloads: TC07 (malformed JSON), TC08 (missing body), TC09 (unsupported fields), and TC12 (SQL injection) exercise invalid payload handling and input validation.",
+              "PUT Method - Required Headers: TC06 verifies behavior when X-Killbill-CreatedBy is missing; TC02 covers optional headers.",
+              "PUT Method - Empty Response / Remove All: TC03 covers sending empty array to remove all custom fields.",
+              "PUT Method - Partial Update: TC24 addresses partial/partial-match update behavior.",
+              "Authorization: TC10 validates unauthorized access (401).",
+              "Error Handling / Server Errors: TC11 (503 dependent service unavailable) and TC20 (500 inconsistent data) cover server error responses.",
+              "Performance / Load: TC17 and TC18 exercise response time under normal and peak concurrent load.",
+              "Edge Cases & Regression: TC13/TC14/TC15/TC19 cover max allowed fields, max value length, empty value, and special characters regression."
+            ],
+            "gaps": [
+              "Concurrency (race conditions): Although TC18 sends concurrent requests for load, there is no explicit test for race conditions / write conflicts (e.g., two competing updates expecting consistent final state, versioning/locking behavior).",
+              "Duplicate Submission / Idempotency Semantics: No tests cover repeated identical requests (retry semantics) and how duplicate submissions are handled beyond TC21 transient retry success.",
+              "PUT Semantics - Partial Update Rejection Policy: The story/guidelines expect explicit behavior if partial updates are disallowed; tests assume partial updates (TC24) but do not assert server-side acceptance vs rejection rules or validation of partial vs full replacement semantics.",
+              "Large Payloads / Very Large Number of CustomFields: While TC13 tests \"maximum allowed\", there is no test for extremely large payloads beyond the allowed maximum or behavior when exceeding limits (e.g., 413 or validation error).",
+              "Content Negotiation / Response Content-Type and Body: Tests assert status codes but do not validate response content-type headers or that error payloads follow API error schema.",
+              "Field-level Validation: While malformed JSON and unsupported fields are covered, there is limited coverage of invalid field data types, missing required fields inside CustomField objects (e.g., missing name or object id), or invalid format for custom field attributes.",
+              "Rate Limiting & Throttling: No tests for rate limiting / repeated rapid requests producing 429.",
+              "Caching / Headers: Not applicable for PUT generally, but tests do not assert relevant headers (e.g., no-cache, etc.) where applicable.",
+              "Authorization scopes / Forbidden (403): TC10 covers 401 unauthorized but there is no test for authenticated but forbidden (403) when user lacks permissions."
+            ],
+            "recommendations": [
+              "Add explicit race-condition tests: create tests where two or more clients concurrently update the same bundle with conflicting changes and assert final state and expected conflict response (e.g., 409 or last-writer-wins behavior).",
+              "Add duplicate-submission / idempotency tests: exercise retries and duplicate payloads to confirm idempotency semantics and safe retry behavior (especially for network retries).",
+              "Test payload limits and exceeding limits: include tests that send payloads larger than maximum allowed (too many custom fields, too-large field values) and assert 413/400 responses and clear error messages.",
+              "Expand field-level validation tests: validate required CustomField fields, invalid types, invalid formats for IDs/keys, and ensure the API returns consistent structured error responses.",
+              "Add tests for forbidden access (403) when authenticated users lack necessary permissions or roles.",
+              "Assert response headers and error schema: verify Content-Type, error object structure, and any relevant headers returned on success or error.",
+              "Clarify and test partial vs full-replace semantics: add tests that verify whether PUT replaces all custom fields or merges; assert explicitly expected behavior per API contract.",
+              "Add rate-limiting tests: simulate rapid repeated requests to validate 429/throttling behavior if applicable to the API.",
+              "Where relevant, convert some performance/concurrency tests into deterministic integration tests that assert data consistency (not only status codes and average response times)."
+            ],
+            "usage": {
+              "completion_tokens": 1204,
+              "prompt_tokens": 6139,
+              "total_tokens": 7343,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

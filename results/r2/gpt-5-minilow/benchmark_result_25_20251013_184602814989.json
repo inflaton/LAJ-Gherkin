@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-13T18:46:02.814964",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:45:30.906717",
+    "benchmark_end_time": "2025-10-13T18:46:02.814961",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 31.908244,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Payload: Many success scenarios (TC01\u2013TC07, TC29) validate the expected 204 response and correct payment application for valid inputs and combinations of optional parameters.",
+              "Invalid Payload / Validation: Numerous negative cases (TC11\u2013TC16, TC23\u2013TC25) test invalid paymentMethodId, paymentAmount, targetDate, externalPayment, and pluginProperty types/values.",
+              "Required Headers & Authorization: Tests cover presence, absence and emptiness of required headers (TC01, TC10, TC16) and authentication failures (TC17).",
+              "Error Handling for Dependencies and System Failures: System integration errors are exercised (TC18, TC19, TC27), including plugin and gateway unavailability and DB failure.",
+              "Edge Cases and Limits: A set of edge/limit cases are included (TC22, TC23, TC24, TC25) covering retries, very large amounts, large plugin arrays and unexpected params.",
+              "Security: Security-related negative tests exist for injection and XSS attempts (TC20, TC21).",
+              "Idempotency / Duplicate Submissions and Regression: Retry and duplicate-payment regressions are covered (TC22, TC28).",
+              "Performance & Non-functional: Performance under normal and peak loads as well as resource utilization are included (TC30\u2013TC32).",
+              "Plugin integration: Passing plugin properties and plugin-layer behavior are tested (TC02, TC05, TC27)."
+            ],
+            "gaps": [
+              "Explicit POST payload/content-type handling: The API spec states no request body is required (N/A), but there are no tests asserting Content-Type handling or behavior when a body is (unexpectedly) supplied or when Content-Type is missing/incorrect.",
+              "Default payment method absence: No scenario covers the case where account has no default payment method and paymentMethodId is omitted (how the system should behave).",
+              "Exact response bodies / error payload schema: Many error scenarios assert status codes but do not assert standardized error body structure/content (fields, codes, messages), nor do they assert success response headers (e.g., Content-Type or emptiness explicitly).",
+              "Idempotency semantics for concurrent requests: While retries and duplicate-regression are present, there is no explicit concurrency test that attempts simultaneous identical requests to validate race conditions/locking beyond single retry scenarios.",
+              "Rate limiting / throttling: There are no tests for rate limiting, throttling or API quota handling.",
+              "Clear expectations for ambiguous status codes: Several scenarios allow multiple possible status codes (e.g., 400 or 401, 400 or 404). Tests should assert a single expected behavior per environment; current ambiguity leaves gaps in deterministic validation.",
+              "Pagination / caching (principally GET guidelines): The standard guidelines include pagination and caching tests (ETag, Cache-Control) which are not applicable to this POST endpoint; however, caching and related headers (if any) are not validated where they might be relevant (e.g., response caching headers)."
+            ],
+            "recommendations": [
+              "Add a test for \"no default payment method and no paymentMethodId supplied\" to define and verify expected behavior (e.g., 400 with descriptive error or use of fallback).",
+              "Add tests asserting exact error response body schema and messages for key failure cases (invalid account, invalid payment method, invalid params, dependency failures) to ensure consistent error contracts.",
+              "Add a test that supplies an unexpected request body and/or incorrect Content-Type to verify the endpoint tolerates or rejects unexpected payloads explicitly.",
+              "Add a concurrency test that fires multiple identical POSTs in parallel against the same account to verify no duplicate payments and correct locking behavior (distinct from single retry tests).",
+              "Define and assert single expected status codes for ambiguous scenarios in the acceptance tests (decide whether missing createdBy is 400 vs 401, invalid paymentMethod is 400 vs 404) to remove nondeterminism.",
+              "Add rate limiting / throttling tests (even if the system does not enforce limits today) to detect regressions when load-control is introduced.",
+              "Add tests for numeric precision and rounding when paymentAmount involves fractional currencies and for extremely large numeric values beyond typical ranges to confirm system limits and behavior.",
+              "Include checks for response headers where relevant (Content-Type on success/error, any caching-related headers if present) and verify they meet API contract."
+            ],
+            "usage": {
+              "completion_tokens": 1292,
+              "prompt_tokens": 7048,
+              "total_tokens": 8340,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 384,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-10-13T13:43:01.761725",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T13:40:50.259178",
+    "benchmark_end_time": "2025-10-13T13:43:01.761720",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 131.502542,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT - Valid Request: Multiple scenarios validate 204 and that the account CBA is recalculated/updated across various states (zero, negative, large positive, multiple transactions, regression case).",
+              "PUT - Non-Existing Resource: Nonexistent accountId and empty database return 400 as specified; invalid UUID format and oversized ID result in 400.",
+              "PUT - Concurrency Issues: High-concurrency requests all return 204 and keep CBA consistent.",
+              "Header validation per story: Required X-Killbill-CreatedBy verified (present vs missing/empty/null/whitespace); optional X-Killbill-Reason and X-Killbill-Comment accepted.",
+              "Robustness: 503 service unavailable, transient network error with client retry, unsupported method (GET -> 405), extra/unsupported headers tolerated, unexpected query parameters ignored while succeeding.",
+              "Security: Malicious header values (SQL injection) and XSS attempt in comment are handled without information leakage.",
+              "Performance: Response-time checks under normal and peak load.",
+              "Guideline applicability: Partial Update is not applicable for this endpoint (no request body)."
+            ],
+            "gaps": [
+              "Response contract: No assertions that 204 responses have no body (Content-Length: 0) and appropriate headers; no check for Content-Type/Produces=application/json per contract; error payload schema for 400 not verified (e.g., code, message, type).",
+              "Idempotency: No scenario proving repeated PUTs yield the same state and do not create duplicate CBA adjustments or audit entries.",
+              "Request body handling: Since the endpoint has no body, there is no test that a stray request body is rejected (400/415) or explicitly ignored per API contract.",
+              "Authentication/Authorization: No negative tests for missing/invalid credentials (401) or insufficient permissions (403).",
+              "Method coverage: Only GET is tested for 405; no checks for POST/DELETE/PATCH on the same path.",
+              "Header boundary/i18n: No tests for very long header values, Unicode/UTF-8, or control characters for X-Killbill-CreatedBy/Reason/Comment.",
+              "Audit trail: No verification that CreatedBy/Reason/Comment are persisted in audit logs/events.",
+              "Rate limiting: No tests for 429 or documented behavior under burst traffic beyond concurrent correctness."
+            ],
+            "recommendations": [
+              "Add response contract checks: assert 204 has an empty body (Content-Length: 0) and expected headers; validate 400 error schema structure and Content-Type.",
+              "Add idempotency tests: invoke PUT repeatedly and assert the CBA remains stable and only one adjustment/audit event is recorded.",
+              "Add request-body negative test: send a JSON body and assert 400/415 (or explicit ignore) as per the API contract.",
+              "Add auth negative scenarios: missing/expired token should return 401; insufficient permissions should return 403.",
+              "Extend 405 coverage to POST/DELETE/PATCH for this path.",
+              "Add header boundary and internationalization tests: extremely long values, Unicode characters, and normalization of whitespace/control characters.",
+              "Verify audit logging: read audit/events to ensure CreatedBy/Reason/Comment are captured correctly.",
+              "Add rate-limiting/throttling tests: burst requests should yield 429 or the behavior defined by the service."
+            ],
+            "usage": {
+              "completion_tokens": 6790,
+              "prompt_tokens": 5515,
+              "total_tokens": 12305,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

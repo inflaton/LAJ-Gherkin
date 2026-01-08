@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "50_2025-10-14T03:59:33.241469",
+    "jira_id": "50",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles/{bundleId} - Retrieve a bundle by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T03:57:35.571331",
+    "benchmark_end_time": "2025-10-14T03:59:33.241464",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 117.670133,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "50_qe_sup-gpt4.1_agent-gpt4.1_1748919117.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Valid Request: Successful 200 responses with application/json for a valid UUID; verifies default audit=NONE and explicit audit=FULL/MINIMAL/NONE.",
+              "Query Parameters: Covers valid values, omission (default), invalid value (400), and unknown parameter (ignored with 200).",
+              "Path Parameter Validation & Security: Malformed UUID returns 400; XSS/injection in bundleId rejected with 400 and not executed.",
+              "Not Found/Empty Data: 404 for non-existent bundle and when DB is empty.",
+              "Authorization: 401 for missing and invalid tokens.",
+              "Resiliency: 503 service unavailable; transient 500 with client retry succeeding; network timeout behavior captured.",
+              "Non-functional: Large bundle performance threshold and concurrent GETs returning correct, consistent data.",
+              "Content Negotiation (basic): Content-Type application/json asserted for success responses.",
+              "Backward compatibility: Scenario to ensure structure compatibility when audit omitted.",
+              "Pagination: Not applicable to a single-resource GET."
+            ],
+            "gaps": [
+              "Schema Validation: Tests assert a \u201cvalid Bundle object\u201d but do not validate against #/definitions/Bundle (required fields/types, id match).",
+              "Error Response Schema: No consistent validation of error body structure (e.g., code, message, type) or Content-Type for error responses.",
+              "Authorization - 403: No scenario for authenticated user lacking permissions/tenant access returning 403 (if applicable).",
+              "Caching Behavior: No checks for ETag/Last-Modified/Cache-Control headers or conditional GET (If-None-Match -> 304).",
+              "Rate Limiting: No scenarios for throttling/429 Too Many Requests and Retry-After header.",
+              "Accept Header Handling: No tests for Accept negotiation (e.g., unsupported Accept -> 406 or documented fallback).",
+              "Audit Param Edge Cases: No tests for case-insensitivity (full vs FULL), surrounding whitespace, or duplicate audit params (precedence).",
+              "TC16 Quality: The \u201cuppercase\u201d UUID example contains only digits and doesn\u2019t actually vary case; does not verify case-insensitivity for hex letters."
+            ],
+            "recommendations": [
+              "Add JSON Schema validation for the Bundle response against #/definitions/Bundle, including required fields and id equality to the path parameter.",
+              "Validate error responses use a consistent schema and Content-Type (application/json), asserting fields like status, code, message.",
+              "Add a 403 Forbidden test for a valid token without required scope/tenant (if the API enforces RBAC/multi-tenancy).",
+              "Add caching scenarios: verify ETag/Cache-Control presence; perform conditional GET with If-None-Match to assert 304 Not Modified.",
+              "Introduce rate limiting tests: burst requests leading to 429 Too Many Requests and verify Retry-After.",
+              "Add Accept header tests: Accept: application/json returns 200 JSON; unsupported Accept (e.g., application/xml) yields 406 or the documented behavior.",
+              "Extend audit parameter tests: case-insensitive values, trimming whitespace, and handling duplicates (first/last-wins or 400 if ambiguous).",
+              "Fix TC16 to truly test case-insensitivity by using a UUID with hex letters (e.g., abcdefab-1234-5678-9abc-def012345678) and issuing the request with uppercase letters in the path."
+            ],
+            "usage": {
+              "completion_tokens": 7172,
+              "prompt_tokens": 5249,
+              "total_tokens": 12421,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6464,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

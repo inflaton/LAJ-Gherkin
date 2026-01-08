@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-09-28T08:18:28.888116",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T08:16:55.902763",
+    "benchmark_end_time": "2025-09-28T08:18:28.888111",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 92.985348,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request (PUT): TC01 verifies a successful rename (204) and asserts the externalKey was updated in storage.",
+              "Required & optional headers: TC02 covers missing required X-Killbill-CreatedBy; TC14 verifies optional X-Killbill-Reason and X-Killbill-Comment are accepted.",
+              "Path parameter validation: TC03 covers malformed bundleId format; TC04 and TC15 cover non-existent bundle -> 404.",
+              "Request body validation: TC06 (missing body), TC07 (malformed JSON), TC08 (missing externalKey), TC11 (empty externalKey) exercise common invalid-body scenarios.",
+              "Conflict / uniqueness: TC05 checks conflict when new externalKey is already used by another bundle in the same account (error path specified in story).",
+              "Authorization: TC12 covers missing/invalid authentication token (401/403).",
+              "Service/dependency failures: TC13 simulates DB/service unavailable -> 503.",
+              "Edge cases and input extremes: TC09 (extra fields), TC10 (very long externalKey), TC16 (very large payload), TC19 (special characters), TC20 (leading/trailing spaces), TC21 (unexpected header) exercise robustness and validation boundaries.",
+              "Concurrency: TC17 covers concurrent rename attempts and checks for conflict behavior.",
+              "Regression/back-compat: TC18 and TC22 provide regression and legacy-client coverage.",
+              "Performance & SLAs: TC16 and TC23 include payload/response time expectations under load.",
+              "Docs/accessibility: TC24 verifies documentation accessibility and that required fields/errors are described."
+            ],
+            "gaps": [
+              "Content-Type header validation: despite \"consumes: application/json\" in the story, there is no explicit test for missing/incorrect Content-Type (e.g., 415 or request rejection).",
+              "Response headers & error payload schema: tests do not assert response Content-Type, structured error fields, or the exact error contract returned with 4xx/5xx responses; the story also declares \"produces: application/json\" but 204/no-content behavior is not validated for headers.",
+              "Idempotency: no test verifies behavior when renaming to the same externalKey (should be deterministic and ideally idempotent).",
+              "Partial-update safety: there is no explicit assertion that other bundle fields remain unchanged when rename is performed (TC09 sends extra fields but does not assert other fields are not overwritten).",
+              "Cross-account uniqueness: missing test to assert that externalKey uniqueness is scoped to account (i.e., same key in a different account should be allowed if that is the intended behaviour).",
+              "Invalid data types: no tests for wrong data types for externalKey (e.g., number/null) to verify schema validation.",
+              "HTTP method validation: no tests for unsupported HTTP methods on this endpoint (e.g., POST/GET to rename endpoint returning 405 Method Not Allowed).",
+              "Duplicate submissions / retry semantics: duplicate request/retry behavior is not tested to ensure safe retries or idempotent behavior.",
+              "Ambiguous expectations: several scenarios allow \"204 or 400\" which makes tests nondeterministic; product constraints (length/charset) are not clarified so edge-case tests are ambiguous.",
+              "Audit/logging: no test asserts that X-Killbill-CreatedBy is recorded/audited as part of the update operation (if audit is required)."
+            ],
+            "recommendations": [
+              "Add Content-Type validation tests: send requests with missing/incorrect Content-Type and assert the server rejects them (e.g., 415 or 400) and documents the expected header.",
+              "Assert response headers & error schema: add checks for Content-Type on success/error responses and validate the error response schema (error code field, message, etc.).",
+              "Add idempotency test: rename to the bundle's current externalKey and assert deterministic behavior (prefer success/no-op 204 and no unintended changes).",
+              "Add partial-update safety test: include other bundle fields in the body and assert only externalKey is changed while other fields remain unchanged.",
+              "Add cross-account uniqueness test: attempt rename to an externalKey that exists in another account and assert behaviour (allowed or rejected) per product decision.",
+              "Add invalid-type tests: pass non-string or null externalKey values and assert a 400 with schema validation error.",
+              "Add method-not-allowed tests: exercise unsupported HTTP methods against the endpoint and assert 405 responses.",
+              "Clarify and assert conflict semantics: decide on a single conflict status (400 vs 409) and update tests to assert that exact status and error payload for duplicate-key and concurrency cases; strengthen TC17 to assert deterministic outcomes under race conditions.",
+              "Add duplicate-submission/retry tests: re-submit the same rename request and assert safe, documented behavior (idempotency or defined response).",
+              "Add audit/logging verification tests if the system must record X-Killbill-CreatedBy (validate audit entries or metadata).",
+              "Replace ambiguous \"204 or 400\" expectations with deterministic tests after product clarifies limits for externalKey length and allowed character set; add explicit tests for max-length and charset validation."
+            ],
+            "usage": {
+              "completion_tokens": 6573,
+              "prompt_tokens": 6051,
+              "total_tokens": 12624,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5504,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

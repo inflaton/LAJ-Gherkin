@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-13T05:25:53.941694",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:25:26.228369",
+    "benchmark_end_time": "2025-10-13T05:25:53.941689",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 27.71332,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple success scenarios (TC01, TC02, TC03, TC04, TC05, TC26) validate creating a transfer with minimum and all optional parameters.",
+              "Validation / Invalid Payloads: Many invalid-input scenarios exist (TC08 invalid bundleId, TC09 invalid requestedDate, TC10 invalid billingPolicy, TC12 missing request body, TC11 missing required header) to exercise input validation and return 400 responses.",
+              "Not Found / Resource absence: Scenarios covering non-existent bundle and non-existent target account (TC06, TC07, TC22, TC23) returning 404 are present.",
+              "Authorization and Headers: Authorization error is covered (TC13) and header validation (missing X-Killbill-CreatedBy: TC11) is present; optional headers (reason/comment) are exercised in TC02 and header limit test TC21.",
+              "Query parameters and policy behavior: requestedDate, billingPolicy and pluginProperty are exercised (TC02, TC03, TC04, TC05, TC18) including different billingPolicy enum values and empty pluginProperty.",
+              "Response expectations: Success responses assert 201 and Location header presence (TC01, TC02) as required by the story.",
+              "Error / Server handling: Service unavailability and integration failures are tested (TC14 -> 503, TC24 -> 500).",
+              "Security: Injection and XSS tests exist (TC15, TC16).",
+              "Edge cases & robustness: Extra params (TC19), large payload behavior (TC20), concurrency and performance (TC27\u2013TC30), retry on transient failure (TC17), same-account regression check (TC25), accessibility & docs (TC31) are included."
+            ],
+            "gaps": [
+              "Duplicate submissions / idempotency: No explicit test for duplicate POST submissions or idempotency behaviour (e.g., same request sent twice, idempotency key handling).",
+              "Malformed JSON / Content-Type handling: No scenario for malformed JSON body, missing or incorrect Content-Type header (application/json) leading to 400.",
+              "Explicit schema validation coverage: While success scenarios assert \"valid Bundle object\", there are no tests that validate the response against the full Bundle schema (field-level assertions, types, required fields).",
+              "PluginProperty type/formats and collection edge-cases: Tests for invalid pluginProperty types (non-array), individual malformed plugin property entries (wrong object shape), or unsupported characters beyond XSS are missing.",
+              "Duplicate target-account semantics beyond same-account: No tests that assert behavior when transferring bundles with linked subscriptions or constraints (e.g., active subscriptions that would conflict) \u2014 domain/business constraint scenarios aren't covered.",
+              "DuplicateSubmission race conditions / dedup under concurrency: Although concurrency is tested broadly (TC29), there is no specific test for handling duplicate concurrent requests targeted at the same bundle that verify no partial transfers or double-transfers occur.",
+              "Response headers and content-type checks: No explicit tests that verify response Content-Type is application/json or that Location header contains the exact canonical URL (beyond \"present and correct\" generality).",
+              "Rate limiting / throttling and API quota: There are no tests for request throttling / rate-limiting (relevant for production robustness)."
+            ],
+            "recommendations": [
+              "Add idempotency/duplicate-submission tests: repeat the same POST (optionally with an Idempotency-Key) and assert either safe deduplication or a deterministic error; include a test for rapid duplicate POSTs to the same bundle.",
+              "Add malformed JSON and Content-Type tests: send invalid JSON and missing/incorrect Content-Type to ensure 400 responses and clear error messages.",
+              "Add strict response schema validation tests: assert required Bundle fields, field types and relationships in success responses (not just \"valid Bundle object\").",
+              "Expand pluginProperty negative tests: include non-array pluginProperty, malformed property objects, and oversized single property items to ensure robust validation.",
+              "Add business-constraint tests: cover transfers blocked by subscription constraints, billing cycles, or dependencies (e.g., bundles with active invoices, invoices pending payment) to validate domain rules.",
+              "Add precise concurrency/dedup tests: simulate concurrent POSTs for the same bundle and assert single successful transfer and no corruption/double-transfer.",
+              "Add Content-Type and Location validation: assert response Content-Type header is application/json and Location header contains the canonical URL format (including bundleId), not only presence.",
+              "Consider rate-limiting tests: simulate high request rates to observe throttling or proper 429/appropriate handling in the system, especially for public APIs."
+            ],
+            "usage": {
+              "completion_tokens": 2050,
+              "prompt_tokens": 7734,
+              "total_tokens": 9784,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

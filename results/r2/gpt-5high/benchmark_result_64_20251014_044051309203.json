@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-14T04:40:51.309174",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T04:38:05.175420",
+    "benchmark_end_time": "2025-10-14T04:40:51.309170",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 166.13375,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT: Valid Request \u2013 Successful resume of paused bundles with and without optional params; verifies state change to active and that all subscriptions resume (immediate and scheduled).",
+              "PUT: Non-Existing Resource \u2013 404 when bundle not found (empty DB).",
+              "PUT: Concurrency Issues \u2013 Concurrent resume requests covered; first succeeds, later ones fail with 400/409.",
+              "Input validation \u2013 Invalid bundleId (400), missing required CreatedBy header (400), requestedDate in past (400), pluginProperty malformed/non-array (400), extra params ignored; boundary lengths tested.",
+              "Optional headers \u2013 Reason/Comment handled and audit logging asserted.",
+              "Server/Dependency errors \u2013 500 on dependency failure; plugin degradation/timeout case covered (204/504).",
+              "Authorization \u2013 Unauthorized access scenario (401/403).",
+              "Security \u2013 SQL injection and XSS attempts handled safely with no harmful side effects.",
+              "Performance/Load \u2013 Normal and peak load response times verified."
+            ],
+            "gaps": [
+              "Content negotiation and 204 body: No checks that 204 has no body and that response headers (e.g., Content-Type producing application/json) are correct when applicable.",
+              "requestedDate format validation: No cases for invalid date formats (non-ISO), timezone offsets, leap days, boundary of today vs now, or far-future dates.",
+              "pluginProperty collectionFormat=multi: No explicit test using repeated query params (pluginProperty=...&pluginProperty=...) and URL-encoding of values; no tests for empty values or duplicate keys.",
+              "404 in populated dataset: Only empty database case; missing bundle scenario in a non-empty DB not covered.",
+              "Idempotency (sequential): No scenario repeating the same resume call sequentially to assert the second call returns 400/409 due to invalid state.",
+              "Audit log depth: No retrieval/validation of full audit entry schema (who/when/reason/comment) beyond a generic assertion.",
+              "Authentication vs CreatedBy separation: Missing scenarios for missing/expired/invalid auth token distinct from CreatedBy header misuse.",
+              "Error response schema: No validation of error payload structure/fields for 400/404/500/504.",
+              "Scheduling verification: For future requestedDate, no follow-up (time-travel/event inspection) to verify the bundle actually resumes at that date."
+            ],
+            "recommendations": [
+              "Validate response headers for 204 responses (no body) and content negotiation; ensure Content-Type is correct when applicable and Accept is honored.",
+              "Add requestedDate parsing/edge tests: invalid strings, timezone offsets, leap day, today vs now, and far-future dates.",
+              "Add explicit tests for pluginProperty with collectionFormat=multi (repeated parameters) including URL-encoded values, empty values, and duplicate keys.",
+              "Add 404 scenario for a valid but non-existent bundleId in a populated database.",
+              "Add idempotency test: call resume twice sequentially on the same bundle; expect first 204, second 400 or 409.",
+              "Strengthen audit verification by fetching and asserting audit/event entries (CreatedBy, Reason, Comment, timestamps).",
+              "Separate auth scenarios: missing token, expired token, insufficient permissions, distinct from CreatedBy header presence/format.",
+              "Assert error response schema and codes across 400/404/500/504 (consistent fields like code, message, details).",
+              "For scheduled resumes, simulate clock advance or trigger processing to confirm state transitions on requestedDate."
+            ],
+            "usage": {
+              "completion_tokens": 6112,
+              "prompt_tokens": 6265,
+              "total_tokens": 12377,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5376,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

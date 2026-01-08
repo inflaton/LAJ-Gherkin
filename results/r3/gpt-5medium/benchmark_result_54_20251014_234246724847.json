@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-14T23:42:46.724817",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T23:41:40.132454",
+    "benchmark_end_time": "2025-10-14T23:42:46.724813",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 66.592359,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE - Valid Deletion: Success paths covered for removing all tags (no tagDef) and specific tagDefs; 204 with empty body asserted (TC01, TC02, TC03, TC04, TC12, TC16, TC17).",
+              "DELETE - Non-Existent Resource: 404 for non-existent bundleId and 400 for invalid UUID format (TC06, TC05).",
+              "DELETE - Concurrency: High-concurrency deletes tested; asserts no race conditions or data corruption (TC15).",
+              "Query parameters: Optional tagDef, multi-valued tagDef, empty array regression, very large lists, partial invalid values, and extra unexpected params all exercised (TC01, TC02, TC11, TC12, TC13, TC16).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional Reason/Comment exercised; malicious header input validated (TC03, TC08, TC14).",
+              "Robustness and availability: Unauthorized user, service unavailable, and timeout behaviors covered (TC09, TC10, TC18).",
+              "State verification: Post-delete GET validates remaining tags to confirm data consistency (TC17).",
+              "Idempotency (implicit): Deleting when bundle has no tags returns 204 (TC04)."
+            ],
+            "gaps": [
+              "DELETE - Soft deletes/auditability: No verification of audit trail/history or soft-delete semantics for tag removals.",
+              "Response headers/contract: Story states Produces: application/json but tests do not assert Content-Type or Accept negotiation for 204 responses; clarify and test header behavior.",
+              "Explicit idempotency: No scenario that repeats the same DELETE twice in a row on the same inputs to confirm consistent 204 and no side effects beyond TC04.",
+              "TagDefs not associated to bundle: No test where some provided tagDef UUIDs are not currently on the bundle; expected behavior (likely 204 and ignore) not verified.",
+              "Authorization semantics: Only 401 tested; no 403 Forbidden scenario for authenticated-but-not-allowed user if applicable.",
+              "Error payload schema: Tests check for error messages but do not validate standard error structure/fields (e.g., code, message, requestId).",
+              "Mixed-operation concurrency: No test for DELETE while concurrent ADD/POST of tags to the same bundle to detect race/ordering issues.",
+              "Header value constraints: No tests for max length/encoding of X-Killbill-Reason/Comment or trimming/normalization beyond injection."
+            ],
+            "recommendations": [
+              "Add auditability tests: After DELETE, query audit logs/history to verify entries include X-Killbill-CreatedBy/Reason/Comment and expected change records; clarify soft vs hard delete semantics for tag associations.",
+              "Assert response headers: Agree on expected Content-Type for 204 responses and Accept negotiation; add checks for headers (and absence of body) to align with Produces: application/json in the story.",
+              "Add explicit idempotency test: Perform the same DELETE twice (with identical tagDef set) and assert both return 204 and state remains consistent.",
+              "Add scenario where tagDef includes UUIDs not present on the bundle; assert expected behavior (likely ignore and return 204).",
+              "Cover 403 Forbidden (if applicable): Authenticated user without permission should yield 403; distinguish from 401 for unauthenticated.",
+              "Validate error schema: Assert standard error JSON contract (fields, types) for 400/401/403/404/422/503/504 responses.",
+              "Introduce mixed concurrency test: Simulate concurrent DELETE and tag-adding requests; verify final state and absence of race conditions.",
+              "Add boundary tests for headers: Extremely long Reason/Comment, non-UTF-8 characters, and whitespace-only values to ensure validation and sanitization behavior."
+            ],
+            "usage": {
+              "completion_tokens": 3941,
+              "prompt_tokens": 4976,
+              "total_tokens": 8917,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3136,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

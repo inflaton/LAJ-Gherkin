@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-09-28T10:18:52.962627",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:17:24.750466",
+    "benchmark_end_time": "2025-09-28T10:18:52.962623",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 88.212157,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT - Valid Request: Multiple success paths verify 204 and data updated (TC01-TC05, TC21, TC22).",
+              "PUT - Non-Existing Resource: 404 when invoice item not found (TC07, TC24, TC25).",
+              "Input Validation: Invalid UUID format 400 (TC06); malformed JSON 400 (TC08); empty body 400 (TC10); unsupported fields 400 (TC11).",
+              "Headers: Required X-Killbill-CreatedBy enforced (TC01-TC03, TC09); optional Reason/Comment handled (TC02).",
+              "Authorization: 401 for missing/invalid token (TC13).",
+              "Server/Error Handling: 500 DB failure (TC15); 503 dependent service unavailable (TC19); 504 timeout under load (TC16).",
+              "Payload Size Handling: Large payload behavior 204/413 (TC12) and performance under max size (TC21).",
+              "Idempotency: Repeated identical PUTs keep state consistent with 204 (TC17).",
+              "State Variations: No prior fields vs existing fields (TC04, TC05).",
+              "URL Strictness: Extra query parameter behavior acknowledged (204 or 400) (TC23).",
+              "Security Hardening: SQL injection-like payloads rejected (400/422) (TC14).",
+              "Performance/Throughput: Parallel updates across many items within SLA (TC20)."
+            ],
+            "gaps": [
+              "PUT - Partial Update Semantics: No explicit tests clarifying merge vs replace behavior when sending a subset of fields, how to remove existing fields, or behavior for an empty JSON array [].",
+              "Concurrency on Same Resource: No scenarios for simultaneous conflicting updates to the same invoiceItemId and expected resolution (e.g., last-write-wins vs optimistic locking/If-Match, 409).",
+              "CustomField Schema Validation Depth: Missing tests for required fields within CustomField (e.g., name/key/value), invalid data types, null/blank values, max length/charset constraints, duplicate field names or duplicate entries in the array, max count of fields.",
+              "Header Value Validation: No tests for empty/whitespace or overly long X-Killbill-CreatedBy, invalid characters, or size limits for Reason/Comment; no test for missing/wrong Content-Type or Accept negotiation.",
+              "Response Contract: No assertion that 204 responses have no body and proper headers (e.g., Content-Length 0, Content-Type absent); error responses not validated against a standard error schema.",
+              "Authorization Depth: No 403 Forbidden scenario for authenticated user lacking permission (RBAC).",
+              "Transactional Behavior: No scenario defining whether mixed valid/invalid items in the same array are rejected as a whole vs partially applied (all-or-nothing vs partial success).",
+              "Rate Limiting/Throttling: No 429 coverage for burst traffic on this PUT endpoint (if applicable).",
+              "Black-box Verification: Most validations reference database state; lacks follow-up GET of custom fields to verify externally observable behavior."
+            ],
+            "recommendations": [
+              "Add explicit partial update semantics tests: sending a subset of fields (merge vs replace), explicit deletion/removal behavior, and behavior for an empty array [].",
+              "Introduce concurrency tests on the same invoice item: two parallel PUTs with different payloads; verify final state and, if supported, use ETag/If-Match with 409 Precondition Failed.",
+              "Expand schema validation: cases with missing required attributes inside CustomField, invalid types, null/empty values, boundary tests for lengths/charset, duplicate field names, duplicate objects, and exceeding max number of fields.",
+              "Harden header tests: empty/whitespace and oversized X-Killbill-CreatedBy; Reason/Comment length limits; invalid characters; requests with missing/wrong Content-Type (e.g., text/plain) and Accept header variations.",
+              "Validate response contracts: assert 204 has no body and appropriate headers; validate error responses conform to a standard error schema (fields like code, message) and correct Content-Type.",
+              "Add RBAC scenario: authenticated but unauthorized user receives 403.",
+              "Define and test transactional behavior for mixed-validity arrays (all-or-nothing vs partial application with per-item errors).",
+              "If applicable, add rate limiting tests producing 429 for excessive request rates.",
+              "Prefer black-box verification via GET custom fields API after PUT to confirm persisted, user-visible state; keep DB checks as supplemental.",
+              "Assert audit logging behavior: CreatedBy/Reason/Comment are captured in audit logs for the modification."
+            ],
+            "usage": {
+              "completion_tokens": 3206,
+              "prompt_tokens": 6450,
+              "total_tokens": 9656,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2240,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

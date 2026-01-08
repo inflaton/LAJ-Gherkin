@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "9_2025-09-28T07:27:53.904913",
+    "jira_id": "9",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/block - Block an account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:26:15.434952",
+    "benchmark_end_time": "2025-09-28T07:27:53.904909",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 98.469957,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "9_qe_sup-gpt4.1_agent-gpt4.1_1748916388.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Happy path: multiple scenarios validate successful creation of BlockingState(s) with 201 and JSON array responses (TC01, TC02, TC03, TC04, TC05, TC16, TC17, TC20).",
+              "Header handling: required X-Killbill-CreatedBy and optional X-Killbill-Reason / X-Killbill-Comment are exercised; missing required header is tested (TC01, TC02, TC08).",
+              "Query parameters: requestedDate and pluginProperty are exercised in combinations (single, both, empty array) including effective date verification (TC02, TC03, TC04, TC15).",
+              "Error responses: invalid accountId format and malformed bodies return 400 (TC07, TC09, TC10); non-existent account returns 404 (TC06); unauthorized (no token) returns 401 (TC11); service-unavailable scenarios for DB and plugin return 503 (TC12, TC22).",
+              "Security: SQL injection and malicious payload protections are tested (TC13, TC14).",
+              "Edge cases: maximum/minimum allowed field lengths and very large payloads covered (TC16, TC17, TC20).",
+              "Plugin integration: plugin success and plugin-unavailable failure cases covered (TC21, TC22).",
+              "Regression and backward compatibility: duplicate-entry regression and legacy-client payloads covered (TC23, TC24).",
+              "Performance/resilience: long-running downstream, high concurrency and sustained load scenarios are present (TC19, TC25, TC26).",
+              "Accessibility: API documentation and error-message accessibility scenario included (TC27)."
+            ],
+            "gaps": [
+              "Content-Type / Accept header behavior is not tested (missing or incorrect Content-Type; response Content-Type asserted).",
+              "Per-field schema validation negative tests are missing: invalid BlockingState field types (e.g., string where boolean expected), out-of-range values, and malformed requestedDate formats are not explicitly tested.",
+              "pluginProperty negative permutations are not covered (e.g., pluginProperty provided as a string instead of array, invalid element types, overly large property values).",
+              "Duplicate-submission idempotency and same-account concurrent POSTs (race conditions leading to duplicate or inconsistent BlockingState entries) are not explicitly tested; TC23 is regression-specific but not an idempotency/concurrency stress on the same account.",
+              "Authorization granularity: authenticated-but-unauthorized access (403 Forbidden) and role-based permission checks are not present.",
+              "Generic 500/internal-server-error scenarios (unexpected exceptions) are not simulated; only 503 for DB/plugin is present.",
+              "Rate limiting / throttling behavior (e.g., 429 responses under bursts) is not covered \u2014 performance tests exist but not rate-limiting assertions.",
+              "Response-level assertions are thin: no explicit JSON Schema validation of returned BlockingState objects, and response headers (Content-Type, Location, caching or other operational headers) are not asserted.",
+              "Transaction/partial-failure scenarios for bulk payloads (partial create success with some entries failing) are not covered.",
+              "Audit/persistence verification: checks that createdBy, timestamps, IDs are persisted and accurate in DB/response are not present."
+            ],
+            "recommendations": [
+              "Add tests for Content-Type and Accept handling: missing or wrong Content-Type should return the documented error (415 or 400); always assert response Content-Type is application/json and charset where applicable.",
+              "Add negative field-level schema tests driven by the BlockingState JSON Schema: invalid types (strings for booleans, malformed dates), missing required fields in the body, and out-of-range values for numeric fields.",
+              "Add tests for requestedDate validation (invalid formats, timezone variants) and assert proper error messages.",
+              "Add pluginProperty negative tests: single string vs array, invalid element types, very large property values and ensure the API validates input before plugin invocation.",
+              "Implement explicit idempotency / duplicate-submission tests: send the same POST twice (and/or retry after timeouts) and assert expected behavior (no duplicate resource, appropriate status code), and add concurrent POSTs targeting the same account to surface race conditions.",
+              "Add authorization role tests: authenticated but unauthorized users should get 403; exercise different roles/permissions for applying blocking states.",
+              "Simulate generic 500/internal errors (application exceptions) to validate graceful degradation and error payloads in addition to the 503 scenarios.",
+              "Add rate-limiting tests: bursts and sustained high-rate tests asserting 429 or configured throttling behavior and recovery.",
+              "Validate response bodies against the BlockingState JSON schema and assert response headers (Content-Type, Location if applicable, and any operational headers). Integrate schema validation into CI for regression protection.",
+              "Add persistence/audit checks: verify createdBy, timestamps, returned IDs are persisted and match DB state; include DB assertions where feasible for end-to-end confidence.",
+              "Parameterize negative cases and convert repeated permutations into data-driven scenarios (invalid date strings, pluginProperty permutations, header edge-values) to cover combinatorial inputs with fewer scenarios.",
+              "Clarify expected behavior for duplicate submissions in the API contract and implement tests that assert the chosen semantics (idempotent, conflict, or allowed duplicates)."
+            ],
+            "usage": {
+              "completion_tokens": 6268,
+              "prompt_tokens": 7115,
+              "total_tokens": 13383,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5184,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

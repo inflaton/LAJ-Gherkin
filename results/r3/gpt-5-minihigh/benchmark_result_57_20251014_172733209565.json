@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "57_2025-10-14T17:27:33.209534",
+    "jira_id": "57",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/customFields - Modify custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T17:25:26.345433",
+    "benchmark_end_time": "2025-10-14T17:27:33.209525",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 126.864092,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "57_qe_sup-gpt4.1_agent-gpt4.1_1748919636.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01, TC02, TC13, TC14, TC15, TC22, TC23, TC25) verify successful PUTs returning 204 and updating bundle custom fields for a variety of valid payloads and header combinations.",
+              "Header validation: Required header X-Killbill-CreatedBy is tested (TC01) and missing-required-header is covered (TC06). Optional headers X-Killbill-Reason and X-Killbill-Comment are tested (TC02).",
+              "Path parameter validation and resource existence: Invalid bundleId format (TC04 -> 400) and non-existent bundle (TC05 -> 404) are covered.",
+              "Request body validation: Malformed JSON (TC07), missing body (TC08), unsupported extra fields (TC09), and SQL-injection-like input (TC12) are tested.",
+              "Error handling and status codes: Unauthorized (TC10 -> 401), service unavailable (TC11 -> 503), internal server error on inconsistent dependency data (TC20 -> 500), plus 400/404 scenarios are present.",
+              "Edge cases & regression: Max items, max length, empty values, special characters, unexpected URL params, backward compatibility and partial-update scenarios are exercised (TC13\u2013TC16, TC19, TC24\u2013TC25).",
+              "Performance & recovery: Normal load latency (TC17), peak/concurrent requests (TC18), and retry/recovery (TC21) are included.",
+              "State variations & integration: Bundles with/without existing custom fields, partial vs full updates, and integration/dep behavior are covered (TC22\u2013TC24, TC20)."
+            ],
+            "gaps": [
+              "CustomField schema validation: No explicit tests for missing required properties inside each CustomField object (e.g., missing name, invalid objectType or id), or invalid data types for those fields.",
+              "PUT semantics ambiguity / Partial-update contract: The story/guidelines require clarity whether PUT should fully replace the set or allow partial merges. Tests (TC24) assume partial updates succeed, but there is no test asserting the correct semantics (replace vs merge) per spec.",
+              "Concurrency data integrity & conflict resolution: TC18 tests concurrency for throughput, but there are no targeted tests to verify final-state correctness under concurrent conflicting updates (race conditions, lost updates, locking behavior).",
+              "Idempotency & duplicate submissions: No tests ensure repeated identical PUTs are idempotent and do not create duplicate custom fields or inconsistent state.",
+              "Authorization scope / permissions: While unauthenticated access (401) is tested (TC10), there are no tests for authenticated-but-unauthorized scenarios (403) or role-based permission checks.",
+              "Content-Type and Accept negotiation: No tests verify that Content-Type: application/json is required or how missing/incorrect Content-Type is handled; also no checks for response Content-Type and the 204 no-body semantics despite \"Produces: application/json\" in the story.",
+              "Large payload & resource limits: TC13 checks \"maximum allowed\" number of custom fields but there are no stress tests for extremely large payloads, or behavior when payload exceeds size limits (e.g., 413).",
+              "Transactional / partial-failure behavior: No tests that simulate a partial failure during update to assert atomicity/rollback or clearly defined partial-commit behavior.",
+              "Audit header persistence: X-Killbill-Reason and X-Killbill-Comment presence is tested as headers (TC02) but there are no assertions that these are persisted/recorded in audit logs or change metadata.",
+              "Error response schema & headers: Tests check for an error message, but do not validate a consistent error response schema or response headers (Content-Type, correlation IDs).",
+              "Rate limiting / throttling: No tests for rate limiting, throttling or handling of bursts beyond functional concurrency/performance tests."
+            ],
+            "recommendations": [
+              "Add CustomField schema tests: Negative tests for missing required fields in each CustomField object, invalid data types, invalid UUIDs inside object references, duplicate custom field names, and explicit validation error messages and codes.",
+              "Clarify and test PUT contract: Decide whether PUT should replace entire custom-field set or allow partial merges. Add tests for both behaviors: (a) full-replace scenario \u2014 omitted entries are removed; (b) partial-merge scenario \u2014 only provided entries are updated. Ensure tests assert correct final state and idempotency.",
+              "Concurrency & data-integrity tests: Implement conflict tests that run concurrent, conflicting updates and then validate final DB state (detect lost updates, race conditions). Consider tests that assert locking behavior or conflict error responses if applicable.",
+              "Idempotency and duplicate submission tests: Send identical requests repeatedly and assert no duplication or divergence; test duplicate-object handling semantics.",
+              "Authorization scope tests: Add authenticated-but-unauthorized (403) tests exercising role-based access control and verify audit/authorization failure messages.",
+              "Content-Type & response headers tests: Verify server rejects unsupported Content-Type (expect 415 or 400), verify 204 responses contain no body and expected headers, and verify error responses include consistent Content-Type and error schema.",
+              "Large payload & limits: Add tests that exceed maximum allowed payload size to validate 413/appropriate error handling and resource consumption behavior.",
+              "Transactional behavior tests: Simulate partial failures (e.g., one CustomField update fails) and assert whether the operation is atomic or partial; add tests to validate rollback semantics.",
+              "Audit header persistence: Add assertions against audit logs or bundle metadata to ensure X-Killbill-CreatedBy/Reason/Comment are recorded as required.",
+              "Error response schema & telemetry: Standardize/validate error response JSON schema (error code, message, timestamp, correlationId) and assert presence of diagnostic headers; add tests to check this.",
+              "Rate limiting & throttling: Add tests to validate API behavior under burst traffic (rate-limit responses, 429 behavior) and long-term throttling policies."
+            ],
+            "usage": {
+              "completion_tokens": 6042,
+              "prompt_tokens": 6139,
+              "total_tokens": 12181,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4800,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

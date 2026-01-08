@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-14T22:50:29.360216",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T22:49:12.680064",
+    "benchmark_end_time": "2025-10-14T22:50:29.360211",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 76.680147,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Success cases with and without tagDef, subset removals, idempotent behavior when no tags exist (TC01, TC02, TC03, TC04, TC05, TC06, TC07, TC18).",
+              "DELETE - Non-Existent Resource: 404 when invoice item does not exist (TC08).",
+              "DELETE - Concurrency: High-concurrency scenario to detect race conditions/performance issues (TC17).",
+              "Input Validation (supplemental): Invalid invoiceItemId (400), malformed/partial tagDef (400), empty tagDef (treated as no-op 204), extra query params tolerance (TC06, TC07, TC09, TC13, TC16).",
+              "Headers: Required X-Killbill-CreatedBy enforced (400 on missing), optional Reason/Comment accepted and sanitized (TC03, TC10, TC15, TC18).",
+              "Authentication/Availability (supplemental): 401 for invalid token, 503 for service down; integration dependency behavior considered (TC11, TC12, TC19).",
+              "Large input edge case: Very large number of tagDef values handled (TC14)."
+            ],
+            "gaps": [
+              "DELETE - Soft Deletes: No scenario clarifies whether tag removal is soft vs hard delete or validates any soft-deletion flags/audit trails.",
+              "DELETE - Concurrency detail: No explicit test for two simultaneous deletes on the same invoice item/tags verifying idempotent outcomes and absence of conflicts; no scenario where the invoice item itself is deleted concurrently leading to deterministic 204/404.",
+              "Authorization vs Authentication: No 403 scenario for authenticated user lacking permission/tenant/account scope.",
+              "Idempotency repeatability: No test explicitly repeating the same DELETE request twice to confirm idempotent 204 and unchanged state.",
+              "Query param collection format: No explicit verification of multi-format encoding (tagDef=uuid1&tagDef=uuid2), ordering, duplicates handling, or whitespace/case normalization.",
+              "Error response contract: No validation of error schema/headers (e.g., Content-Type on errors, produces application/json vs 204 with no body).",
+              "Mixed-validity inputs: No case where tagDef contains a mix of valid and malformed/unknown UUIDs to confirm whole-request failure vs partial processing policy.",
+              "Audit/logging side effects: While dependency failure is tested, there is no positive verification that audit entries are created correctly on success."
+            ],
+            "recommendations": [
+              "Add a soft-delete behavior test (if applicable): verify whether tag associations are soft-deleted and confirm via subsequent retrieval/audit endpoints.",
+              "Add targeted concurrency scenarios: two concurrent DELETEs on the same invoice item/tags; concurrent DELETE while invoice item is being removed; assert deterministic outcomes and no data races.",
+              "Add authorization test: authenticated user without proper permissions should receive 403; include tenant/account scoping if relevant.",
+              "Add idempotency test: send the same DELETE twice (same tagDef or no tagDef) and verify second call returns 204 with no changes.",
+              "Verify query parameter collection format: repeated tagDef parameters (multi), order-independence, duplicate UUIDs, trimming/normalization of values.",
+              "Validate error contract: ensure error responses include expected JSON schema and headers; ensure 204 responses have no body and appropriate headers.",
+              "Test mixed-validity tagDef arrays (some valid, some malformed/unknown) to confirm validation policy (fail-fast 400 vs partial processing).",
+              "Verify positive audit logging on success (entries created with CreatedBy/Reason/Comment), not only behavior when audit service is unavailable."
+            ],
+            "usage": {
+              "completion_tokens": 3783,
+              "prompt_tokens": 5394,
+              "total_tokens": 9177,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3008,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

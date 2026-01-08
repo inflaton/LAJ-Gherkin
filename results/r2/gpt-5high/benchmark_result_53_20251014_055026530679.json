@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "53_2025-10-14T05:50:26.530629",
+    "jira_id": "53",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/tags - Add tags to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T05:48:36.067267",
+    "benchmark_end_time": "2025-10-14T05:50:26.530623",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 110.463356,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "53_qe_sup-gpt4.1_agent-gpt4.1_1748919377.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST/Valid Payload: Successful 201 creation with correct JSON array of Tag objects (single, multiple, empty arrays) and persistence checks (TC01, TC03, TC04, TC05, TC07).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment accepted; extra unsupported headers tolerated (TC01, TC02, TC13, TC23).",
+              "Validation: Path bundleId UUID format; body type/shape (non-array, malformed JSON, missing body); invalid tag UUIDs (malformed/non-existent) (TC08, TC10, TC11, TC12, TC14, TC15).",
+              "Large Payloads: Boundary testing for maximum allowed and exceeding payload sizes (TC20, TC21).",
+              "Duplicate handling: No duplicate Tag objects when tags already exist; previous duplicate bug regression covered (TC06, TC26).",
+              "Error handling: 400 responses for invalid inputs; 401 unauthorized; 503 service unavailable; 504 timeout; transient retry flow (TC08\u2013TC12, TC14\u2013TC18, TC22, TC19).",
+              "Integration/persistence verification via GET and cross-service consistency; performance under normal and concurrent load (TC24, TC25, TC27, TC28)."
+            ],
+            "gaps": [
+              "Server Error Handling (500): No scenario for generic 500 Internal Server Error (e.g., unexpected DB exception without mapping to 503).",
+              "Content negotiation: No checks for response Content-Type=application/json; no tests for requests with wrong/missing Content-Type resulting in 415 Unsupported Media Type.",
+              "Idempotency/Duplicate submission: No explicit test sending the exact same POST twice (with and without an idempotency key) to ensure no duplicate tags or unexpected responses.",
+              "In-request duplicates: No scenario where the request array itself contains duplicate tagDefinition UUIDs and expected behavior (dedupe vs. error).",
+              "Mixed-validity body: No case with a mix of valid and invalid tagDefinition UUIDs to confirm atomicity (all-or-nothing) and resulting status/message.",
+              "Authorization/Permissions: No 403 Forbidden case for authenticated user lacking permission (only 401 is covered).",
+              "Schema depth: Tag response validation only checks bundleId/tagDefinitionId; no verification of full Tag schema as per #/definitions/Tag (e.g., objectType, audit fields)."
+            ],
+            "recommendations": [
+              "Add a scenario for unexpected server failure returning 500 to complete Server Error Handling coverage.",
+              "Validate Content-Type handling: assert response header Content-Type=application/json on success; add a 415 test for non-JSON payloads.",
+              "Add explicit duplicate-submission tests: resend identical POST immediately and after transient failure; if supported, include X-Killbill-Idempotency-Key and assert no duplicate tags are created.",
+              "Create a test where the request array contains duplicate UUIDs and define expected behavior (reject with 400 or accept and dedupe deterministically).",
+              "Add a mixed-validity payload scenario (valid + invalid UUIDs) and assert atomic behavior and error response structure.",
+              "Introduce a 403 Forbidden scenario for a user with valid auth but insufficient permissions to add tags.",
+              "Expand Tag object assertions to include key fields from #/definitions/Tag (e.g., tagDefinitionName, objectType, audit/metadata) to ensure schema compliance."
+            ],
+            "usage": {
+              "completion_tokens": 5277,
+              "prompt_tokens": 6808,
+              "total_tokens": 12085,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4544,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

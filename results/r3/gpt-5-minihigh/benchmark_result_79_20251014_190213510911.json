@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "79_2025-10-14T19:02:13.510880",
+    "jira_id": "79",
+    "jira_title": "Implement/Test API: GET /1.0/kb/credits/{creditId} - Retrieve a credit by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:00:08.121040",
+    "benchmark_end_time": "2025-10-14T19:02:13.510874",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 125.389834,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "79_qe_sup-gpt4.1_agent-gpt4.1_1748921053.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Successful retrieval for CREDIT_ADJ and CBA_ADJ including 200 status, application/json Content-Type, matching creditId and type checks (TC01, TC02, TC15).",
+              "Input validation and error responses: invalid UUIDs, truncated IDs, whitespace, and malicious inputs (SQLi/XSS) are tested and lead to 400 responses (TC05, TC12, TC13, TC16, TC17).",
+              "Not Found handling: 404 returned for non-existent creditId, when no credits exist, or when an InvoiceItem exists but is not of type CREDIT_ADJ/CBA_ADJ (TC03, TC04, TC11, TC14, TC18).",
+              "Authorization: Authentication failures covered for missing and expired/invalid tokens returning 401 (TC06, TC07).",
+              "Service error handling: Database/unavailable service mapped to 503 response (TC10).",
+              "Query parameter handling: Unexpected query parameters are ignored and do not affect retrieval (TC08).",
+              "Performance / Concurrency: Response-time threshold and concurrent request behavior are included (TC09, TC19).",
+              "Security and regression: SQL injection and XSS attempts are explicitly tested and rejected (TC12, TC13); regression test for previously problematic creditId included (TC15).",
+              "Backward compatibility: A test exists to ensure response structure remains compatible with previous clients (TC20)."
+            ],
+            "gaps": [
+              "Rate Limiting / Throttling: No tests that verify server behavior when the client exceeds rate limits (429 responses) or throttling policies; TC19 stresses concurrency but does not exercise throttling behavior.",
+              "Caching Behavior / Conditional GET: No tests for caching headers (ETag, Cache-Control, Last-Modified) or conditional requests that would exercise 304 Not Modified behavior.",
+              "Schema-level validation: \u201cvalid InvoiceItem JSON object\u201d is asserted at a high level but there are no explicit JSON Schema checks that required fields and types are present and correct (id, invoiceId, amount, type, createdDate, etc.).",
+              "Error response consistency and headers: Tests do not assert error Content-Type, structured error payload fields (code/message), or presence of correlation/request-id headers for tracing.",
+              "HTTP method handling: No tests for unsupported HTTP methods (POST/PUT/PATCH/DELETE) to assert 405 Method Not Allowed and proper Allow headers.",
+              "Authorization nuances: 403 Forbidden and role/tenant-based access control scenarios are not covered (only 401 authentication failures are tested).",
+              "Internal Server Error cases: There is no explicit simulation of 500 Internal Server Error and verification of graceful handling/logging.",
+              "Soft-delete / lifecycle states: Behavior for soft-deleted/archived credits (whether they should return 404 or a different state) is not covered."
+            ],
+            "recommendations": [
+              "Add JSON Schema validation tests for the InvoiceItem response to assert required fields and types (id, invoiceId, amount, currency, type, createdDate, etc.).",
+              "Add caching tests: verify ETag, Cache-Control, Last-Modified headers, and add conditional GET tests (If-None-Match / If-Modified-Since \u2192 expect 304 when unchanged).",
+              "Add rate-limiting/throttling tests that intentionally exceed thresholds to validate 429 responses, Retry-After headers, and client behavior under throttling.",
+              "Add tests for unsupported HTTP methods to verify 405 Method Not Allowed and correct Allow header behavior.",
+              "Add 403 Forbidden tests and tenant/role-based access tests if the API enforces authorization beyond simple authentication.",
+              "Standardize and assert error response structure and Content-Type across all error scenarios (400/401/403/404/429/500/503) and verify presence of correlation/request-id headers for observability.",
+              "Introduce explicit 500 Internal Server Error simulations to confirm graceful degradation, clear error messages, and proper logging.",
+              "Add tests for soft-delete/archival lifecycle to confirm expected behavior for deleted credits (should they return 404 or an archived-state response).",
+              "Clarify input-normalization expectations (e.g., should whitespace be trimmed?) and add matching tests so behavior is deterministic and documented.",
+              "Expand performance testing into distinct load and stress tests (sustained high throughput, larger concurrency, separate from rate-limit tests) and capture SLA metrics across scenarios."
+            ],
+            "usage": {
+              "completion_tokens": 6614,
+              "prompt_tokens": 4626,
+              "total_tokens": 11240,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5696,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

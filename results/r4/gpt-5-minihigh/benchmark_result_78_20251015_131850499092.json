@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-10-15T13:18:50.499064",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:16:43.566037",
+    "benchmark_end_time": "2025-10-15T13:18:50.499060",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 126.933023,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid POST payloads: TC01, TC02, TC12, TC13, TC19, TC20 verify successful creation with required and optional fields and boundary-length checks.",
+              "Invalid payloads & validation: TC04 (missing planId), TC05 (invalid currency), TC08 (empty body), TC09 (malformed JSON), and TC18 (XSS/SQL injection) cover common validation failures.",
+              "Duplicate/conflict handling: TC06 verifies behavior when planId already exists (conflict -> HTTP 400 as per acceptance).",
+              "Large payload handling: TC15 addresses very large request payload behavior and system limits.",
+              "Authentication & header checks: TC03 tests missing required X-Killbill-CreatedBy header; TC10 verifies missing authentication credentials (HTTP 401); TC02 covers optional headers X-Killbill-Reason and X-Killbill-Comment.",
+              "Method semantics: TC14 verifies unsupported HTTP method returns HTTP 405.",
+              "End-to-end retrievability: TC01 asserts the new plan is retrievable from the catalog after creation (important live-catalog verification).",
+              "Service/unavailability and integration resilience: TC11 tests catalog service unavailable (HTTP 503); TC23 and TC24 exercise integration with dependent catalog services (available vs degraded).",
+              "Concurrency & retry: TC22 covers concurrent requests with unique planIds; TC16 covers retry after temporary network failure.",
+              "Performance: TC17 asserts response time SLAs (within 2 seconds) for plan creation."
+            ],
+            "gaps": [
+              "Server internal errors (500) and database-failure simulation are not explicitly tested; no test asserts rollback/atomicity or DB-exception handling.",
+              "Concurrent conflict/race on the same planId is not covered (two concurrent requests using identical planId to verify single creation vs consistent conflict).",
+              "Response headers and schema assertions are missing: Content-Type, Location header (or equivalent URI header), and explicit validation that the response body matches the documented type (string/URI) are not checked.",
+              "Role-based authorization (403) / permission denial scenarios are not covered; tests only cover missing authentication (401) and presence of X-Killbill-CreatedBy header.",
+              "Field-level validation gaps: billingPeriod enumerations, productCategory enum validation, numeric edge cases (negative/zero amounts, precision/scale), and broader currency-format normalization beyond a single invalid-currency test are not exercised.",
+              "Header value edge cases and sanitization are not covered (e.g., empty/invalid/oversized X-Killbill-CreatedBy, long X-Killbill-Reason/X-Killbill-Comment and how they are recorded/audited).",
+              "Idempotency and duplicate-submission semantics (replay of the same request, idempotency-key behavior) are not tested.",
+              "Rate limiting / throttling behavior (429) and how the API responds under rapid request bursts are not covered.",
+              "Caching behavior (ETag, Cache-Control) and pagination/query-parameter behavior for retrieval endpoints are not tested.",
+              "Test isolation and cleanup: no teardown/cleanup steps are defined to remove created plans or to run tests against an isolated catalog; the story warns modifying the live catalog but tests do not show mitigation."
+            ],
+            "recommendations": [
+              "Add tests that simulate server-side failures (DB exceptions / forced 500) to verify proper error codes, meaningful error messages, and that partial writes are rolled back (atomicity).",
+              "Add a concurrency conflict test that issues two concurrent POSTs with the same planId to verify deterministic behavior (expect one success and one conflict or a documented error code).",
+              "Assert response headers and exact response format: check Content-Type, verify response body is the documented string/URI, and validate Location (or equivalent) header when applicable.",
+              "Add role-based authorization tests (403) to verify authenticated users lacking create permission are rejected and audited appropriately.",
+              "Expand field-level validation tests: invalid billingPeriod values, invalid productCategory values, negative/zero/over-precision amounts, case sensitivity and normalization of currency codes, and other boundary values.",
+              "Introduce header-sanitization tests: empty/invalid/overly long X-Killbill-CreatedBy, and very long X-Killbill-Reason/X-Killbill-Comment values to ensure safe handling and limits.",
+              "Add idempotency and replay tests: repeated identical requests (with/without idempotency keys) to confirm behavior (no double-creation or consistent error responses).",
+              "Add rate-limiting and throttling tests (rapid-fire requests) to verify 429 handling and protect the live catalog from abuse; include load/stress tests to complement the single-request performance SLAs in TC17.",
+              "Add caching and retrieval tests for GET (ETag/Cache-Control) and, where applicable, pagination/query-parameter tests for retrieval endpoints used to confirm created resources.",
+              "Ensure test isolation: run these tests against a dedicated test catalog or snapshot and add explicit teardown steps to remove created plans so the live catalog is not left in a polluted state; document required cleanup for each test that modifies the catalog."
+            ],
+            "usage": {
+              "completion_tokens": 10733,
+              "prompt_tokens": 5854,
+              "total_tokens": 16587,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 9664,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

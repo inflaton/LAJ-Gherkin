@@ -1,0 +1,81 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-09-28T09:18:54.034057",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:18:18.620396",
+    "benchmark_end_time": "2025-09-28T09:18:54.034053",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 35.413657,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE > Valid Deletion: Happy paths return 204 and verify the email is removed (TC01, TC02, TC12, TC13, TC14, TC18).",
+              "DELETE > Non-Existent Resource: 404 when account or email not found, including no emails on account (TC03, TC04, TC09).",
+              "DELETE > Concurrency: Race conditions handled; parallel deletes yield one 204 and remaining 404s (TC15).",
+              "Input validation aligned with story: 400 for invalid accountId/email formats and missing required header X-Killbill-CreatedBy (TC05, TC06, TC07, TC16).",
+              "Authorization: 401 for invalid/expired token is verified (TC10).",
+              "Server error handling: Dependency/service failure returns 503 (TC11).",
+              "Optional headers behavior: Reason/Comment optional and accepted (TC02)."
+            ],
+            "gaps": [
+              "Soft Deletes: No scenario validates whether deletion is soft vs hard (e.g., presence in audit/history vs absence in active list), as suggested by DELETE guidelines.",
+              "Story contract \"Produces: application/json\": No checks for response headers (e.g., Content-Type) on 204 or error responses; also no assertion of empty body for 204.",
+              "Idempotency/repeat delete: No sequential test that a second delete of the same email consistently returns 404 (beyond parallel case).",
+              "URL encoding and special characters: No coverage for properly URL-encoded emails (e.g., plus sign, percent-encoding, internationalized local parts/domains).",
+              "Multi-email integrity: No test ensuring other emails on the account remain unaffected after deleting one.",
+              "Cross-user concurrency: Concurrency test does not vary the deleting user to reflect \"deleted by another user\" angle from guidelines."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification scenario: after delete, GET account emails should not include the email, but audit/history (or soft-delete flag) should reflect the deletion if applicable to the service.",
+              "Assert protocol/contract details: for 204 responses verify empty body and appropriate headers (e.g., Content-Type absent or set consistently per API contract); for errors (400/404/401/503) verify Content-Type: application/json and standardized error schema.",
+              "Add an idempotency test: delete an email, then repeat the same DELETE and expect 404 (or 204 if the API specifies idempotent deletes) to confirm consistent behavior.",
+              "Add URL-encoding scenarios: delete addresses containing \"+\" (user+tag@example.com), percent-encoded characters, and internationalized domains/emails to ensure correct path handling.",
+              "Add a multi-email account scenario: account with multiple emails; delete one and verify the others remain intact.",
+              "Enhance concurrency coverage: run concurrent deletes from different X-Killbill-CreatedBy values to validate correct attribution and behavior when another user deletes the resource first."
+            ],
+            "usage": {
+              "completion_tokens": 1529,
+              "prompt_tokens": 5675,
+              "total_tokens": 7204,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-10-13T05:42:12.174663",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:40:24.065910",
+    "benchmark_end_time": "2025-10-13T05:42:12.174659",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 108.108749,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Happy path / valid payload creation with 201, response body and Location header (TC01, TC02, TC03, TC04, TC05).",
+              "Path parameter validation for non-UUID and missing accountId (TC07, TC08).",
+              "Account not found scenario returning 404 (TC09).",
+              "Request body validation: malformed JSON, missing required fields, invalid email format (TC10, TC11, TC12).",
+              "Required and optional header handling: presence and missing X-Killbill-CreatedBy plus optional Reason/Comment (TC02, TC05, TC13).",
+              "External dependency / service-unavailable and degraded performance scenarios (503 and timeouts - TC15, TC19).",
+              "Concurrency and resilience cases: concurrent requests, retry after transient failure, and performance boundary checks (TC20, TC25, TC19, TC16).",
+              "Security validation: SQL injection and XSS checks (TC23, TC24).",
+              "Integration and end-to-end verification: visibility via subsequent GET and cross-system propagation (TC26).",
+              "Accessibility and documentation checks (TC27)."
+            ],
+            "gaps": [
+              "Duplicate submission behavior is not explicitly tested (adding the exact same email twice) and expected outcome is not defined.",
+              "Several scenarios allow ambiguous expected outcomes (e.g., \"201 or 400\", \"201 or 422\") \u2014 tests are not deterministic against a single specified API contract.",
+              "Content-Type / content-negotiation checks are missing: request Content-Type enforcement (application/json) and response Content-Type header validations are not asserted.",
+              "Exact response schema validation is weak: many tests assert \"contains AccountEmail\" but do not assert that response is always a JSON array matching the AccountEmail schema and field-level expectations.",
+              "No explicit test for HTTP 500 internal server error handling; only 503 is considered for external dependencies.",
+              "Rate limiting / throttling behavior (e.g., 429) is not covered.",
+              "Caching behavior and related headers are not evaluated (while less relevant for POST, the response Content-Type and caching/no-cache expectations are not asserted).",
+              "Location header format/value is not strictly validated (only presence is asserted in most cases).",
+              "Behavior for unsupported media types (e.g., missing or wrong Content-Type leading to 415) is not covered.",
+              "Ambiguous handling of extra/unknown fields and extra query parameters: TC06 and TC18 allow multiple outcomes rather than asserting API contract.",
+              "Tests do not assert cleanup/idempotency or test data isolation which may lead to flaky runs when running many stateful tests."
+            ],
+            "recommendations": [
+              "Add deterministic tests for duplicate submission: define expected behavior (reject with 409, ignore and return existing resource, or allow duplicates) and create scenarios for single duplicate and concurrent duplicate submissions.",
+              "Make ambiguous scenarios deterministic by aligning tests with the API contract; update tests to expect a single outcome (e.g., reject unknown fields or ignore extra fields) and document that behavior in the API spec.",
+              "Add tests that assert request Content-Type must be application/json and that the response Content-Type header is application/json. Also add a scenario sending an unsupported media type (e.g., application/xml) expecting 415 or 400 as per spec.",
+              "Add strict JSON schema validation for the response: assert the response is a JSON array and each element conforms to the AccountEmail schema (required fields, types, id presence, timestamps, etc.).",
+              "Simulate server 500 Internal Server Error and ensure the API surface returns a proper 5xx response with a sensible error payload and does not leak sensitive internals.",
+              "Add rate-limiting tests: send bursts of POST requests to verify throttling behavior (e.g., 429) and ensure clients get appropriate Retry-After headers when applicable.",
+              "Assert Location header format and semantics: validate that Location contains a usable URL (optionally follow Location with a GET to verify the created resource exists and matches payload).",
+              "Clarify and add tests for behavior with extra/unknown fields and query parameters (TC06/TC18): explicitly assert whether the API should ignore or reject extra data, and codify that in tests.",
+              "Add Content negotiation and authorization scope tests: verify behavior for missing/invalid auth tokens in more detail (401 vs 403) and role/scope based access if applicable.",
+              "Add automated cleanup/setup steps and idempotency checks to prevent test interference; include fixture teardown or dedicated test accounts to avoid state leakage.",
+              "Expand security and fuzzing tests: long strings, unicode boundary tests, header injection, and more malformed payloads beyond SQLi/XSS to harden validation.",
+              "Add performance/load scenarios (beyond simple slow DB simulation) to assert throughput and response time SLAs under expected concurrency."
+            ],
+            "usage": {
+              "completion_tokens": 6443,
+              "prompt_tokens": 6487,
+              "total_tokens": 12930,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5440,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

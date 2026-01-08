@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-13T19:58:06.106810",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:57:15.798632",
+    "benchmark_end_time": "2025-10-13T19:58:06.106806",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 50.308174,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple success scenarios (default, explicit offset/limit, max limits) verify successful operation and 200 responses (TC01, TC02, TC10, TC13).",
+              "Empty Response: Scenario when no parked accounts exist verifies server returns success and indicates no invoices were generated (TC04).",
+              "Pagination / Query Parameters: Offset and limit behaviour is exercised, including explicit offset/limit, only-offset, non-integer/invalid values, extra unexpected params and very large limits (TC02, TC06, TC07, TC11, TC12, TC13).",
+              "Authorization: Missing header and invalid/expired token scenarios are present (TC05, TC08).",
+              "Validation: Parameter validation for ranges and types is covered (TC06, TC07).",
+              "Server error / dependency failure: Service unavailability is tested (503 scenario) (TC09).",
+              "Duplicate submissions / Idempotency: Retry and concurrent request scenarios address duplicate-generation concerns (TC15, TC18).",
+              "Security: Header injection attack attempt is covered to ensure no sensitive data leakage (TC14).",
+              "Auditability / Headers: Tests include required and optional headers and an auditable operation with reason/comment (TC03, TC16, TC17).",
+              "Performance / Scalability: High-volume scenarios and concurrency/performance expectations are included (TC12, TC18).",
+              "Documentation / Accessibility: API documentation accessibility is included (TC19)."
+            ],
+            "gaps": [
+              "Rate Limiting / Throttling: No explicit tests for rate limiting, throttling, or server behavior under burst traffic (distinct from concurrency/load tests).",
+              "Caching Behavior: No checks for caching headers (ETag, Cache-Control) or cache-related behavior. ",
+              "Internal Server Errors (500): No explicit tests simulating internal server errors like database exceptions that should return 500 and an appropriate error body.",
+              "Offset out-of-range / Boundary conditions: Missing explicit test for offset larger than the total number of parked accounts and for exact boundary values (e.g., offset == total, limit == total - offset).",
+              "Response Schema and Content Assertions: While responses and counts are asserted conceptually, there are no strict tests asserting JSON schema, field-level contents, or an exact structure of the response (e.g., per-account invoice results, error codes in body).",
+              "Audit persistence verification: TC03 asserts auditable operation, but there is no test that verifies the reason/comment are persisted in server-side audit logs or DB. ",
+              "Role- and scope-based authorization: Tests check invalid token/missing header, but not role-based permissions (different admin roles/ACLs) nor explicit differentiation between 401 vs 403 semantics.",
+              "Exact-once semantics under retries and partial failures: While retries and concurrency are present, there are no deterministic tests that simulate partial processing failures (some invoices failing) to verify transactional/compensating behavior and that duplicates are never produced in partial-failure scenarios.",
+              "Error message content and localization: Tests do not assert specific error message text, error codes in response bodies, or localized messages for invalid inputs."
+            ],
+            "recommendations": [
+              "Add rate-limiting/throttling tests: simulate burst traffic and verify 429 responses or configured throttling behavior and that meaningful headers (Retry-After) are present.",
+              "Add caching tests: assert presence/absence of Cache-Control and ETag headers where applicable and that cached responses (if any) behave correctly.",
+              "Simulate internal server errors: inject DB or backend failures to verify 500 responses and safe, non-sensitive error bodies and logging.",
+              "Add boundary tests for pagination: test offset == total, offset > total, limit == 0 (already partly covered), and limit > allowed maximum to validate deterministic behavior.",
+              "Assert response schema and contents: add JSON-schema or field-level assertions about the response payload (per-account result, number of invoices generated, error entries) not just status code.",
+              "Verify audit persistence: after requests with X-Killbill-Reason / X-Killbill-Comment, query audit logs or DB to ensure those values are recorded and linked to the operation.",
+              "Add role/permission tests: cover different admin roles and ensure proper 401 vs 403 semantics and that only authorized roles can trigger bulk invoice generation.",
+              "Strengthen idempotency/partial-failure tests: create deterministic tests that simulate partial failures and retries to ensure invoices are not duplicated and that compensating actions occur or partial-failures are reported accurately.",
+              "Explicitly test error message content: verify error codes and helpful messages are returned for invalid params, missing headers, and server errors to aid clients and monitoring.",
+              "Add performance / SLA checks: for high-volume scenarios, assert response-time/throughput metrics against acceptable thresholds and monitor resource utilization during test runs."
+            ],
+            "usage": {
+              "completion_tokens": 2805,
+              "prompt_tokens": 5207,
+              "total_tokens": 8012,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1792,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

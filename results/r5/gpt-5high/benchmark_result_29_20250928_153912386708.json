@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-09-28T15:39:12.386682",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T15:35:59.961481",
+    "benchmark_end_time": "2025-09-28T15:39:12.386679",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 192.425198,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT - Valid Request: Successful 204 flows with required header only, with payAllUnpaidInvoices=true, with pluginProperty, and with optional X-Killbill-Reason/Comment; audit logging verified.",
+              "PUT - Non-Existing Resource: 400 for invalid UUID formats; 404 for non-existent account/payment method, method not owned by account, and account with no payment methods.",
+              "PUT - Concurrency: Concurrent requests result in exactly one default payment method; system consistency asserted.",
+              "Input validation and robustness: Missing required header (400), unauthorized access (401), service unavailable/timeouts (503/504), SQL injection blocked (400/422), boundary tests for UUIDs and pluginProperty size, unexpected extra query param tolerated.",
+              "Regression behavior: Switching defaults clears the previous default."
+            ],
+            "gaps": [
+              "PUT - Idempotency: Repeating the same PUT with the same paymentMethodId should be validated to ensure no side effects and still return 204.",
+              "Query parameter validation negatives: payAllUnpaidInvoices with non-boolean values (e.g., foo) not tested; pluginProperty malformed formats (CSV vs multi, duplicates) not covered.",
+              "PluginProperty boundary negatives: Exceeding any documented maximums or very long values not tested; URL-encoding handling not validated.",
+              "Content negotiation and headers: Behavior with unexpected request body and/or mismatched Content-Type not tested (expect 400/415 or ignore); verify error responses use Content-Type application/json; confirm 204 responses have no body.",
+              "State integrity on failure: No scenario asserts that on 4xx/5xx the prior default remains unchanged and no invoice payment attempts occur.",
+              "Authorization depth: 403 Forbidden for authenticated but unauthorized users (RBAC) not covered if applicable.",
+              "Combination coverage: payAllUnpaidInvoices=true together with pluginProperty not validated together.",
+              "Audit on failures: Ensure no audit entry is created on failure and that Reason/Comment are stored only on successful changes."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: invoke the same PUT twice for the same paymentMethodId; assert 204 both times, single default, and no duplicate audit entries.",
+              "Add negative query param tests: payAllUnpaidInvoices with invalid values should yield 400; cover malformed/duplicated pluginProperty and values exceeding documented limits.",
+              "Add request-body/Content-Type tests: send a JSON body and/or wrong Content-Type and assert 400/415 or that the body is ignored; verify error responses are application/json and that 204 has no body.",
+              "Add failure-state integrity checks: after a failing call (e.g., non-existent paymentMethodId), assert the default stays unchanged and no invoice payment attempts are made.",
+              "If RBAC applies, add a 403 Forbidden scenario for authenticated users lacking permission to change defaults.",
+              "Add a scenario combining payAllUnpaidInvoices=true with pluginProperty to ensure both are honored simultaneously.",
+              "Document and enforce pluginProperty constraints; add a negative case that exceeds max entries or value length.",
+              "Move TC25 (accessibility) to documentation testing scope; it does not validate this PUT endpoint behavior."
+            ],
+            "usage": {
+              "completion_tokens": 6946,
+              "prompt_tokens": 6898,
+              "total_tokens": 13844,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6272,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

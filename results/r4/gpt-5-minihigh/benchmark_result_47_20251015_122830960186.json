@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-15T12:28:30.960159",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:27:26.016492",
+    "benchmark_end_time": "2025-10-15T12:28:30.960156",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 64.943664,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Successful deletion (HTTP 204) is tested, including empty-cache idempotency and verification that subsequent requests reflect invalidation (TC01, TC09).",
+              "Authentication failure handling for missing and invalid credentials returning HTTP 401 is covered (TC02, TC03).",
+              "Non-existent tenant context returning HTTP 404 is covered (TC04).",
+              "A broad set of server/error conditions are exercised: malformed request 400 (TC07), internal server error 500 (TC05), service unavailable 503 (TC06), gateway timeout 504 (TC14).",
+              "Security input validation for header injection attempts is included (TC08).",
+              "Concurrency and performance under load for concurrent deletes (same tenant) and response-time expectations are included (TC10).",
+              "Integration and regression checks ensure the cache invalidation is observable and prevents recurrence of prior bugs (TC11, TC12).",
+              "State-variation scenario with partially populated cache and full invalidation asserted (TC13)."
+            ],
+            "gaps": [
+              "Content-Type / response headers are not asserted anywhere. The story explicitly says \"Produces: application/json\" but tests do not validate Content-Type or error payload JSON schema.",
+              "No explicit test for authorization role checks: an authenticated but non-admin user (should be 403 Forbidden) is not covered.",
+              "Tenant isolation is not validated: there is no test ensuring invalidation affects only the current tenant and does not clear other tenants\u00e2\u20ac\u2122 caches.",
+              "Missing scenario for authenticated requests that lack tenant context (no tenant header/token) to confirm the API\u00e2\u20ac\u2122s expected error for an absent tenant context.",
+              "Partial-failure semantics are not tested: if one cache subsystem fails during invalidation, there is no test asserting API returns >=400 and describing the final state/rollback behavior.",
+              "Rate limiting / throttling behavior under burst traffic (e.g., 429 responses) is not covered; TC10 covers performance but not documented rate-limiting behavior.",
+              "Error response payload structure and schema (fields like error code, message) are not asserted for error scenarios.",
+              "Content negotiation (Accept header) semantics and how 204 with empty body aligns with \"Produces: application/json\" are not clarified or tested.",
+              "No tests asserting auditing/logging/metrics for an admin operation (useful for traceability).",
+              "Concurrency tests do not cover cross-tenant concurrent deletes (possible cross-tenant race conditions are untested)."
+            ],
+            "recommendations": [
+              "Add assertions for response headers: validate Content-Type for error responses (application/json) and clarify expected headers for 204; update tests once API spec clarifies whether 204 should include Content-Type.",
+              "Add a scenario where a validly authenticated user without admin privileges attempts the DELETE and receives HTTP 403 (forbidden).",
+              "Add tenant-isolation tests: perform invalidation for tenant A and assert tenant B\u00e2\u20ac\u2122s cache remains intact.",
+              "Add a test for missing tenant context (authenticated admin but no tenant header/token) and define the expected error response in the spec (400/401) then enforce it in tests.",
+              "Simulate partial invalidation failures (stub or inject failure in one cache subsystem) and assert API behavior: ensure it returns >=400 and that the final cache state is consistent or rollback/compensating behavior is documented and verified.",
+              "Add rate-limiting / throttling tests (burst of requests) to assert documented behavior (e.g., 429) and to ensure graceful degradation under load.",
+              "Validate error response JSON schema across all error scenarios (fields, codes, messages) to ensure clients can reliably parse errors.",
+              "Add content-negotiation tests (Accept header variations) and clarify expected behavior for 204 responses with respect to \"Produces: application/json\".",
+              "Add cross-tenant concurrency tests (concurrent deletes for different tenants) to detect any race conditions or cross-tenant impacts.",
+              "Include optional integration checks for auditing/logging/metrics after invalidation to ensure administrative actions are traceable and monitorable."
+            ],
+            "usage": {
+              "completion_tokens": 6415,
+              "prompt_tokens": 3389,
+              "total_tokens": 9804,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5568,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

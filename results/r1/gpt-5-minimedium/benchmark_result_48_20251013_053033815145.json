@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-13T05:30:33.815108",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:30:05.598885",
+    "benchmark_end_time": "2025-10-13T05:30:33.815105",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 28.21622,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request (PUT -> 204): TC01 covers the primary success path for putting a host back into rotation and verifies system state change.",
+              "Idempotency / Already-in-rotation: TC02 verifies PUT is idempotent (204) when host is already in rotation.",
+              "Authentication & Authorization: TC03 (401), TC04 (403) and TC09 (missing auth headers -> 401) cover auth/permission failure modes.",
+              "Method validation: TC06 checks invalid HTTP method (GET) returns 405.",
+              "Service unavailability / dependency failure: TC05 covers endpoint/service down (503).",
+              "Unexpected payloads / header tolerance: TC07 and TC08 exercise non-empty bodies and extra headers and expect graceful handling.",
+              "Concurrency & race conditions: TC14 covers concurrent PUTs and checks for race conditions and consistent final state.",
+              "Resilience & retries: TC13 covers transient network interruption and retry behavior.",
+              "Performance under load / timeout behavior: TC10 addresses high load / acceptable timeout and correct response under degraded performance.",
+              "Security: TC12 checks for injection attempt in headers (at least the presence of a test for security handling).",
+              "Regression test presence: TC11 captures a previously fixed bug scenario and ensures expected behavior remains."
+            ],
+            "gaps": [
+              "Produces / Response headers (application/json): The story states \"Produces: application/json\" but no scenario asserts response Content-Type or other relevant headers for successful or error responses. 204 responses are asserted to be empty but the media-type requirement is not verified.",
+              "Exact error-range coverage: Story requires responding with HTTP >=400 on errors; tests include 401/403/405/503 but do not explicitly cover 400 (Bad Request), 409/422 (if applicable), or 500 (internal server error) scenarios such as server-side exceptions or DB failures.",
+              "Validation semantics for request body: Request Body = N/A in the story but TC07 accepts non-empty payloads and expects 204. The story does not define whether non-empty payloads should be ignored or rejected \u2014 missing explicit test that validates the intended handling policy.",
+              "Non-existing resource / host context: The PUT operates on \u201cthe host\u201d (no host id). Tests assume at least one host exists (Background). There is no test for behaviour when there are zero applicable hosts or if the host context cannot be determined.",
+              "HTTP semantics for 204 with body: Tests assert empty response body for 204 but do not assert that no body is present or handle clients that misinterpret 204 with a Content-Type \u2014 subtle RFC semantics not tested.",
+              "Rate limiting / throttling: No tests for rate-limiting behavior (requests in rapid succession leading to 429 responses).",
+              "Caching behavior: No tests for caching headers (ETag, Cache-Control) even though standard guidelines mention caching for endpoints.",
+              "Detailed concurrency conflict handling: TC14 tests concurrency success, but there is no test for contention leading to transient conflict responses (e.g., 409) or for internal locks/timeouts.",
+              "Detailed input validation errors: Although the endpoint expects no body, there is no test that tries malformed headers/invalid auth token formats or checks error payload structure/content except generic messages."
+            ],
+            "recommendations": [
+              "Add assertions for response headers (Content-Type: application/json) and presence/absence of body for 204 responses to match \"Produces: application/json\" in the story. Clarify and test the expected Content-Type behavior for 204 responses.",
+              "Add error-path tests for server-side failures (500 Internal Server Error) and for explicit 400-class errors (400 Bad Request, 422/409 if applicable) to ensure the system responds with HTTP >=400 as required by the acceptance criteria.",
+              "Define and test the expected handling of non-empty request bodies: either explicitly accept/ignore non-empty payloads (and assert that) or reject them with a 4xx status. Make the policy explicit in the story and cover it with tests.",
+              "Add a scenario where no host is available / host context cannot be determined, to assert a defined error or no-op behavior (e.g., 404 or 204 + log), depending on product decision.",
+              "Add rate-limiting tests (rapid repeated requests) to validate 429 behavior or other throttling mechanisms, and include tests that combine rate limiting with authentication to validate precedence.",
+              "Add tests for caching-related headers if the API is expected to include them; otherwise explicitly document that caching is not applicable so tests can be omitted.",
+              "Add negative concurrency tests that simulate contention/failure under lock and assert a deterministic error response or retry behavior (e.g., temporary 409 or exponential backoff).",
+              "Strengthen security tests: verify that injection attempts do not change state and that error responses do not leak sensitive information; assert specific error message formats for auth failures and service errors.",
+              "Add assertions on the structure/content of error responses (consistent error JSON schema) for 4xx/5xx so clients can reliably parse failures."
+            ],
+            "usage": {
+              "completion_tokens": 2009,
+              "prompt_tokens": 3274,
+              "total_tokens": 5283,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

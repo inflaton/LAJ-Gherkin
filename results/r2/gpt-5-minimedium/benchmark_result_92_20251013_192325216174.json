@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-13T19:23:25.216144",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:22:33.458256",
+    "benchmark_end_time": "2025-10-13T19:23:25.216121",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 51.757865,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios cover successful deletion of all custom fields (TC01, TC03, TC04) and deletion of a specified subset (TC02).",
+              "Query Parameters: Good coverage for query parameter behaviours \u2014 specific IDs, malformed IDs, duplicate IDs, extra/unexpected params, very large lists, and partial lists (TC02, TC10, TC17, TC18, TC11, TC12).",
+              "Headers: Required vs optional headers are tested (missing X-Killbill-CreatedBy TC09, only required TC06, all optional TC05), plus long header value handling and regression header parsing (TC16, TC20).",
+              "Error Handling: Standard error cases are present \u2014 invalid invoiceItemId format (400, TC07), non-existent invoice item (404, TC08), malformed customField (400, TC10), partial-invalid list (TC17), expired/invalid auth token (401, TC19), and dependent service unavailable (503, TC14).",
+              "Security / Validation: Injection attempt in query parameter is tested (TC15).",
+              "Performance / Resilience: Heavy load performance is covered (TC13).",
+              "Idempotency-ish: Duplicate IDs in the same request are handled (TC18), exercising tolerance for repeated identifiers."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No explicit test for simultaneous conflicting deletes (e.g., two clients deleting the same invoice item custom fields at the same time) or verifying atomicity. TC13 covers load but not race conditions.",
+              "Soft Delete vs Hard Delete: No tests to assert whether deletions are soft (flagged) vs hard (physically removed), or to verify audit/history entries.",
+              "Idempotency across requests: No scenario for repeated DELETE requests (same request retried) to verify idempotent behavior and consistent response codes.",
+              "Authorization / Roles: Only an expired/invalid token case is present (TC19). There is no explicit test for missing authentication header leading to 401, nor for forbidden access (403) based on user roles/permissions.",
+              "Response Headers / Content-Type: No checks for response headers (e.g., Content-Type, caching headers) despite acceptance notes stating \"Produces: application/json\" \u2014 success responses are 204 (empty) but header correctness is not verified.",
+              "Behavior for cross-resource IDs: Missing test for customField IDs that exist but are associated with a different invoice item (how the API reports these \u2014 ignore, 400, or 404).",
+              "Server Error (500) handling: No explicit test for unexpected server errors (500 Internal Server Error) beyond simulated service-unavailable (503).",
+              "Rate Limiting / Throttling: No tests for rate limiting behavior or handling of many rapid requests (distinct from heavy load perf scenario).",
+              "URL / Query Limit Edge Cases: No test for extremely long query strings/URL limits or max number of query parameters that could exceed server limits."
+            ],
+            "recommendations": [
+              "Add concurrency/race-condition tests: simulate two or more concurrent DELETE requests targeting the same invoiceItemId (and/or overlapping customField IDs) to verify atomicity, locking behavior, and final state.",
+              "Add idempotency tests: send the same DELETE request multiple times (including after successful deletion) and assert consistent, expected responses (e.g., 204 on success and subsequent 204 or a well-defined response).",
+              "Add soft-delete / audit tests: verify whether deleted custom fields are physically removed or soft-deleted (e.g., check audit table, deleted flag, or ability to restore), and add tests for expected audit metadata (who/when/reason).",
+              "Expand authorization tests: include missing authentication header (expect 401), invalid credentials vs valid credentials without required permissions (expect 403), and role-based access control scenarios if applicable.",
+              "Verify response headers: add assertions for Content-Type and any required headers, and ensure behaviour matches the API contract (even for 204 responses).",
+              "Test cross-resource ID handling: add a case where supplied customField IDs exist but belong to other invoice items to define expected behaviour (error vs ignore) and assert it.",
+              "Add server error tests: simulate 500 Internal Server Error (e.g., database exception) and assert appropriate error handling and messaging.",
+              "Add rate-limiting tests: send bursts of requests to validate throttling behaviour and correct error codes (e.g., 429) if applicable.",
+              "Add URL / query-limit edge tests: verify behaviour when query string gets extremely long or contains near-max number of IDs (beyond TC12's large list), and assert correct error reporting or truncation handling.",
+              "Clarify and test Content-Type contract: since acceptance mentions \"Produces: application/json\", explicitly assert the presence or absence of a JSON Content-Type header for success and error responses, and rectify test expectations for 204 responses if the API intends to return an empty JSON body vs truly empty response."
+            ],
+            "usage": {
+              "completion_tokens": 2571,
+              "prompt_tokens": 5523,
+              "total_tokens": 8094,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1536,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

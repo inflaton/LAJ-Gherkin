@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "31_2025-09-28T13:13:51.776592",
+    "jira_id": "31",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/payments - Trigger a payment (authorization, purchase or credit)",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T13:10:57.233551",
+    "benchmark_end_time": "2025-09-28T13:13:51.776589",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 174.543038,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "31_qe_sup-gpt4.1_agent-gpt4.1_1748917990.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Payload: Multiple success paths verify 201, Payment object, Location header, and JSON content-type (TC01, TC02, TC03, TC16, TC18).",
+              "Query Parameters: paymentMethodId selection and default fallback; multiple controlPluginName and pluginProperty via collectionFormat=multi (TC01, TC02, TC03, TC24).",
+              "Headers: Required X-Killbill-CreatedBy present and optional Reason/Comment handled; missing required header returns error (TC01, TC02, TC06).",
+              "Error Scenarios (per story): 400, 402, 404, 422, 502, 503, 504 are each exercised (TC07\u2013TC14).",
+              "Validation: invalid accountId format, malformed body, unsupported currency, min/max amounts, partial input, and missing payment method (TC04, TC07, TC09, TC16, TC17, TC18, TC19).",
+              "Authorization: Unauthorized access (missing/invalid token) returns 401 (TC20).",
+              "Control Plugins: Positive use of control plugins and abort behavior via 422 (TC03, TC11).",
+              "Non-functional: Concurrency and duplicate avoidance intent, performance/peak/stress, and dependency degradation covered (TC22, TC26\u2013TC28, TC23).",
+              "Security/Negative Inputs: Injection/malicious payloads are validated and rejected (TC21)."
+            ],
+            "gaps": [
+              "Server Error Handling: No scenario for generic 500 Internal Server Error (e.g., DB failure or unhandled exception).",
+              "Duplicate Submission/Idempotency: No explicit test that resubmitting the same transaction (same external key/idempotency key) avoids creating duplicates or returns a consistent response.",
+              "Missing Request Body/Unsupported Media Type: No case for empty body or wrong Content-Type leading to 400/415 despite consumes: application/json.",
+              "Query Param Validation: No tests for invalid/non-existent paymentMethodId or one not belonging to the account; no explicit invalid controlPluginName or malformed pluginProperty format handling.",
+              "Transaction Types: The three supported types (authorization, purchase, credit) are not individually verified with their specific expected behaviors.",
+              "Response Contract Depth: Limited assertions on Payment schema fields and correlation between Location header ID and Payment object ID; content-type verified only in one success case.",
+              "Authorization Granularity: No 403 Forbidden scenario for authenticated users lacking permission to trigger payments.",
+              "Idempotent Retry under Timeouts: No test ensuring a single charge when client retries after 503/504/timeouts."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate internal server failure and verify a 500 response with a meaningful error body.",
+              "Introduce idempotency coverage: submit the same transaction twice (same external key or Idempotency-Key) and verify no duplicate payment is created and the response is consistent.",
+              "Add tests for empty body and incorrect Content-Type to assert 400/415 per consumes: application/json.",
+              "Expand query parameter negatives: invalid UUID for paymentMethodId, non-existent or not-associated method, unknown controlPluginName, and malformed pluginProperty values.",
+              "Create dedicated scenarios for authorization, purchase, and credit transactionTypes, including expected outcomes and required fields for each.",
+              "Strengthen response validation: assert required Payment fields (ids, accountId, transactions details, amounts, currency, status), ensure Location header points to the same paymentId, and verify Content-Type application/json in all success responses.",
+              "Add a 403 Forbidden scenario for authenticated users without sufficient permissions to operate on the account.",
+              "Test idempotent retries across transient failures (e.g., initial 503/504 then retry) to ensure only one payment is recorded and final state is correct."
+            ],
+            "usage": {
+              "completion_tokens": 6880,
+              "prompt_tokens": 8983,
+              "total_tokens": 15863,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

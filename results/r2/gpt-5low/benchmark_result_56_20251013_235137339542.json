@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "56_2025-10-13T23:51:37.339515",
+    "jira_id": "56",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/customFields - Add custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:51:10.751981",
+    "benchmark_end_time": "2025-10-13T23:51:37.339511",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 26.58753,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "56_qe_sup-gpt4.1_agent-gpt4.1_1748919557.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST - Valid Payload: Happy paths with required and optional headers returning HTTP 201 and JSON array response (TC01, TC02, TC03, TC04, TC19).",
+              "POST - Invalid Payload: Malformed JSON, empty body, invalid schema, unsupported fields, duplicate field names, and empty array handled with HTTP 400 (TC08, TC09, TC10, TC12, TC11, TC18).",
+              "Path Parameter Validation: Invalid UUID format returns HTTP 400; non-existent bundle returns HTTP 404 (TC05, TC06).",
+              "Authorization: Missing/invalid auth returns HTTP 401 (TC14).",
+              "Large Payloads: Handles large but within-limit arrays; checks latency (TC17).",
+              "Operational/Dependency Errors: Service unavailable/dependency failure return HTTP 503 (TC15, TC20).",
+              "Resilience/Network: Timeout behavior acknowledged and retry policy noted (TC16).",
+              "Behavior with existing vs. no existing custom fields on bundle covered (TC03, TC04).",
+              "Acceptance criteria on response body shape (array of CustomField) verified on success (multiple TCs).",
+              "Extra query params tolerated without breaking success (TC13).",
+              "Security hardening scenarios (SQLi/XSS) considered (TC23, TC24)."
+            ],
+            "gaps": [
+              "POST - Duplicate Submission: No scenario for submitting the exact same payload twice (idempotency/duplication handling and expected status like 409/200/201).",
+              "Server Error Handling (500): No simulation of unexpected internal errors (e.g., DB failure) returning HTTP 500 per guidelines.",
+              "Response Headers: No checks that Content-Type is application/json on success and errors; no verification of other relevant headers (e.g., X-Killbill headers echoed, caching disabled).",
+              "Boundary Limits Exceeded: No scenario for payload exceeding system limits (e.g., very large array -> 413 Payload Too Large or 400 with clear message).",
+              "Partial Validation Behavior: No test for mixed-valid/mixed-invalid items in the same array to confirm all-or-nothing vs partial success contract.",
+              "Schema Fidelity: No explicit verification against the CustomField schema properties (types, allowed enums/lengths) beyond \u201cmissing required fields\u201d (e.g., invalid data types, max length, forbidden characters).",
+              "Audit/Traceability: No checks that CreatedBy/Reason/Comment are persisted/audited as expected in created records.",
+              "Content Negotiation: No scenario for incorrect or missing Content-Type/Accept headers (e.g., text/plain body -> 415, missing Accept -> defaulting behavior).",
+              "Idempotency under Retry: Timeout test mentions client retry policy but does not assert server-side idempotency or duplicate prevention after retry."
+            ],
+            "recommendations": [
+              "Add a duplicate submission scenario: send the same payload twice and assert expected behavior (e.g., second call returns 200 with existing fields, 201 with dedup, or 409 conflict) and data remains consistent.",
+              "Add a simulated internal server error (e.g., database failure) returning HTTP 500 and ensure error body does not leak internals.",
+              "Verify response headers: assert Content-Type: application/json on 201/4xx/5xx; ensure no caching headers if applicable (Cache-Control: no-store) for POST responses.",
+              "Add boundary overflow test: payload exceeding documented limits should return a clear error (e.g., 413 or 400) and no partial creation occurs.",
+              "Introduce mixed-validity test: one invalid CustomField among valid ones\u2014assert transactionality (all-or-nothing) per spec and precise error messaging.",
+              "Broaden schema validation: add tests for invalid data types, max length violations, enum/range checks, prohibited characters, and whitespace-only values.",
+              "Audit assertions: after success, retrieve created fields to verify CreatedBy/Reason/Comment are stored/audited correctly.",
+              "Content negotiation: test unsupported media type (e.g., Content-Type: text/plain) -> 415; missing/incorrect Accept header behavior.",
+              "Expand timeout/retry test to verify server-side idempotency key or deduplication strategy if supported, ensuring no duplicate fields after client retries."
+            ],
+            "usage": {
+              "completion_tokens": 1600,
+              "prompt_tokens": 6302,
+              "total_tokens": 7902,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

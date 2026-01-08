@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "57_2025-09-28T12:59:08.028184",
+    "jira_id": "57",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/customFields - Modify custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T12:56:29.820037",
+    "benchmark_end_time": "2025-09-28T12:59:08.028180",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 158.208143,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "57_qe_sup-gpt4.1_agent-gpt4.1_1748919636.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT - Valid Request: Happy-path updates with valid payload and required headers return 204 and persist changes (TC01, TC02, TC13-15, TC22-23).",
+              "PUT - Partial Update: Explicitly validated as supported with partial match/update scenario (TC24).",
+              "PUT - Non-Existing Resource: 404 for non-existent bundle is covered (TC05).",
+              "Validation - Path parameter: Invalid bundleId format yields 400 (TC04).",
+              "Validation - Body: Malformed JSON, missing body, and unsupported fields produce 400 (TC07, TC08, TC09).",
+              "Headers: Required X-Killbill-CreatedBy enforced (TC06); optional X-Killbill-Reason and X-Killbill-Comment accepted (TC02).",
+              "Removal semantics: Empty array removes all custom fields successfully (TC03).",
+              "Security hardening: Injection/special characters handled (TC12, TC19).",
+              "Operational resilience: 401 unauthorized (TC10), 503 dependency unavailable (TC11), and 500 internal error (TC20) covered.",
+              "Performance/load behavior: Normal and peak load scenarios covered (TC17, TC18).",
+              "URL tolerance: Unexpected query parameter is tolerated without error (TC16)."
+            ],
+            "gaps": [
+              "PUT - Concurrency issues: No scenarios for race conditions or conflict handling when multiple writers update the same bundle concurrently (e.g., optimistic locking, last-write-wins verification).",
+              "Idempotency: No test proving that repeated identical PUTs return 204 and do not introduce side effects.",
+              "Media type/content negotiation: No tests for missing or incorrect Content-Type (expect 415) or unsupported Accept headers (e.g., 406).",
+              "Schema-level validation: Missing tests for invalid/missing required fields inside CustomField objects and incorrect data types per schema.",
+              "Constraints (negative): No tests for exceeding maximum number of custom fields or value length over the limit (expect validation error).",
+              "Duplicate/conflicting entries: No test defining behavior when duplicate custom field names/keys appear in the same payload.",
+              "Null handling: No test distinguishing null vs empty strings in field values and expected server behavior.",
+              "Response semantics/headers: No assertion that 204 responses have an empty body and that error responses include application/json Content-Type and a standard error schema.",
+              "Auditability: No verification that CreatedBy/Reason/Comment are recorded in audit/audit logs or retrievable after the update.",
+              "Authorization granularity: 403 (authenticated but not authorized) not covered; only 401 is tested.",
+              "Bundle state rules: Although seeded, there is no explicit scenario asserting behavior for inactive/canceled bundles if updates should be restricted or allowed."
+            ],
+            "recommendations": [
+              "Add concurrency tests: two or more concurrent PUTs updating the same bundle. If ETag/If-Match is supported, include success and 412 Precondition Failed; otherwise verify last-write-wins and final state consistency.",
+              "Add idempotency test: send the same payload twice; both calls return 204 and the final state is unchanged.",
+              "Add media type tests: missing Content-Type and Content-Type not application/json should return 415; include Accept header tests (unsupported -> 406, application/json -> success).",
+              "Expand schema validation: send an object instead of an array, arrays with objects missing required fields (e.g., name/key/value), wrong data types, and invalid enum values; expect 400 with clear errors.",
+              "Add constraints (negative): payload with number of custom fields exceeding maximum and values exceeding max length should fail with 400.",
+              "Test duplicate/conflicting fields: define and verify behavior for duplicate names/keys within the same request (reject vs last-one-wins).",
+              "Add null-handling tests: value set to null vs empty string; assert expected validation outcomes.",
+              "Assert response semantics: verify 204 responses have no body; error responses include application/json Content-Type and standard error payload fields.",
+              "Verify auditability: after a PUT with Reason/Comment/CreatedBy, retrieve audit logs or resource history to confirm these are recorded.",
+              "Add authorization granularity test: authenticated user lacking permission should receive 403.",
+              "Add explicit bundle state scenarios: attempt updates on inactive/canceled bundles and assert allowed/blocked behavior per product rules."
+            ],
+            "usage": {
+              "completion_tokens": 7447,
+              "prompt_tokens": 6139,
+              "total_tokens": 13586,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6528,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

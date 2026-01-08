@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-13T23:54:14.076406",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:53:52.660539",
+    "benchmark_end_time": "2025-10-13T23:54:14.076401",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 21.415862,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE Valid Deletion: Multiple successful 204 scenarios (standard, with optional headers, varied email cases, performance).",
+              "DELETE Non-Existent Resource: 404 for missing account and missing email, including empty email list case.",
+              "DELETE Concurrency: Concurrent deletes covered; one 204 and remaining 404.",
+              "Input Validation: 400 for invalid accountId format, invalid email format, XSS/injection in email param.",
+              "Required Header Enforcement: 400 when X-Killbill-CreatedBy is missing; optional Reason/Comment handled.",
+              "Authorization: 401 for invalid/expired token.",
+              "Resilience/Server Errors: 503 dependency failure; retry after transient network failure succeeds."
+            ],
+            "gaps": [
+              "Soft Delete vs Hard Delete: No verification of soft-deletion semantics (e.g., tombstone/flag vs permanent removal).",
+              "Idempotency (sequential): No scenario where a repeated DELETE on the same resource returns 404 after an initial 204 (non-concurrent path).",
+              "204 Response Semantics: No checks that 204 responses have an empty body and appropriate headers (e.g., no Content-Type or consistent header behavior).",
+              "Error Contract: Scenarios assert generic error messages but do not validate structured error payload (fields like code, message, requestId) and content-type application/json as per \"produces\".",
+              "URL Encoding/Path Safety: No tests for emails requiring URL encoding (+, %2B, spaces, unicode, dots at boundaries).",
+              "Authorization Variants: No coverage for 403 (authenticated but forbidden) if applicable to tenancy/permissions.",
+              "Audit Trail Persistence: No validation that CreatedBy/Reason/Comment are captured in audit logs/history."
+            ],
+            "recommendations": [
+              "Add a scenario to verify soft vs hard delete behavior, e.g., querying account emails after deletion and/or checking audit/soft-delete flags.",
+              "Add a sequential idempotency test: first DELETE returns 204; a second DELETE on the same email returns 404.",
+              "Assert 204 response contains no body and verify response headers (Content-Type absent or as per service contract).",
+              "Define and validate a standard error schema for 400/404/401/503 responses (fields, content-type, localization).",
+              "Add tests covering URL-encoded email path parameters (e.g., user+alias@example.com, percent-encoded characters, unicode) to ensure correct routing/decoding.",
+              "If authorization model supports it, add a 403 scenario for authenticated user lacking permission on the target account.",
+              "Add an audit verification step to confirm X-Killbill-CreatedBy/Reason/Comment are persisted and retrievable in audit logs."
+            ],
+            "usage": {
+              "completion_tokens": 1414,
+              "prompt_tokens": 5675,
+              "total_tokens": 7089,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 832,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

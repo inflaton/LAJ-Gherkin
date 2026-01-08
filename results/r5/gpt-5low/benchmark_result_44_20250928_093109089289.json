@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-09-28T09:31:09.089257",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:30:31.482605",
+    "benchmark_end_time": "2025-09-28T09:31:09.089252",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 37.606647,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST: Valid request success path with required header and defaults (200, application/json).",
+              "Query Parameters: Offset/limit covered including defaults, explicit values, partial input, non-integer and invalid ranges, and unexpected parameter handling.",
+              "Pagination semantics: Processing windows via offset/limit including max-limit and very large datasets.",
+              "Authorization: Missing required header, invalid/expired token, and general unauthorized/forbidden responses.",
+              "Validation: Required header presence; numeric range/type validation for offset/limit; optional headers accepted.",
+              "Duplicate submission/idempotency: Retries and concurrent requests ensure invoices generated exactly once.",
+              "Server error handling: Service unavailability (503) covered.",
+              "Security: Injection attempt in headers without sensitive leakage.",
+              "Backward compatibility/regression: Optional headers absent with success; header parsing regression check.",
+              "Operational/Performance: Large volume and concurrent processing with resource/utilization expectations.",
+              "Empty/no-op behavior: No parked accounts returns success with no invoices generated."
+            ],
+            "gaps": [
+              "POST: 500 Internal Server Error path not covered (e.g., unexpected DB failure).",
+              "Rate limiting: No scenario for throttling/429 when many requests are sent rapidly.",
+              "Caching headers: No explicit assertions that POST responses are non-cacheable (e.g., Cache-Control: no-store) and no ETag behavior checks.",
+              "Authorization nuance: No scenario where an authenticated non-admin user is forbidden (403) while token is valid.",
+              "Side-effects scope: No verification that non-parked accounts are not invoiced during the operation.",
+              "Multi-page end-to-end: No scenario orchestrating multiple sequential calls (offset pagination) to process all parked accounts exactly once across batches.",
+              "Response schema: No validation of response body structure/fields (e.g., counts processed, next offset, errors).",
+              "Headers edge cases: No tests for very long/Unicode header values or 431 Request Header Fields Too Large.",
+              "Retry guidance headers: 503 path does not validate presence/absence of Retry-After header.",
+              "Internationalization: No coverage for non-ASCII values in X-Killbill-CreatedBy/Reason/Comment."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate an unexpected server error (e.g., DB exception) and assert HTTP 500 with safe error body.",
+              "Introduce rate-limiting tests: burst of POSTs should return 429 with appropriate Retry-After (if applicable) or confirm product decision if not implemented.",
+              "Assert caching behavior for POST responses: verify Cache-Control (e.g., no-store) and absence of ETag, per API standards.",
+              "Add a test where a valid, authenticated non-admin principal receives 403 Forbidden.",
+              "Add a side-effects test asserting that non-parked accounts remain unaffected after the operation.",
+              "Create an end-to-end pagination workflow: iterate over offset/limit windows until completion and verify all and only parked accounts are invoiced once.",
+              "Define and validate the response schema (e.g., {processedCount, totalEligible, offset, limit, message}) for both success and error payloads.",
+              "Add header robustness tests: extremely long values, Unicode characters, and enforce/verify 431 behavior or truncation rules.",
+              "For 503 responses, validate Retry-After header behavior and consistent error payload.",
+              "Add internationalization tests for headers (UTF-8 names/comments) to ensure proper handling and logging/auditing."
+            ],
+            "usage": {
+              "completion_tokens": 1942,
+              "prompt_tokens": 5207,
+              "total_tokens": 7149,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-13T05:15:39.691175",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:15:07.542041",
+    "benchmark_end_time": "2025-10-13T05:15:39.691170",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 32.149129,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Successful deletion: success path (HTTP 204) and empty-body behavior is covered (TC01, TC09, TC11).",
+              "Authentication failures: missing and invalid credentials producing 401 are covered (TC02, TC03).",
+              "Tenant existence: non-existent tenant case covered (TC04).",
+              "Server-side errors: internal error and service-unavailable scenarios covered (TC05, TC06).",
+              "Bad input handling: malformed/extra-parameter scenario and security injection scenario are present (TC07, TC08).",
+              "Idempotency / edge states: already-empty cache and partially populated cache scenarios covered (TC09, TC13).",
+              "Concurrency & performance: concurrent requests and performance threshold handling present (TC10).",
+              "Timeout/gateway behavior: timeout/gateway-timeout scenario covered (TC14).",
+              "Integration / regression: dependent-service observation and regression verification included (TC11, TC12)."
+            ],
+            "gaps": [
+              "Content-Type / response headers: no assertions that responses \"produce: application/json\" or that specific headers (Content-Type, Cache-Control, ETag) are set as required by acceptance notes.",
+              "Role-based authorization and 403 semantics: tests cover unauthenticated/invalid auth (401) but lack scenario for an authenticated non-admin user (should return 403) or scoped token misuse.",
+              "Tenant isolation / cross-tenant safety: no explicit tests that only the current tenant's caches are invalidated (and that other tenants remain unaffected).",
+              "Precise error-code mapping: several scenarios allow multiple codes (e.g., TC08 accepts 400 or 403) and there are no tests asserting exact error schema/structure or consistent error codes >=400 per story requirement.",
+              "Rate limiting / throttling: no tests for rate limits, burst traffic protection, or behaviour when throttled.",
+              "Concurrent deletion race conditions by other actors: concurrency tests cover load and response-time, but not race conditions where another actor deletes or modifies cache simultaneously and expected outcomes (conflicts) should be asserted.",
+              "Audit / observability: no tests asserting audit logs, metrics or operational impact (story notes mention performance impact but there are no checks for metrics, throttling, or mitigations).",
+              "Request-body handling: story explicitly states no request body (N/A) but there is no test confirming that supplying a body is rejected/ignored with a defined response code."
+            ],
+            "recommendations": [
+              "Add assertions for response headers, especially Content-Type: application/json for success and error responses; include checks for Cache-Control/ETag if applicable.",
+              "Add a scenario for an authenticated non-admin user (valid token but insufficient role) expecting HTTP 403 to validate role-based access control.",
+              "Add tenant-isolation tests: verify that invalidating cache for tenant A does not invalidate caches for tenant B and that attempts to target another tenant explicitly are denied.",
+              "Tighten error-code expectations and error-body schema: replace ambiguous acceptances (e.g., \"400 or 403\") with precise expected codes and validate error JSON shape and messages.",
+              "Add rate-limiting/throttling tests: burst of requests until limit is reached and verify correct 429 or configured responses and retry-after headers.",
+              "Add concurrency conflict tests: simulate overlapping invalidation requests and concurrent cache modifications by different actors to ensure predictable outcomes (no partial/inconsistent state).",
+              "Validate behavior for unexpected request body/payload: send body data and assert server either ignores it or returns a 400, per API contract.",
+              "Add observability/audit tests: verify that invalidation operations are logged/audited and that relevant metrics (latency, error rates) are emitted; add tests that measure impact on tenant performance where feasible.",
+              "Add negative/integration tests for partial service failures (e.g., one cache shard failing): assert appropriate error response and partial-failure handling semantics."
+            ],
+            "usage": {
+              "completion_tokens": 2163,
+              "prompt_tokens": 3389,
+              "total_tokens": 5552,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1344,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

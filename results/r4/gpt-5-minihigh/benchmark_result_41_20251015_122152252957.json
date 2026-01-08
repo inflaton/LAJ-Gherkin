@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "41_2025-10-15T12:21:52.252930",
+    "jira_id": "41",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/auditLogsWithHistory - Retrieve account audit logs with history by account id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:20:33.611055",
+    "benchmark_end_time": "2025-10-15T12:21:52.252926",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 78.641871,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "41_qe_sup-gpt4.1_agent-gpt4.1_1748918606.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid requests: TC01, TC09, TC12, TC16 verify 200 responses, Content-Type application/json, and that the response is a JSON array of AuditLog objects with required fields present.",
+              "Empty response: TC02 verifies account with no audit logs returns 200 and an empty JSON array.",
+              "Not-found and input validation: TC03 covers 404 for non-existent accountId; TC04 and TC17 cover invalid/partial accountId formats returning 400.",
+              "Authentication: TC05 and TC06 cover missing and expired/invalid tokens (401 responses).",
+              "Server and dependency errors: TC07 simulates a DB/unavailable condition (500) and TC13 covers degraded dependency behavior (503 or degraded 200 behavior).",
+              "Security: TC10 specifically tests SQL-injection attempt in the path parameter and checks for safe failure and no sensitive exposure.",
+              "Unsupported parameters: TC08 verifies that extra/unsupported query parameters are ignored and do not break the response.",
+              "Performance & concurrency: TC09 (large audit history) and TC11 (100 concurrent requests) exercise performance and scalability; TC09 also asserts acceptable response time thresholds.",
+              "Edge cases: TC14 (leading/trailing whitespace), TC15 (uppercase), and TC16 (max-length UUID) exercise boundary inputs.",
+              "Regression/integration focus: TC12 targets a previously fixed bug to ensure mandatory audit-log fields are present; TC13 addresses degraded dependency handling and expected outcomes."
+            ],
+            "gaps": [
+              "Pagination: No tests validate paging semantics (page/limit/offset or continuation tokens) or behavior when returning very large result sets \u2014 TC09 checks large data but not pagination mechanics.",
+              "Caching / conditional GET: No tests check ETag, If-None-Match, Last-Modified, Cache-Control headers or 304 Not Modified behavior.",
+              "Rate limiting / throttling responses: TC11 stresses concurrency but there are no tests that assert rate-limit responses (e.g., 429 + Retry-After) or throttling/backoff handling.",
+              "Authorization granularity (403): Tests cover authentication failure (401) but there are no tests for authorized-but-forbidden scenarios (403) or token-scope/role-based access.",
+              "Schema/type validation: Tests assert presence of required fields but do not validate field data types, formats (ISO8601 timestamps, UUID formats inside nested objects), enum constraints, or nested-object schema.",
+              "Standardized error payloads: Error responses are only asserted informally (message presence); there are no assertions against a consistent machine-readable error schema (code, type, details).",
+              "Content negotiation / Accept header: No tests for Accept header handling or behavior when a non-JSON Accept is supplied (e.g., 406).",
+              "Method restrictions: No negative tests asserting unsupported HTTP methods (POST/PUT/DELETE) return 405 Method Not Allowed.",
+              "Observability/logging verification: TC13 mentions the system should log degraded dependency, but there is no explicit test verifying logs/metrics emission.",
+              "Additional security edge-cases: Tests do not cover other injection vectors (headers/query), very-long/unicode accountId variations beyond typical UUID edge cases."
+            ],
+            "recommendations": [
+              "Add pagination tests (if API supports): create many audit logs and verify page size, next/prev links or continuation tokens, consistency across pages, and behavior at boundaries; if the API intentionally has no pagination, add documentation + performance limits tests.",
+              "Add caching/conditional-GET tests: assert presence of ETag/Last-Modified/Cache-Control headers and validate If-None-Match / If-Modified-Since requests return 304 when no change occurred.",
+              "Add rate-limiting tests: send request bursts to trigger throttling and verify 429 responses and Retry-After header, and validate client backoff/retry behavior.",
+              "Add authorization-scope tests: exercise tokens with insufficient privileges to assert 403 Forbidden and verify error messages do not leak internals.",
+              "Add strict schema validation tests: verify field types and formats (UUIDs, ISO8601 timestamps), required vs optional fields, nested object shapes and ordering/consistency of history entries (use JSON Schema or contract tests).",
+              "Define and test standardized error payloads: assert a machine-readable error structure for 4xx/5xx responses (code, message, details) instead of loose string matching.",
+              "Add content-negotiation tests: validate Accept header handling and behavior when non-json formats are requested (expect 406 or fallback behavior documented).",
+              "Add HTTP-method negative tests: ensure POST/PUT/DELETE/ PATCH on this endpoint return 405 Method Not Allowed.",
+              "Add observability tests (where feasible): verify degraded dependencies produce expected logs/metrics (or route logs to a test sink) to ensure the system records dependency failures.",
+              "Expand security edge-case coverage: test very-long/accountId Unicode/percent-encoded values and additional injection vectors (headers, query parameters) to ensure robust input sanitization and consistent error handling."
+            ],
+            "usage": {
+              "completion_tokens": 7640,
+              "prompt_tokens": 4397,
+              "total_tokens": 12037,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6592,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

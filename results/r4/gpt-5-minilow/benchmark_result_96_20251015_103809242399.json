@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-10-15T10:38:09.242370",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:37:57.266386",
+    "benchmark_end_time": "2025-10-15T10:38:09.242366",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 11.97598,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple success scenarios (remove all tags, remove single tag, remove multiple tags, large numbers) validate correct 204 behavior and empty response body.",
+              "Query Parameters: Tests cover no tagDef, single tagDef, multiple tagDef values, invalid tagDef format, tagDef not present on payment, extra unexpected query parameters, and injection attempts.",
+              "Headers: Required X-Killbill-CreatedBy header presence and missing-header behavior are tested; optional headers (X-Killbill-Reason, X-Killbill-Comment) are exercised.",
+              "Error Handling: Invalid paymentId format (400) and non-existent paymentId (404) are covered.",
+              "Authorization / Authentication: Unauthorized access scenario (401) is included.",
+              "Concurrency & Robustness: Concurrency (race conditions) and load/performance scenarios are present.",
+              "Audit & Consistency: Audit logging integration and post-deletion data consistency (subsequent GET) are present.",
+              "Edge & Operational Cases: Service unavailable (503) and timeout (504) scenarios are included; regression and backward-compatibility scenarios are present."
+            ],
+            "gaps": [
+              "Pagination: No tests for pagination \u2014 while more applicable to GET endpoints, the standard guidelines call out pagination and there is no verification of behavior when handling very large collections of tag identifiers or list paging behavior on any related GET calls used to validate removal.",
+              "Caching Behavior: No tests checking caching headers or cache-related behavior (ETag, Cache-Control) for subsequent GETs used to confirm removal.",
+              "Rate Limiting / Throttling: No tests to exercise API rate limits or behavior under burst traffic beyond the generic load test (no explicit rate-limit/assertion).",
+              "Soft Delete / Retention Semantics: No explicit verification whether tag removal is a soft delete (record retained with deleted flag) vs hard delete; audit test exists but does not assert the storage semantics.",
+              "Server Error (500) & DB Failures: While 503 is covered, there is no explicit test for 500/Internal Server Error or DB failure modes and how they affect idempotency/rollback.",
+              "Authorization scope / permission errors (403): There is a 401 (unauthorized) test but no test for forbidden (403) when an authenticated user lacks required permissions/role.",
+              "Headers validation: No tests for malformed header values (e.g., excessively long X-Killbill-CreatedBy or invalid character sets) or for missing optional header behavior beyond presence.",
+              "Idempotency / Duplicate Requests: No explicit test that repeated identical DELETE requests are idempotent and result in expected status codes (e.g., subsequent deletes return 204 or 404 as expected)."
+            ],
+            "recommendations": [
+              "Add explicit idempotency tests: send the same DELETE twice and assert the second response is appropriate (204 or idempotent 204) and system state unchanged.",
+              "Add 500 / DB-failure tests: simulate internal errors and assert proper 5xx responses and that partial removals do not leave inconsistent state (transaction rollback behavior).",
+              "Add permission-scope tests that exercise 403 Forbidden: authenticated user but lacking required permissions should receive 403.",
+              "Add soft-delete semantics tests: verify whether tag removals are soft (deleted flag plus audit) or hard deletes; assert storage/audit entries accordingly.",
+              "Extend rate-limiting tests: verify behavior under bursts and assert 429 responses or configured throttling behavior when limits exceeded.",
+              "Add caching-related tests for follow-up GETs: verify ETag/Cache-Control headers and that clients receive correct freshness/validation behavior after tag removal.",
+              "Add header validation tests: malformed or extremely long X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment values and expected 4xx handling.",
+              "Clarify pagination applicability or add tests for any GET endpoints used to validate deletions (e.g., GET payment tags) when tag lists are large to ensure consumer-visible behaviors are correct."
+            ],
+            "usage": {
+              "completion_tokens": 1097,
+              "prompt_tokens": 5560,
+              "total_tokens": 6657,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

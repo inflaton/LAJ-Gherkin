@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-10-15T10:27:53.799953",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:27:40.850159",
+    "benchmark_end_time": "2025-10-15T10:27:53.799950",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 12.949791,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC13, TC14) verify successful deletions for all/specific/large/duplicate IDs.",
+              "Empty Response / No Data: TC04 and TC06 verify behavior when there are no custom fields or the account does not exist.",
+              "Query Parameters Validation: TC02, TC08, TC14 cover valid/invalid/duplicate customField query parameters.",
+              "Required Headers: TC01..TC05..TC07 validate presence and effect of X-Killbill-CreatedBy and optional headers X-Killbill-Reason/X-Killbill-Comment (TC03).",
+              "Error Handling: TC05 (invalid accountId), TC08 (invalid customField), TC11 (backend failure), TC12 (timeout) cover expected 4xx/5xx/504 behaviors.",
+              "Authorization/Authentication: TC10 covers unauthorized access resulting in 401/403.",
+              "Idempotency / Regression: TC15 checks re-deleting an already deleted custom field.",
+              "Concurrency / Performance: TC16 checks concurrent deletion under load.",
+              "Integration / Data Consistency: TC17 checks dependent services reflect deletions.",
+              "Security: TC19 and TC20 cover SQL injection and XSS attempts."
+            ],
+            "gaps": [
+              "Soft Delete vs Permanent Delete: No scenario verifies whether deletions are soft (marked deleted) versus permanently removed and how that affects retrieval or audit trails.",
+              "Concurrency race conditions at DB-level: While TC16 tests performance, there is no explicit test for race conditions where two users delete overlapping subsets concurrently and verify transactional consistency/partial deletes.",
+              "Audit / Provenance Logging: No tests verify that deletion metadata (who/when/reason/comment) is recorded in audit logs or persisted with expected values.",
+              "Response Headers and Content-Type: Tests do not assert response headers (e.g., Content-Type, Cache-Control, ETag) or confirm empty body semantics consistently across clients.",
+              "Boundary / Limits for query param count/length: TC13 covers maximum allowed number of custom fields but there is no explicit test for maximum query string length or server handling of very large query parameter payloads (e.g., URL length limits).",
+              "Authorization scope granularity: TC10 asserts unauthorized user case, but there is no coverage of role-based permissions differences (e.g., user with read but not delete, admin vs service-account), nor of required header value validation beyond presence.",
+              "Partial failure & rollback: No test ensures partial failures (e.g., some customField IDs valid, some invalid) result in atomic behavior (all-or-nothing) or expected partial success semantics.",
+              "Content negotiation / Accept header behavior: No tests for different Accept or Content-Type headers and how server responds.",
+              "Rate limiting and throttling: Absent\u2014no tests for repeated requests triggering rate limits (guideline for GET mentions rate limiting).",
+              "Pagination and caching (GET-related): Although not directly applicable to DELETE, there is no verification of downstream GET pagination or caching effects post-deletion."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification scenario: after deletion, check internal flags / DB row state and verify whether data can be recovered or permanently removed according to spec.",
+              "Add atomicity tests for mixed valid/invalid customField IDs: send a mix and assert whether operation is all-or-nothing or documents partial success and corresponding status/code.",
+              "Add concurrent-race-condition tests (not only load): perform overlapping deletes from two actors concurrently and verify no partial/inconsistent state remains.",
+              "Add audit/logging verification: assert that X-Killbill-CreatedBy, X-Killbill-Reason, X-Killbill-Comment and timestamps are persisted in audit logs or change history.",
+              "Assert response headers and content-type for DELETE responses (e.g., Content-Type absent or application/json, Cache-Control), and confirm consistent empty-body semantics.",
+              "Add boundary tests for very long query strings and maximum number of query params (URL length limits), and explicit validation of server behavior when limits exceeded (413 or 400).",
+              "Expand authorization tests to cover role/permission matrix: read-only user, admin, service account, and token-expired scenarios to ensure correct 401/403 behavior.",
+              "Add partial-failure and rollback tests for dependency failures affecting subsets of deletions to confirm transactional guarantees.",
+              "Add rate-limiting/throttling tests to align with API robustness guidelines (repeat requests until limit reached).",
+              "If relevant, add tests to validate downstream GET behaviors (pagination/caching) after deletions to ensure client-facing consistency."
+            ],
+            "usage": {
+              "completion_tokens": 1281,
+              "prompt_tokens": 5440,
+              "total_tokens": 6721,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

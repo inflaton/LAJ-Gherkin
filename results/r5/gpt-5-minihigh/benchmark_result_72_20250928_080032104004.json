@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "72_2025-09-28T08:00:32.103963",
+    "jira_id": "72",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/availableAddons - Retrieve available add-ons for a given product",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:58:18.066309",
+    "benchmark_end_time": "2025-09-28T08:00:32.103959",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 134.03765,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "72_qe_sup-gpt4.1_agent-gpt4.1_1748920690.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid requests: TC01-TC05 and TC19 cover retrieval with no parameters, baseProductName, priceListName, combinations, and tenant-scoped accountId; status 200 and application/json are asserted.",
+              "Empty responses: TC06 and TC07 verify empty JSON array behavior when no add-ons exist or catalog is empty.",
+              "Error handling: TC08, TC09, TC10, TC13, TC14, and TC20 cover common error conditions and expected status codes (404, 400, 503, 500, 504).",
+              "Authorization: TC11 and TC12 cover missing and invalid authentication tokens (401).",
+              "Security and input validation: TC15 and TC16 include SQL injection and XSS attempts; TC21 covers regression for empty priceListName handling.",
+              "Robustness and parameter handling: TC17 covers extra/unsupported parameters being ignored; TC02-TC05 cover multiple parameter combinations.",
+              "Performance and concurrency: TC18 validates large result volumes (1000+ items) with a time SLA and TC23 validates concurrent request behavior (100 parallel requests).",
+              "Response format assertions: Many scenarios assert application/json content-type and that the response is a JSON array of PlanDetail objects (broad structural expectation)."
+            ],
+            "gaps": [
+              "Pagination: No tests exercise pagination, page-size/offset/query cursors, or behavior when large result sets require paging (the API or client behavior for paging is not validated).",
+              "Caching behavior: No tests check caching headers (ETag, Last-Modified, Cache-Control) or conditional requests (If-None-Match / 304 Not Modified).",
+              "Rate limiting / throttling: TC23 exercises concurrency but there are no explicit tests for rate limits or 429 responses and associated headers (Retry-After, X-RateLimit-*).",
+              "Schema validation: Responses are asserted to be \"PlanDetail objects\" but there are no tests that validate the JSON against the PlanDetail schema (required fields, types, nested structures).",
+              "HTTP method handling: There are no tests that verify non-GET methods return 405 Method Not Allowed for this read-only endpoint.",
+              "Authorization nuances: Tests cover 401 cases but not 403 Forbidden (authenticated but unauthorized) or validation of WWW-Authenticate headers and scopes/roles.",
+              "AccountId existence semantics: TC10 covers malformed UUIDs, but there is no test for a well-formed UUID that does not map to an existing account/tenant and the expected behavior (404 vs empty array) is not validated.",
+              "Error response schema: Error bodies are checked for messages but not validated against a consistent error response schema (error code, message, details).",
+              "Parameter edge cases: No tests for empty or whitespace baseProductName, URL-encoded values, case sensitivity, or conflicting filters (e.g., priceListName that does not apply to the given baseProductName).",
+              "DB verification for security tests: TC15 expects \"no data should be altered\" but there is no explicit DB-state assertion step to verify no destructive change occurred after injection attempts."
+            ],
+            "recommendations": [
+              "Add pagination tests: if the API returns large result sets, add tests for page size, page tokens/offsets, last-page behavior, and server-side limits; if the API does not support pagination, document and test behavior for very large responses (streaming or failure modes).",
+              "Add caching tests: exercise ETag / If-None-Match to assert 304 Not Modified behavior and validate presence and correctness of Cache-Control, ETag, and Last-Modified headers.",
+              "Add rate-limiting tests: send bursts to trigger 429 responses, verify Retry-After and X-RateLimit headers, and ensure graceful handling under sustained high request rates.",
+              "Add JSON schema validation: validate each PlanDetail returned against the canonical PlanDetail schema (required fields, types, value constraints) and assert no unexpected/missing fields.",
+              "Add method-safety tests: ensure POST/PUT/PATCH/DELETE to this endpoint return 405 Method Not Allowed and include Allow header with GET.",
+              "Expand authorization tests: include scenarios for authenticated-but-forbidden (403) users, validate WWW-Authenticate header contents for 401, and test role/permission boundaries if applicable.",
+              "Test accountId semantics: add a test for a well-formed but non-existent accountId and define expected behavior (404 vs empty results) to avoid ambiguity.",
+              "Validate error response schema: enforce a consistent error payload structure (code, message, details) across all error scenarios and add tests to assert it.",
+              "Expand parameter edge-case tests: add cases for empty baseProductName, whitespace-only values, encoded characters, case sensitivity, and conflicting filter combinations that should return empty results.",
+              "Add DB assertions for security tests: after SQL injection tests, run DB queries or snapshot comparisons to assert that no tables/rows were altered.",
+              "Add content-negotiation tests: verify behavior when Accept header is not application/json (406 vs default to JSON) and assert content-type negotiation behavior.",
+              "Increase performance & resiliency testing: add sustained load tests, larger concurrency ramps, and SLA validation beyond single-shot concurrency to detect resource exhaustion or degradation."
+            ],
+            "usage": {
+              "completion_tokens": 7490,
+              "prompt_tokens": 5214,
+              "total_tokens": 12704,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

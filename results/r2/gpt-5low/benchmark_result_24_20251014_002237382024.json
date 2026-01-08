@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "24_2025-10-14T00:22:37.381998",
+    "jira_id": "24",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/invoicePayments - Retrieve account invoice payments",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T00:21:51.782591",
+    "benchmark_end_time": "2025-10-14T00:22:37.381994",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 45.599403,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "24_qe_sup-gpt4.1_agent-gpt4.1_1748917532.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple success scenarios validate 200 responses with default behavior and with various query parameters (withPluginInfo, withAttempts, pluginProperty, audit).",
+              "Empty Response: Scenario covers accounts with no invoice payments returning an empty JSON array.",
+              "Query Parameters: Broad coverage of valid combinations and invalid values (e.g., audit=VERBOSE -> 400), plus extra/ignored parameters and maximum repeats for pluginProperty.",
+              "Authorization: 401 for missing/invalid token is covered.",
+              "Error Handling: 400 for malformed UUID, 404 for non-existent account, and 503 for service unavailability are included.",
+              "Security: Injection/XSS attempts in accountId and pluginProperty are tested.",
+              "Performance: Response time under normal and peak load is exercised, as well as very large result sets.",
+              "State Variations/Regression: Partially populated DB, regression around pluginProperty filtering, and backward compatibility without query params are covered."
+            ],
+            "gaps": [
+              "Pagination: No explicit verification of pagination controls/behavior (e.g., limit/offset parameters, next/prev links, or pagination headers). TC15 is ambiguous and does not assert concrete pagination mechanics.",
+              "Caching Behavior: No scenarios validate caching headers (ETag, Cache-Control) or conditional requests (If-None-Match -> 304).",
+              "Rate Limiting: No tests for throttling or 429 Too Many Requests under burst traffic.",
+              "Authorization (Forbidden): No 403 scenario for authenticated but unauthorized access (e.g., wrong tenant/insufficient permissions).",
+              "Response Schema Validation: Assertions are high-level (\"required payment fields\"); no strict validation of the InvoicePayment schema and nested fields (pluginInfo, attempts, audit) including data types and required/optional presence.",
+              "Produces/Header Assertions: Lack of explicit checks for Content-Type application/json and charset, and no negative Accept header behavior.",
+              "Error Body Contract: Error responses do not validate a standard error schema (e.g., code, message, type).",
+              "Audit Enum Completeness: No explicit test for audit=NONE (default) behavior and field omission/structure compared to MINIMAL and FULL.",
+              "Deterministic Behavior in Dependencies: TC18 allows either 503 or partial data; the oracle is non-deterministic and may cause flaky tests.",
+              "Input Encoding/Internationalization: Limited coverage for URL encoding and Unicode values in pluginProperty; only basic encoding and XSS are exercised."
+            ],
+            "recommendations": [
+              "Add explicit pagination tests: verify presence/behavior of pagination parameters or headers, assert page sizes, next/prev navigation, and stable ordering on large datasets.",
+              "Add caching tests: assert ETag/Last-Modified/Cache-Control on 200 responses and validate 304 on conditional GET (If-None-Match/If-Modified-Since).",
+              "Introduce rate-limiting scenarios: simulate burst requests and assert 429 with Retry-After headers when applicable.",
+              "Add 403 Forbidden scenario for authenticated users lacking required permissions or tenant isolation to complement the 401 test.",
+              "Tighten schema validation: assert full InvoicePayment contract (required fields, types, nested pluginInfo/attempts/audit structures) and verify omissions for defaults.",
+              "Assert headers: check Content-Type (application/json; charset=utf-8) and optionally Content-Length; add a negative Accept header case (e.g., Accept: application/xml -> 406) if supported.",
+              "Standardize error responses: validate error schema fields (code, message, details) for 400/401/403/404/503, not just presence of an error message.",
+              "Cover audit=NONE explicitly and compare field presence across NONE, MINIMAL, and FULL to ensure correct redaction/verbosity.",
+              "Make TC18 deterministic: define a single expected behavior (e.g., return 503 with a clear error body) or clearly documented partial data contract with a specific warning field.",
+              "Expand encoding/i18n tests: include URL-encoded special characters and Unicode in pluginProperty values and assert correct filtering and safe handling."
+            ],
+            "usage": {
+              "completion_tokens": 1876,
+              "prompt_tokens": 6242,
+              "total_tokens": 8118,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

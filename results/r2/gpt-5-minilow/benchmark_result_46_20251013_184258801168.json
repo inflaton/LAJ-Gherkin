@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-13T18:42:58.801141",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:42:36.025598",
+    "benchmark_end_time": "2025-10-13T18:42:58.801137",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 22.775539,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01 verifies successful DELETE returns 204 and empty body and that caches are invalidated.",
+              "Non-Existent Resource: TC02, TC16, TC18 verify 404 responses when account is not found across different DB states.",
+              "Invalid Path/Input Validation: TC03, TC10, TC12 validate invalid UUID/format handling and appropriate 400 responses.",
+              "Authentication: TC05 and TC06 cover unauthenticated and expired/invalid token cases (401).",
+              "Authorization method/HTTP contract: TC11 checks unsupported HTTP methods return 405.",
+              "Dependability / Service Unavailable: TC07 and TC08 cover degraded system and dependent cache service unavailability (503) and acceptance of 204 under degraded conditions.",
+              "Concurrency & Performance: TC13 covers concurrent DELETE requests and a performance target (average response time).",
+              "Security Input Validation: TC14 and TC15 cover SQL injection and XSS attempts via accountId path parameter.",
+              "Retry/Transient Network Recovery: TC17 covers transient network failures and retry behavior.",
+              "Regression / Backward Compatibility: TC19 and TC12 address regressions and historic invalid UUID bugs."
+            ],
+            "gaps": [
+              "Authorization granularity (403): There is no explicit test for an authenticated but unauthorized user / insufficient privileges (e.g., non-admin role) which should return 403.",
+              "Idempotency / repeated DELETE: No explicit test for idempotent behaviour when deleting the same account twice (should be 204 then 404 or 204 consistently depending on contract).",
+              "Soft delete semantics: The story/guidelines mention delete semantics; there is no test to verify whether this endpoint expects/affects soft-delete state vs pure cache invalidation or how underlying account deletion state interacts.",
+              "Race conditions beyond concurrency load: TC13 tests concurrent requests for different accounts and performance, but there is no test for race conditions where two requests target the same account simultaneously and check atomicity/consistency.",
+              "Error response schema and headers: Tests do not assert response content-type, error payload schema/fields, or presence of diagnostic headers (e.g., request id) for errors.",
+              "Rate limiting / throttling: No tests exercise rate-limiting behaviour when many requests are sent in a short time.",
+              "Contract for empty response body and content-type: While empty body is asserted for 204, there is no explicit contract test checking Content-Type or that JSON is produced for error responses as the story says \"Produces: application/json\".",
+              "Logging/audit and side effects: No tests assert audit/log entries or that cache invalidation has the correct side-effects beyond a generic \"should be invalidated\" step.",
+              "Boundary/length validation: There is TC10 for very large accountId but it returns 400/404; no systematic boundary tests for path length or permitted characters beyond a few cases."
+            ],
+            "recommendations": [
+              "Add an authorization role test: include scenarios where an authenticated non-admin user (valid token but insufficient privileges) attempts DELETE and receives 403 with clear error payload.",
+              "Add idempotency tests: call DELETE twice for the same account and assert the expected contract (commonly 204 first, then 404 or 204 again depending on API design). Document expected behavior and test accordingly.",
+              "Add same-account concurrency tests: send concurrent DELETEs targeted at the same account to verify atomic behavior and consistent responses (avoid conflicting cache-state).",
+              "Validate error response schema and headers: add tests asserting Content-Type: application/json for errors, and that error bodies contain structured fields (code, message, details) per API contract.",
+              "Add rate-limiting tests: simulate high request rates to validate throttling responses (429) or other configured behavior.",
+              "Add tests for soft-delete / interaction with account deletion state: test what happens if the account is soft-deleted or permanently deleted\u2014does cache invalidation still succeed? Ensure behavior is defined and tested.",
+              "Add tests for header/caching contract: while this is a cache invalidation endpoint, add assertions for relevant response headers (e.g., Cache-Control, ETag where applicable) and presence of request-id headers for tracing.",
+              "Expand boundary tests for accountId: add systematic tests for maximum path length, unicode characters, and other malformed inputs beyond SQL/XSS payloads.",
+              "Add verification of side-effects/auditing where applicable: if the system must emit audit events or logs for admin actions, include tests to validate those side effects (e.g., system log or audit endpoint)."
+            ],
+            "usage": {
+              "completion_tokens": 1203,
+              "prompt_tokens": 4640,
+              "total_tokens": 5843,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

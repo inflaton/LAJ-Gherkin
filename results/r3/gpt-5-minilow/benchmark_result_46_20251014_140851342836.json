@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-14T14:08:51.342807",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:07:57.413330",
+    "benchmark_end_time": "2025-10-14T14:08:51.342802",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 53.929472,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Successful cache invalidation for a valid account is tested (TC01, TC19).",
+              "Non-Existent Resource: Not-found scenarios for missing accounts are covered (TC02, TC16, TC18).",
+              "Invalid Input Validation: Invalid UUID formats and malformed IDs are tested (TC03, TC12, TC10).",
+              "Authentication: Missing and expired/invalid token cases are covered (TC05, TC06).",
+              "Authorization/Method Handling: Unsupported HTTP method result (405) is covered (TC11).",
+              "Concurrency: Concurrent DELETE requests and a basic performance threshold are covered (TC13).",
+              "Service Unavailability / Degraded System: Dependent cache service down and degraded system scenarios are covered (TC07, TC08).",
+              "Query Parameters Handling: Extra query params tolerance is covered (TC09).",
+              "Security Injection Attempts: SQL injection and XSS via accountId are tested (TC14, TC15).",
+              "Path Edge Cases: Missing accountId path handling is included (TC04).",
+              "Network Resilience: Transient network failure and retry behavior is included (TC17).",
+              "Regression: Dedicated regression scenarios are present (TC12, TC19)."
+            ],
+            "gaps": [
+              "Soft Delete Semantics: No test verifies whether cache invalidation implements a soft-delete pattern or how deleted state is recorded (DELETE guidance: Soft Deletes).",
+              "Authorization levels / Forbidden (403): There is no test for an authenticated non-admin user (i.e., valid credentials but insufficient privileges) which should return 403 if applicable.",
+              "Response Headers and Content-Type: No tests assert response headers (Content-Type application/json for error responses, caching headers, or presence/absence of body headers for 204 responses).",
+              "Idempotency and Repeated Deletes: No explicit test that repeated DELETEs for the same account are idempotent (e.g., subsequent DELETE returns 204 or 404 per expected behavior).",
+              "Verification of Actual Cache State: \"Caches invalidated\" is asserted at a high level but there are no tests that check the cache backend (e.g., Redis/Memcached) to confirm entries are removed.",
+              "Detailed Error Payload Validation: Error payload structure and fields (error codes, message formats) are not asserted beyond text existence.",
+              "Server Error Handling (5xx other than 503): No tests simulate internal server or DB failures resulting in 500 responses.",
+              "Rate Limiting / Throttling: No tests for rate limiting or handling many requests beyond the concurrent performance scenario.",
+              "Edge cases for accountId pattern variants: While some malformed patterns are tested, more exhaustive boundary tests for allowed UUID variants and maximum lengths are missing."
+            ],
+            "recommendations": [
+              "Add an authenticated-non-admin (valid credentials but insufficient role) test that expects 403 to validate authorization semantics.",
+              "Add idempotency tests: call DELETE twice for the same account and assert the system behavior (204 then 204 or 204 then 404) according to the API contract.",
+              "Add tests that inspect the cache backend (or a mocked cache client) before and after DELETE to assert that cache keys for the account are actually removed.",
+              "Add assertions for response headers: ensure 204 responses have no body and appropriate headers, and error responses include Content-Type: application/json and a consistent error schema.",
+              "Add tests simulating 500/internal server errors (e.g., DB down) to ensure proper 5xx handling and meaningful error messages.",
+              "Add rate-limiting tests to see how the endpoint behaves under burst traffic and to verify throttling headers if any.",
+              "Add more exhaustive accountId boundary tests (max length, near-boundary UUID variants) and clarify expected behavior for very long inputs.",
+              "Add tests for structured error payload validation (fields, codes) rather than only checking that an error message substring is present.",
+              "If soft-delete behavior is a concern, add tests that validate whether the system marks caches as deleted vs. fully removing entries and how that affects subsequent operations."
+            ],
+            "usage": {
+              "completion_tokens": 1368,
+              "prompt_tokens": 4640,
+              "total_tokens": 6008,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 512,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

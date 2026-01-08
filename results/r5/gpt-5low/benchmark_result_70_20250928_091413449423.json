@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "70_2025-09-28T09:14:13.449373",
+    "jira_id": "70",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/catalog - Delete all versions for a per tenant catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:13:39.913803",
+    "benchmark_end_time": "2025-09-28T09:14:13.449369",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 33.535566,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "70_qe_sup-gpt4.1_agent-gpt4.1_1748920522.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE - Valid Deletion: Success path returns 204 and removes all tenant catalog versions (TC01, TC02, TC05, TC10, TC15).",
+              "DELETE - Non-Existent Resource: Proper 404 when tenant not found (TC06).",
+              "DELETE - Concurrency: Concurrent requests handled with single success and consistent end state (TC13).",
+              "Header Requirements: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment accepted (TC01\u2013TC02, TC03, TC14).",
+              "Auth/Authorization: Invalid/expired token yields 401; missing required header handled (TC04, TC03, TC14).",
+              "Input Validation/ Security: Empty or malicious header values rejected with 400/422 (TC07, TC11).",
+              "System Error Handling: 500 on backend failure (TC09).",
+              "Idempotent-like behavior check via subsequent GET and post-conditions to confirm deletion (TC01).",
+              "No-op case: Deleting when no catalog versions still returns 204 and leaves system unchanged (TC05).",
+              "Robustness: Extra unexpected headers ignored and do not affect deletion (TC08).",
+              "Data integrity: No orphaned references remain after deletion (TC12).",
+              "Performance: Large number of versions deleted within acceptable time (TC10).",
+              "Protocol: DELETE request body is ignored and does not affect outcome (TC15)."
+            ],
+            "gaps": [
+              "DELETE - Soft Deletes: No explicit scenario verifying soft vs hard delete semantics (e.g., confirm not merely flagged but permanently removed, or, if soft-delete is expected, verify tombstone state).",
+              "Authorization granularity: No test for authorized but forbidden user (403) vs unauthenticated (401), e.g., user lacks permission to delete tenant catalog.",
+              "Idempotency on repeated sequential calls: No scenario where a second DELETE after a successful one returns a defined status (e.g., 204 again or 404) and remains safe.",
+              "Multi-tenant isolation: No scenario ensuring deletion affects only the current tenant and leaves other tenants\u2019 catalogs intact.",
+              "Audit trail: No verification that CreatedBy/Reason/Comment are persisted to audit logs/history as expected.",
+              "Response semantics: No explicit check that 204 responses have no body and expected headers (e.g., Content-Length: 0).",
+              "Error response schema: Scenarios don\u2019t validate structured error payload format (codes, messages) for 4xx/5xx responses."
+            ],
+            "recommendations": [
+              "Add a scenario to assert deletion behavior type: verify permanent removal (cannot retrieve versions, no soft-delete marker), or if soft-delete is required by platform standards, validate the tombstone/flag.",
+              "Add a 403 Forbidden scenario for a user who is authenticated but lacks permission to delete the catalog.",
+              "Add an idempotency scenario: perform DELETE twice sequentially and assert the second call\u2019s expected status and no side effects.",
+              "Add a multi-tenant isolation scenario: ensure deleting in tenant A does not affect tenant B\u2019s catalog.",
+              "Add an audit verification scenario: confirm X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs for the deletion event.",
+              "Add a response semantics check: assert 204 has no body and appropriate headers.",
+              "Define and validate a consistent error response schema for 4xx/5xx cases (fields like errorCode, message, requestId)."
+            ],
+            "usage": {
+              "completion_tokens": 1447,
+              "prompt_tokens": 4159,
+              "total_tokens": 5606,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

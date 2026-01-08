@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-10-15T11:02:26.729880",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:02:05.344451",
+    "benchmark_end_time": "2025-10-15T11:02:26.729874",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 60,
+    "average_generation_time_seconds": 21.385423,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 60,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 60,
+            "covered": [
+              "Valid Request: There are multiple happy-path scenarios (TC01, TC02, TC19) that validate successful retrieval and a 200 response with application/json Product payload.",
+              "Query Parameters: Many combinations are exercised \u2014 both parameters present, subscriptionId-only, requestedDate-only, extra/unexpected params (TC03, TC04, TC14). Invalid formats for subscriptionId and requestedDate are tested (TC06, TC08).",
+              "Error handling for not-found/invalid: Not-found subscription (TC05), invalid UUID/date formats (TC06, TC08), and missing-parameter error (TC07) are covered.",
+              "Authorization: Unauthorized access is covered (TC09).",
+              "Service/Dependency errors: Service unavailable (TC10) and downstream dependency unavailable (TC21) are included.",
+              "Edge cases & regressions: future/past dates (TC12, TC13), boundary date regression (TC18), empty DB (TC11), and backward-compatibility/regression checks (TC19) are present.",
+              "Security: SQL injection and XSS attempts are included (TC16, TC17).",
+              "Performance/Load: Concurrent/peak load and response-time tests exist (TC15, TC20).",
+              "Response validation basics: Content-Type and Product schema validation are mentioned in the Background and asserted in success scenarios."
+            ],
+            "gaps": [
+              "Pagination: No tests exercise pagination or large-result pagination semantics (limit/offset/page tokens) \u2014 important for \"GET\" endpoints returning lists or multiple products.",
+              "Caching Behavior / HTTP conditional requests: No scenarios check caching headers (ETag, Cache-Control, Last-Modified) or conditional GET behavior (304 Not Modified).",
+              "Rate Limiting / Throttling: There are performance/load tests, but no explicit tests for rate limits (429 responses) or throttling behavior under high request rate.",
+              "Ambiguity / business-rule resolution for omitted params: Several scenarios (TC03, TC04) allow both 200 or \"appropriate error\", but there are no tests that assert the concrete, single business rule the API should follow when subscriptionId or requestedDate are omitted. The story\u2019s notes mention it \"might return a default or error\" \u2014 this needs a definitive test.",
+              "Authorization scopes / permissions: 401 (unauthenticated) is covered but there are no tests for authenticated-but-forbidden (403) or role/scope-based access control.",
+              "Header-level checks: Aside from Content-Type, response header correctness (Content-Length, caching headers, rate-limit headers, request-id/correlation-id) aren\u2019t validated.",
+              "Schema-level assertions: While Product schema availability is mentioned, there are no detailed tests asserting all required Product fields, field types, and edge-value constraints (e.g., enum values, price formats).",
+              "Ambiguous expected-status tests: Several scenarios allow multiple outcomes (e.g., \"200 or 404\", \"200 or appropriate error\") \u2014 these are useful exploratory tests but do not assert a deterministic acceptance criterion that can be used for CI/Gating."
+            ],
+            "recommendations": [
+              "Add explicit pagination tests: create tests that populate many subscriptions/products and assert limit/offset or page-token behavior and correct total counts and links.",
+              "Add caching and conditional GET tests: assert presence and correctness of ETag, Cache-Control, Last-Modified headers and test 304 Not Modified behavior when applicable.",
+              "Add rate-limiting tests: simulate high request rates and assert 429 responses and related Retry-After headers, plus graceful degradation behavior.",
+              "Define and assert concrete business rules for omitted parameters: decide whether subscriptionId or requestedDate can be omitted and make deterministic tests that assert the expected single behavior (don\u2019t leave \"200 or error\" ambiguity in automated tests).",
+              "Add permission/authorization matrix tests: include authenticated-but-forbidden (403) scenarios and tests for varying roles/scopes if applicable.",
+              "Expand header and contract checks: assert required response headers (Content-Type, Content-Length, request-id/correlation-id) and validate Product schema fields precisely (presence, types, allowed values).",
+              "Refine status-code expectations: replace tests that accept multiple possible outcomes with definitive assertions based on the API spec (e.g., when requestedDate is ambiguous, assert a well-defined 400/409/300 response).",
+              "Add negative/robustness tests for unusual but valid inputs: very long query values, trimming/encoding issues, and parameter case-sensitivity.",
+              "Automate security fuzzing and SQL/XSS injection cases with assertions that no sensitive error details leak and that inputs are properly sanitized/validated.",
+              "Add CI performance/regression thresholds: convert TC15/TC20 into automated load tests with clear SLOs and fail criteria so performance regressions are caught automatically."
+            ],
+            "usage": {
+              "completion_tokens": 2215,
+              "prompt_tokens": 5044,
+              "total_tokens": 7259,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

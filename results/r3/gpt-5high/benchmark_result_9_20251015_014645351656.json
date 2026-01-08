@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "9_2025-10-15T01:46:45.351619",
+    "jira_id": "9",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/block - Block an account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T01:44:09.391851",
+    "benchmark_end_time": "2025-10-15T01:46:45.351613",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 155.959762,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "9_qe_sup-gpt4.1_agent-gpt4.1_1748916388.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "POST Valid Payload: Success paths with minimal and full optional inputs validate 201 and array response of BlockingState(s) (TC01\u2013TC05).",
+              "Headers: Required X-Killbill-CreatedBy present/missing handled (201/400); optional X-Killbill-Reason and X-Killbill-Comment accepted (TC02, TC08).",
+              "Query params: requestedDate and pluginProperty handled independently and together; effective date honored; empty pluginProperty accepted (TC02\u2013TC04, TC15).",
+              "Path parameter validation and resource existence: invalid UUID format yields 400; non-existent account yields 404 (TC06\u2013TC07).",
+              "Request body validation: missing body, malformed JSON, and malicious payloads return 400 (TC09\u2013TC10, TC14).",
+              "Security hardening: SQL injection in accountId rejected; unauthorized access returns 401 (TC11, TC13).",
+              "Integration: pluginProperty triggers plugin interaction and outage handling (201/503) (TC21\u2013TC22).",
+              "Robustness/Performance: slow downstream within timeouts, high concurrency, and large payload/field limits covered (TC16, TC19\u2013TC20, TC25\u2013TC26).",
+              "Regression and backward compatibility behaviors validated (TC23\u2013TC24)."
+            ],
+            "gaps": [
+              "Component-level blocking (subscriptions/bundles) not exercised: no scenarios verify BlockingState scope/flags or downstream effects of partial blocking.",
+              "Validation gaps for query params: no tests for invalid requestedDate formats/timezones or out-of-range dates; no tests for wrong pluginProperty types or nulls.",
+              "pluginProperty collectionFormat=multi not verified at the wire level (repeated query keys); tests use array notation only.",
+              "Idempotency/duplicate submission behavior not covered (repeat same POST with/without idempotency key).",
+              "Response contract not fully asserted: no checks for Content-Type application/json, expected array cardinality, or specific BlockingState fields (service/stateName/block flags).",
+              "HTTP semantics: no 415 Unsupported Media Type for wrong/missing Content-Type; no 406 Not Acceptable for unacceptable Accept header.",
+              "Server error handling per guideline lacks a 500 Internal Server Error case (only 503 is covered).",
+              "Rate limiting/throttling (429) not covered if applicable (distinct from performance tests).",
+              "Auditability not verified: no assertion that CreatedBy/Reason/Comment are persisted (e.g., via subsequent GET/audit logs).",
+              "UUID pattern edge cases not covered (e.g., uppercase, hyphenless, overly long/short but alphanumeric).",
+              "Conflict semantics not defined/tested when an identical or overlapping BlockingState already exists (e.g., 409 vs merge).",
+              "Spec alignment for TC20: request body appears to be a single BlockingState per spec; sending an array may be invalid and is not clarified."
+            ],
+            "recommendations": [
+              "Add scenarios targeting subscription and bundle scopes with permutations of block flags (isBlockBilling, isBlockEntitlement, isBlockChange) and verify effects/persisted fields.",
+              "Add negative validation for requestedDate (bad format, invalid dates, timezone offsets) and pluginProperty (wrong types, nulls, empty-string entries) returning 400.",
+              "Verify collectionFormat=multi by sending repeated pluginProperty query keys and asserting correct interpretation.",
+              "Assert response headers and payload contract: Content-Type application/json; verify array cardinality and BlockingState fields (service/stateName/block flags, effectiveDate).",
+              "Add 415 Unsupported Media Type for missing/incorrect Content-Type and 406 Not Acceptable for unsupported Accept header.",
+              "Cover idempotency/duplicate submission: repeat identical POSTs with and without an idempotency key; define expected behavior (201 then 200/409 or dedup).",
+              "Include a 500 Internal Server Error simulation in addition to 503 to meet server error handling guideline.",
+              "Add rate-limiting tests for 429 if enforced by the API, separate from performance throughput scenarios.",
+              "Verify auditing by retrieving audit logs or the resource via GET to ensure CreatedBy/Reason/Comment are persisted correctly.",
+              "Expand UUID format tests with canonical vs non-canonical variants (uppercase, missing hyphens, length violations).",
+              "Clarify TC20 against the spec: if request must be a single BlockingState, add a test asserting array bodies are rejected with 400, and retain large-payload testing via max-length fields.",
+              "Add persistence verification: after POST, GET the account's blocking states and assert the new state exists with correct scope and effectiveDate."
+            ],
+            "usage": {
+              "completion_tokens": 7442,
+              "prompt_tokens": 7115,
+              "total_tokens": 14557,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6464,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

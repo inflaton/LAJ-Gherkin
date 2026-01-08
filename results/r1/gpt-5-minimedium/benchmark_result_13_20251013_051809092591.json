@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-13T05:18:09.092567",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:17:31.561672",
+    "benchmark_end_time": "2025-10-13T05:18:09.092563",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 37.530891,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple success scenarios assert 204 and that the account is marked closed (TC01, TC02, TC03, TC11, TC12, TC20).",
+              "Query Parameters: Extensive combinations are tested (all true, all false, each individually true, pairs, extra unsupported parameter ignored) covering expected boolean-driven cleanup behavior (TC02\u2013TC05, TC13).",
+              "Header validation: Required header X-Killbill-CreatedBy presence / absence is tested (TC09); optional header X-Killbill-Comment tested for XSS sanitization (TC16).",
+              "Authorization: Missing and invalid authentication are tested (401) (TC10).",
+              "Input validation / security: Invalid accountId pattern and SQL injection attempts are tested and expected to return 400 (TC08, TC15).",
+              "Idempotency & Non-existent resource: Already closed and non-existent account behavior returning 204 is tested (TC11, TC12).",
+              "Error handling: System error (database unavailable) mapped to 500 is covered (TC14).",
+              "Scale & performance: Large-number processing and concurrent closures / performance expectations are included (TC07, TC18).",
+              "Transactional/regression coverage: Regression for unpaid invoices and backward compatibility tests exist (TC19, TC20).",
+              "Operational resilience: Retry on transient network failure and idempotency on retry is included (TC17)."
+            ],
+            "gaps": [
+              "Query parameter type validation: No tests for invalid boolean values or malformed query parameter types (e.g., cancelAllSubscriptions=foo, cancelAllSubscriptions=1).",
+              "Header value validation and semantics: No tests for empty or whitespace X-Killbill-CreatedBy, overly long header values, or behavior when X-Killbill-Reason is supplied (the story specifies this header but tests don't assert its effects).",
+              "Partial failure / transactional behavior: No tests that simulate partial failures during cleanup (e.g., subscription cancellation fails but invoice write-off succeeds) to verify transactional semantics or rollback/compensation behavior.",
+              "Concurrent race on same resource: Concurrency test uses 10 unique accounts; missing a test for two or more concurrent requests targeting the same account to validate race conditions and locking/consistency.",
+              "Response headers & content-type: The story mentions application/json; tests do not validate response headers (Content-Type) or any error response schema/structure except for a few error messages.",
+              "Boolean default coverage granularity: Although defaults are tested in TC01, there is limited explicit coverage proving defaults for each parameter when omitted vs explicitly set to true/false across all combinations.",
+              "Rate limiting / throttling: No tests for rate limiting or throttling behavior under high request rates (standard guideline gap).",
+              "Caching-related checks: While less relevant for DELETE, there are no tests verifying cache invalidation or headers (ETag, Cache-Control) after account closure where applicable."
+            ],
+            "recommendations": [
+              "Add negative tests for query parameter types and values (e.g., cancelAllSubscriptions=foo, cancelAllSubscriptions=1, missing boolean) and assert 400 or documented behavior.",
+              "Add header-value validation tests: empty X-Killbill-CreatedBy, long or binary header values, and explicit tests asserting how X-Killbill-Reason is recorded/used (if any auditing or response metadata expected).",
+              "Introduce partial-failure scenarios: mock failures in dependent services (subscription service, invoice service) to verify transactional behavior, partial rollbacks, or clearly documented partial-success state and corresponding responses/log entries.",
+              "Add a concurrency test that issues simultaneous DELETE requests for the same account to verify locking, idempotency, and lack of data corruption.",
+              "Assert response headers and error response schemas: check Content-Type, any error codes/payloads match API contract, and that 204 responses have the expected empty body and headers.",
+              "Explicitly test defaulting behavior per-parameter when omitted vs explicitly set to false to remove ambiguity about defaults in multi-parameter combinations.",
+              "Add rate-limiting/throttling tests to exercise behavior under high request rates and ensure acceptable error responses (e.g., 429) if applicable.",
+              "If the system caches account data, add tests that confirm cache invalidation after closure (check ETag/Cache-Control where applicable)."
+            ],
+            "usage": {
+              "completion_tokens": 2763,
+              "prompt_tokens": 6316,
+              "total_tokens": 9079,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1856,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

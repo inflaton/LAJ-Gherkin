@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-14T21:22:38.601189",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:22:05.176423",
+    "benchmark_end_time": "2025-10-14T21:22:38.601183",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 76,
+    "average_generation_time_seconds": 33.42476,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 76,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 76,
+            "covered": [
+              "PUT Valid Request: Happy-path returns 204 and updates state to in-rotation (TC01).",
+              "Idempotent behavior when host already in rotation (still 204, no-op) (TC02).",
+              "Authorization errors: 401 for unauthenticated, 403 for insufficient privileges (TC03, TC04, TC09).",
+              "Service unavailability handling with 503 (TC05).",
+              "Method not allowed for wrong HTTP method (405) (TC06).",
+              "Concurrency: multiple concurrent PUTs complete successfully without race conditions (TC14).",
+              "Resilience: transient network failure with retry leading to success (TC13).",
+              "Performance responsiveness under load with timeout threshold and appropriate status (TC10).",
+              "Security hardening attempt via header injection; ensures no vulnerability (TC12).",
+              "No request body handling and empty response verification for 204 (TC01, TC02)."
+            ],
+            "gaps": [
+              "PUT Non-Existing Resource: No scenario for when the targeted host/resource context does not exist (e.g., unknown node, de-registered host); expected 404/409 behavior not defined or tested.",
+              "Partial Update/Unexpected Payload Semantics: Story says Request Body: N/A, but TC07 assumes payload is accepted with 204. No test asserting server rejects/ignores payload (e.g., 400 Bad Request or 415 Unsupported Media Type).",
+              "Server Error Handling: No scenario for 500 Internal Server Error (e.g., backend/db failure) and expected error body/headers.",
+              "Rate Limiting/Throttling: No tests covering behavior under burst traffic (e.g., 429) distinct from concurrency correctness.",
+              "Content Negotiation and Headers: Story claims Produces: application/json but 204 should have no body; no tests verify presence/absence of Content-Type, or behavior with Accept/Content-Type mismatches (e.g., 406/415).",
+              "Idempotency Across Repeated Calls: While TC02 covers already-in-rotation, no explicit test for making the exact same PUT repeatedly and consistently getting 204 with unchanged state.",
+              "Error Body Contract: No scenarios assert a consistent error schema (code, message, correlationId) for 4xx/5xx responses.",
+              "Audit/Observability: No tests verifying that the operation is logged/audited as an administrative action (if required by ops standards)."
+            ],
+            "recommendations": [
+              "Add a Non-Existing Resource scenario: when the host/node is unknown or deregistered, expect 404 Not Found or 409 Conflict with a defined error body.",
+              "Clarify and test payload handling: since Request Body is N/A, add scenarios asserting 400 Bad Request (or 415 if Content-Type provided) when a body is sent; alternatively, assert payload is ignored and document that behavior.",
+              "Add a 500 Internal Server Error scenario simulating backend failure, validating status code and error response schema.",
+              "Introduce rate limiting tests: burst of requests leading to 429 Too Many Requests (if applicable) and verify Retry-After header.",
+              "Content negotiation/header tests: verify that 204 responses omit Content-Type; add tests for Accept header handling, and 415 Unsupported Media Type when inappropriate Content-Type is sent.",
+              "Add an explicit idempotency test: perform the same PUT multiple times sequentially; each returns 204 and state remains in rotation.",
+              "Define and validate a standard error response schema across 4xx/5xx, including fields like errorCode, message, requestId.",
+              "If auditing is required, add a scenario verifying an audit/log entry is produced for the PUT action with admin identity and timestamp."
+            ],
+            "usage": {
+              "completion_tokens": 1676,
+              "prompt_tokens": 3274,
+              "total_tokens": 4950,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

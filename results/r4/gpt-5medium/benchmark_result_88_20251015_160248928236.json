@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-15T16:02:48.928204",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:01:03.452593",
+    "benchmark_end_time": "2025-10-15T16:02:48.928199",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 105.475606,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE Valid Deletion: Successful 204 deletion with and without tagDef; removal of subset/all tags; invoice item with no tags; extra/unexpected query params handled (TC01\u2013TC07, TC18).",
+              "Error Handling per story: 400 for invalid invoiceItemId format (UUID) and malformed/partial tagDef; 404 for non-existent invoice item (TC08, TC09, TC13, TC16).",
+              "Required/optional headers: X-Killbill-CreatedBy required (positive and missing cases); optional Reason/Comment accepted, including special characters and malicious payload validation (TC03, TC10, TC15, TC18).",
+              "Non-present tag IDs: tagDef values not on the item are ignored without error (TC05).",
+              "Empty tagDef: present but empty results in no-op with 204 (TC06).",
+              "Service/integration robustness: 401 unauthorized, 503 service unavailable, dependent audit service unavailable with expected behavior (TC11, TC12, TC19).",
+              "Concurrency: high-concurrency performance scenario to detect race conditions or corruption (TC17).",
+              "Response semantics: 204 with empty body asserted across success scenarios (multiple TCs)."
+            ],
+            "gaps": [
+              "Content negotiation/headers: Story notes Produces: application/json, but tests do not verify Content-Type for error responses nor header behavior for 204 (often no Content-Type).",
+              "Query param collection format: tagDef is array with collectionFormat=multi; no test explicitly verifies repeated tagDef parameters (e.g., tagDef=uuid1&tagDef=uuid2) and mixed valid/invalid elements handling.",
+              "Idempotency/duplicates: No scenario ensures DELETE is idempotent (e.g., repeating the same request yields 204 and stable state) or that duplicate tagDef UUIDs are handled gracefully.",
+              "Resource-level concurrency: Concurrency test is generic; no explicit race test on the same invoice item (simultaneous deletes with overlapping tagDef) verifying final state and absence of partial removal.",
+              "Soft delete/audit semantics: Guideline mentions soft deletes; for tag removals, confirm whether deletion is permanent and/or that audit records are created; current tests do not assert audit trail presence or soft-delete flags.",
+              "Ambiguous expectations: TC14 allows 204 or 413; TC19 allows 204 or 207. Tests should assert a single, documented outcome to avoid flakiness.",
+              "Unexpected request body: Story says Request Body: N/A, but no test covers behavior if a client sends a body or wrong Content-Type (e.g., 400/415 or ignore).",
+              "Error payload schema: Tests check for error messages but do not validate standardized error structure (fields like code, message, requestId) or localization requirements.",
+              "Authorization granularity: 401 covered, but no 403 Forbidden scenario for authenticated users lacking permission, if applicable to this API."
+            ],
+            "recommendations": [
+              "Add header/content negotiation checks: assert Content-Type=application/json for error responses; verify no Content-Type/body on 204 per API contract.",
+              "Add scenario for tagDef collectionFormat=multi with multiple repeated parameters, including mix of valid/invalid UUIDs and ordering, and confirm correct removal subset.",
+              "Add idempotency tests: repeat the same DELETE twice; include duplicate UUIDs in tagDef to ensure stable outcome and 204 response.",
+              "Strengthen concurrency: run simultaneous deletes against the same invoice item (one all-tags, one subset) and verify deterministic final state and no partial removal.",
+              "Clarify and codify expected behavior for TC14 and TC19; split into separate scenarios with a single expected status per scenario.",
+              "Add a test for unexpected request body or wrong Content-Type to confirm server response (ignore vs 400/415) per API spec.",
+              "Validate error response schema consistently (status, code, message, requestId/timestamp) and UTF-8 handling.",
+              "If authorization roles apply, add a 403 Forbidden test for authenticated but unauthorized users.",
+              "Optionally, add an audit verification step (when audit service available) to confirm entries are recorded for tag removals or clarify soft vs hard delete semantics."
+            ],
+            "usage": {
+              "completion_tokens": 4090,
+              "prompt_tokens": 5394,
+              "total_tokens": 9484,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3200,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-09-28T05:57:06.490816",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:56:35.540625",
+    "benchmark_end_time": "2025-09-28T05:57:06.490813",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 30.950188,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: TC01 verifies successful PUT returns HTTP 204 and host is marked in rotation.",
+              "Idempotency / Repeated PUT: TC02 covers PUT when host is already in rotation (204 and state unchanged).",
+              "Authorization: TC03, TC04 and TC09 cover unauthenticated (401) and unauthorized (403) access paths.",
+              "Error / Service Unavailable: TC05 covers endpoint unavailable / 503 behavior.",
+              "Method Handling: TC06 covers method-not-allowed (405) for an incorrect HTTP method.",
+              "Unexpected Payload/Headers: TC07 and TC08 cover non-empty payloads and extra headers are tolerated (204).",
+              "Performance / Timeouts: TC10 includes a timing/timeout expectation under degraded performance.",
+              "Concurrency & Retry: TC13 and TC14 cover transient network retry behavior and concurrent PUT requests (race condition mitigation).",
+              "Regression & Security Basis: TC11 addresses regression for prior bugs; TC12 includes a high-level check for header injection handling."
+            ],
+            "gaps": [
+              "Produces / Response Headers: No explicit checks that error responses (or successful responses) include the declared Content-Type (application/json) or other headers (e.g., Content-Type for error payloads, Cache-Control, ETag). 204 responses may still need header expectations.",
+              "Non-Existing Resource / No Host: No scenario for 'no host exists' or host identifier missing/not-found semantics \u2014 how the API behaves if there is no host to put back into rotation.",
+              "Malformed Payload / Unsupported Media Type: Although TC07 covers non-empty payloads, there is no test for malformed JSON or incorrect Content-Type (e.g., expecting 400/415 when body is invalid).",
+              "Server Error Paths (5xx): No explicit tests for internal server errors (500) or database failures; acceptance criteria mentions responding >=400 on errors but server-side error scenarios are not exercised.",
+              "Error Response Format Validation: Tests assert presence of an error message but do not validate consistent error payload schema or Content-Type (application/json) for error responses.",
+              "Rate Limiting / Throttling: No tests for throttling/rate-limiting behavior under high request rates or abusive clients.",
+              "Edge-case concurrency: While concurrent requests are present (TC14), there are no tests for partial failure during update (e.g., one request succeeds, another fails mid-flight) and reconciliation/consistency in backing store.",
+              "Other HTTP Methods and Status Codes: Only GET is tested as a wrong method; other methods (POST, DELETE) and their 405 behavior are not covered.",
+              "Security hardening: TC12 is high-level; there are no tests for large header sizes, header encoding attacks, or payload-based injections (body/body-metadata) beyond header payloads."
+            ],
+            "recommendations": [
+              "Add header-level assertions: verify Content-Type for success and error responses (expect application/json for errors), and check any required headers (e.g., Cache-Control, ETag if applicable).",
+              "Add a 'no host present' scenario: define expected behavior when there is no host to put back into rotation (e.g., 404 or 204 with no-op) and add tests accordingly.",
+              "Add malformed payload and unsupported media type tests: send invalid JSON and/or incorrect Content-Type and assert expected 400/415 responses.",
+              "Simulate server-side failures: add tests that induce backend/db failures or throw exceptions and assert correct 5xx responses and that the system remains consistent.",
+              "Validate error payload schema: assert error responses follow a consistent JSON schema (fields, codes, messages) and include proper Content-Type headers.",
+              "Add rate-limiting / throttling tests: exercise burst traffic to confirm rate-limiting behavior or absence thereof and validate returned codes (e.g., 429) if applicable.",
+              "Expand concurrency edge-case tests: add scenarios where one concurrent request fails while another succeeds, and verify final persisted host state and that no race conditions remain.",
+              "Cover additional invalid HTTP methods: test POST, DELETE, PATCH on the endpoint to confirm 405 responses across methods.",
+              "Harden security tests: include larger set of injection and size-limit tests (header/body sizes, encoding attacks) and assert no side effects or vulnerabilities.",
+              "Clarify and test side-effects/audit: if the operation must create audit logs or emit metrics/events, add assertions to verify those side-effects."
+            ],
+            "usage": {
+              "completion_tokens": 2252,
+              "prompt_tokens": 3274,
+              "total_tokens": 5526,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

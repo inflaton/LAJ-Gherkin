@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-15T10:30:56.778205",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:30:41.797714",
+    "benchmark_end_time": "2025-10-15T10:30:56.778201",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 14.980487,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01, TC02, TC03, TC04, TC15, TC16, TC17, TC24, TC26) cover valid PUT operations including optional headers, creating when none existed, large arrays, empty-array semantics, max-lengths and backward compatibility.",
+              "Required header validation: TC08 asserts behaviour when required X-Killbill-CreatedBy header is missing.",
+              "Request body validation: TC09, TC10, TC11, TC18 cover missing body, malformed JSON, invalid CustomField schema, and mixed valid/invalid items.",
+              "Path parameter validation: TC06 covers invalid accountId format and TC07 covers non-existent accountId.",
+              "Authentication/Authorization: TC12 covers missing/invalid authentication token resulting in 401.",
+              "Error handling and dependency failures: TC13, TC14, TC19 cover service down, dependent service failure, and timeouts.",
+              "Edge cases & security: TC15, TC20, TC21 cover empty-array (delete-all), SQL injection, and XSS payload handling.",
+              "Performance/concurrency: TC25, TC26 cover concurrent requests and large payload boundary conditions.",
+              "Integration: TC27, TC28 validate dependent audit logging and external reporting integrations.",
+              "Recovery & retries: TC22 covers transient network error and retry behaviour.",
+              "Regression tests: TC23 covers duplicate custom field names regression."
+            ],
+            "gaps": [
+              "Partial-update semantics / transactional behaviour: No explicit test verifies whether the operation is atomic (all-or-nothing) when multiple items are provided \u2014 e.g., ensure rollback if one item fails, or confirm partial updates are allowed/rejected as per API contract beyond TC18's validation reporting.",
+              "Concurrency race conditions at record-level: While TC25 covers concurrent requests generally, there is no focused test for race conditions when two requests update the same account simultaneously to assert locking/last-write-wins/merge behaviour.",
+              "Authorization scopes/roles (403): TC12 checks unauthenticated (401) but there are no tests for insufficient privileges (403) or role-based access control.",
+              "Header value validation and formats: Tests verify presence/missing of X-Killbill-CreatedBy but not validation of its format/value or limits; similarly X-Killbill-Reason/Comment format/length validation is not covered.",
+              "Idempotency and repeatability: No explicit test for idempotency (replaying same request) and whether multiple identical requests are safe/expected.",
+              "Schema/type validation depth: TC11 covers missing required fields, but there are few tests for incorrect data types (e.g., numeric vs string), invalid enum values if any, or unexpected nulls beyond extra-properties (TC17).",
+              "HTTP response payload validation on errors: Many error scenarios assert status codes but not standardized error payload structure/conformance (error codes/messages consistency, localization).",
+              "Rate limiting and throttling: No tests for API rate limiting/429 behavior under high-frequency calls (standard guideline for GET/POST applies similarly).",
+              "Caching / HTTP headers: No tests check caching headers, ETag, or cacheability (may be less relevant for PUT but worth asserting no-cache or appropriate headers).",
+              "Maximum per-account limits: There is a large-array test and payload-size test, but no explicit test for max number of custom fields per account (business limits) or per-field restrictions beyond length."
+            ],
+            "recommendations": [
+              "Add atomicity/transaction tests: Create scenarios where one CustomField in a batch is invalid and assert whether the whole update is rolled back (expected behaviour) or partially applied; test for explicit transactional guarantees.",
+              "Add focused concurrency/locking tests: Simulate two concurrent PUTs to the same account with conflicting updates and assert deterministic outcome (locks, last-write-wins, or conflict errors).",
+              "Add authorization/role tests: Include tests that supply valid authentication but insufficient privileges to ensure API returns 403 where applicable.",
+              "Validate header contents: Add tests for invalid/overly long X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment values to check validation and error reporting.",
+              "Add idempotency/replay tests: Submit the same request multiple times and verify consistent results and no duplicate side-effects.",
+              "Expand schema/type validation: Add cases with wrong data types, nulls where not allowed, unexpected enum values, and ensure API returns consistent 4xx errors.",
+              "Standardize error payload checks: For each error scenario assert structure/content of error response (code, message, field-level errors) to ensure clients can parse programmatically.",
+              "Add rate-limiting tests: Simulate high request rates and assert appropriate 429 or throttling behavior and recovery characteristics.",
+              "Add explicit cache/header checks: Even for PUT, assert the API sets or avoids caching headers consistently and that responses to relevant GETs reflect updates (integration with caching layer).",
+              "Test per-account business limits: If the system has a max number of custom fields per account, add tests to assert behaviour when that limit is exceeded (expected HTTP 4xx)."
+            ],
+            "usage": {
+              "completion_tokens": 1319,
+              "prompt_tokens": 6919,
+              "total_tokens": 8238,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

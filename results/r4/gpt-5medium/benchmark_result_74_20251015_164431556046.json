@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "74_2025-10-15T16:44:31.556011",
+    "jira_id": "74",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/plan - Retrieve plan for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:43:04.492680",
+    "benchmark_end_time": "2025-10-15T16:44:31.556006",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 87.063326,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "74_qe_sup-gpt4.1_agent-gpt4.1_1748920805.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: TC01 validates successful retrieval with both parameters; TC13 covers boundary dates yielding the correct plan with 200.",
+              "Query Parameters: TC02\u2013TC04 exercise missing/partial params; TC05\u2013TC08 validate malformed and nonexistent values; TC14 confirms extra params are ignored.",
+              "Error Handling: TC05\u2013TC08 (400/404), TC10 (503), and TC12 (409/500) cover invalid input, not found, system/data inconsistency paths.",
+              "Authorization: TC09 ensures 401 for missing/invalid authentication.",
+              "Empty Response: TC11 covers empty database; TC03/TC04 consider no-match cases.",
+              "Security Hardening: TC17\u2013TC18 test SQLi/XSS-style invalid inputs leading to proper rejection.",
+              "Performance: TC15\u2013TC16 check response times under normal and concurrent load.",
+              "Regression/Compatibility: TC19\u2013TC20 cover previously fixed issues and legacy usage patterns.",
+              "Pagination: Not applicable for this single-resource endpoint; omission is acceptable."
+            ],
+            "gaps": [
+              "Caching Behavior: No scenarios validate Cache-Control/ETag headers or conditional GET (If-None-Match/If-Modified-Since) and 304 responses.",
+              "Rate Limiting: No tests for throttling behavior (e.g., 429 Too Many Requests, Retry-After, rate-limit headers).",
+              "Content Negotiation/Produces: No assertion that Content-Type is application/json or behavior under various Accept headers despite 'Produces: application/json' in the story.",
+              "Response Schema: Tests say 'valid JSON Plan object' but don't validate against #/definitions/Plan or verify required fields; error payload schema is also not asserted.",
+              "Business Rule Gap: No scenario for valid subscriptionId with requestedDate outside any effective plan window (expected explicit 404 or defined fallback).",
+              "Ambiguous Expectations: TC03/TC04/TC11 accept multiple outcomes ('200 or ...'), reducing test strength; expected behavior for omitted parameters is not asserted.",
+              "Date Validation Depth: No tests for syntactically valid but impossible dates (e.g., 2025-02-30) or timezone-suffixed inputs (e.g., 2025-01-01Z) being rejected per strict date format."
+            ],
+            "recommendations": [
+              "Clarify and codify behavior for missing parameters (only subscriptionId, only requestedDate, neither). Update TC02\u2013TC04 to assert a single, expected status code and response. Add a case where subscriptionId is valid but requestedDate has no matching plan to assert 404 or defined result.",
+              "Add content negotiation checks: assert Content-Type: application/json on success/errors and behavior with Accept headers (e.g., 200 for application/json, 406 if unsupported).",
+              "Validate response schemas: use JSON Schema to validate Plan against #/definitions/Plan and assert error object structure (code, message, details).",
+              "Add caching scenarios: verify Cache-Control and ETag headers; perform conditional GET with If-None-Match to expect 304; ensure ETag varies by query parameters.",
+              "Introduce rate limiting tests: burst requests beyond threshold to expect 429 and Retry-After (or explicitly assert that no rate limiting is enforced if that is the requirement).",
+              "Extend date validation: add tests for impossible dates (2025-02-30), leap day handling, and timezone-suffixed inputs; ensure strict YYYY-MM-DD is enforced.",
+              "Add a scenario for requestedDate clearly before first plan start and after last plan end to confirm defined behavior (e.g., 404)."
+            ],
+            "usage": {
+              "completion_tokens": 4666,
+              "prompt_tokens": 4829,
+              "total_tokens": 9495,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3904,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

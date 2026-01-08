@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-13T04:55:50.230065",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:55:23.778806",
+    "benchmark_end_time": "2025-10-13T04:55:50.230060",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 26.451254,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Deletion: Successful 204 scenario for a valid account (TC01, TC19).",
+              "Invalid Account Format: Multiple tests assert 400 for malformed UUIDs (TC03, TC12, TC14, TC15).",
+              "Non-Existent Resource: 404 scenarios when account not found (TC02, TC16, TC18).",
+              "Authentication: Unauthenticated and expired/invalid-token cases covered (TC05, TC06).",
+              "Authorization/Method Handling: Unsupported HTTP method handled (405) is covered (TC11).",
+              "Service Unavailability: Dependent cache service and degraded performance cases covered with 503 handling (TC07, TC08).",
+              "Query Parameters: Extra/unused query param tolerated (TC09).",
+              "Security: Injection/XSS attempts covered (TC14, TC15).",
+              "Concurrency/Performance: Concurrent DELETEs and performance target covered (TC13).",
+              "Edge / State Variations: No-accounts and partially populated DB states covered (TC16, TC18).",
+              "Resilience: Transient network recovery and retry behavior covered (TC17).",
+              "Regression/backwards-compatibility: Regression scenarios included (TC12, TC19)."
+            ],
+            "gaps": [
+              "Authorization role checks (403 Forbidden): No test verifies behavior for an authenticated non-admin user (should be forbidden).",
+              "Content-Type / Response Media Type: Acceptance criteria require application/json; tests do not assert Content-Type or response media-type on success/errors.",
+              "Idempotency / Repeated Deletes: No test for repeated DELETE on same account (expected semantics: idempotent behavior / consistent status codes).",
+              "Soft-delete / DB-state verification: Tests do not verify persistence changes or whether caches are soft-deleted vs physically removed; no DB verification after invalidation.",
+              "Server-side error handling (500): No explicit tests for backend failures (e.g., DB outage, unexpected exceptions) returning 500.",
+              "Race conditions beyond performance: No tests for race where account is deleted concurrently by another actor (e.g., delete racing with account removal leading to 404/409), or for transactional consistency.",
+              "Response Body Schema & Error Codes: Tests check for presence of error messages but do not validate JSON schema, error codes, or structured error fields consistently.",
+              "Acceptance Criteria \u201cproduces: application/json\u201d: not asserted (success case expects empty body but spec indicates JSON).",
+              "Rate limiting / throttling: No tests for high request rates (429), burst behavior, or throttling.",
+              "Cache eviction verification end-to-end: \u201cCaches should be invalidated\u201d is asserted but there are no tests that validate cache-state across dependent services or via endpoints that demonstrate actual cache misses/hits post-invalidation."
+            ],
+            "recommendations": [
+              "Add a test for authenticated non-admin user attempting the DELETE to assert 403 Forbidden (authorization enforcement).",
+              "Assert Content-Type header (application/json) and validate response JSON schema for error responses and success cases (even if body empty, ensure headers match spec).",
+              "Add idempotency test: DELETE same account twice and assert consistent and documented behavior (204 then 404 or 204/204 depending on spec).",
+              "Add tests simulating backend failures (DB/cache exceptions) to verify 500 responses and graceful error messages.",
+              "Add race-condition tests where an account is being deleted/modified concurrently by another actor to verify safe and consistent behavior (possible 404/409 outcomes).",
+              "Implement end-to-end cache verification: after invalidation, call a cache-dependent endpoint or inspect cache service to confirm entries are removed (not just that API responded 204).",
+              "Add rate-limiting / throttling tests to validate 429 responses or configured limits under burst load.",
+              "Explicitly test the UUID regex boundary cases and maximum-length IDs to ensure server side validation matches the declared pattern.",
+              "Standardize and assert structured error responses (fields, codes) so clients can reliably parse failures.",
+              "Add a test for unexpected HTTP methods beyond GET (e.g., POST, PUT, PATCH) to ensure consistent 405 behavior and allowed-method headers."
+            ],
+            "usage": {
+              "completion_tokens": 2085,
+              "prompt_tokens": 4640,
+              "total_tokens": 6725,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

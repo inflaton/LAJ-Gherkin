@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-09-28T07:20:21.519779",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:18:42.992445",
+    "benchmark_end_time": "2025-09-28T07:20:21.519774",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 98.527329,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "DELETE - Valid Deletion: TC01 and TC12 verify successful operation (HTTP 204) and that the host is marked out of rotation.",
+              "Authentication: TC02 and TC03 cover missing and invalid authentication (HTTP 401).",
+              "Error Responses: TC04 (409), TC05 (503), TC06 (500), and TC09 (400) exercise a variety of error conditions (all >= 400) as required by the story.",
+              "Method handling: TC07 verifies invalid HTTP method handling (HTTP 405).",
+              "Input validation / Extra parameters: TC08 and TC09 test handling of extra query parameters and non-empty/malicious request bodies.",
+              "Concurrency / Race conditions: TC11 tests concurrent DELETE requests and expected ordering semantics for first vs subsequent requests.",
+              "Performance: TC10 and TC11 include response-time expectations under normal and concurrent load.",
+              "Security headers: TC13 includes an injection attempt in headers to exercise header validation and security behavior.",
+              "Regression: TC12 explicitly verifies that a previously fixed issue (host not being marked out of rotation) does not regress.",
+              "Non-existent resource / Edge cases: TC04 and TC14 cover scenarios where the host is already out of rotation or there are no hosts to operate on (conflict conditions)."
+            ],
+            "gaps": [
+              "Authorization (role-based): No test verifies an authenticated but unauthorized user (valid token with non-admin role) is rejected (expected HTTP 403).",
+              "Response format / Content-Type: Tests do not assert response headers (e.g., Content-Type: application/json) or the schema/structure of error payloads despite the story noting \"Produces: application/json\".",
+              "Idempotency semantics: The expected behavior for repeated DELETE calls is not defined or consistently tested (TC11 allows either 204 or 409 for subsequent calls). The story should specify idempotency and tests added accordingly.",
+              "Soft-delete / Persistence semantics: There are no tests proving the \"out of rotation\" state persists (e.g., after a restart) or that it is a flag (soft state) rather than permanent removal.",
+              "Rate limiting / Throttling: No tests verify behavior under sustained high request rates or that rate limits return the expected status (e.g., 429).",
+              "Error payload validation: While many error codes are covered, tests do not validate the error body JSON structure, required fields, or machine-readable error codes.",
+              "Boundary and header robustness: Beyond TC13, there are no tests for malformed/oversized headers, missing required headers (Accept), or unexpected content-types.",
+              "Behavioral integration: Tests verify internal marking but do not validate downstream effects (e.g., that a load\u2011balancer or health-check system removes the host from rotation).",
+              "Ambiguity vs. spec: The story says \"Request Body: N/A\" but TC09 expects 400 on non-empty bodies \u2014 the API behavior for provided bodies is not specified or consistently tested.",
+              "Logging / Auditing: No tests verify that the operation is audited or logged (if required by operational requirements)."
+            ],
+            "recommendations": [
+              "Add a role-based authorization test: call DELETE with a valid non-admin token and assert HTTP 403 and appropriate error JSON.",
+              "Assert response headers and error payload schema: verify Content-Type (application/json) for error responses, and define/validate a consistent error JSON schema (code, message, details).",
+              "Clarify and test idempotency: decide expected semantics for repeated DELETE (204 every time vs 204 then 409) and add deterministic tests for repeated requests (sequential and retried requests).",
+              "Persistence test: add an integration/regression test that marks host out of rotation, restarts the relevant service(s), and then queries host status to ensure the state persisted.",
+              "Rate-limiting tests: create tests that hammer the endpoint to verify throttling behavior and responses (e.g., 429) and ensure graceful degradation.",
+              "Soft-delete semantics: if applicable, add tests that verify the host remains in system inventory but with a flag set (and add tests to re-enable the host via the corresponding API).",
+              "Error-body consistency: add negative tests that assert the exact fields and types returned in error responses so clients can programmatically handle them.",
+              "Expand header robustness tests: include malformed header names/values, very large header sizes, and unexpected Content-Type values to ensure the service validates headers correctly.",
+              "Integration/behavioral tests: add tests (or document why out-of-rotation is sufficient) to confirm downstream systems (load-balancers/health-checks) stop routing to the host.",
+              "Specify ambiguous behaviors in the story: update the acceptance criteria to state expected behavior for non-empty request bodies, content-type headers for 204, and idempotency so tests can be made deterministic."
+            ],
+            "usage": {
+              "completion_tokens": 4785,
+              "prompt_tokens": 3433,
+              "total_tokens": 8218,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3776,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

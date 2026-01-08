@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-15T10:36:18.580102",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:36:00.109370",
+    "benchmark_end_time": "2025-10-15T10:36:18.580097",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 18.470727,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple successful-deletion scenarios (TC01, TC02, TC12, TC13, TC17, TC18) verify 204 responses and post-condition that the email no longer exists.",
+              "Non-Existent Resource: Scenarios for missing account and missing email (TC03, TC04, TC09) verify 404 handling and error messages.",
+              "Input Validation: Invalid accountId and invalid email formats are tested (TC05, TC06) producing 400 responses.",
+              "Required Headers: Missing required header X-Killbill-CreatedBy is tested (TC07) to validate header enforcement.",
+              "Optional Headers: Use of optional headers (X-Killbill-Reason, X-Killbill-Comment) is covered (TC02).",
+              "Authorization: Unauthorized/invalid token case is covered (TC10) returning 401.",
+              "Dependency / Server Errors: Service-unavailable / dependency failure is simulated (TC11) expecting 503.",
+              "Concurrency / Race Conditions: Concurrent delete requests are tested (TC15) expecting one 204 and subsequent 404s.",
+              "Security Input Validation: Injection/XSS in the email parameter is tested (TC16) expecting validation failure.",
+              "Edge Cases: Very long and minimal-length email addresses are covered (TC12, TC13).",
+              "Performance: Simple response-time check is included (TC14).",
+              "Resilience / Retry: Transient network failure + retry recovery is covered (TC19).",
+              "Backward compatibility / Regression: Regression and compatibility checks for uppercase and legacy clients are present (TC17, TC18)."
+            ],
+            "gaps": [
+              "Soft Delete Semantics: No tests verify whether deletion is soft (resource marked deleted but retrievable) vs hard delete (permanent removal) or verify audit/log persistence.",
+              "Exact Error Codes/Response Bodies: While many error scenarios exist, there is limited specification/tests for exact error body schema (fields, error codes) and consistent message contents beyond 'contains an error message'.",
+              "Authorization Granularity: Tests cover invalid token (401) but do not cover forbidden/insufficient-permission cases (403) or role-based access variations.",
+              "Rate Limiting / Throttling: No tests for rate limiting or behavior under high request rates (beyond TC15 concurrency focused on race condition).",
+              "Idempotency Semantics: There is no explicit test documenting idempotency expectations of repeated DELETE calls beyond concurrent-first-success behavior; not all repeated-call permutations are covered (e.g., sequential repeated calls expected responses).",
+              "Path Encoding / URL-encoding: No tests for URL-encoding edge cases in the email path segment (spaces, plus signs, reserved characters) except XSS case; percent-encoding behavior not verified.",
+              "Logging / Audit Headers Persistence: No tests verifying that X-Killbill-CreatedBy/Reason/Comment are persisted to audit logs or show up in change history.",
+              "Pagination / GET-related concerns: Although not directly relevant to DELETE, the standard guidelines include pagination/GET behaviour \u2014 there are no cross-checks that deletion affects downstream GET/listing endpoints or that empty-list responses behave correctly after deletes.",
+              "Cache Invalidation: No tests to verify that caches (ETag/Cache-Control) are invalidated or updated after deletion (i.e., stale GET responses).",
+              "Malformed URL / Path Traversal: No tests for path traversal attempts or malformed URLs beyond invalid formats."
+            ],
+            "recommendations": [
+              "Add soft-delete verification tests: confirm whether deleted emails can be recovered, check 'deleted' flags, and validate audit trail entries (who/when/reason/comment).",
+              "Specify and assert exact error response schema and fields for each error scenario (HTTP status, error code, message key) to avoid ambiguous 'contains message' checks.",
+              "Include 403/permission tests: create scenarios where an authenticated user lacks permission to delete and expect 403 (forbidden).",
+              "Add rate-limiting and throttling tests: send many rapid requests and verify 429 or configured throttling behavior and graceful handling.",
+              "Expand idempotency tests: include sequential repeated DELETE requests (not concurrent) and assert consistent, documented responses (e.g., subsequent 404 or 204 depending on spec).",
+              "Add URL-encoding tests: verify deletion for emails containing '+', spaces, quoted/local-part characters, and ensure proper percent-encoding handling.",
+              "Verify cache invalidation and downstream GETs: after delete, perform GET/list calls to ensure the deleted email is absent and any caching headers/ETags behave correctly.",
+              "Add audit/log assertions: verify that X-Killbill-CreatedBy, Reason, and Comment are recorded in change history or logs where applicable.",
+              "Add malformed-path and path-traversal tests to ensure robust parsing and security of the path parameter.",
+              "Document test expectations for response time under higher loads and include SLA-oriented performance tests beyond a single 500ms check."
+            ],
+            "usage": {
+              "completion_tokens": 1222,
+              "prompt_tokens": 5675,
+              "total_tokens": 6897,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

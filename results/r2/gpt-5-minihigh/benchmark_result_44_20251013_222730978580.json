@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-13T22:27:30.978552",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:26:04.802756",
+    "benchmark_end_time": "2025-10-13T22:27:30.978548",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 86.175792,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid request / success flows: TC01, TC02, TC03, TC10, TC13 cover successful runs with default and explicit offset/limit, optional headers, max-limit and partial-input behaviour.",
+              "Empty/no-data handling: TC04 verifies the endpoint returns 200 and indicates no invoices generated when there are no parked accounts.",
+              "Query parameter validation: TC06 and TC07 cover invalid numeric ranges (negative/zero) and non-integer types; TC11 covers unexpected extra params.",
+              "Header validation and auditing: TC03, TC05 and TC16 cover required X-Killbill-CreatedBy presence, optional reason/comment and header-parsing regression.",
+              "Authentication/authorization: TC08 covers invalid/expired token scenarios (401/403).",
+              "Dependency/unavailable service handling: TC09 covers service-unavailable (503) scenario.",
+              "Large-volume / performance: TC10 and TC12 exercise large limits (1000, 10000) and include response-time/operational thresholds.",
+              "Concurrency, retries and idempotency: TC15 and TC18 cover retry after transient failure and concurrent requests ensuring invoices are not generated multiple times.",
+              "Security: TC14 checks injection attempts in headers and verifies no sensitive info leaked.",
+              "Regression / backward compatibility: TC16 and TC17 cover header parsing regression and older clients not sending optional headers.",
+              "Response format assertions: Multiple scenarios assert success status 200 and application/json as required by the story."
+            ],
+            "gaps": [
+              "Internal server error / partial-failure handling (500): No explicit test that simulates internal server/database failure producing 500 or partial success semantics (e.g., some invoices processed then failure).",
+              "Out-of-range offset behaviour: No explicit test for offset > total parked accounts (should likely return 200 with zero processed or defined behaviour).",
+              "Limit-exceeding validation: Missing tests for limit values > allowed maximum that should be rejected (server-enforced cap vs silent trimming).",
+              "Integer boundary/overflow checks: No tests for int64 boundary conditions or extremely large numeric query params that could overflow parsers.",
+              "Exact response payload/schema validation: Tests check application/json and that invoices are generated but do not assert the JSON schema (fields like processedCount, failedCount, per-account results, error structure).",
+              "Header value validation beyond presence: Missing tests for invalid header content (empty CreatedBy, overly long values, invalid character sets) and limits on Reason/Comment size.",
+              "Role-based authorization (insufficient privileges): TC08 covers invalid/expired tokens but there's no explicit test for an authenticated user without admin privileges (403 behavior).",
+              "Rate limiting / throttling: No tests for rapid repeated requests that trigger 429 or other throttling behaviour.",
+              "HTTP method restrictions and unsupported verbs: No tests asserting non-POST methods return 405 (Method Not Allowed).",
+              "Duplicate submissions / idempotency keys: While retries and concurrency are covered, there is no explicit test for repeated identical submissions (e.g., duplicate request bodies/headers) and how duplicates are handled at API-level.",
+              "Coverage of error message content and leakage across all error types: TC14 checks no stack traces for injection case, but other error cases (500, 503, validation) are not explicitly checked for sensitive info disclosure.",
+              "Audit/log persistence verification: TC03 expects operations to be auditable, but there are no tests that assert audit entries are persisted to logs/DB with CreatedBy/Reason/Comment."
+            ],
+            "recommendations": [
+              "Add tests simulating internal server/database failures that produce 500 and assert expected behaviour (partial success semantics, clear error payload, no corruption), and verify whether partial batches are rolled back or committed.",
+              "Add an out-of-range offset test (offset greater than total parked accounts) expecting 200 with zero processed and a consistent response shape.",
+              "Add tests for limit values above the allowed maximum to ensure the API either caps the value server-side or returns a 400 with a clear validation message.",
+              "Add integer-boundary tests (e.g., limit/offset at or beyond int64 boundaries) to detect parsing/overflow issues.",
+              "Define and assert a response JSON schema (e.g., processedCount, failedCount, results[], errors[]) and add schema-validation tests for success and error responses.",
+              "Add header-content validation tests: empty X-Killbill-CreatedBy, excessively long CreatedBy/Reason/Comment, and invalid character sets to validate input sanitisation and length checks.",
+              "Add role-based authorization tests: an authenticated non-admin user should receive 403 (or documented behaviour) \u2014 assert correct status and error payload.",
+              "Introduce rate-limiting / throttling tests (rapid repeated calls) and assert 429 or configured throttling behaviour; include tests that verify graceful degradation under load.",
+              "Add tests for unsupported HTTP methods (GET/PUT/PATCH/DELETE) to assert 405 responses and correct Allow headers.",
+              "Add explicit duplicate-submission tests (two identical requests within processing window) and assert invoices are not duplicated; consider tests using idempotency keys if supported.",
+              "Expand error-content tests across all error scenarios to assert no stack traces or sensitive info are returned and that error object schema is consistent.",
+              "Add audit/log persistence checks to assert the CreatedBy/Reason/Comment are recorded in audit tables or logs (where observable), to satisfy 'auditable' acceptance criteria.",
+              "Where performance/scale is a requirement, formalize performance SLAs and add automated load tests (concurrent users, throughput) measuring CPU/memory and response-time thresholds, and include recovery/backfill tests for long-running bulk operations."
+            ],
+            "usage": {
+              "completion_tokens": 5907,
+              "prompt_tokens": 5207,
+              "total_tokens": 11114,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4736,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

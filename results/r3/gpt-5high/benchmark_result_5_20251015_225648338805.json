@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "5_2025-10-15T22:56:48.338767",
+    "jira_id": "5",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/customFields - Add custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T22:55:24.271816",
+    "benchmark_end_time": "2025-10-15T22:56:48.338761",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 84.066945,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "5_qe_sup-gpt4.1_agent-gpt4.1_1748916088.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Valid Payload: Multiple happy-path scenarios create custom fields and return 201 with a JSON array; association to the specified account is verified (accounts with/without existing fields).",
+              "Invalid Payload: Malformed/empty body and empty array return 400; missing required fields, incorrect data types, unsupported fields, and duplicate field names all validated with 400.",
+              "Path/Header Validation: accountId UUID format enforced (400 on invalid); required X-Killbill-CreatedBy enforced (400 when missing); optional Reason/Comment accepted.",
+              "Large Payloads: Boundary payload accepted with 201; exceeding allowed size rejected with 400.",
+              "Security Validation: SQLi and XSS payloads rejected with 400.",
+              "Authorization/Availability: 401 for missing/invalid auth; 503 for service down; transient network failure with retry recovering to 201.",
+              "Performance/Concurrency: Response time under normal load and concurrent requests validated; no corruption/loss asserted.",
+              "Query Parameters: Unexpected query parameter does not break the request (still 201)."
+            ],
+            "gaps": [
+              "Duplicate Submission/Idempotency: No scenario for posting the same payload twice (with/without an Idempotency-Key) to ensure no unintended duplicates.",
+              "Server Error Handling (500): No simulation of internal errors (e.g., DB failure) returning 500 with proper error body.",
+              "Batch Atomicity: No test for mixed valid/invalid CustomField objects in one array to confirm all-or-nothing behavior and rollback on failure.",
+              "Response Headers/Content Negotiation: No assertions for Content-Type: application/json on success; no 415 Unsupported Media Type when Content-Type is missing/incorrect.",
+              "Schema Conformance: Response is only compared to the request; no strict validation against the CustomField schema (e.g., presence/format of id, objectType, createdDate, createdBy).",
+              "Authorization (403): No scenario for authenticated but unauthorized caller (forbidden) distinct from 401.",
+              "Persistence/Auditability: No follow-up GET to verify persisted fields; no check that CreatedBy/Reason/Comment are recorded in audit/audit logs.",
+              "Conflict Semantics: No test for adding a field that already exists on the account (expected 400/409 or overwrite rules).",
+              "Error Contract: Tests check for an error message but do not validate the error response schema (e.g., code, message, details).",
+              "Null Handling: TC30 allows ambiguous outcomes (201 or 400); expected behavior for null optional fields is not specified and asserted."
+            ],
+            "recommendations": [
+              "Add idempotency tests: repeat the same POST payload (with and without Idempotency-Key) and assert no duplicate creations or proper deduplication behavior.",
+              "Add 500 Internal Server Error simulation (e.g., forced DB failure) and assert proper status and error body.",
+              "Add batch atomicity scenarios with mixed valid/invalid objects to verify full rollback on any failure (or document/verify partial success rules).",
+              "Assert response headers (Content-Type: application/json) on success; add 415 Unsupported Media Type when Content-Type is not application/json.",
+              "Validate response strictly against the CustomField schema, including server-generated fields (ids, accountId/objectType, createdDate, audit fields).",
+              "Add 403 Forbidden test for authenticated user lacking permission to create custom fields.",
+              "Verify persistence and audit: perform a GET after POST to confirm data stored; assert Reason/Comment/CreatedBy appear in audit records.",
+              "Define and test behavior when attempting to add an already-existing custom field for the account (expect 400/409 or documented overwrite/merge).",
+              "Validate standardized error response structure (fields like errorType/errorCode/message) for all 4xx/5xx cases.",
+              "Disambiguate null handling in requirements and add explicit tests that assert the chosen behavior for null optional fields."
+            ],
+            "usage": {
+              "completion_tokens": 6903,
+              "prompt_tokens": 6650,
+              "total_tokens": 13553,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

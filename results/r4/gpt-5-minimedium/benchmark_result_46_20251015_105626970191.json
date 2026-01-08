@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-15T10:56:26.970161",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:55:58.811677",
+    "benchmark_end_time": "2025-10-15T10:56:26.970156",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 28.158479,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Successful 204 scenario is present (TC01).",
+              "Non-Existent Resource: 404 scenarios for missing account(s) are covered (TC02, TC16, TC18).",
+              "Input Validation / Path Parameter Format: Invalid UUID and malformed-id cases are covered (TC03, TC12, TC14, TC15).",
+              "Missing Path Parameter: Scenario for a missing accountId in the path is present (TC04).",
+              "Authorization (Authentication failures): Unauthenticated and expired/invalid token scenarios are covered (TC05, TC06).",
+              "Unsupported HTTP Method: Method-not-allowed behaviour is covered (TC11).",
+              "Service Dependency & Degraded State: Dependent cache service down and degraded system load covered (TC07, TC08).",
+              "Query Parameter Tolerance: Extra query parameters are tested (TC09).",
+              "Concurrency / Performance: Concurrent deletes and a response-time expectation are covered (TC13).",
+              "Security: SQL injection and XSS attempt protections for accountId are covered (TC14, TC15).",
+              "Edge cases and recovery: No-accounts state, transient network retry, and partial DB state are covered (TC16, TC17, TC18).",
+              "Backward compatibility / Regression: Regression scenarios included (TC12, TC19)."
+            ],
+            "gaps": [
+              "Authorization (authorization vs authentication): No scenario for an authenticated but non-admin user (authorization failure / 403) \u2014 story requires admin-only access.",
+              "Soft delete semantics and post-delete state: No checks whether account-level caches are soft-deleted, flags set, or persisted audit/log entries; no verification of subsequent attempts (idempotency semantics) beyond concurrency.",
+              "Response headers and content-type: No assertions for Content-Type, produced application/json on errors, or other headers (e.g., Content-Length) \u2014 story mentions produces: application/json.",
+              "Structured error schema: Tests check presence of error messages but do not validate error JSON schema or fields (code, type, message, etc.).",
+              "Idempotency and repeat DELETE behavior: No explicit test for repeated DELETE on same account to assert idempotent behaviour (204 vs 404 consistency).",
+              "Rate limiting and throttling: No tests for rate limiting, retries backoff, or throttling under high request rates.",
+              "Exact path-parameter regex boundary cases: No explicit tests that verify the accountId regex constraints (allowed characters, boundary/length limits) beyond a few invalid examples.",
+              "Logging/audit and metrics: No tests that verify audit logs, metrics, or admin action recording when invalidate is performed."
+            ],
+            "recommendations": [
+              "Add an authorization scenario: authenticated non-admin user should receive 403 (forbidden) to ensure admin-only access is enforced.",
+              "Add idempotency tests: send repeated DELETE requests for the same account to validate expected behavior (repeat returns 204 or 404 consistently per API contract).",
+              "Validate response headers and error schema: assert Content-Type on error responses (application/json), and validate structured error fields (error code, message, etc.).",
+              "Add tests for soft-delete/post-delete state: verify whether cache state is persisted, soft-deleted, or removed and that subsequent cache lookups behave as expected; add checks for audit/log entries if required by policy.",
+              "Add rate-limiting/throttling tests: flood the endpoint and assert appropriate 429/Retry-After or other throttling behavior (or confirm no rate limiting), and ensure service degrades gracefully.",
+              "Expand regex/boundary tests for accountId: include maximum/minimum lengths, allowed character sets, and encoded/normalized inputs to fully validate path parameter pattern enforcement.",
+              "Add error-path tests that validate consistent JSON error responses from 400/404/401/403/503 conditions and that no sensitive info is leaked in error messages.",
+              "If the API must return application/json on success responses per the spec, add a check for that; otherwise explicitly assert that 204 responses have no body and appropriate headers to avoid ambiguity."
+            ],
+            "usage": {
+              "completion_tokens": 2006,
+              "prompt_tokens": 4640,
+              "total_tokens": 6646,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-09-28T16:31:08.208673",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T16:29:06.498673",
+    "benchmark_end_time": "2025-09-28T16:31:08.208669",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 121.709996,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Success 204 when removing all tags, specific tags, and when bundle has no tags; response body empty.",
+              "DELETE - Non-Existent Resource: 404 for non-existent bundleId.",
+              "DELETE - Concurrency: 100 concurrent DELETEs validate no race conditions or data corruption.",
+              "Input validation: 400 for invalid bundleId format; 400 for invalid tagDef UUID; 400 for mixed valid/invalid tagDef values.",
+              "Headers: Required X-Killbill-CreatedBy enforced (400 when missing); optional Reason/Comment supported; injection attempts in headers handled (400/422).",
+              "Query parameters: tagDef absent vs provided vs empty array covered; multiple tagDef values (collectionFormat=multi) covered; extraneous query parameter behavior covered.",
+              "Scale and performance: Large tag set deletion (1000) and timeout handling for extremely large (10000) addressed (204/504).",
+              "Integration/data consistency: Post-delete GET verifies remaining tags.",
+              "Authentication/authorization: 401 for unauthorized; 503 service unavailable handled."
+            ],
+            "gaps": [
+              "DELETE - Soft Deletes: No verification of soft-delete versus hard-delete behavior or audit visibility; unclear if applicable to tags.",
+              "Idempotency depth: No explicit test for repeating the exact same DELETE request (including identical tagDef list) returning 204 with no side effects; no test for duplicate tagDef values in a single request.",
+              "Valid-but-non-associated tagDef(s): Behavior not tested when a provided tagDef UUID is valid but not associated to the bundle (should likely be 204 and ignore).",
+              "Valid-but-unknown tagDef definition: Not covered when tagDef UUID is syntactically valid but does not exist in the system (expected 400/404 needs specification).",
+              "Authorization granularity: 403 Forbidden (authenticated but not permitted) not covered; only 401 Unauthorized tested.",
+              "Response headers/content negotiation: Not asserting Content-Type=application/json on error responses; not asserting no Content-Type and Content-Length=0 on 204.",
+              "Collection format enforcement: No negative test for comma-separated tagDef values (should be rejected or parsed per spec); no test for ordering/duplicate handling.",
+              "Header value validation: No test for empty/whitespace X-Killbill-CreatedBy or excessive length handling.",
+              "Ambiguous expectation: One scenario allows 400 or 422; expected outcome should be deterministic.",
+              "Spec alignment: Scenario allowing unknown extra query params to pass (204) may not align with strict validation unless explicitly allowed by spec."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: repeat the same DELETE (same tagDef list) twice; both should return 204 with no further changes; include duplicate tagDef values in a single request and verify graceful handling.",
+              "Add scenario for valid tagDef UUIDs not associated to the bundle to confirm outcome (likely 204, no-op).",
+              "Add scenario for valid-but-nonexistent tagDef definition UUID to define expected status (400 or 404) and error payload.",
+              "Add 403 Forbidden test case for an authenticated user lacking permission.",
+              "Assert response headers: for 204 ensure empty body and appropriate headers (no Content-Type, Content-Length=0); for errors assert Content-Type=application/json and structured error body.",
+              "Enforce collectionFormat=multi: add a negative test using comma-separated tagDef values; verify server rejects or handles per spec; also check order irrelevance and duplicate elimination.",
+              "Add header value validation for X-Killbill-CreatedBy (empty string, whitespace-only, overly long) with expected 400.",
+              "If soft-delete/audit trails apply, add tests to verify audit entries created with CreatedBy/Reason/Comment and that tags are flagged/recorded appropriately; if not applicable, mark soft delete explicitly as N/A.",
+              "Make expected outcomes deterministic (e.g., replace 400 or 422 with a single expected status).",
+              "Clarify and align behavior for unknown query parameters with API spec; add test to assert either rejection with 400 or explicit ignore if allowed."
+            ],
+            "usage": {
+              "completion_tokens": 6441,
+              "prompt_tokens": 4976,
+              "total_tokens": 11417,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5568,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-10-15T18:34:05.573255",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T18:32:56.124187",
+    "benchmark_end_time": "2025-10-15T18:34:05.573249",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 69.449062,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "POST/Valid Payload: Multiple success scenarios verify 201 Created, JSON Account body, and Location header (required-only and with optional headers).",
+              "Headers: Required X-Killbill-CreatedBy covered (present, missing -> 400, wrong type -> 400); optional X-Killbill-Reason and X-Killbill-Comment covered.",
+              "Invalid Payload: Malformed JSON, missing required fields, and empty body all return 400 as expected.",
+              "Large Payloads: Boundary case with maximum field sizes succeeds (201).",
+              "Extra Data Handling: Unsupported body fields and unexpected headers are ignored while succeeding (201).",
+              "Server Error Handling: Dependency failure (DB unavailable -> 503) and timeout (504) scenarios present.",
+              "Security/Validation: Basic injection/XSS attempt does not execute and is rejected/sanitized.",
+              "Concurrency/Performance: Multiple concurrent creations return 201 within acceptable response time.",
+              "Duplicate Submission: A scenario exists to address duplicates (policy-dependent), providing partial coverage.",
+              "Integration: Location header is used to GET the created resource (200) and body matches the created Account."
+            ],
+            "gaps": [
+              "Response headers/content negotiation: No assertions for response Content-Type=application/json (Produces) and no tests for wrong/missing request Content-Type (e.g., 415) or Accept negotiation (e.g., 406).",
+              "Schema-level field validation: No targeted tests for Account-specific rules (e.g., email format, enum codes like currency/timezone/country, numeric ranges, string length limits, trimming/whitespace-only values).",
+              "Required header value semantics: No tests for empty/blank or excessively long X-Killbill-CreatedBy, or non-ASCII characters.",
+              "Duplicate submission policy is undefined: TC13 is ambiguous (201 or 409). No idempotency/retry behavior tests (e.g., Idempotency-Key, safe retry after timeout without creating duplicates).",
+              "Server error 500 path not exercised: Only 503/504 covered; no explicit 500 Internal Server Error scenario for unexpected processing/DB exceptions.",
+              "Location header correctness: Not asserting canonical URL pattern and ID consistency between response body and Location; TC20 verifies retrieval but not structural correctness.",
+              "Authorization granularity: 401 unauthorized is covered; no 403 test for authenticated but unauthorized user/tenant (if applicable).",
+              "Internationalization: No tests for Unicode/non-ASCII characters in headers and payload fields.",
+              "Response schema verification: No automated schema validation to ensure the response strictly matches #/definitions/Account, including presence of read-only fields and defaulted values.",
+              "Rate limiting/throttling: No scenario validating 429 Too Many Requests on bursty POSTs (if applicable)."
+            ],
+            "recommendations": [
+              "Add content negotiation tests: assert response Content-Type=application/json; send requests with missing/invalid Content-Type (expect 415) and invalid Accept (expect 406) to validate Consumes/Produces.",
+              "Create field-level validation scenarios per Account schema: invalid email format, bad enum values (currency/timezone/country), out-of-range numbers, overlength strings, whitespace-only values; expect 400 with clear errors.",
+              "Expand header validation: test empty/blank and overlength X-Killbill-CreatedBy and non-ASCII; define expected outcomes (typically 400).",
+              "Split TC13 into deterministic tests: (a) duplicate key returns 409 with error body; (b) idempotent create using Idempotency-Key returns same resource on retry; (c) retry-after-timeout does not create duplicates.",
+              "Add a 500 Internal Server Error simulation (e.g., forced exception during persistence) to meet server error handling guidelines.",
+              "Strengthen Location checks: assert absolute/canonical URL, verify accountId in body matches Location, and that subsequent GET returns the same resource consistently.",
+              "Include a 403 Forbidden scenario for authenticated users lacking create permissions (if the service enforces RBAC/tenancy).",
+              "Add Unicode/i18n tests for payload and headers to ensure acceptance and correct encoding.",
+              "Introduce automated contract/schema validation against #/definitions/Account for both request and response (including required/read-only/default fields).",
+              "If applicable, add rate limiting tests that trigger and assert 429 responses under high-frequency POST requests."
+            ],
+            "usage": {
+              "completion_tokens": 6670,
+              "prompt_tokens": 4821,
+              "total_tokens": 11491,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5760,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

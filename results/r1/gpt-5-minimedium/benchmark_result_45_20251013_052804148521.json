@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-13T05:28:04.148497",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:27:31.980276",
+    "benchmark_end_time": "2025-10-13T05:28:04.148493",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 32.168217,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01, TC02 and TC08 verify successful invalidation of all caches, a specific cache, and when no caches exist (204).",
+              "Non-Existent Resource: TC03 verifies behavior and 400 response when cacheName does not exist.",
+              "Invalid/Not-Alive Resource: TC04 covers cache present but not alive -> 400.",
+              "Query Parameter Handling: TC01, TC02, TC05, TC09 cover absence of cacheName, valid cacheName, empty cacheName, and unsupported extra parameters.",
+              "Input Validation: TC10, TC11, TC15 and TC05 cover very large values, special characters, previously problematic formats, and empty values.",
+              "Authorization (negative): TC06 verifies unauthenticated/invalid token returns 401/403 and prevents invalidation.",
+              "Server Error Handling: TC07 simulates cache subsystem failure and expects 500.",
+              "Concurrency & Performance: TC13 and TC14 exercise large-scale invalidation and concurrent requests.",
+              "Case Sensitivity: TC12 validates behavior when cache names differ in case.",
+              "Response Body Expectations: Multiple scenarios assert 204 + empty response body for successful operations."
+            ],
+            "gaps": [
+              "Content-Type / \"Produces: application/json\": Acceptance criteria state the endpoint produces application/json; tests assert empty bodies for 204 but do not assert Content-Type or response headers.",
+              "Authenticated-but-not-admin (authorization role): TC06 covers unauthenticated/invalid token but does not explicitly test an authenticated user without admin privileges (should produce 403).",
+              "Idempotency / repeated deletes: No test verifying repeated DELETEs against the same cache (e.g., second delete should be safe / expected status behavior).",
+              "HTTP method handling: No tests for invalid HTTP methods (e.g., GET/POST on this endpoint) returning 405.",
+              "Rate limiting / throttling: Standard guideline asks to verify multiple requests in short time; TC14 tests concurrency but not rate limiting or throttling policies.",
+              "Error response schema and headers: Tests assert the presence of an error message but do not validate error response structure, codes, or Content-Type for error responses.",
+              "Atomicity / partial invalidation side-effects under concurrent operations: TC14 checks stability and 204 responses, but there is no explicit verification that no unintended caches are invalidated or partial state remains under race conditions."
+            ],
+            "recommendations": [
+              "Add assertions for relevant response headers (Content-Type: application/json) for both success and error responses to satisfy \"Produces: application/json\".",
+              "Add a test for an authenticated non-admin user to ensure proper role-based authorization (explicitly assert 403).",
+              "Add an idempotency test: delete the same cache twice and assert expected status (e.g., first 204, second either 204 or a defined idempotent response) and no adverse effects.",
+              "Add tests for invalid HTTP methods (e.g., GET/POST) to ensure the endpoint rejects them with 405 Method Not Allowed.",
+              "Add rate-limiting / throttling tests (many rapid requests from same client) to ensure server handles/exposes rate limits gracefully.",
+              "Add validation of error response schema and headers (structure, error codes, error fields, Content-Type) to make tests robust and machine-checkable.",
+              "Enhance concurrency tests to assert atomicity/side-effects: verify that concurrent invalidations do not partially invalidate unrelated caches and that cache states after concurrent operations are consistent."
+            ],
+            "usage": {
+              "completion_tokens": 2207,
+              "prompt_tokens": 3739,
+              "total_tokens": 5946,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1472,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

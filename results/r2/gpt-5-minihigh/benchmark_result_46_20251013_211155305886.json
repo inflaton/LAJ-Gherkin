@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-13T21:11:55.305860",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T21:09:32.924544",
+    "benchmark_end_time": "2025-10-13T21:11:55.305856",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 142.381312,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid deletion: TC01 verifies successful cache invalidation returns HTTP 204 and checks caches were invalidated for the target account.",
+              "Non-existent resource: TC02 / TC16 / TC18 validate 404 when the account is not found.",
+              "Input validation: TC03, TC10 and TC12 cover invalid UUID and malformed accountId patterns returning 400/404 as expected.",
+              "Authentication: TC05 and TC06 cover unauthenticated and expired/invalid token cases (401 responses).",
+              "Unsupported methods & missing path: TC11 and TC04 verify 405 for wrong HTTP method and behavior when accountId is missing from the path.",
+              "Dependency and degraded conditions: TC07 and TC08 address degraded-system and dependent cache-service-unavailable scenarios (503 or 204 per contract).",
+              "Security: TC14 and TC15 test SQL injection and XSS attempts against the accountId path parameter.",
+              "Query parameters and path variations: TC09 covers extra query parameters; TC10 covers unusually large/accountId-length inputs.",
+              "Concurrency & performance: TC13 covers concurrent DELETEs across multiple accounts and includes a response-time requirement.",
+              "Regression/backwards compatibility: TC12 and TC19 include regression checks for previously-fixed invalid UUID patterns and backward-compatibility concerns."
+            ],
+            "gaps": [
+              "Role-based authorization (403): there is no scenario where an authenticated non-admin user attempts the admin DELETE and receives 403 Forbidden; RBAC is not asserted.",
+              "Content-Type and headers: tests do not assert response headers (e.g., Content-Type: application/json) or the Allow header on 405 responses; the story explicitly states \"Produces: application/json\".",
+              "Idempotency / repeated DELETE semantics: no tests verify behavior of repeated DELETE calls on the same account (expected idempotent behavior is not asserted).",
+              "Detailed error response schema: tests check for an error message but do not validate a consistent JSON error schema (fields like code, type, message) across error responses.",
+              "Server/internal errors (500): no tests simulate internal service failures (database exceptions, unhandled errors) to verify 500 handling and graceful responses.",
+              "Rate limiting / throttling (429): no tests for rate limiting or behavior under request bursts aside from basic concurrency/performance checks.",
+              "Scope of invalidation: tests do not verify that only the targeted account caches are invalidated and that other accounts remain unaffected (isolation verification).",
+              "Concurrent deletion of the same account: TC13 targets multiple accounts; missing a race-condition test where multiple concurrent DELETEs target the same account resource.",
+              "Soft-delete semantics / permanence: there is no test or documentation about whether cache invalidation is reversible, logged, or whether repeated operations change behavior (soft vs. hard semantics).",
+              "Accept/Content negotiation: no tests verify Accept header handling or whether the service honors content negotiation for error/success responses."
+            ],
+            "recommendations": [
+              "Add an RBAC test: authenticated non-admin user attempts DELETE -> assert 403 Forbidden and appropriate JSON error payload.",
+              "Assert response headers: add checks for Content-Type (application/json) for error responses and document expected header behavior for 204 responses; verify Allow header on 405 responses.",
+              "Add idempotency tests: call DELETE twice (and under retries) and assert the API returns the documented/expected status (e.g., idempotent 204 or defined 404) and side effects do not repeat.",
+              "Introduce fault-injection tests to simulate backend failures (DB exceptions, unexpected exceptions) and assert 500 Internal Server Error behavior and consistent error payloads.",
+              "Implement rate-limiting tests: send controlled bursts of DELETE requests to validate throttling, 429 responses, and presence of rate-limit headers where applicable.",
+              "Add scope/isolation tests for invalidation: pre-populate caches for multiple accounts, invalidate one account, and assert only that account\"s caches were cleared.",
+              "Add concurrency tests targeting the same account (multiple simultaneous DELETEs) to detect race conditions, locking issues, and to assert deterministic behavior.",
+              "Validate error response JSON schema across all error scenarios (schema validation for fields like code, message, timestamp) and include schema assertions in tests.",
+              "Expand method coverage to include other unsupported methods (POST/PUT/PATCH/OPTIONS) to assert 405 and proper Allow response header values.",
+              "Document and test expected behavior for 204 responses (empty body vs. JSON body and headers) so clients can rely on consistent responses."
+            ],
+            "usage": {
+              "completion_tokens": 8232,
+              "prompt_tokens": 4640,
+              "total_tokens": 12872,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7296,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

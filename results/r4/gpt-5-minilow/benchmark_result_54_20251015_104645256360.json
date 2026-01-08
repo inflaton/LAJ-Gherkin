@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-15T10:46:45.256332",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:46:28.269119",
+    "benchmark_end_time": "2025-10-15T10:46:45.256328",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 16.987209,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC12, TC16) verify successful deletion behavior including full removal, selective removal, empty-array behavior and large-batch removal.",
+              "Empty Response: TC01, TC04, TC12, TC16 explicitly assert 204 with empty body when there is nothing to return.",
+              "Invalid/Non-existent Resource handling: TC05 (invalid bundleId format -> 400) and TC06 (non-existent bundleId -> 404) cover both format validation and resource-not-found cases.",
+              "Query Parameter Validation: TC02, TC07, TC13 exercise valid/invalid tagDef combinations, including partial invalid sets.",
+              "Header Validation: TC03 and TC08 check required headers behaviour (presence and absence). TC14 covers malicious header content (XSS/SQL injection).",
+              "Authorization/Error responses: TC09 covers unauthorized user (401) and TC10 covers service-unavailable (503). TC13/TC07 cover 400 responses for invalid input.",
+              "Concurrency / Race Conditions: TC15 and TC17 (integration consistency) address concurrent requests and data consistency after removal.",
+              "Performance/Timeouts: TC15 and TC18 exercise concurrent load and timeout behavior for very large tag counts.",
+              "Regression / Integration: TC16 and TC17 are explicit about regression behavior and verifying state via GET after deletion.",
+              "Extra/Unexpected Input: TC11 ensures extra unexpected query parameters are tolerated."
+            ],
+            "gaps": [
+              "Soft Delete vs Hard Delete semantics: No tests verify whether tag removal is a soft-delete (flagged) vs permanent removal, or expected behavior for recovery/undelete.",
+              "Server Error Handling (500/5xx other than 503): No explicit tests simulate database failures or internal server errors (500) to validate error handling and idempotency.",
+              "Idempotency and repeatability: No tests explicitly verify idempotent behaviour when the same DELETE is sent multiple times (beyond TC15 concurrency which assumes success).",
+              "Detailed Authorization matrix: While TC09 covers unauthorized user (401), there are no tests for forbidden access (403) for authenticated but unauthorized roles/scopes, nor tests for role-based access differences.",
+              "Rate limiting / throttling: There are no tests that verify API rate limiting or behavior when request quota is exceeded (distinct from concurrency/performance tests).",
+              "Caching behavior / Response headers: No tests validate response headers like Cache-Control, ETag or other caching-related behaviour (even if less relevant for DELETE, some systems return cache headers).",
+              "Pagination / large result-set behavior: The standard GET guideline mentions pagination; while DELETE is the focus, there is no coverage for deletion impact on paginated resources or how many-IDs-in-query are handled when system enforces limits (e.g., max query params).",
+              "Detailed header validation semantics: Missing tests for malformed X-Killbill-CreatedBy (e.g., empty string, overly long value) and combined-header edge cases; TC14 covers malicious content but not other invalid header value types.",
+              "Validation of response content-types and error payload schema: Tests assert error presence but do not verify error payload shape, fields or content-type (application/json) as described in the acceptance notes."
+            ],
+            "recommendations": [
+              "Add tests to verify idempotency: send the same DELETE twice and assert the second returns 204 (or documented idempotent response) and no error.",
+              "Introduce 5xx server-failure simulations: tests that mock DB failures and assert 500 responses and that appropriate error payloads are returned for operator visibility.",
+              "Add forbidden/role-based authorization tests (403): cover authenticated but unauthorized roles and verify correct error code and message.",
+              "Add rate-limiting/throttling tests: submit burst of requests beyond expected limits and verify 429 or other throttling responses are handled gracefully.",
+              "Add tests around soft-delete semantics and recovery: verify whether deleted tags can be restored or are permanently removed, and add tests for audit/logging of deletion (headers X-Killbill-CreatedBy/Reason/Comment are present).",
+              "Validate error payload schema and content-type: assert error JSON structure, fields (message, code), and Content-Type header for all error scenarios (400/404/401/503/etc.).",
+              "Add tests for edge-case header values: empty, oversized, non-UTF8 inputs for X-Killbill-CreatedBy/Reason/Comment beyond XSS injection.",
+              "If system enforces a maximum number of query params or tagDef items, add tests for that limit (e.g., 1001 tagDefs) and for pagination/impact on related GET endpoints to cover combined behavior.",
+              "Add caching/headers validation where applicable: ensure DELETE responses do not inappropriately advertise caching and that related GET endpoints reflect immediate consistency (no stale caches)."
+            ],
+            "usage": {
+              "completion_tokens": 1273,
+              "prompt_tokens": 4976,
+              "total_tokens": 6249,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

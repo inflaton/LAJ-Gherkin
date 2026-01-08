@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-13T10:22:33.573538",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:21:15.773752",
+    "benchmark_end_time": "2025-10-13T10:22:33.573534",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 77.799782,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST/Valid operation: Successful 200 with application/json for default parameters, explicit offset/limit, and partial inputs (defaulting limit).",
+              "Validation: Strong coverage for numeric ranges and types on offset/limit (negative, zero, non-integer).",
+              "Headers: Required X-Killbill-CreatedBy validated; optional X-Killbill-Reason and X-Killbill-Comment exercised and audited.",
+              "Pagination semantics: Default limit (100), explicit limit, maximum allowed, and starting offset behavior are exercised.",
+              "Empty response path: No parked accounts returns 200 with indication of no invoices generated.",
+              "Authorization: Missing required header (400/401) and invalid/expired token (401/403) are tested.",
+              "Server error handling: Service unavailability (503) is simulated.",
+              "Security: Injection attempt in headers is handled without leaking sensitive information.",
+              "Idempotency/Duplicate handling: Retry after transient failure does not duplicate invoices; concurrency ensures exactly-once generation.",
+              "Performance/Scalability: Large dataset and concurrent requests scenarios verify throughput and resource bounds.",
+              "Backward compatibility: Older clients without optional headers still succeed."
+            ],
+            "gaps": [
+              "Server Error Handling: No explicit 500 Internal Server Error scenario (e.g., database failure) as per POST guidelines.",
+              "Authorization granularity: No scenario for authenticated but non-admin user receiving a 403 due to insufficient privileges.",
+              "Response schema validation: Tests do not assert the success/error JSON schema (e.g., fields like processedCount, offset, limit, status, errors).",
+              "Business rule guardrail: No explicit assertion that non-parked accounts are not affected by the operation.",
+              "Pagination boundary cases: Missing tests for offset equal to or greater than total parked accounts (should produce zero processed with 200).",
+              "Max limit enforcement: No test for behavior when limit exceeds the documented max (e.g., 1000) \u2014 should either cap or return 400.",
+              "Content negotiation/headers: No checks for Accept/Content-Type correctness (e.g., missing or wrong content type -> 415, unacceptable Accept -> 406).",
+              "Deterministic handling of unexpected parameters: Scenario allows 200 or 400; expected behavior should be specified and asserted consistently.",
+              "Explicit duplicate submission: No test sending the same valid POST twice sequentially (without failure) to ensure no duplicate invoices."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate an internal failure (e.g., DB outage) returning 500 with a stable error schema.",
+              "Create a test for an authenticated non-admin principal attempting the call and receiving 403 Forbidden.",
+              "Validate the JSON response schema for both success and error: assert keys, types, and meaningful counts (e.g., processedCount, totalEligible, offset, limit).",
+              "Add a check that only parked accounts are processed (e.g., assert zero invoices generated for non-parked accounts in the batch).",
+              "Introduce offset boundary tests: offset == totalParked and offset > totalParked should return 200 with zero processed.",
+              "Test behavior when limit exceeds the maximum allowed: verify capping vs 400 and document the expected behavior.",
+              "Add content negotiation tests: incorrect/missing Content-Type -> 415; unacceptable Accept -> 406; also verify response includes correct Content-Type.",
+              "Split the unexpected parameter test into two deterministic cases based on the spec: (a) ignore unknown params and return 200, or (b) reject with 400 and explicit error.",
+              "Add an explicit duplicate-submission scenario (two identical, successful POSTs in a row) to ensure invoices are not generated twice, or require/use an idempotency mechanism and assert its effect."
+            ],
+            "usage": {
+              "completion_tokens": 4369,
+              "prompt_tokens": 5207,
+              "total_tokens": 9576,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3584,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

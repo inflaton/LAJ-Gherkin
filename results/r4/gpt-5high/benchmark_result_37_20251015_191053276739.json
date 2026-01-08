@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-15T19:10:53.276706",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:09:25.478261",
+    "benchmark_end_time": "2025-10-15T19:10:53.276701",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 87.79844,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Method - Valid Deletion: 204 returned and email is removed from the account.",
+              "DELETE Method - Non-Existent Resource: 404 when account or email does not exist (both cases covered).",
+              "DELETE Method - Concurrency: multiple concurrent deletes yield one success and subsequent 404s.",
+              "Path/Header Validation: required X-Killbill-CreatedBy enforced (400 when missing); optional Reason/Comment accepted.",
+              "Input Validation: invalid accountId format and invalid/injection email yield 400.",
+              "Authorization: unauthorized access with invalid/expired token returns 401.",
+              "Resilience/Server Errors: dependency failure returns 503; transient network failure retry succeeds.",
+              "Boundary/Performance: very long and minimal email lengths succeed; response time threshold validated.",
+              "Robustness: extra unsupported query parameter does not break deletion."
+            ],
+            "gaps": [
+              "DELETE Method - Soft Deletes: no verification whether deletion is soft vs hard (e.g., audit/history state).",
+              "Response headers and media type: no checks for Content-Type (application/json) on error responses and empty body on 204.",
+              "Idempotency (sequential): no scenario calling DELETE twice sequentially to confirm consistent behavior (e.g., 204 then 404 per spec).",
+              "URL encoding/special characters in path param: no coverage for percent-encoded emails or reserved characters (e.g., user+tag@example.com, spaces, percent-encoding).",
+              "Authorization - Forbidden: no 403 case for authenticated user lacking permission/role.",
+              "Rate limiting/throttling: no scenario to validate 429 or server behavior under burst deletes.",
+              "Header value constraints: no tests for empty/overlong X-Killbill-CreatedBy values or validation limits.",
+              "Error payload schema: tests check for generic messages but not structured error fields/codes."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification scenario (if applicable): after DELETE, confirm via audit/history or a GET endpoint whether the record is flagged as deleted vs removed.",
+              "Validate response headers: check Content-Type is application/json on 4xx/5xx; confirm 204 responses have no body and appropriate headers.",
+              "Add an idempotency test: perform DELETE twice in sequence on the same email and assert first 204 then 404 (per the story\u2019s not-found semantics).",
+              "Cover URL-encoding and reserved characters: test DELETE with user+tag@example.com, percent-encoded values, and whitespace to ensure proper decoding and validation.",
+              "Include a 403 Forbidden scenario for an authenticated user without delete privileges to complement the 401 case.",
+              "Introduce a rate-limiting test: burst DELETE requests to observe 429 or defined server behavior.",
+              "Add header constraint validation: empty, excessively long, or invalid characters in X-Killbill-CreatedBy should be rejected with 400.",
+              "Assert error payload schema: verify error code, message, and any standard fields match the API\u2019s error contract."
+            ],
+            "usage": {
+              "completion_tokens": 6717,
+              "prompt_tokens": 5675,
+              "total_tokens": 12392,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

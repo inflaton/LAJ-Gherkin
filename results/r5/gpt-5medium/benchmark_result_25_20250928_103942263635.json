@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-09-28T10:39:42.263609",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:38:31.730014",
+    "benchmark_end_time": "2025-09-28T10:39:42.263606",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 70.533592,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "POST/Valid request flows: Success with required-only and all optional params; default payment method used when paymentMethodId absent (TC01, TC02).",
+              "Validation/Invalid payloads: malformed/non-existent accountId, invalid paymentMethodId, invalid paymentAmount (<=0), invalid targetDate/boolean/pluginProperty types, missing/empty required header (TC08\u2013TC16).",
+              "Duplicate submission/idempotency behavior on retry: network timeout and post-processing retry do not duplicate payments (TC22, TC28).",
+              "Large values/payloads: extremely large paymentAmount and large pluginProperty arrays (TC23, TC24).",
+              "Server error handling: payment gateway, DB, and plugin system failures return appropriate 5xx (TC18, TC19, TC27).",
+              "Authorization/Authentication: unauthorized requests return 401 (TC17).",
+              "Query parameters handling: combinations of none/all/extra unknown params; multi-value pluginProperty (TC01, TC02, TC05, TC25).",
+              "Business rules: partial, exact, and over-amount handling; no-op when no invoices or no unpaid invoices (TC03, TC04, TC06, TC07).",
+              "Security hardening: SQL injection and XSS attempts handled without info leakage or script execution (TC20, TC21).",
+              "Performance under normal/peak/stress load (TC30\u2013TC32)."
+            ],
+            "gaps": [
+              "Idempotency-Key header (if supported): no explicit tests that repeated requests with the same key are deduplicated server-side.",
+              "Concurrent requests race conditions: no scenario where two concurrent POSTs for the same account avoid double charging.",
+              "Target date semantics: no tests for past vs future dates, timezone boundaries, or default behavior when omitted.",
+              "Payment method ownership: no test where a valid paymentMethodId belongs to a different account (expected 400/404).",
+              "Error response schema: tests assert messages but do not validate structured error schema (code, message, type) and Content-Type application/json for errors.",
+              "Media type handling: no checks for 204 having no body and appropriate headers; no 415 behavior if an unsupported Content-Type is sent.",
+              "Authorization roles: no 403 forbidden scenario (if RBAC applies).",
+              "Numeric precision/limits: no tests for paymentAmount precision/rounding rules and maximum decimal places.",
+              "Rate limiting/throttling: no tests for burst submissions and expected 429 or graceful handling (if applicable)."
+            ],
+            "recommendations": [
+              "Add an idempotency test using an Idempotency-Key (or equivalent) header: first request succeeds, second with same key is not reprocessed.",
+              "Introduce a concurrency test: fire two simultaneous POSTs for the same account and assert only one payment is executed.",
+              "Extend targetDate coverage: past, future, boundary dates across time zones; verify defaulting when omitted.",
+              "Add a test where paymentMethodId is valid but not associated with the account; expect 400/404.",
+              "Validate error response schema and headers: ensure application/json for errors and that fields like code/message conform to contract.",
+              "Verify 204 semantics: no response body, appropriate headers; add a negative test for unsupported Content-Type -> 415.",
+              "Include a 403 scenario if roles/permissions restrict this operation.",
+              "Cover numeric precision: test paymentAmount with many decimal places and rounding behavior at limits.",
+              "If applicable, add rate limiting tests to verify throttling/429 or graceful degradation under bursts."
+            ],
+            "usage": {
+              "completion_tokens": 4398,
+              "prompt_tokens": 7048,
+              "total_tokens": 11446,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3648,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

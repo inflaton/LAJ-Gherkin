@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "31_2025-10-13T11:53:32.303159",
+    "jira_id": "31",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/payments - Trigger a payment (authorization, purchase or credit)",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T11:51:16.168935",
+    "benchmark_end_time": "2025-10-13T11:53:32.303155",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 136.13422,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "31_qe_sup-gpt4.1_agent-gpt4.1_1748917990.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST: Valid payloads and successful creation returning 201 with JSON Payment response and Location header (TC01, TC02, TC03).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment handled (TC01, TC06).",
+              "Query parameters: paymentMethodId provided/omitted with default selection; multi-value controlPluginName and pluginProperty supported (TC02, TC03, TC24).",
+              "Path and account validation: invalid UUID -> 400; non-existent account -> 404 (TC07, TC08).",
+              "Body validation: malformed body -> 400; min/max amount and unsupported currency handled (TC09, TC16, TC17, TC19).",
+              "Gateway/control plugin outcomes: 402 declined, 422 aborted, 502 submission failure, 503 unknown status, 504 timeout (TC10, TC11, TC12, TC13, TC14, TC23).",
+              "Authorization/security: unauthorized -> 401; malicious payload rejected (TC20, TC21).",
+              "Performance and concurrency: response-time SLAs and high-load/stress; parallel requests without duplicates/inconsistencies (TC22, TC26, TC27, TC28).",
+              "Success response details: verifies Content-Type application/json and Location header contents (TC01)."
+            ],
+            "gaps": [
+              "Transaction types not explicitly exercised: no dedicated scenarios for authorization vs purchase vs credit and their specific rules (e.g., whether credit requires/ignores paymentMethodId).",
+              "Duplicate submission/idempotency not explicitly tested: behavior on immediate replay of the same POST (with/without idempotency key) is unspecified.",
+              "Server error handling 500 is missing (e.g., database failure) despite being a standard POST guideline.",
+              "Content negotiation and media type: no tests for 415 Unsupported Media Type (non-JSON body) or 406 Not Acceptable (unsupported Accept header).",
+              "paymentMethodId validation gaps: invalid UUID format and method not associated with the account/not found are not covered.",
+              "Control plugin validation: unknown controlPluginName and malformed/invalid pluginProperty formats lack tests.",
+              "Field-level required validation: individual omissions of amount, currency, or transactionType and numeric precision/scale rules are not explicitly tested.",
+              "Rate limiting/throttling: no scenarios for burst traffic causing 429 Too Many Requests and Retry-After header.",
+              "Response schema rigor: scenarios assert \"valid Payment/error\" generically but don\u2019t validate full schema (required fields, types, enums) for success and error bodies.",
+              "Follow Location: not validated that the Location URL resolves to the created resource via a subsequent GET.",
+              "Multi-value query encoding nuances: no test to verify collectionFormat=multi versus alternative encodings (e.g., comma-separated) and expected handling."
+            ],
+            "recommendations": [
+              "Add dedicated scenarios for transactionType=AUTHORIZATION, PURCHASE, and CREDIT, including business rules (e.g., CREDIT with/without paymentMethodId) and assert type/status in the returned Payment transaction.",
+              "Add duplicate submission/idempotency tests: replay the same POST rapidly; if an idempotency mechanism exists, verify second call returns the same resource without creating a duplicate; define expected status (e.g., 200/201/409) and stable Location.",
+              "Introduce a 500 Internal Server Error scenario by fault-injecting a backend/database failure; validate proper 500 response and error schema.",
+              "Test content negotiation: send Content-Type text/plain -> expect 415; send Accept header with unsupported media type -> expect 406; with Accept application/json -> success.",
+              "Expand paymentMethodId validation: invalid UUID -> 400; valid UUID not on the account or not found -> 404; disabled method behavior as per spec.",
+              "Add control plugin validation: unknown plugin name, invalid pluginProperty format/value; define expected handling (reject with 400 or ignore).",
+              "Create field-level negative tests: omit amount, omit currency, omit transactionType; test zero/negative amounts if disallowed; test precision exceeding currency scale -> 400.",
+              "Add rate limiting tests to validate 429 Too Many Requests under bursts and presence of Retry-After/throttling behavior.",
+              "Strengthen schema assertions: validate Payment fields (paymentId, accountId, amount, currency, transactionType, status, plugin info) and standardized error object fields (code, message, type).",
+              "Verify Location header by following it to retrieve the created payment and confirm it matches the POSTed data.",
+              "Validate multi-valued query parameter encoding strictly per collectionFormat=multi and document/verify behavior for alternative encodings."
+            ],
+            "usage": {
+              "completion_tokens": 7321,
+              "prompt_tokens": 8983,
+              "total_tokens": 16304,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6336,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

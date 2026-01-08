@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "94_2025-10-15T10:29:34.320626",
+    "jira_id": "94",
+    "jira_title": "Implement/Test API: GET /1.0/kb/invoicePayments/{paymentId}/tags - Retrieve payment tags",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:29:19.200872",
+    "benchmark_end_time": "2025-10-15T10:29:34.320622",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 15.11975,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "94_qe_sup-gpt4.1_agent-gpt4.1_1748922161.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple happy-path scenarios (TC01-TC06, TC15-TC18, TC21, TC22) validate successful retrieval including combinations of query params.",
+              "Empty Response: TC06 covers the empty-result case (payment exists but has no tags); TC20 and TC07 cover empty DB / not-found cases.",
+              "Query Parameters: Good coverage of query parameters: includedDeleted (TC02, TC14), pluginProperty (TC03, TC05, TC16, TC17), audit (TC04, TC05, TC10). Also tests for extra/unexpected params (TC11).",
+              "Error Handling: Invalid paymentId format (TC08), not-found (TC07, TC20), invalid audit value (TC10), 500 server error (TC24), service unavailable/dependency down (TC13) are included.",
+              "Authentication: Missing auth token is tested (TC09) to verify 401 behavior.",
+              "Security: Injection/XSS attempts are included (TC15, TC16).",
+              "Performance/Scale: High-load and large payload scenarios are present (TC12, TC18).",
+              "Resilience/Recovery: Transient network retry behavior is covered (TC21).",
+              "Regression/Compatibility: Regression test for deleted tags (TC14) and backward compatibility (TC22) are present."
+            ],
+            "gaps": [
+              "Pagination: No tests for pagination behavior (page/offset/limit) or verifying that large result sets are paginated correctly \u2014 the standard guidelines call this out explicitly.",
+              "Rate Limiting / Throttling: No scenarios that exercise or validate rate limiting, throttling, or behaviour under many repeated requests.",
+              "Caching Behavior: No tests checking caching headers (ETag, Last-Modified, Cache-Control) or conditional GET behavior (If-None-Match / 304 responses).",
+              "Authorization/Permission Variants: Only missing-token (401) is tested; there's no test for insufficient permissions/forbidden (403) or role-based access control variants.",
+              "Query Parameter Validation: While some invalid param scenarios exist (invalid audit), there are no explicit tests for incorrect types/formats for boolean or multi-valued params (e.g., includedDeleted=notaboolean, malformed pluginProperty entries) and no negative tests for too-many pluginProperty entries beyond an edge count test (TC17 assumes N but doesn't test invalid overflows).",
+              "Response Schema / Contract Validation: Tests assert 'JSON array of Tag objects' but there are no explicit schema/field-level assertions (required Tag fields, types, presence/absence of audit fields per audit level).",
+              "Content Negotiation / Headers: Only Content-Type is checked in TC01; no tests for Accept header negotiation, or presence/correctness of other important headers (e.g., Content-Length, Connection).",
+              "Pagination & Large-Result Safety: Although there are large result tests (TC12/TC18), they don't assert whether results are paginated or streamed \u2014 this could mask missing pagination implementation.",
+              "Rate / Load-induced Errors: No tests to validate graceful degradation under rate-limit or to assert proper 429 responses."
+            ],
+            "recommendations": [
+              "Add pagination tests: include cases that request large result sets and verify paging params (limit/offset or page/size), ordering, and that clients can retrieve all results via pagination. Test behavior when client omits paging vs explicit paging.",
+              "Add rate-limiting tests: simulate many requests in quick succession to validate rate-limiting headers and 429 handling, and verify client-visible Retry-After behavior.",
+              "Add caching and conditional GET tests: verify ETag and Cache-Control headers are present and correct, and test If-None-Match / 304 responses for unchanged resources.",
+              "Expand authorization tests: include forbidden (403) scenarios for authenticated but unauthorized users and role-based access checks.",
+              "Add stricter query-parameter validation tests: invalid booleans for includedDeleted, excessively long or invalid pluginProperty values, and behavior when pluginProperty exceeds allowed counts (overflow -> 4xx).",
+              "Add schema/field-level contract tests: assert Tag object fields (id, name, objectType, audit fields when requested) and types are present/absent per audit level (NONE/MINIMAL/FULL). Use JSON schema or contract tests.",
+              "Add content-negotiation tests: validate behavior with different Accept headers and ensure Content-Type is respected; assert other headers (Content-Length, Date) where relevant.",
+              "Clarify and enforce performance assertions: for large payload and heavy-load tests also assert memory/streaming behavior, and check for truncation or timeouts, plus pagination alternatives if payloads are large.",
+              "Add rate / load-induced failure recovery tests: verify that the API returns appropriate 5xx/429 and that retries with backoff succeed where appropriate.",
+              "Make negative tests explicit for pluginProperty processing: when plugin service returns errors or malformed plugin responses, validate API behavior (propagate error vs degrade gracefully)."
+            ],
+            "usage": {
+              "completion_tokens": 1236,
+              "prompt_tokens": 5673,
+              "total_tokens": 6909,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

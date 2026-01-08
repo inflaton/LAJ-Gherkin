@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-15T22:52:01.798968",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T22:51:45.341961",
+    "benchmark_end_time": "2025-10-15T22:52:01.798962",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 16.457001,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC05, TC06, TC12) verify successful deletion behavior and 204 responses.",
+              "Query Parameters: Extensive coverage for the customField query parameter \u2014 removing all fields, specific subsets, duplicates, large lists, malformed values, and mixed valid/invalid lists (TC01, TC02, TC10, TC12, TC17, TC18).",
+              "Header handling: Required and optional headers are exercised (X-Killbill-CreatedBy required \u2014 TC06; optional X-Killbill-Reason and X-Killbill-Comment \u2014 TC05; missing required header \u2014 TC09; header edge-case/regression formatting \u2014 TC20; long comment \u2014 TC16).",
+              "Input validation and error handling: Invalid invoiceItemId format (TC07), non-existent resource (TC08), malformed customField values (TC10), and partial-invalid lists (TC17) are covered with expected 400/404 responses.",
+              "Authorization: Expired/invalid token scenario is included (TC19) to validate auth failure handling.",
+              "Resilience and error conditions: Dependent-service/unavailable (TC14) and heavy-load (TC13) scenarios are included to exercise error/timeout and performance boundaries.",
+              "Security: Injection attempt in query parameter is covered (TC15) to validate input sanitization and security checks."
+            ],
+            "gaps": [
+              "Soft Delete / Persistence Semantics: No scenario verifies whether custom fields are actually soft-deleted (e.g., flagged as deleted) vs hard-deleted, or whether deletion can be rolled back / recovered.",
+              "Concurrency / Race Conditions: There is no explicit test for race conditions where another actor deletes the same custom field(s) concurrently (e.g., two clients issuing deletes or a delete issued while another process modifies fields) and how the API responds (conflicts, idempotency behavior).",
+              "Idempotency and Repeatability: No explicit tests that re-sending the same DELETE (repeat requests) behaves idempotently (e.g., repeated 204 vs 404 or 200).",
+              "Audit/Side-Effects Verification: No checks for audit logging, change history, or whether X-Killbill-Reason/Comment are persisted in any audit trail.",
+              "Boundary/Size Limits for Query String Lengths: While TC12 covers many IDs, there is no explicit test for maximum allowed query string length or what happens when the URL becomes too long.",
+              "Rate Limiting / Throttling: No tests that validate rate limiting behavior (e.g., many rapid deletes causing 429).",
+              "Response Headers & Content-Type: Tests assert empty body and status codes but do not validate response headers (content-type, caching, retry-after on 503/429).",
+              "Soft validation for partial success semantics: TC17 expects 400 for mixed valid/invalid IDs, but there is no variation that asserts whether the server could support partial-success (e.g., remove valid ones and report invalid ones)."
+            ],
+            "recommendations": [
+              "Add concurrency/race-condition tests: simulate two clients concurrently deleting overlapping sets of custom fields to verify idempotency, conflict handling, and expected responses (e.g., one 204 and subsequent 204 or 404).",
+              "Add idempotency/regression tests: repeat the same DELETE request multiple times to assert idempotent behavior (the API should not fail or produce inconsistent state).",
+              "Add soft-delete and persistence verification: include tests that verify whether custom fields are recoverable or marked as deleted (query DB or audit endpoints) and confirm the expected persistence semantics.",
+              "Add audit/logging verification: check that X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment are recorded in audit logs or resource history where applicable.",
+              "Add query-string / URL-length boundary tests: validate behavior when a very large number of IDs create a very long URL and define limits or alternative approaches (e.g., chunking or POST-based deletion).",
+              "Add rate-limiting tests: verify behavior under bursts of requests (429 handling, retry-after header).",
+              "Add response-header validation: assert response headers for error cases (Retry-After on 503/429) and successful deletes (content-type, any custom headers).",
+              "Clarify partial-success behavior: add a scenario that asserts either transactional all-or-nothing deletion (400 on any invalid ID) or partial-success semantics with detailed reporting, depending on the API contract, and make tests match intended behavior."
+            ],
+            "usage": {
+              "completion_tokens": 1213,
+              "prompt_tokens": 5523,
+              "total_tokens": 6736,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-10-13T09:06:28.233295",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:06:03.197977",
+    "benchmark_end_time": "2025-10-13T09:06:28.233291",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 25.035314,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT - Valid Request: Multiple happy-path scenarios validate the default payment method is updated and side-effects (payAllUnpaidInvoices) occur as intended (TC01, TC02, TC03, TC04, TC05).",
+              "PUT - Non-Existing Resource: 404s for non-existent account/payment method and for payment method not belonging to the account (TC08, TC09, TC10, TC21).",
+              "PUT - Concurrency Issues: Race/concurrent requests covered to ensure only one default is set and system consistency maintained (TC22).",
+              "Input Validation: Invalid UUID formats (including partial UUIDs) and missing required header return 400; unknown payment method for account returns 404 (TC06, TC07, TC11, TC23).",
+              "Authorization: Unauthorized user receives 401 (TC12).",
+              "Operational Resilience: Service unavailable and slow downstream/timeout paths covered (503/504) (TC13, TC18).",
+              "Security/Injection: Malicious header input is rejected with client error and no execution (TC19).",
+              "Optional Parameters: Boolean payAllUnpaidInvoices behavior for both presence and absence; pluginProperty handling including multiple entries and empty list; extra unexpected query parameter tolerated (TC02, TC03, TC05, TC14, TC15, TC24).",
+              "Regression Behaviors: Ensures new default replaces old default; handles account with no payment methods (TC20, TC21).",
+              "Performance/Scalability: Large number of unpaid invoices and concurrent behavior include response time expectations (TC17, TC22)."
+            ],
+            "gaps": [
+              "PUT - Idempotency: No scenario verifies that repeated identical PUT requests leave state unchanged and always return the same class of response.",
+              "Query Parameter Validation: No negative test for invalid boolean values (e.g., payAllUnpaidInvoices=abc) or malformed pluginProperty entries leading to 400.",
+              "Server Error Handling: No explicit 500 Internal Server Error simulation (e.g., database failure) distinct from 503/504.",
+              "Content Negotiation/Headers: No check that a 204 response carries appropriate headers (e.g., no conflicting Content-Type: application/json for 204) and no body.",
+              "Request Body Handling: No scenario ensuring unexpected request body is rejected or ignored per API contract (body is N/A).",
+              "Audit/Headers Validation: No boundary tests for X-Killbill-Reason/Comment length/character set or behavior when they contain invalid encodings.",
+              "Side-effect Outcomes: For payAllUnpaidInvoices=true, no scenario covers partial failures (some invoices fail) and the resulting status/audit/attempt records.",
+              "Rate Limiting/Throttling: No test for 429 or system behavior under burst traffic beyond functional concurrency.",
+              "Observability: No test validates audit log is written for error paths, and that CreatedBy is captured consistently across success/failure.",
+              "Multi-tenant/Permissions: No role/permission differentiation beyond basic 401 (e.g., 403 forbidden for authenticated but unauthorized user)."
+            ],
+            "recommendations": [
+              "Add an idempotency test: call the same PUT twice and verify the second call makes no additional changes and returns 204.",
+              "Add negative query parameter validation: payAllUnpaidInvoices with non-boolean values should return 400; malformed/duplicated pluginProperty formats should be validated.",
+              "Introduce a 500 Internal Server Error simulation (e.g., DB outage) to ensure correct error mapping and retry headers if applicable.",
+              "Verify response headers for 204: ensure no body is returned and Content-Type/Content-Length are appropriate; add a test asserting absence of JSON body with 204.",
+              "Add a scenario sending a non-empty JSON body to confirm it is rejected (400/415) or ignored per API contract, and document expected behavior.",
+              "Extend header validation with boundary tests for X-Killbill-Reason and X-Killbill-Comment (max length, unicode/encoding, disallowed characters).",
+              "Cover partial success of payAllUnpaidInvoices: when some invoices fail, assert resulting status code, error payload (if any), and that attempts/audit entries are accurate.",
+              "Add rate limiting tests: burst of PUTs leading to 429, including Retry-After header validation, if enforced by the platform.",
+              "Add observability checks: verify audit log entries exist for both success and failure paths and include CreatedBy, Reason, and Comment correctly.",
+              "Add authorization depth: authenticated but unauthorized user should yield 403 if applicable to this endpoint/tenant permissions."
+            ],
+            "usage": {
+              "completion_tokens": 1733,
+              "prompt_tokens": 6898,
+              "total_tokens": 8631,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

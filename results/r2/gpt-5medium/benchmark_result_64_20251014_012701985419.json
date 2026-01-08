@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-14T01:27:01.985388",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T01:25:24.825094",
+    "benchmark_end_time": "2025-10-14T01:27:01.985385",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 97.160291,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT - Valid Request: Successful 204 with immediate resume and with optional query/header combinations (TC01, TC02, TC03, TC04, TC18).",
+              "PUT - Non-Existing Resource: 404 when bundle not found (TC05).",
+              "PUT - Concurrency Issues: Concurrent requests handled with first success and subsequent 400/409 (TC21); retry after transient failure (TC15).",
+              "Path/Query/Header Validation: Invalid UUID 400 (TC06); missing required header 400 (TC07); invalid state 400 (active/cancelled) (TC08, TC09); requestedDate past 400 (TC20); pluginProperty invalid type 400 (TC19); extra param ignored (TC11); max lengths (TC12); whitespace/case variations in header values (TC26).",
+              "Authorization: Unauthorized/forbidden responses when credentials invalid (TC10).",
+              "Server/Dependency Failures: 500 on internal failure (TC14); degraded plugin service including timeout 204/504 (TC25).",
+              "Security Hardening: SQL injection attempt in pluginProperty and XSS in comment safely handled (TC16, TC17).",
+              "Performance/Load: Responsiveness under normal/peak load (TC22).",
+              "Audit/Observability: Reason/comment recorded in audit logs (TC04)."
+            ],
+            "gaps": [
+              "requestedDate edge cases: invalid format (non-ISO date), timezone handling, boundary dates (today, far-future) not covered.",
+              "pluginProperty encoding: Multi-valued query parameter encoding (pluginProperty=... repeated) per collectionFormat=multi not explicitly tested; also duplicates, empty values, URL-encoded special characters not covered.",
+              "Idempotency (sequential): Behavior of repeated identical resume calls (same user, same bundle, sequential) not explicitly verified (expected 400/409 or tolerated 204 per contract).",
+              "Future-dated execution: Verification that a scheduled resume actually executes at requestedDate (e.g., via clock advance/event/audit) is not covered.",
+              "Authorization specificity: Distinguish 401 (no/missing auth) vs 403 (invalid/insufficient permissions); missing Authorization header path not covered.",
+              "Error contract: Error response schema/content-type (application/json), error code/message fields consistency not validated across 400/404/500/504.",
+              "Header name handling: HTTP header key case-insensitivity not tested (e.g., x-killbill-createdby).",
+              "Internationalization: Unicode characters in headers (CreatedBy/Reason/Comment) and pluginProperty values not tested.",
+              "Spec nuance: Produce header for 204 and absence of body not validated (e.g., no body on 204)."
+            ],
+            "recommendations": [
+              "Add scenarios for requestedDate invalid formats, timezone differences, and boundary conditions (today, far-future).",
+              "Add tests for pluginProperty as repeated multi query params, including duplicates, empty values, URL-encoded characters, and conflicting keys.",
+              "Include a sequential idempotency test: send resume twice; assert second response and that state remains correct and no duplicate side effects.",
+              "For scheduled resumes, verify downstream effects at requestedDate (advance clock or wait) and confirm state transition/audit/event emission.",
+              "Expand auth tests: missing Authorization header -> 401; invalid token -> 401; valid token without permission -> 403.",
+              "Validate error response structure and headers: Content-Type application/json for errors, standardized fields (code, message), and no body for 204.",
+              "Add a test to confirm header name case-insensitivity is accepted by the API.",
+              "Add i18n tests using UTF-8 inputs in CreatedBy/Reason/Comment and pluginProperty to ensure proper handling/storage.",
+              "Optionally assert response headers (e.g., Date, request-id/correlation-id if standard in the platform) to improve operability checks."
+            ],
+            "usage": {
+              "completion_tokens": 4157,
+              "prompt_tokens": 6265,
+              "total_tokens": 10422,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3328,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

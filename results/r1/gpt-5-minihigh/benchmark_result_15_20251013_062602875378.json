@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-10-13T06:26:02.875354",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T06:25:07.043914",
+    "benchmark_end_time": "2025-10-13T06:26:02.875350",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 55.831436,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid payloads: Multiple scenarios (TC01, TC02, TC03, TC11, TC16) verify successful creation returns 201, a JSON Account object and a Location header.",
+              "Header handling: Required X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment are exercised (TC02, TC03, TC04, TC08).",
+              "Invalid payloads & basic validation: Malformed JSON, missing required fields and empty payloads are covered (TC05, TC06, TC12); header type validation and XSS/injection checks are present (TC08, TC15).",
+              "Extra/unexpected inputs tolerated: Extra unsupported fields and unexpected headers are covered (TC07, TC17).",
+              "Duplicate and edge-case behavior: Duplicate submission is explicitly tested (TC13), and extra-fields/partial-input behavior is validated (TC07, TC16).",
+              "Server & dependency failures: DB unavailability and network timeout are simulated (TC10 -> 503, TC14 -> 504).",
+              "Performance & concurrency: Concurrent creation and throughput are tested (TC18).",
+              "Regression & integration: Regression case for field truncation (TC19) and end-to-end verification that created account is retrievable via GET the Location URL (TC20)."
+            ],
+            "gaps": [
+              "Content-Type / Accept handling: No tests assert request Content-Type must be application/json, behavior for missing/incorrect Content-Type, or response Content-Type header value.",
+              "Field-level schema validation gaps: Missing explicit tests for schema constraints (e.g., email format, currency/timezone validity, numeric ranges, required enumerations, string length limits).",
+              "HTTP 500 / general unhandled-server-error: No test simulates a 500 Internal Server Error and verifies the client-visible error message/format.",
+              "Rate limiting / throttling: No tests for rate limits (429 responses) or throttling behavior; concurrency tests exist but do not exercise throttling policies.",
+              "Duplicate handling policy clarity: TC13 allows either 201 or 409; there is no authoritative test that asserts the product policy (idempotency/unique-constraint) or idempotency-key behavior.",
+              "Response header validation: No strict assertions on Location header format (absolute URL vs relative), no checks for other relevant response headers (Content-Type, caching or audit-related headers).",
+              "Payload limit error path: While maximum-size success is tested (TC11), there is no test for exceeding allowed payload size (e.g., 413) and the resulting error message.",
+              "Authentication/authorization edge cases: TC09 covers 401, but there are no tests for 403/role-based access or token scope limitations.",
+              "Non-JSON content handling: No tests for unsupported media types (requests with text/xml or text/plain) expecting 415 Unsupported Media Type or similar.",
+              "Schema-conformance of response: Tests assert a JSON Account object is returned but do not strictly validate all required response fields, server-generated fields (ids, timestamps), or field values match inputs."
+            ],
+            "recommendations": [
+              "Add Content-Type and Accept tests: verify server requires Content-Type: application/json, verify 415 when non-JSON is sent, and assert response Content-Type is application/json.",
+              "Add detailed field-level validation tests: cover email format, currency/timezone codes, numeric ranges, enumerations, and string length limits per the Account schema; assert specific validation error messages.",
+              "Simulate 500 Internal Server Error and database constraint violations: add tests to verify consistent 500 handling and that unique constraint violations return the documented status (e.g., 409) with clear error payload.",
+              "Clarify and enforce duplicate submission policy: decide expected behavior (create vs reject) and add deterministic tests (including idempotency-key tests if supported) and concurrency tests that assert one success and subsequent 409 failures where appropriate.",
+              "Add rate-limiting/throttling tests: generate sustained or burst traffic to verify 429 responses and graceful degradation behavior.",
+              "Assert response headers strictly: validate Location header format (absolute URL), presence and correctness of Content-Type, and any audit-related headers; verify Location GET returns matching Account and correct Content-Type.",
+              "Add tests for payload-too-large error path: send payloads exceeding allowed size to validate 413 or configured behavior and the returned error details.",
+              "Expand auth tests: include 403/forbidden cases and role/scope-based access tests if the API restricts account creation to certain roles.",
+              "Test non-JSON/unsupported media handling: send various Content-Types to confirm the API rejects them appropriately.",
+              "Strengthen concurrency tests to cover race conditions for duplicate creation: ensure deterministic assertions about which requests succeed and which fail and inspect DB consistency after concurrent runs."
+            ],
+            "usage": {
+              "completion_tokens": 5672,
+              "prompt_tokens": 4821,
+              "total_tokens": 10493,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4672,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

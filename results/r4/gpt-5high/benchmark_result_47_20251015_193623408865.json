@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-15T19:36:23.408834",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:34:43.595508",
+    "benchmark_end_time": "2025-10-15T19:36:23.408827",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 99.813319,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Method - Valid Deletion: Success path returning HTTP 204 with empty body, tenant cache invalidated, and idempotency verified (TC01, TC09, TC13).",
+              "DELETE Method - Non-Existent Resource: 404 when tenant context does not exist (TC04).",
+              "Concurrency: Multiple concurrent DELETEs for the same tenant return 204 with no race conditions (TC10).",
+              "Authentication: Missing and invalid credentials return 401 with error message (TC02, TC03).",
+              "Input validation and security: Malformed requests (extra params) return 400; header injection attempts handled (400/403) (TC07, TC08).",
+              "Server-side failures: 500, 503, and 504 error handling covered with appropriate messages (TC05, TC06, TC14).",
+              "State variations: Empty and partially populated caches handled correctly with 204 and full invalidation (TC09, TC13).",
+              "Integration and regression: Effects propagated to dependent services and prior bug remains fixed (TC11, TC12).",
+              "Request body N/A enforcement: Sending unsupported payload or query params yields 400 (TC07)."
+            ],
+            "gaps": [
+              "Authorization (RBAC): No scenario for authenticated but non-admin user receiving 403 Forbidden.",
+              "Tenant context validation: Missing or malformed tenant context/header not covered (expected 400/422).",
+              "Response headers/content negotiation: Acceptance says Produces: application/json; tests don\u2019t verify Content-Type: application/json for error responses or absence of body/Content-Length for 204.",
+              "Cross-tenant isolation: No scenario proving invalidating tenant A does not impact tenant B caches.",
+              "Rate limiting/abuse handling: No scenario for excessive DELETE requests leading to throttling (e.g., 429) or graceful handling.",
+              "Method enforcement: No tests for unsupported methods on the endpoint returning 405 with Allow header.",
+              "Error body schema: Tests assert error messages but not JSON structure/schema consistency (e.g., code, message, details).",
+              "Retry semantics/headers: For 503/504, no check for presence/semantics of Retry-After header."
+            ],
+            "recommendations": [
+              "Add RBAC test: Authenticated non-admin attempting DELETE receives 403 Forbidden with JSON error body.",
+              "Add tenant context validation tests: Missing tenant header -> 400; malformed/invalid tenant identifier -> 400/422; confirm clear error payload.",
+              "Verify headers: For errors, assert Content-Type: application/json; for 204, assert empty body and (optionally) Content-Length: 0; honor Accept: application/json.",
+              "Add cross-tenant isolation test: Invalidate tenant A and confirm tenant B caches remain intact; also test concurrent invalidations across different tenants.",
+              "Add rate limiting test: Burst/consecutive DELETEs exceed policy and return 429 with appropriate headers (e.g., Retry-After) if applicable.",
+              "Add method enforcement test: GET/POST/PUT to the same path return 405 Method Not Allowed with Allow: DELETE.",
+              "Validate error schema: Assert standard JSON error format (fields like errorCode, message, context) across 4xx/5xx cases.",
+              "Enhance timeout/unavailable tests: Verify presence and correctness of Retry-After on 503/504 and successful retry behavior after the indicated interval.",
+              "Document that soft deletes are not applicable to cache invalidation to avoid ambiguity with DELETE guideline on soft deletes."
+            ],
+            "usage": {
+              "completion_tokens": 6543,
+              "prompt_tokens": 3389,
+              "total_tokens": 9932,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5760,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

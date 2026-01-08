@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-13T20:00:25.616542",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:59:17.934533",
+    "benchmark_end_time": "2025-10-13T20:00:25.616538",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 67.682005,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01-TC05) exercise normal/optional parameters and header combinations and assert 204 responses.",
+              "Parameter validation: Invalid bundleId format (TC06), SQL injection (TC13), XSS in headers (TC14), malformed requestedDate (TC18), requestedDate in the past (TC17), malformed pluginProperty (TC19) are covered.",
+              "Non-Existing Resource: Non-existent bundle scenarios are covered (TC07, TC20) with expected 404 behavior.",
+              "Authorization and auth errors: Unauthorized user (TC11) and missing required header (TC10) are tested.",
+              "Concurrency & race conditions: Concurrent pause attempts are exercised (TC21) to check only one success and the rest fail.",
+              "Large payloads / performance: Very large pluginProperty arrays (TC16) and load/performance under many bundles (TC22) are included.",
+              "Error / service failure handling: Service unavailable (TC12), plugin dependency down (TC25), and integration failure responses (TC25, TC26) are covered.",
+              "State validation: Attempts to pause already paused or invalid-state bundles (TC08, TC09) are included.",
+              "Regression & integration checks: Tests ensure pausing does not affect unrelated bundles (TC23), special character handling (TC24), and downstream consistency (TC26).",
+              "Audit/logging: Optional headers (reason/comment) being recorded is validated (TC04).",
+              "Security / injection defenses: SQL injection and XSS scenarios (TC13, TC14) check for safe handling and lack of DB errors."
+            ],
+            "gaps": [
+              "403 Forbidden: There is no explicit test for authenticated-but-forbidden (authorization vs authentication) scenarios returning 403.",
+              "Response headers and schema: No assertions on response headers (Content-Type, application/json for errors, ETag, Cache-Control) or consistent error response schema/fields.",
+              "Idempotency and repeated requests semantics: While concurrent requests are tested, there is no explicit idempotency/retry test (e.g., repeated identical request retries and client behavior).",
+              "Granular subscription effects: Tests assert \u201call active subscriptions paused\u201d but do not verify that inactive/canceled subscriptions are NOT affected or that subscription-level states and billing dates are updated correctly.",
+              "RequestedDate edge cases: No tests for requestedDate exactly \u201cnow\u201d, timezone handling, boundary dates (e.g., leap day), or ambiguous date formats beyond a simple malformed case.",
+              "Plugin failure semantics & retries: TC25 covers plugin down returning 502, but no tests for retry/backoff behaviour, partial plugin failures, or fallbacks.",
+              "Detailed validation of pluginProperty processing: Tests assert processed/accepted vs invalid format but do not validate exact handling (persistence, downstream propagation, encoding), nor server limits/size boundaries beyond 1000+ heuristic.",
+              "Rate limiting / throttling: No tests that simulate API rate limits or check 429 behavior.",
+              "Database integrity and transactional guarantees: No tests assert atomicity (e.g., if pausing subscriptions fails mid-way, does the bundle remain unpaused?) or rollback semantics on partial failures.",
+              "Error body consistency: While many error cases assert presence of an error, there is no uniform check of error codes/messages/fields to ensure API consistency."
+            ],
+            "recommendations": [
+              "Add a 403 test: simulate an authenticated user lacking permission and assert 403 Forbidden and clear error message.",
+              "Assert response headers and error body schema: For both 204 and error responses verify Content-Type, and for errors assert a standardized error JSON shape (code, message, details).",
+              "Idempotency/retry tests: Add tests that resend identical requests (retries) and ensure safe repeatable behavior and clear client guidance (e.g., idempotency keys if supported).",
+              "Granular subscription verification: Add tests that pause a bundle with mixed subscription states and assert only active subscriptions are paused, canceled subscriptions remain unchanged, and billing/calendar fields are adjusted correctly.",
+              "RequestedDate edge cases: Add tests for requestedDate == now, timezone offsets, boundary dates (e.g., 1970-01-01, leap day), and clarify server behavior for \u201ctoday\u201d vs future dates.",
+              "Plugin failure handling: Add tests for partial plugin failures, retry strategies, and verify whether the API returns 502 vs 500 vs 207 (if partial success) and that system state remains consistent.",
+              "PluginProperty size/limits: Add tests to determine exact server limits (e.g., 10k entries) and assert expected 413 or configured behavior; validate persistence and downstream propagation of pluginProperties (incl. encoding of special characters).",
+              "Rate limiting and throttling: Include tests that generate many requests to trigger rate limits and assert 429 responses and Retry-After headers.",
+              "Transactional integrity: Add tests that simulate mid-operation failures (e.g., DB crash while pausing subscriptions) and assert that system either fully rolls back or documents partial states clearly.",
+              "Error message consistency: Create a suite verifying consistent error codes/messages/fields across all failure scenarios to aid client handling and automation."
+            ],
+            "usage": {
+              "completion_tokens": 2221,
+              "prompt_tokens": 6254,
+              "total_tokens": 8475,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

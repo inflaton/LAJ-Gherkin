@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-13T09:07:21.726213",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:06:53.710899",
+    "benchmark_end_time": "2025-10-13T09:07:21.726208",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 28.015309,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST - Valid Payload: Multiple happy-path scenarios validate 201 response, Location header, and returned Bundle state (TC01, TC02, TC03, TC04, TC05, TC18, TC19, TC21, TC26).",
+              "POST - Invalid Payload: Missing body, missing required header, malformed fields, and business-rule violations return 400 as expected (TC08, TC09, TC10, TC11, TC12, TC15, TC16, TC25).",
+              "POST - Large Payloads: pluginProperty near system limits and 201/413 handling (TC20).",
+              "POST - Validation: Enum values, date format, header length boundaries, SQLi/XSS defenses, UUID format for path param; correct handling of optional query/header params (TC03, TC04, TC08\u2013TC10, TC15\u2013TC16, TC18, TC21).",
+              "POST - Server Error Handling: 500/503 and transient failures with retry recovery (TC14, TC24, TC17).",
+              "Authorization: 401 when token invalid/missing (TC13).",
+              "Not-found cases: 404 for missing bundle/target account and empty/partial DB states (TC06, TC07, TC22, TC23).",
+              "Response semantics: Location header presence and correctness, JSON response body as Bundle (TC01, TC02).",
+              "Performance and concurrency basics: latency under normal/peak load, concurrent requests without corruption (TC27, TC28, TC29, TC30)."
+            ],
+            "gaps": [
+              "POST - Duplicate Submission: No scenario for submitting the same transfer twice (idempotency/second-call outcome, e.g., 409 Conflict or safe no-op).",
+              "POST - Request body schema: No test for invalid target accountId format (e.g., non-UUID), or wrong JSON types (e.g., accountId as number/object).",
+              "POST - Content negotiation/headers: No test for missing/incorrect Content-Type (should be application/json) or unsupported Accept header behavior.",
+              "POST - Concurrency edge: No race test where two transfers target the same bundle simultaneously; one should fail deterministically (e.g., 409/412) to avoid double-transfer.",
+              "POST - Oversized/invalid optional headers: Only max-length covered; no test for exceeding maximum length or invalid characters in X-Killbill-Reason/Comment -> expect 400.",
+              "Query parameter validation breadth: No tests for pluginProperty with non-string values or invalid collection format (e.g., single value vs multi, repeated keys).",
+              "Business rules: No explicit scenario for requestedDate in the past/future or timezone edge cases if restricted by API contract (if applicable).",
+              "Observability/audit: No assertion that audit fields (CreatedBy/Reason/Comment) are persisted/returned in audit logs or response metadata when applicable."
+            ],
+            "recommendations": [
+              "Add a duplicate submission scenario: perform the same POST twice for the same bundle and target; assert second response is 409 Conflict or an idempotent safe response per API contract.",
+              "Add request body schema negative tests: invalid accountId format (non-UUID), wrong JSON type for accountId, extra unexpected types inside pluginProperty.",
+              "Add content negotiation tests: missing Content-Type, incorrect Content-Type, and unsupported Accept header; verify correct 415/406 or documented behavior.",
+              "Introduce a concurrency conflict test: two concurrent POSTs transferring the same bundle; assert only one succeeds and the other fails predictably (e.g., 409/412) without data corruption.",
+              "Extend header validation: test Reason/Comment exceeding max length or containing invalid characters; expect 400.",
+              "Expand pluginProperty validation: non-string entries, malformed multi-parameter encoding, and duplicate keys handling.",
+              "If applicable to requirements, add requestedDate temporal rules: past date, future date, and timezone boundary (UTC vs local) expectations.",
+              "Add an observability check: verify audit trail entries reflect CreatedBy/Reason/Comment for the transfer, or response includes machine-readable error codes consistently with docs."
+            ],
+            "usage": {
+              "completion_tokens": 2021,
+              "prompt_tokens": 7734,
+              "total_tokens": 9755,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

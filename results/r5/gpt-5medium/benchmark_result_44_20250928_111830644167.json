@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-09-28T11:18:30.644119",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:17:15.737282",
+    "benchmark_end_time": "2025-09-28T11:18:30.644115",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 74.906833,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST Valid Request: Successful 200 responses with default parameters and explicit offset/limit (TC01, TC02, TC13).",
+              "Pagination/Batching: Default limit handling, explicit offset/limit, partial input, max-limit edge, and very large dataset coverage (TC01, TC02, TC10, TC12, TC13).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment captured/auditable; header parsing regression (TC03, TC05, TC16).",
+              "Empty Result: No parked accounts returns 200 with informative response (TC04).",
+              "Validation: Invalid numeric ranges and non-integer types for offset/limit yield 400 (TC06, TC07).",
+              "Authorization: Missing required header and invalid/expired token lead to appropriate errors (TC05, TC08).",
+              "Resilience/Server Availability: Service unavailability returns 503 (TC09).",
+              "Security: Malicious header payload is rejected without information leakage (TC14).",
+              "Idempotency/Duplicate Submission: Retries and concurrency do not generate invoices multiple times (TC15, TC18).",
+              "Performance: Response time and resource utilization under load and concurrency (TC12, TC18).",
+              "Backward Compatibility: Older clients without optional headers still succeed (TC17).",
+              "Robustness to Unexpected Input: Extra query parameter behavior considered (TC11).",
+              "Content Negotiation (basic): Response Content-Type application/json asserted (multiple scenarios)."
+            ],
+            "gaps": [
+              "Server Error Handling (500): No scenario for unexpected internal errors (e.g., DB failure) and ensuring safe rollback/no partial invoicing.",
+              "Role-based Authorization: No test for authenticated user lacking admin privileges returning 403.",
+              "Rate Limiting/Throttling: No coverage for 429 Too Many Requests under burst conditions.",
+              "End-to-end Pagination Correctness: No multi-call sequence to cover all parked accounts across pages without overlap/omission and with stable ordering.",
+              "Data Integrity: No explicit assertions that non-parked accounts remain unaffected after the operation.",
+              "Response Schema Validation: Success and error body structures (e.g., counts processed, offset/limit echoed, standard error fields) not verified.",
+              "Boundary Values: Offset at dataset boundary (offset == total parked) and beyond not tested; limit=1 minimal case not tested.",
+              "Content Negotiation/Headers: No tests for Accept header variations or 406; no 415 for invalid Content-Type or unexpected request body.",
+              "Parameter Limits: No negative test for exceeding maximum allowed limit if one exists (TC12 assumes 10000 allowed; story doesn\u2019t define a max).",
+              "Observability/Audit Depth: While auditable is checked, no verification of exact persisted audit fields (CreatedBy/Reason/Comment), timestamps, and correlation IDs."
+            ],
+            "recommendations": [
+              "Add a 500 Internal Server Error simulation (e.g., DB failure) and assert transactional safety (no partial invoicing), correct error schema, and retries not duplicating work.",
+              "Introduce a role-based access test: authenticated non-admin user gets 403 and operation is blocked.",
+              "Add rate limiting tests to validate 429 responses and Retry-After headers under bursty traffic.",
+              "Create an end-to-end pagination suite: sequential calls with offset/limit process the entire parked set exactly once, with assertions on no overlaps/gaps and stable ordering.",
+              "Add data integrity checks asserting only parked accounts are invoiced and non-parked accounts are untouched.",
+              "Validate response schemas: on success (e.g., processedCount, offset, limit, duration) and on error (code, message, type, requestId) against API standards.",
+              "Cover boundary cases: offset equal to total parked returns 200 with zero processed; offset beyond total; minimal limit=1; explicit offset=0 behavior.",
+              "Test content negotiation and media types: requests with conflicting or missing Accept headers (expect 200/406 as designed) and invalid Content-Type or unexpected JSON body (expect 415).",
+              "Clarify and enforce maximum allowed limit; add tests for limit exceeding max to return 400 with clear validation error.",
+              "Deepen audit tests: verify CreatedBy/Reason/Comment persisted correctly, sanitized, length-limited, and correlated to the operation without storing malicious payloads."
+            ],
+            "usage": {
+              "completion_tokens": 3869,
+              "prompt_tokens": 5207,
+              "total_tokens": 9076,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2944,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

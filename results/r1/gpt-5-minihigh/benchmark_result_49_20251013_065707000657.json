@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-13T06:57:07.000631",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T06:55:45.339926",
+    "benchmark_end_time": "2025-10-13T06:57:07.000626",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 81.6607,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion (success path): TC01, TC08, and TC12 verify a successful DELETE returns 204, an empty body, and that the host is marked out of rotation.",
+              "Authentication/authorization basics: TC02 and TC03 cover missing and invalid credentials returning 401.",
+              "Conflict and edge conditions: TC04 and TC14 cover host-already-out and no-hosts scenarios returning 409.",
+              "Server error handling: TC05 and TC06 cover service-unavailable (503) and internal-server-error (500) cases.",
+              "Method validation: TC07 ensures invalid HTTP methods return 405.",
+              "Request validation: TC09 covers non-empty or malicious request body handling (400).",
+              "Performance and concurrency: TC10 and TC11 test response time under normal and concurrent loads and exercise race-condition behavior.",
+              "Security injection vectors: TC13 checks header injection attempts.",
+              "Regression and persistence: TC12 confirms the host status is persisted and can be queried."
+            ],
+            "gaps": [
+              "Content-Type and response media type assertions: tests do not assert Content-Type headers or validate that error responses are application/json even though the story declares Produces: application/json.",
+              "Role-based authorization (403 Forbidden): no test for a valid token that lacks admin privileges to ensure proper permission handling.",
+              "Idempotency and deterministic concurrency outcomes: TC11 allows \"409 or 204 as appropriate\" which is ambiguous; there is no strict idempotency test for repeated DELETEs with a defined expected behavior.",
+              "Soft-delete semantics and auditing: no tests verify whether the operation is a soft-delete (flag) versus permanent removal, nor is there verification that the admin action is audited/logged.",
+              "Error response schema validation: no assertions on the JSON error schema (fields such as code, message, timestamp) for consistent error payloads.",
+              "Token lifecycle and scope: missing tests for expired, revoked, or insufficient-scope tokens.",
+              "Rate limiting / throttling: no tests exercise rate limits or throttling under abusive/high-frequency request scenarios.",
+              "Distributed/cluster behavior and replication consistency: no tests cover cross-node consistency or replication delays that might cause stale host status views.",
+              "Host identification ambiguity: no tests verify how the API determines which host is targeted (request origin vs explicit identifier) or how it behaves if the request context does not match the intended host."
+            ],
+            "recommendations": [
+              "Add explicit assertions for Content-Type headers and validate that error responses conform to an application/json error schema; define the expected error fields and status format and test them.",
+              "Add a test for insufficient privileges (valid token but non-admin) expecting 403 Forbidden to distinguish authn from authz failures.",
+              "Add deterministic idempotency tests: define and assert the expected behavior for repeated DELETEs (e.g., first request 204, subsequent requests 409 or consistent 204) instead of allowing ambiguous outcomes.",
+              "Add tests that verify soft-delete behavior and that the operation is recorded in audit logs or admin activity records (who performed the action, timestamp).",
+              "Extend authentication tests to cover expired tokens, revoked tokens, and token scope/roles to ensure robust auth handling.",
+              "Introduce rate-limiting and throttling tests to validate behavior under bursts and to ensure graceful handling or proper 429 responses if applicable.",
+              "Tighten concurrency tests: make TC11 deterministic (assert which concurrent request should succeed) and add tests that exercise the race window to verify atomicity and rollback behavior if necessary.",
+              "Add schema validation tests for error payloads and ensure all non-204 responses include the correct Content-Type header.",
+              "If the service runs in a cluster, add tests for cross-node consistency and replication lag (verify host status from multiple nodes after operation).",
+              "Clarify host-targeting semantics in the specification and add tests verifying how the endpoint determines the host (origin vs explicit parameter) and behavior when contexts mismatch."
+            ],
+            "usage": {
+              "completion_tokens": 5236,
+              "prompt_tokens": 3433,
+              "total_tokens": 8669,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4416,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

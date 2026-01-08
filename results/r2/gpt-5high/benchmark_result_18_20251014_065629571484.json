@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "18_2025-10-14T06:56:29.571448",
+    "jira_id": "18",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/pagination - List accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:54:20.877606",
+    "benchmark_end_time": "2025-10-14T06:56:29.571443",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 128.693837,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "18_qe_sup-gpt4.1_agent-gpt4.1_1748917007.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request: Extensive happy-path coverage for default behavior and combinations of offset/limit, accountWithBalance, accountWithBalanceAndCBA, and audit levels; responses are JSON arrays.",
+              "Empty Response: Covered via scenarios with no accounts and with offset beyond available data (200 with empty array).",
+              "Pagination: Strong coverage including standard paging, boundaries (offset+limit edge), large datasets, and concurrency without overlap.",
+              "Query Parameters: Broad validation of valid/invalid integers, booleans, enum values (audit), malformed inputs, and ignored extra/unsupported parameters.",
+              "Authorization: Unauthenticated and invalid token paths return 401 with appropriate messages.",
+              "Error Handling (GET): Invalid parameter 400s, method not allowed 405, service down 503, network timeout and recovery scenarios.",
+              "Non-functional and Security: Performance under load, resilience to dependency failures with recovery, SQL injection/XSS defenses, and accessibility of response and error messages."
+            ],
+            "gaps": [
+              "Rate Limiting: No tests for throttling behavior (e.g., 429 Too Many Requests) or X-RateLimit/Retry-After headers.",
+              "Caching Behavior: No checks for ETag/Last-Modified, Cache-Control, or conditional GET (If-None-Match/If-Modified-Since) leading to 304 Not Modified.",
+              "Content Negotiation/Headers: 'Produces: application/json' not asserted via Content-Type header; no tests for Accept header handling (e.g., 406 Not Acceptable).",
+              "Authorization (403): No scenario for authenticated user lacking proper permissions/roles (if applicable).",
+              "Schema Contract: No field-level validation of Account against #/definitions/Account (required fields, types, presence/absence of balance/CBA/audit based on flags).",
+              "Ordering Determinism: Tests assume a stable order (e.g., \u201cstarting from the 51st account\u201d) without asserting/defining the sort key, risking flaky pagination results.",
+              "Explicit audit=NONE: No scenario where audit=NONE is passed to verify the explicit default's behavior.",
+              "Sequential Pagination Integrity: No multi-page traversal test to ensure no gaps/duplicates across consecutive pages.",
+              "Server Error (500): No test for unexpected internal errors to validate error mapping and response shape.",
+              "Ambiguous Expectations: Some edge tests allow \u201c200 or 400 depending on system constraints\u201d; outcomes should be deterministic based on defined limits."
+            ],
+            "recommendations": [
+              "Add rate-limiting tests: burst multiple requests to trigger 429 and assert X-RateLimit-Remaining and Retry-After (or equivalent) headers.",
+              "Add caching tests: assert ETag/Cache-Control on successful GET; follow-up conditional GET with If-None-Match to expect 304 Not Modified.",
+              "Assert headers/negotiation: verify Content-Type is application/json; add Accept header variants and a 406 scenario for unsupported media types.",
+              "Add 403 authorization test for authenticated user without required permissions (if the API enforces role-based access).",
+              "Introduce schema contract tests validating Account objects against #/definitions/Account (required fields, types), including presence/absence of balance/CBA/audit fields as per parameters.",
+              "Define and assert a deterministic sort order (e.g., by id or createdDate) and update pagination tests to verify correct slicing based on that order.",
+              "Add an explicit audit=NONE scenario to confirm no audit info is returned when requested.",
+              "Create a sequential pagination test: fetch page 1..N, aggregate IDs, and assert no duplicates or gaps and correct total coverage.",
+              "Add a 500 Internal Server Error simulation to validate consistent error structure and logging without data leakage.",
+              "Replace ambiguous \u201c200 or 400\u201d expectations by clarifying system constraints for max offset/limit and asserting the exact expected behavior."
+            ],
+            "usage": {
+              "completion_tokens": 5543,
+              "prompt_tokens": 7354,
+              "total_tokens": 12897,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4736,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

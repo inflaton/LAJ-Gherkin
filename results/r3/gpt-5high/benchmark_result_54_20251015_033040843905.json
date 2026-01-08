@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-15T03:30:40.843869",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T03:28:05.847306",
+    "benchmark_end_time": "2025-10-15T03:30:40.843862",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 89,
+    "average_generation_time_seconds": 154.996556,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 89,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 89,
+            "covered": [
+              "DELETE Method - Valid Deletion: Successful removal of all tags, specific tags, empty tagDef, and no tagDef; 204 with empty body verified (TC01, TC02, TC03, TC04, TC11, TC12, TC16, TC17).",
+              "DELETE Method - Non-Existent Resource: 404 for non-existent bundleId and 400 for invalid bundleId format per story (TC06, TC05).",
+              "DELETE Method - Concurrency: 100 concurrent DELETEs with no race conditions; consistent 204 responses (TC15).",
+              "Header validation: Required X-Killbill-CreatedBy enforced (TC08); optional X-Killbill-Reason/Comment handled (TC03); basic header injection rejected (TC14).",
+              "Query parameter handling: tagDef supports multi-valued inputs; invalid UUIDs and partial invalid mixtures produce errors; extra unknown query params tolerated (TC02, TC07, TC11, TC13, TC16).",
+              "Integration/state verification: Follow-up GET confirms resulting tag state after deletion (TC17).",
+              "Resilience/performance: Service unavailable (503) and timeout behavior considered; large-scale deletion (1000/10000 tags) exercised (TC10, TC12, TC18).",
+              "Security/authorization: Unauthenticated or unauthorized user receives 401 (TC09)."
+            ],
+            "gaps": [
+              "DELETE Method - Soft Deletes: No scenario verifying whether tag removals are soft vs hard delete (e.g., audit/history shows deletion).",
+              "Idempotency: No test that repeating the same DELETE yields safe, consistent results (e.g., second call returns 204 and makes no further changes).",
+              "Behavior when tagDef contains valid UUIDs not associated to the bundle: Expected outcome (ignore vs error) is not specified or tested.",
+              "Duplicate tagDef values: Not tested (should be ignored and still succeed).",
+              "Response headers/content negotiation: No assertions for Content-Type/Accept despite specification saying Produces: application/json (especially for 204).",
+              "Authorization granularity: 403 Forbidden for authenticated but unauthorized role is not covered.",
+              "Audit trail: No verification that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs/history.",
+              "Ambiguous expectations reduce test value: TC14 allows 400 or 422; TC18 allows 504 or 204 without clear thresholds.",
+              "Server error handling (500): Not simulated (e.g., database failure during delete).",
+              "Post-deletion verification via the tags endpoint specifically (e.g., GET /1.0/kb/bundles/{bundleId}/tags) is not used; current integration check may not directly validate tag list."
+            ],
+            "recommendations": [
+              "Add a soft-delete/audit verification scenario: delete tags then query audit/history to confirm a deletion event and whether records are soft vs hard deleted.",
+              "Add an idempotency test: perform DELETE twice on the same bundle/tag set; assert both return 204 and state remains unchanged.",
+              "Define and test behavior for tagDef containing non-associated valid UUIDs (and mixed present/absent): clarify spec (ignore and 204 vs error) and add scenarios accordingly.",
+              "Add a scenario with duplicate tagDef entries to ensure duplicates are ignored and request succeeds.",
+              "Assert response headers: verify Content-Type (or explicitly document absence for 204), and honor of Accept header; align tests with Produces: application/json.",
+              "Add 403 Forbidden scenario for an authenticated user lacking permission to delete tags.",
+              "Verify audit logging: after deletion, query audit endpoints to confirm CreatedBy/Reason/Comment are stored.",
+              "Make tests deterministic: choose a single expected status for TC14 and TC18 and define concrete performance/time thresholds.",
+              "Add a 500 Internal Server Error simulation (e.g., DB outage) to validate generic error handling and response schema.",
+              "Use the dedicated tags retrieval endpoint after deletion to validate that the tag list matches expectations (empty or only remaining tags)."
+            ],
+            "usage": {
+              "completion_tokens": 7762,
+              "prompt_tokens": 4976,
+              "total_tokens": 12738,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6912,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "70_2025-09-28T04:52:59.970320",
+    "jira_id": "70",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/catalog - Delete all versions for a per tenant catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:52:45.625953",
+    "benchmark_end_time": "2025-09-28T04:52:59.970316",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 14.344363,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "70_qe_sup-gpt4.1_agent-gpt4.1_1748920522.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01 and TC02 verify successful deletion and 204 response.",
+              "Required header validation: TC01, TC03 and TC14 verify presence/absence of X-Killbill-CreatedBy and appropriate error responses.",
+              "Optional headers: TC02 and TC14 cover handling when optional headers are present/absent.",
+              "Authorization: TC04 tests invalid/expired auth token returning 401.",
+              "Non-existent resource: TC06 covers tenant-not-found (404).",
+              "Empty-state handling: TC05 covers behavior when there are no catalog versions (204/no-op).",
+              "Error handling / server errors: TC09 simulates DB/service failure and expects 500.",
+              "Concurrency / idempotency: TC13 checks concurrent deletes and system consistency.",
+              "Security / input validation: TC07 and TC11 check malformed/unsupported and injection-like header inputs.",
+              "Performance: TC10 addresses large-volume deletion performance requirement.",
+              "Regression / data integrity: TC12 checks orphaned references are removed.",
+              "Request body handling: TC15 verifies DELETE with body is ignored.",
+              "Extra headers tolerance: TC08 verifies unexpected headers do not break deletion."
+            ],
+            "gaps": [
+              "Soft-delete vs hard-delete semantics: No explicit test verifies whether deletion is soft (flagged) or hard (physically removed) and related retrieval semantics (e.g., ability to restore).",
+              "Exact authorization scopes/roles: Tests cover invalid token (401) but there is no scenario for authenticated but unauthorized users (e.g., valid token but missing required privileges => 403).",
+              "Audit logging / header propagation: There are no assertions that the X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs or returned in any server-side audit response.",
+              "Idempotency / repeated calls: While TC13 covers concurrency, there is no explicit idempotency test verifying repeated sequential DELETE calls return appropriate status codes consistently (e.g., 204 first then 404 or 204).",
+              "Precise error-code matrix: Several scenarios allow a range (e.g., 400 or 401, 400 or 422) rather than asserting exact expected error codes; this weakens verification of API contract.",
+              "Response body validation on success/error: Tests assert status codes but do not validate error response payload structure or success response headers (e.g., no-location, no-content handling).",
+              "Rate limiting and throttling: No tests for high-frequency request throttling or rate-limit responses (429).",
+              "Recovery/rollback behavior: No tests to verify partial failure recovery if deletion fails mid-operation (e.g., partial deletions undone).",
+              "Locale/encoding and large header sizes: No tests for very long header values or different encodings which may reveal header-parsing issues."
+            ],
+            "recommendations": [
+              "Add explicit soft-vs-hard-delete tests: verify whether deleted records are permanently removed (DB-level check) or soft-deleted (deleted flag) and add restore/visibility tests accordingly.",
+              "Add an authorization-scope test that uses a valid token lacking delete privileges and assert a 403 response and no deletion occurs.",
+              "Add audit verification tests to assert X-Killbill-CreatedBy/Reason/Comment are persisted in audit logs or system event records.",
+              "Add idempotency tests: call DELETE twice sequentially and assert the first returns 204 and the second returns the defined/expected status (204 or 404) per API contract, and make the contract explicit in asserts.",
+              "Tighten error assertions: replace ambiguous expectations (e.g., '400 or 401') with precise expected status codes and response body schema validation to enforce the API contract.",
+              "Add tests for response headers and body schema on errors (structure, error codes, messages) and on success (e.g., no content handling).",
+              "Add rate-limiting / throttling tests that send bursts of requests and assert 429 or backoff behavior if applicable.",
+              "Add recovery/transactional-consistency tests that simulate partial failure mid-delete and assert rollback or compensating behavior.",
+              "Add tests for very large header values and different encodings to validate header handling and limits."
+            ],
+            "usage": {
+              "completion_tokens": 1128,
+              "prompt_tokens": 4159,
+              "total_tokens": 5287,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

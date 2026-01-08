@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-09-28T04:48:20.682866",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:48:06.406406",
+    "benchmark_end_time": "2025-09-28T04:48:20.682862",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 14.276456,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC05, TC06, TC12, TC18) verify successful removal of all or specific custom fields and expected 204 responses.",
+              "Non-Existent Resource: TC08 verifies behavior when the invoiceItemId does not exist (404).",
+              "Invalid Input Validation: TC07 and TC10 validate invalid invoiceItemId and malformed customField IDs (400).",
+              "Headers: Required and optional header handling covered (TC05, TC06, TC09 for missing required header).",
+              "Query Parameters: Coverage for no query param (delete all), specific IDs (subset), many IDs, duplicates, extra unexpected params (TC01, TC02, TC11, TC12, TC18).",
+              "Error & Edge Conditions: Service unavailability (TC14), heavy load/performance (TC13), injection attempts (TC15), very long header values (TC16), partial invalid lists (TC17) and expired/invalid auth token (TC19) are included.",
+              "Regression & Robustness: TC20 covers header parsing edge cases (whitespace, casing) to guard against regressions."
+            ],
+            "gaps": [
+              "Soft Delete Behavior: No test verifies whether deletion is soft (marked deleted) vs hard removal and any related visibility or recovery semantics.",
+              "Concurrency / Race Conditions: No explicit tests for race conditions where two clients concurrently attempt to remove or modify the same invoice item/custom fields (e.g., lost updates, conflicting deletes). TC13 covers load but not concurrency correctness.",
+              "Authorization Granularity: TC19 covers expired/invalid token (401) but there are no tests for insufficient permissions (403) or role-based access control scenarios.",
+              "Response Content & Headers: Acceptance notes expect application/json; tests only assert empty body for 204 and do not verify response Content-Type, caching headers, or other response headers (e.g., Audit/ETag).",
+              "Partial Success Semantics: While TC17 tests mixed valid/invalid IDs expecting 400, there is no explicit test for behaviors where API might accept valid IDs and reject invalid ones with partial success semantics (if supported).",
+              "Audit/Logging Side-Effects: No tests assert that deletion metadata (createdBy, reason, comment) are recorded/audited in system logs or change history.",
+              "Soft validation of query parameter cardinality/limits: No tests for maximum allowed number of customField IDs per request beyond the large-number case (TC12) (e.g., server-side limits leading to 413 or 400)."
+            ],
+            "recommendations": [
+              "Add concurrency tests that simulate two or more clients deleting or modifying the same invoice item/custom fields concurrently to detect race conditions and ensure idempotency/consistency.",
+              "Add tests to verify soft-delete semantics (if applicable): check whether fields are marked deleted, retained in history, or permanently removed, and whether they can be restored.",
+              "Add RBAC/permission tests that assert 403 for authenticated users without necessary permissions, and validate scopes/roles if the system supports them.",
+              "Verify response headers and content-type for 204 and error responses (Content-Type, possible audit headers, and caching headers) even if bodies are empty.",
+              "Add tests for partial-success behavior explicitly if the API might accept valid IDs while rejecting invalid ones \u2014 or assert that the API returns all-or-nothing behavior consistently.",
+              "Include assertions that X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment values are recorded in audit/change history where the system provides such traces.",
+              "Test server-enforced limits for query parameter size and count (e.g., too many customField IDs leading to 413 or 400) and add a test for very large payloads of query params beyond TC12.",
+              "Add authorization negative scenarios for missing vs invalid token producing 401 vs 403, and test refreshing/renewing tokens flows if applicable."
+            ],
+            "usage": {
+              "completion_tokens": 1026,
+              "prompt_tokens": 5523,
+              "total_tokens": 6549,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-13T06:35:52.495304",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T06:33:25.746497",
+    "benchmark_end_time": "2025-10-13T06:35:52.495300",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 146.748803,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Happy path / valid requests: multiple scenarios assert HTTP 204 and that unpaid invoices are paid (TC01, TC02, TC03, TC04).",
+              "Path parameter validation: well-formed vs malformed vs non-existent accountId handled (TC08, TC09).",
+              "Query parameters exercised: paymentMethodId, externalPayment, paymentAmount, targetDate, pluginProperty covered for valid and invalid values (TC02, TC03, TC04, TC11-TC15, TC24).",
+              "Header validation: required X-Killbill-CreatedBy present/missing/empty and optional Reason/Comment exercised (TC01, TC02, TC10, TC16).",
+              "Partial/full payment behaviors: partial payments, exact totals, greater-than-total (no overpayment) covered (TC02-TC04).",
+              "External payment and plugin interactions: externalPayment flows, pluginProperty propagation and plugin failure handling (TC02, TC05, TC27).",
+              "No-op scenarios: accounts with no unpaid invoices or no invoices return 204 and no payment processed (TC06, TC07).",
+              "Validation of input types and formats: negative/zero amounts, malformed dates, invalid booleans and pluginProperty types are tested (TC12-TC15).",
+              "Dependency and server error handling: payment gateway, DB and plugin system outages tested (TC18, TC19, TC27).",
+              "Security tests: SQL injection and XSS attempts are included (TC20, TC21).",
+              "Idempotency / duplicate handling: retry and duplicate-payment regression tests exist (TC22, TC28).",
+              "Edge-case tests: extremely large payment amounts and large pluginProperty arrays, unexpected query parameters, partially populated DB covered (TC23, TC24, TC25, TC26).",
+              "Performance & scalability: normal and peak load response time and resource utilization scenarios present (TC30-TC32).",
+              "Regression and backward compatibility: older clients omitting optional params and regression scenarios covered (TC29, TC28)."
+            ],
+            "gaps": [
+              "Response semantics for HTTP 204 not asserted: tests do not verify Content-Type headers or that the body is empty despite the spec saying \"Produces: application/json\".",
+              "No test for account that has no default payment method when paymentMethodId is omitted (behavior unspecified/not covered).",
+              "Allocation logic for partial payments is not verified: tests do not assert how paymentAmount is allocated across multiple invoices (ordering, per-invoice balances, partial invoice states).",
+              "Multi-currency scenarios (invoice currency vs payment method currency) are not covered. ",
+              "Concurrency race-condition tests are missing for simultaneous POSTs to the same account (distinct from retry semantics) which can cause duplicate/oversubscription. ",
+              "Idempotency header/key behavior is not tested (if the API supports Idempotency-Key or similar).",
+              "Validation of non-numeric paymentAmount formats and decimal/precision/rounding behavior is not present (only negative/zero covered).",
+              "Rate limiting / throttling tests are missing (429 behavior under burst).",
+              "Fine-grained authorization checks (authenticated but unauthorized => 403) and role-based access are not covered; only missing/invalid tokens (401) are present. ",
+              "Header constraints (max lengths, allowed characters) for X-Killbill-CreatedBy / Reason / Comment are not tested (only presence/emptiness and XSS).",
+              "No direct assertions that successful payments create expected payment objects / ledger entries / audit logs; tests mainly assert invoice-paid state. ",
+              "No explicit verification that externalPayment=true prevents gateway calls (i.e., asserting side-effects via mocks).",
+              "Behavior for unknown/extra query parameters is ambiguous in tests (TC25 accepts either ignore-or-strict) but not enforced against a contract. ",
+              "Response headers (request-id, rate-limit, X-Killbill specific audit headers) are not validated. ",
+              "Acceptance-tests allow multiple possible status codes in several places (e.g., 400 or 401); API contract is ambiguous and tests do not enforce a single expected code. "
+            ],
+            "recommendations": [
+              "Assert 204 response semantics explicitly: verify response has no body and define expected Content-Type behavior (or update API spec to remove the \"Produces: application/json\" contradiction).",
+              "Add a test for the case where an account has no default payment method and no paymentMethodId is provided; define expected behavior (error or alternate flow) and assert it. ",
+              "Add allocation tests that verify how partial paymentAmount is applied across multiple invoices (oldest-first, invoice-level partials, resulting per-invoice balances and ledger entries).",
+              "Add multi-currency tests covering behavior when invoices and payment methods are in different currencies (conversion, rejection, or selection logic).",
+              "Add concurrency tests that fire simultaneous POSTs for the same account to validate race conditions and ensure no duplicate payments or overcharging; include database-level locking/mutex tests where appropriate. ",
+              "If the API supports idempotency keys, add tests for Idempotency-Key behavior (replay suppression); if not supported, document it and add tests to ensure predictable behavior. ",
+              "Add paymentAmount format/precision tests: non-numeric inputs, very small fractional values, and rounding rules. ",
+              "Introduce rate-limiting tests (burst requests) and assert expected 429 behavior and headers if applicable. ",
+              "Add fine-grained auth tests: authenticated-but-forbidden (403) scenarios and role-based permission checks if the system enforces them. ",
+              "Add header boundary tests for X-Killbill-CreatedBy / Reason / Comment (max length, allowed charsets) and document limits. ",
+              "Assert creation of payment records, ledger entries and audit logs in success scenarios (use mocks or read-from-db assertions) so tests confirm side-effects beyond invoice-paid state. ",
+              "When externalPayment=true, mock payment gateway and assert that no gateway charge call is made and plugin receives the properties (verify side-effects). ",
+              "Decide and enforce a contract for unknown query parameters (ignore vs strict); update TC25 to assert the chosen behavior. ",
+              "Validate presence and format of common response headers (request-id, X-Killbill-*) to help traceability. ",
+              "Tighten expected status codes in tests to match the API contract (avoid accepting multiple possible codes); clarify whether missing CreatedBy is 400 vs 401 and whether invalid paymentMethodId yields 400 vs 404. "
+            ],
+            "usage": {
+              "completion_tokens": 7753,
+              "prompt_tokens": 7048,
+              "total_tokens": 14801,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

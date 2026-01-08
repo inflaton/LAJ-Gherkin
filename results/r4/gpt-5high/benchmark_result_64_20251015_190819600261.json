@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-15T19:08:19.600232",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:07:01.142956",
+    "benchmark_end_time": "2025-10-15T19:08:19.600226",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 78.45727,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT: Valid Request \u2013 Success paths verify immediate resume, scheduled resume via requestedDate, handling of pluginProperty, and optional headers (reason/comment).",
+              "PUT: Non-Existing Resource \u2013 404 when bundle does not exist or DB is empty.",
+              "PUT: Concurrency Issues \u2013 Concurrent resume requests covered with first success and subsequent 400/409.",
+              "Path Parameter Validation \u2013 Invalid UUID format results in 400; valid path tested.",
+              "Header Validation \u2013 Required X-Killbill-CreatedBy enforced (400 on missing), optional headers accepted, boundary lengths, and whitespace tolerances.",
+              "Query Parameters \u2013 Valid requestedDate, invalid past date (400), valid pluginProperty usage, invalid pluginProperty type (400), and ignore of unexpected query params.",
+              "Business Semantics \u2013 All subscriptions in the bundle resume on success; scheduled resume behavior validated.",
+              "Error Handling \u2013 400 on invalid state (active/cancelled), 404 when not found, 500 on dependency failure, and 504 on plugin timeout.",
+              "Authorization/Security/Resilience \u2013 Unauthorized access (401/403), retry after transient network failure, SQL injection and XSS attempts handled safely.",
+              "Non-functional \u2013 Performance under load, regression, and backward-compatibility scenarios included."
+            ],
+            "gaps": [
+              "requestedDate format and timezone validation \u2013 No tests for malformed dates (e.g., invalid format, impossible dates) or timezone/UTC edge cases; no verification of default behavior when requestedDate is omitted beyond success.",
+              "pluginProperty collectionFormat=multi \u2013 No scenario using repeated query params (pluginProperty=key1=val1&pluginProperty=key2=val2) and URL-encoding/special characters; only JSON-like array examples used.",
+              "Response headers/schema \u2013 No checks for Content-Type on error responses (application/json) or that 204 returns no body; error body structure/schema not validated.",
+              "Audit logging depth \u2013 Only success path verifies reason/comment recorded; no verification that createdBy, reason, and comment are captured consistently across errors or that audit entries contain correct timestamps and context.",
+              "Idempotency on repeat (non-concurrent) \u2013 No scenario for re-sending the same resume request after success to confirm idempotent or defined outcome and absence of duplicate side effects.",
+              "Bundle composition edge cases \u2013 No scenario with complex bundles (base plus multiple add-ons) ensuring all paused subscriptions resume and non-paused ones remain unchanged, and that related events are generated once.",
+              "Header edge cases \u2013 No tests for empty-string or whitespace-only X-Killbill-CreatedBy (should be rejected), and exceeding maximum lengths for headers to confirm proper 4xx responses.",
+              "Internationalization/encoding \u2013 No validation of UTF-8/unicode in headers/pluginProperty and proper URL encoding for special characters."
+            ],
+            "recommendations": [
+              "Add requestedDate negative-format tests (invalid strings, impossible dates) and timezone tests; verify default immediate effective date when requestedDate omitted (effective date ~ now).",
+              "Add pluginProperty tests using collectionFormat=multi with repeated query params, including URL-encoded values, duplicates, and special characters; confirm server parsing behavior.",
+              "Validate response headers and schemas: assert 204 has no body and appropriate headers; assert error responses return application/json with a defined error schema (code, message, etc.).",
+              "Extend audit log tests to verify createdBy/reason/comment persistence on both success and error flows, with correct timestamps and correlation to the bundleId.",
+              "Add idempotency test: send the same resume request twice sequentially; confirm stable outcome (e.g., first 204 then 400/409 or repeated 204 if defined) and no duplicate side effects.",
+              "Add complex bundle scenario (base + multiple add-ons) to ensure all paused subscriptions resume, non-paused stay unchanged, and events/audit entries are emitted exactly once.",
+              "Add negative header boundary tests: empty or whitespace-only CreatedBy, and over-maximum lengths for headers and query values to confirm validation errors.",
+              "Add internationalization tests with unicode in headers and pluginProperty, verifying correct handling and storage."
+            ],
+            "usage": {
+              "completion_tokens": 6151,
+              "prompt_tokens": 6265,
+              "total_tokens": 12416,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5248,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "93_2025-10-15T00:58:33.330048",
+    "jira_id": "93",
+    "jira_title": "Implement/Test API: GET /1.0/kb/invoiceItems/{invoiceItemId}/auditLogsWithHistory - Retrieve invoice item audit logs with history by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T00:55:50.714210",
+    "benchmark_end_time": "2025-10-15T00:58:33.330043",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 162.615833,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "93_qe_sup-gpt4.1_agent-gpt4.1_1748922102.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: TC01 verifies 200 OK and a JSON array of AuditLog objects; TC16 asserts Content-Type application/json.",
+              "Empty Response: TC02 covers case where the invoice item exists but has no audit logs (returns 200 with empty array).",
+              "Not Found: TC03 and TC18 validate 404 when the invoice item does not exist.",
+              "Path Parameter Validation: TC04 and TC17 cover malformed/truncated UUIDs returning 400 with appropriate messaging.",
+              "Authorization: TC05 and TC06 validate 401 for missing and invalid/expired tokens.",
+              "Security Hardening: TC10 (SQL injection) and TC11 (XSS) ensure input is safely handled and no sensitive info is exposed.",
+              "Resilience and Server Failures: TC08 covers 503 when the database is unavailable.",
+              "Performance and Scale: TC09 (very large histories), TC14 (concurrency), and TC15 (normal vs peak load) validate responsiveness and consistency under load.",
+              "Regression/Compatibility: TC12 validates previously missing fields; TC13 checks backward compatibility for older clients."
+            ],
+            "gaps": [
+              "Pagination: No scenarios verify pagination behavior for large datasets (page/limit parameters or explicit absence of pagination).",
+              "Caching Behavior: No tests for ETag/Last-Modified/Cache-Control headers or 304 Not Modified via If-None-Match/If-Modified-Since.",
+              "Rate Limiting: No coverage for throttling (e.g., burst requests returning 429 and Retry-After headers).",
+              "Authorization (Forbidden): No 403 scenario for authenticated users lacking permission/tenant access.",
+              "Query Parameters: Only unsupported extras are exercised (TC07); no explicit assertion of the official parameter set or behavior (reject vs ignore) per spec.",
+              "Response Schema Contract: No strict JSON Schema validation against #/definitions/AuditLog (including the \"with history\" structure, types, enums, timestamp formats).",
+              "Error Body Contract: Error responses (400/401/404/503) are not validated against a standard error schema (code, message, details, correlation id).",
+              "Content Negotiation: No Accept header tests (e.g., Accept: application/xml should yield 406 or default to JSON as per spec).",
+              "Ordering/Determinism: No scenario defines or validates the sort order of audit logs (e.g., chronological), which affects client expectations and caching."
+            ],
+            "recommendations": [
+              "Add pagination tests: when page/limit are provided, verify correct slicing and Link headers; if unsupported, assert their absence and that all results are returned with a documented stable order.",
+              "Introduce caching tests: assert ETag/Last-Modified/Cache-Control on 200; follow-up GET with If-None-Match/If-Modified-Since should return 304 without body.",
+              "Add rate limiting scenarios: simulate bursts to trigger 429 and verify Retry-After and proper behavior when limits reset.",
+              "Add a 403 Forbidden test using an authenticated principal lacking authorization (wrong role/tenant).",
+              "Clarify and enforce query parameter behavior: document the accepted set; add tests that unknown params are rejected (400) or explicitly ignored per spec, and verify any legitimate params if they exist.",
+              "Validate response against the AuditLog JSON Schema, including the \"history\" payload, data types, formats (UUID, RFC3339 timestamps), and disallowing unexpected fields.",
+              "Validate a standard error schema for 400/401/404/503 (fields like errorType/code/message/requestId) across all negative scenarios.",
+              "Add content negotiation tests for Accept header variants (application/json, */*, unsupported types leading to 406) to confirm Produces contract.",
+              "Specify and test the ordering of audit logs (e.g., most-recent-first) and assert determinism across repeated calls."
+            ],
+            "usage": {
+              "completion_tokens": 6763,
+              "prompt_tokens": 4403,
+              "total_tokens": 11166,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5952,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

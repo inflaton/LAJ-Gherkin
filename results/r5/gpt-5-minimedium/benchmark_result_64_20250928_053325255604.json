@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-09-28T05:33:25.255578",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:33:01.454098",
+    "benchmark_end_time": "2025-09-28T05:33:25.255574",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 23.801476,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Request: Multiple successful scenarios (TC01, TC02, TC03, TC04, TC18, TC24) validate core happy-paths including required headers, requestedDate scheduling, pluginProperty processing and optional headers.",
+              "Path and input validation: Invalid bundleId format (TC06), non-existent bundle (TC05), invalid pluginProperty format (TC19), requestedDate in the past (TC20) and very large/edge inputs (TC12, TC13) are tested.",
+              "Authorization: Unauthorized access is covered (TC10) to assert proper 401/403 behavior.",
+              "State validation / business rules: Attempts to resume bundles in non-paused states (active - TC08, cancelled - TC09) are covered and map to 400 responses.",
+              "Error and failure modes: Dependency/unavailability and internal errors covered (TC14, TC25) and network/transient failure handling with retry behaviour (TC15) are included.",
+              "Concurrency and idempotency: Race conditions / concurrent resumes are tested (TC21).",
+              "Security: Injection and XSS attempts are explicitly tested (TC16, TC17).",
+              "Robustness/edge cases: Extra parameters (TC11), whitespace/case in headers (TC26), regression (TC23) and backward compatibility with legacy headers (TC24) are included.",
+              "Performance/scale: Load/performance under normal/peak load included (TC22)."
+            ],
+            "gaps": [
+              "Content-Type / Response Body Expectations: Acceptance notes \"Produces: application/json\" and 204 success \u2014 tests do not assert response Content-Type headers, nor assert that 204 has no body vs a JSON body for error responses consistently.",
+              "RequestedDate format validation and timezone/precision handling: Tests cover valid future date (TC02) and past date (TC20) but do not cover malformed date formats, timezone offsets, \"today\" boundary cases, or requestedDate == now behavior.",
+              "PluginProperty parsing and schema: While pluginProperty presence, count limits and format-as-array are covered (TC03, TC13, TC19), there is no exhaustive validation of key=value parsing rules, empty keys/values, duplicate keys, or character-encoding edge cases.",
+              "Audit log and persistence verification depth: TC04 mentions audit log recording but tests lack detail on verifying exact audit entry structure, timestamps, and which fields (reason/comment/createdBy) were persisted.",
+              "Idempotency/Repeated requests semantics: TC21 covers concurrency but there is limited explicit coverage for repeated identical requests from the same client across time (idempotency expectations and safe retries beyond transient failures).",
+              "Malformed header values and empty headers: Missing header is covered (TC07) and whitespace/case (TC26) exists, but empty string headers, overly-long values that exceed limits (negative tests), and invalid header encodings are not explicitly tested.",
+              "Response content for error cases: Tests specify status codes for errors but do not uniformly assert error payload schema (error code, message, fields), making it unclear whether error responses conform to API error contract.",
+              "Rate limiting / throttling: No tests for rate limiting, throttling or API abuse scenarios despite performance/load tests.",
+              "Caching / Headers for PUT: While not typical for PUT, acceptance mentions produces application/json; tests do not validate caching-related headers or other cross-cutting response headers (e.g., Retry-After on 504/429)."
+            ],
+            "recommendations": [
+              "Add assertions for response headers and bodies: verify Content-Type on success and error responses, and assert 204 has no body (or conforms to documented behaviour) and error responses follow the API error schema (error code, message, fields).",
+              "Expand requestedDate tests: include malformed dates, timezone offsets, requestedDate exactly now, and boundary conditions (start-of-day vs end-of-day) to ensure consistent scheduling behavior.",
+              "Harden pluginProperty validation tests: add cases for empty key/value, duplicate keys, invalid characters/encoding, very long individual property strings, and ensure parsing logic is robust and safe.",
+              "Deepen audit log checks: create tests that query/verify audit records after resume to assert createdBy, reason, comment, timestamp and any correlation IDs are recorded correctly.",
+              "Idempotency and repeated-call semantics: add tests for repeated identical PUTs from same client at different intervals to assert idempotency or documented behavior, and verify proper status codes and no duplicate side-effects (e.g., duplicate resume operations).",
+              "Add malformed header negative tests: include empty X-Killbill-CreatedBy, non-UTF-8 encoded header values, and headers exceeding allowed length to verify validation and error responses.",
+              "Define and test error payload schema: add assertions across TC05/TC06/TC07/TC08/TC09/TC14/etc. that error responses include structured JSON error objects per API contract.",
+              "Add rate-limiting/throttling tests: simulate many requests quickly to validate 429 handling or other throttling policies.",
+              "Add integration tests for plugin edge-behavior: verify timeout handling, partial plugin failures, and consistent rollback/compensation behavior when plugin processing fails mid-operation."
+            ],
+            "usage": {
+              "completion_tokens": 2104,
+              "prompt_tokens": 6265,
+              "total_tokens": 8369,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

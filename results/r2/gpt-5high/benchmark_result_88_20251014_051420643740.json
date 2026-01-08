@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-14T05:14:20.643704",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T05:11:16.216787",
+    "benchmark_end_time": "2025-10-14T05:14:20.643699",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 184.426912,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Valid Deletion: successful removal of all tags and specific tags; idempotent behavior when no tags; 204 with empty body (TC01, TC02, TC04, TC05, TC06, TC07, TC18).",
+              "Required/optional headers: X-Killbill-CreatedBy required; Reason/Comment optional and accepted (TC03, TC10, TC18).",
+              "Path param validation and errors: invalid invoiceItemId format -> 400; non-existent invoice item -> 404 (TC08, TC09).",
+              "Input validation for query params: malformed UUIDs, partially specified arrays, empty tagDef handled (TC06, TC13, TC16).",
+              "Authentication error handling: invalid/expired token -> 401 (TC11).",
+              "Resiliency: service unavailable -> 503; dependent service unavailable handled (TC12, TC19).",
+              "Concurrency: high concurrency processed without corruption (TC17).",
+              "Security hardening: header injection/XSS rejected (TC15)."
+            ],
+            "gaps": [
+              "DELETE guideline - Soft Deletes: no scenario to confirm whether removals are soft vs hard (may be N/A for tag associations).",
+              "Query collectionFormat=multi: no explicit test that multiple tagDef values are sent/parsed as repeated parameters; no negative test for CSV format.",
+              "Error response contract: no checks that errors produce application/json and follow the expected error schema.",
+              "Duplicate tagDef values: behavior with repeated UUIDs not covered (deduping/idempotency).",
+              "Syntactically valid but non-existent tag definition IDs: behavior not defined/tested (e.g., unknown tagDef UUIDs).",
+              "Authorization/permissions: 403 Forbidden or missing token not covered (only 401 invalid token).",
+              "Concurrency on the same resource: no race test with overlapping deletions on the same invoice item; no explicit idempotent repeat-call scenario.",
+              "Server error handling: no 500 Internal Server Error simulation.",
+              "Boundary limits: TC14 is vague; lacks concrete upper bound and clear expected outcome at and beyond the limit.",
+              "Headers validation boundaries: no tests for max length/allowed characters for X-Killbill-CreatedBy/Reason/Comment."
+            ],
+            "recommendations": [
+              "Add tests for collectionFormat=multi: pass tagDef as repeated params (?tagDef=a&tagDef=b) and a negative case with CSV (?tagDef=a,b) to verify 400 or ignore per spec.",
+              "Assert error response content type and schema (Produces: application/json), including fields like code, message, and requestId.",
+              "Add a scenario with valid-but-unknown tagDef UUIDs; define and verify expected behavior (no-op 204 vs 400/404).",
+              "Add idempotency tests: repeat the same DELETE twice (with and without tagDef) and ensure consistent 204 and stable end state.",
+              "Strengthen concurrency: simulate overlapping deletions against the same invoice item and verify final tags set and absence of 409/conflicts.",
+              "Decide on soft-delete semantics for tag associations; if not applicable, document N/A; otherwise, verify soft-delete flags/audit trail.",
+              "Introduce a 500 error simulation (e.g., database failure) and verify standardized error handling.",
+              "Cover authorization 403 and missing auth token, if RBAC/policy exists.",
+              "Make TC14 concrete: define max allowed tagDef count/size and add boundary tests (N, N+1) with expected 204 vs 413.",
+              "Add tests for duplicate tagDef entries to verify deduping and lack of side effects.",
+              "Validate audit logging on success when the service is available (record created with CreatedBy/Reason/Comment)."
+            ],
+            "usage": {
+              "completion_tokens": 7130,
+              "prompt_tokens": 5394,
+              "total_tokens": 12524,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6336,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-09-28T13:31:31.270244",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T13:28:12.786458",
+    "benchmark_end_time": "2025-09-28T13:31:31.270240",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 76,
+    "average_generation_time_seconds": 198.483782,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 76,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 76,
+            "covered": [
+              "Valid Payload: Successful creation (201) verified with minimal and full payloads; response body is an Account in JSON and Location header is present.",
+              "Header Requirements: X-Killbill-CreatedBy is required and enforced; optional X-Killbill-Reason and X-Killbill-Comment accepted; invalid header types rejected with 400.",
+              "Invalid Payload: Malformed JSON, missing required fields, and empty body return 400.",
+              "Large Payloads: Maximum field sizes are accepted with successful creation (201).",
+              "Server Error Handling: Dependency outage (503) and client-observed timeout (504) paths are exercised.",
+              "Authorization: Unauthorized requests are rejected with 401.",
+              "Integration: Location header is usable; GET on the Location returns 200 and the created Account.",
+              "Robustness: Extra/unknown body fields are ignored; unexpected headers tolerated; basic injection payloads are not executed or reflected."
+            ],
+            "gaps": [
+              "Duplicate Submission: TC13 is non-deterministic (201 or 409). There is no explicit, deterministic test of duplicate handling or idempotency behavior.",
+              "Schema Validation Depth: No tests for specific Account field validations (e.g., invalid email format, currency code, country/timezone enums, phone format, numeric ranges like billCycleDay) or wrong data types within Account fields.",
+              "Content Negotiation/Headers: No explicit assertion of Content-Type: application/json in responses or Accept negotiation. No negative test for unsupported media type (415) when sending non-JSON or missing Content-Type.",
+              "Server Error Mapping: No coverage for a generic 500 Internal Server Error path; only 503/504 are tested. Error response schema/structure is not asserted.",
+              "Permissions: 403 Forbidden (authenticated but not authorized) scenario is not covered.",
+              "Null vs Missing vs Empty: No tests for null values in optional fields, empty strings, or whitespace-only inputs and their treatment.",
+              "Audit Header Constraints: No tests for invalid types/oversized values for X-Killbill-Reason and X-Killbill-Comment, or behavior when they are empty/too long.",
+              "Response Headers Completeness: Produces requirement is not asserted via headers (e.g., Content-Type); Location format (absolute vs relative) consistency not asserted.",
+              "Rate Limiting/Throttling: No scenarios for burst traffic producing 429 with Retry-After (if applicable)."
+            ],
+            "recommendations": [
+              "Make duplicate handling deterministic: add explicit scenarios for identical payload re-submission (expect 409 or 201 per policy), and, if supported, idempotent retries using an Idempotency-Key.",
+              "Add schema-level validation scenarios: invalid email, out-of-range billCycleDay, invalid/unknown currency, bad country/timezone enums, wrong data types for numeric/boolean fields, and boundary value tests for min/max lengths.",
+              "Assert content negotiation: check response Content-Type: application/json; send requests with missing/wrong Content-Type (e.g., text/plain) to expect 415; verify Accept negotiation behavior.",
+              "Expand server-error coverage: simulate unexpected internal exception and assert 500 with a consistent error payload shape; keep 503 for dependency outages and assert error schema.",
+              "Add authorization depth: cover 403 Forbidden for authenticated users lacking create permission.",
+              "Cover null/missing/empty: verify behavior for null optional fields, omitted optional fields, and empty/whitespace strings; ensure consistent validation messages.",
+              "Validate audit headers: test invalid types, excessive lengths, and empty values for X-Killbill-Reason and X-Killbill-Comment; confirm expected 400 or truncation policy.",
+              "Strengthen header assertions: explicitly assert Content-Type on success responses and validate Location format and stability (e.g., absolute URL and resolves to the created resource).",
+              "Consider rate limiting tests: generate bursts to verify 429 Too Many Requests and presence of Retry-After, if the API enforces throttling.",
+              "Remove ambiguity in TC13 and TC15: split into separate, policy-specific scenarios with single expected outcomes (e.g., one test for 409 on duplicate, another for sanitization vs rejection of malicious input)."
+            ],
+            "usage": {
+              "completion_tokens": 8558,
+              "prompt_tokens": 4821,
+              "total_tokens": 13379,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7680,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

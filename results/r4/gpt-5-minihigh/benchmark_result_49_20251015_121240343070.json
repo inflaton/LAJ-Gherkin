@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-15T12:12:40.343041",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:11:11.812746",
+    "benchmark_end_time": "2025-10-15T12:12:40.343037",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 83,
+    "average_generation_time_seconds": 88.530291,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 83,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 83,
+            "covered": [
+              "Valid deletion and state change: TC01, TC08 and TC12 verify successful DELETE returns 204 and that the host is marked out of rotation (TC12 also queries host status).",
+              "Authentication handling: TC02 and TC03 cover missing and invalid authentication returning 401; the Background and TC01 exercise the valid-admin happy path.",
+              "Already-out / no-host scenarios: TC04 and TC14 cover cases where the host is already out of rotation or there are no hosts, asserting a 409-style error.",
+              "System and service errors: TC05 and TC06 cover service unavailability (503) and internal server errors (500).",
+              "Invalid HTTP method handling: TC07 validates that unsupported method usage returns 405.",
+              "Request validation: TC09 checks that a non-empty or malicious request body is rejected with 400; TC08 verifies extra query parameters are tolerated and do not break the operation.",
+              "Concurrency and idempotency behavior: TC11 addresses concurrent DELETE requests and TC04/TC11 together exercise duplicate deletion semantics and race conditions.",
+              "Performance: TC10 and TC11 include response time expectations under normal and concurrent load.",
+              "Security header/body injection: TC09 and TC13 include tests for malicious payloads and malicious header values."
+            ],
+            "gaps": [
+              "Content-Type and produces contract: Acceptance criteria states Produces: application/json but tests do not assert Content-Type headers for success or error responses. It is unclear whether 204 responses should include Content-Type or not.",
+              "Role-based authorization (403): No scenario covers an authenticated user without admin privileges receiving 403 Forbidden.",
+              "Soft-delete semantics and persistence: No tests verify whether the host is soft-deleted vs permanently removed, or whether a deleted flag is set and persisted.",
+              "Error response schema and content validation: Tests assert presence of an error message but do not validate JSON error schema, keys, or content-type for error responses.",
+              "Rate limiting / throttling: No tests exercise server rate limiting behavior (eg. 429 responses) or throttling under sustained high request rates.",
+              "Other invalid methods: Only GET is tested for method-not-allowed. POST, PUT, PATCH and others are not covered.",
+              "Token lifecycle cases: Expired, revoked or otherwise expired-token scenarios are not tested.",
+              "Large payloads / size limits: No tests for oversized request bodies, header sizes, or related 413/400 behaviors.",
+              "Persistence across restarts: Tests do not verify that host remains out of rotation across service restart or data store failures."
+            ],
+            "recommendations": [
+              "Assert content-type and response format: Add scenarios that explicitly check the Content-Type header on both 204 and error responses and validate that error responses conform to the agreed JSON schema (fields, types).",
+              "Add role-based authorization tests: Add a scenario for an authenticated non-admin user that attempts DELETE and receives 403 Forbidden to validate RBAC.",
+              "Soft delete and persistence tests: If soft-delete is a possibility, add scenarios that verify the presence of a deleted flag, audit entry, or confirm that the host can be restored; add a test to confirm state persists across a service restart.",
+              "Rate limiting and throttling: Add load tests / negative tests that exceed expected request thresholds and assert appropriate 429 or throttling behavior and graceful degradation.",
+              "Broaden method-not-allowed coverage: Add tests for POST, PUT and PATCH to confirm they return 405 where appropriate.",
+              "Token lifecycle scenarios: Add tests for expired tokens, revoked tokens and tokens lacking required scopes/claims to ensure correct 401/403 handling.",
+              "Error response schema validation: Define and test a standard error JSON schema (code, message, details) and assert responses conform to it in all error scenarios.",
+              "Large payload and header size tests: Add tests for very large request bodies and headers to ensure the service returns appropriate errors (413/400) and is resilient to DoS vectors.",
+              "Clarify and assert idempotency semantics: Make the expected behavior for repeated DELETE calls explicit in acceptance criteria (should repeated deletes be 204 or 409) and add deterministic tests that assert the exact expected status on repeated requests rather than allowing ambiguity.",
+              "Improve concurrency assertions: Make TC11 assertions deterministic where possible (for example assert first request wins with 204 and subsequent ones return a specific status) and add more fine-grained timing/locking tests if race conditions are a concern."
+            ],
+            "usage": {
+              "completion_tokens": 6876,
+              "prompt_tokens": 3433,
+              "total_tokens": 10309,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5952,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

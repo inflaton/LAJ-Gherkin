@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-13T23:59:15.091866",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:58:40.071382",
+    "benchmark_end_time": "2025-10-13T23:59:15.091860",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 35.020478,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Valid Deletion: Happy path returns 204 with empty body and cache invalidated (TC01, TC09, TC13).",
+              "Idempotency: Repeated deletion or empty cache still yields 204 with no adverse effects (TC09).",
+              "Non-Existent Resource: Tenant context not found returns 404 (TC04).",
+              "Authorization: Unauthenticated and invalid credentials return 401 (TC02, TC03).",
+              "Error Handling: 400 for malformed requests (TC07), 500 for internal error (TC05), 503 for service unavailable (TC06), 504 for timeout (TC14).",
+              "Security/Hardening: Injection attempt in headers leads to safe 400/403 and descriptive error (TC08).",
+              "Concurrency: Multiple concurrent DELETEs for same tenant return 204 with no race conditions (TC10).",
+              "Behavioral Effects: Subsequent requests and dependent services reflect invalidation (TC01, TC12).",
+              "Regression Guardrail: Ensures previously fixed bug doesn\u2019t recur (TC11).",
+              "Empty Response Semantics: Verifies response body is empty on 204 (TC01, TC09)."
+            ],
+            "gaps": [
+              "Authorization (Forbidden): No scenario for authenticated but not authorized user (e.g., non-admin) expecting 403.",
+              "Rate Limiting/Throttling: No scenario asserting 429 or graceful handling when exceeding request limits.",
+              "Tenant Context Missing/Invalid Format: No test for missing tenant headers/context format errors (e.g., 400 or 412 when tenant header not provided).",
+              "Content Negotiation/Headers: No verification of response headers (Content-Type/Produces application/json claim on 204), nor handling of Accept headers.",
+              "Unsupported Media Type: No scenario for requests with an inappropriate Content-Type or body on DELETE returning 415.",
+              "Multi-tenant Isolation: No test proving invalidation impacts only the current tenant and not other tenants.",
+              "DELETE Method Semantics Beyond Same-tenant Concurrency: No scenario for concurrent deletes across different tenants to ensure isolation under load.",
+              "Observability: No checks for standard error structure (error codes, correlation IDs) or retry-after header on 503/429 (if supported).",
+              "Soft Deletes: Guideline mentions soft deletes; while likely N/A for caches, there is no explicit assertion that data is immediately purged vs. flagged."
+            ],
+            "recommendations": [
+              "Add a 403 Forbidden scenario for authenticated but unauthorized roles attempting DELETE.",
+              "Introduce rate-limiting tests to verify 429 responses and proper headers (e.g., Retry-After) when limits are exceeded.",
+              "Add tests for missing or malformed tenant context headers/tokens and expected status (400/412), plus validation error payload.",
+              "Verify response headers across cases: absence of Content-Type on 204 or expected header values, and Accept negotiation behavior.",
+              "Add a 415 Unsupported Media Type scenario for DELETE requests carrying a body with Content-Type set.",
+              "Create multi-tenant isolation scenarios: ensure deleting cache for Tenant A does not affect Tenant B, including under concurrent load.",
+              "Extend concurrency coverage to include parallel deletes for multiple tenants and interleaved read operations to ensure no cross-tenant bleed-through.",
+              "If applicable, standardize error response schema validation (fields like code, message, requestId) and headers for troubleshooting.",
+              "Clarify and, if applicable, assert that cache invalidation is a hard delete (not soft) to align with DELETE guidelines."
+            ],
+            "usage": {
+              "completion_tokens": 1703,
+              "prompt_tokens": 3389,
+              "total_tokens": 5092,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

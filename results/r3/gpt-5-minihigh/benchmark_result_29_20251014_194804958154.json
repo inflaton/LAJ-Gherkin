@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-10-14T19:48:04.958087",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:46:36.100676",
+    "benchmark_end_time": "2025-10-14T19:48:04.958082",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 88.857406,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT - Valid requests: Multiple successful scenarios cover the main happy paths and confirm 204 responses (TC01, TC02, TC03, TC04, TC05, TC15, TC24).",
+              "Query parameters: payAllUnpaidInvoices true/false/omitted behaviour is tested (TC01, TC02, TC05, TC17) including a no-op when no unpaid invoices (TC05); pluginProperty array handling is covered (TC03, TC15, TC24); unexpected query params handling is covered (TC14).",
+              "Path parameter validation and non-existent resources: invalid UUID formats and partial UUIDs are tested (TC06, TC07, TC23) and non-existent resources / payment-method-not-belonging-to-account are covered (TC08, TC09, TC10, TC21) which exercise 400/404 error cases in the story.",
+              "Required & optional headers: required X-Killbill-CreatedBy presence/missing is tested (TC11); optional X-Killbill-Reason and X-Killbill-Comment are tested and audit verification is included (TC04).",
+              "Authentication/Authorization: unauthenticated/invalid token behaviour is tested (TC12 -> 401).",
+              "Availability & downstream failure handling: service unavailable and downstream timeout behaviours are covered (TC13, TC18 -> 503/504).",
+              "Concurrency & performance: large-volume invoice processing and concurrent update scenarios are included (TC17, TC22), exercising performance and race-condition concerns.",
+              "Security: header injection attempt is tested (TC19) to validate input sanitization.",
+              "Regression coverage: previously fixed bugs are explicitly exercised (TC20, TC21).",
+              "Accessibility/documentation: API documentation and error message accessibility is included (TC25)."
+            ],
+            "gaps": [
+              "Produces header/content-type assertion: Acceptance notes \"Produces: application/json\" but no scenarios explicitly assert response Content-Type or behavior for 204 responses (empty body + Content-Type).",
+              "Idempotency: No explicit test for setting the same payment method as default twice (expected idempotent behavior / no side effects).",
+              "payAllUnpaidInvoices input validation: No negative tests for invalid payAllUnpaidInvoices values (e.g., \"yes\", \"1\", non-boolean), or malformed query values returning 400/422.",
+              "pluginProperty negative validation: Missing tests for invalid pluginProperty types, overly long values, duplicate entries, or exceeding maximum length (only max-allowed and empty are partially covered).",
+              "Partial-failure reporting when paying invoices: No tests for partial success/failure of invoice payment attempts when payAllUnpaidInvoices=true (how partial failures are reported / logged / retried).",
+              "403 Forbidden / authorization scopes: Tests cover 401 (unauthenticated) but not 403 (authenticated but forbidden / insufficient permissions).",
+              "Error response schema: Tests check for an error message but do not assert a structured error schema (e.g., error code, type, message fields) or localization/consistency of error payloads.",
+              "Concurrent identical requests & atomicity: TC22 covers concurrent requests for different payment methods, but not concurrent identical setDefault requests (race on the same payment method) or concurrent setDefault + payAllUnpaidInvoices race conditions.",
+              "Rate limiting / throttling: No tests for rate-limiting behavior or how the API behaves under a high request rate (standard guideline).",
+              "Header limits/sanitization beyond injection: No tests for header length limits, allowed character sets, or other header-related validation for X-Killbill-* headers.",
+              "Content negotiation / invalid Accept or Content-Type: No tests for behavior when Accept or Content-Type headers are invalid or mismatched (if the server enforces these)."
+            ],
+            "recommendations": [
+              "Add assertions that responses include the expected Content-Type (application/json) even for 204 responses and verify the body is empty when appropriate to satisfy the \"Produces\" requirement.",
+              "Add an idempotency test: call setDefault twice with the same paymentMethodId and assert the second call is a no-op (204) with no additional side effects or duplicate audit events.",
+              "Add negative validation tests for payAllUnpaidInvoices (invalid boolean values, empty values) expecting 400/422 and clear error messages.",
+              "Expand pluginProperty tests to include invalid types (non-string), overly long strings, duplicate entries, and an explicit test that sending >max allowed entries returns a validation error.",
+              "Add tests that simulate partial payment failures when payAllUnpaidInvoices=true (e.g., some invoice payments fail) and verify how the API reports partial failures, logs them, and whether retries/compensations are triggered.",
+              "Add a 403 test for authenticated users without required permissions (verify forbidden responses and message clarity).",
+              "Define and assert a standard error response schema in tests (fields such as errorCode, message, fieldErrors) and add tests to validate it across 4xx/5xx paths.",
+              "Extend concurrency coverage to include simultaneous identical setDefault requests and concurrent setDefault + payAllUnpaidInvoices flows to validate atomicity and deterministic outcome.",
+              "If applicable, add rate-limiting and throttling tests (burst requests) to verify the system returns appropriate 429/limits and remains stable under load.",
+              "Add header validation tests for X-Killbill-* fields (length limits, allowed characters) and confirm sanitization/logging does not allow injection content to be executed.",
+              "Add tests for content negotiation edge cases (invalid Accept/Content-Type) if the API enforces or relies on these headers."
+            ],
+            "usage": {
+              "completion_tokens": 5782,
+              "prompt_tokens": 6898,
+              "total_tokens": 12680,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4608,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

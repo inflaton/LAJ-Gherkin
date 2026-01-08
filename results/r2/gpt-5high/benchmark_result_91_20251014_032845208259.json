@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-14T03:28:45.208226",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T03:26:34.802330",
+    "benchmark_end_time": "2025-10-14T03:28:45.208222",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 130.405892,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT - Valid Request: Multiple success paths verify 204 responses and database updates for required-only and optional headers, with and without prior custom fields (TC01\u2013TC05, TC21, TC22).",
+              "PUT - Non-Existing Resource: 404 when invoice item does not exist, including empty DB state and mixed state (TC07, TC24, TC25).",
+              "Path Parameter Validation: Invalid UUID format yields 400 (TC06).",
+              "Request Body Validation: Malformed JSON 400 (TC08), empty body 400 (TC10), unsupported fields 400 (TC11), large payload boundary behavior 204/413 (TC12), max-size performance still 204 (TC21).",
+              "Headers Validation: Required X-Killbill-CreatedBy present vs missing (204 vs 400) and optional Reason/Comment accepted (TC01\u2013TC03, TC09, TC02).",
+              "Authorization: 401 for invalid/missing auth token (TC13).",
+              "Robustness/Error Handling: Simulated 500 (DB down), 503 (dependent service down), and 504 (timeout) covered (TC15, TC19, TC16).",
+              "Idempotency: Repeated identical PUTs remain consistent and return 204 (TC17).",
+              "Edge Conditions: No prior fields vs existing fields (TC04\u2013TC05); minimum allowed values (TC22).",
+              "Security Input Hardening: SQL injection payloads rejected with proper error codes (TC14).",
+              "Nonfunctional/Performance: Parallel updates across many items and acceptable response times (TC20).",
+              "Query Strictness: Extra query parameter handling covered (TC23)."
+            ],
+            "gaps": [
+              "PUT Semantics (replace vs merge): No scenarios define whether PUT replaces the entire set of custom fields or merges; behavior when payload omits existing fields is untested.",
+              "Partial Update Rejection: No scenario verifying that partial updates are rejected unless explicitly allowed (per PUT guidelines).",
+              "Concurrency on Same Resource: No race-condition test where two clients update the same invoice item concurrently; no expected conflict/last-write-wins behavior defined (e.g., 409/412).",
+              "Content-Type Enforcement: No test that missing or incorrect Content-Type (e.g., text/plain) yields 415 Unsupported Media Type.",
+              "Accept/Response Headers: No checks that error responses are application/json and that 204 responses return no body (Content-Length: 0).",
+              "CustomField Schema Validation: Missing tests for required attributes, invalid data types, nulls, enum violations, and max-length constraints for fields.",
+              "Duplicate/Conflicting Fields: No scenario for duplicate CustomField entries for the same key/name and the deduplication or error policy.",
+              "Empty Array Semantics: No test for sending an empty array [] (clear all fields vs no-op) and the expected status/effect.",
+              "Header Value Constraints: No tests for empty/whitespace or overlong X-Killbill-CreatedBy/Reason/Comment values, or non-ASCII characters.",
+              "Authorization Depth: 403 Forbidden (authenticated but not authorized) is not covered.",
+              "Error Contract Consistency: No assertions on standardized error payload structure (code, message, details) across 4xx/5xx responses."
+            ],
+            "recommendations": [
+              "Define and test PUT semantics: add scenarios for (a) subset of fields provided (expect replace vs merge) and (b) empty array [] to clear all fields or return 400, according to spec.",
+              "Add concurrency tests on the same invoice item: simulate two parallel conflicting PUTs; assert expected behavior (e.g., ETag/If-Match with 412, or 409 conflict, or deterministic last-write-wins).",
+              "Add Content-Type and Accept tests: wrong/missing Content-Type => 415; verify error responses have application/json; assert 204 has no response body.",
+              "Expand CustomField schema tests: missing required keys, invalid data types, null values, value length boundaries, enumerations; expect 400/422 as per contract.",
+              "Add duplicate field handling tests: same custom field name/key repeated; define and assert dedup or error policy.",
+              "Add header value validation: empty/whitespace, excessively long, and non-ASCII values for X-Killbill-CreatedBy/Reason/Comment; assert expected outcomes.",
+              "Include 403 Forbidden scenario for authenticated users without permission to modify invoice items.",
+              "Standardize and assert error payload contract (fields like code/message) for 400/404/401/413/422/5xx to improve client reliability.",
+              "Optionally, verify audit behavior: CreatedBy/Reason/Comment are recorded and retrievable via audit endpoints if applicable."
+            ],
+            "usage": {
+              "completion_tokens": 6250,
+              "prompt_tokens": 6450,
+              "total_tokens": 12700,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5248,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

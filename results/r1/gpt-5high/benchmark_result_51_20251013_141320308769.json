@@ -1,0 +1,97 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-13T14:13:20.308740",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T14:10:23.465072",
+    "benchmark_end_time": "2025-10-13T14:13:20.308736",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 176.843664,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST - Valid Payload: Successful transfers with minimal and full parameters verify 201, JSON Bundle body, and Location header (TC01, TC02).",
+              "Query Parameters: requestedDate semantics, billingPolicy values (START_OF_TERM, END_OF_TERM, IMMEDIATE), and pluginProperty handling incl. multiple/empty/large sets (TC02-TC05, TC18, TC20).",
+              "Headers: Required X-Killbill-CreatedBy present/missing; optional Reason/Comment incl. max lengths (TC01, TC02, TC11, TC21).",
+              "Validation (400s): invalid bundleId, invalid requestedDate, billingPolicy=ILLEGAL, missing body/accountId, input sanitization (TC08-TC12, TC15, TC16).",
+              "Not Found (404s): bundle/account not found; empty/partial DB states (TC06, TC07, TC22, TC23).",
+              "Authorization: 401 for invalid/missing auth token (TC13).",
+              "Server Error Handling: 500 inconsistent dependency data and 503 service unavailable (TC24, TC14).",
+              "Resiliency: retry after transient network failure succeeds (TC17).",
+              "Performance/Concurrency: response times under normal/peak load, parallel requests, resource utilization (TC27-TC30).",
+              "Business rule: transfer to same account rejected with 400 (TC25).",
+              "Backward compatibility: missing optional fields still succeed (TC26)."
+            ],
+            "gaps": [
+              "Duplicate submission behavior: repeating the same transfer (same bundleId/accountId) idempotency or conflict handling (e.g., 409) not tested.",
+              "Default billingPolicy: no explicit assertion that omission defaults to END_OF_TERM and drives correct effective dates.",
+              "Content negotiation: no checks for response Content-Type=application/json, 415 for wrong request Content-Type, or 406 for unsupported Accept.",
+              "Rate limiting/throttling: no scenario validating 429 Too Many Requests and Retry-After headers.",
+              "Authorization scopes: no 403 Forbidden case for authenticated user lacking transfer permission.",
+              "Concurrency on same bundle: simultaneous transfers of the same bundle to different targets to ensure only one succeeds (e.g., 409) not covered.",
+              "Location header follow-up: not verifying that GET on the Location URL returns the transferred bundle.",
+              "Target accountId format: no test for invalid/non-UUID accountId -> 400.",
+              "requestedDate boundaries: past/future dates, DST/timezone boundaries, leap day handling not exercised.",
+              "pluginProperty encoding semantics: collectionFormat=multi (repeated query params), repeated keys, and URL-encoded values not asserted.",
+              "Response schema depth: no strict validation of Bundle schema/invariants beyond association with target (e.g., bundleId unchanged, subscriptions preserved).",
+              "Audit/observability: not verifying Reason/Comment persistence in audit logs (if expected)."
+            ],
+            "recommendations": [
+              "Add a duplicate submission test (with and without any Idempotency-Key support if available) to assert idempotent behavior or 409 Conflict on the second call.",
+              "Add a scenario that omits billingPolicy and asserts default END_OF_TERM applies with correct effective date behavior.",
+              "Add content negotiation tests: wrong Content-Type -> 415, unsupported Accept -> 406, and assert response Content-Type=application/json for success and errors.",
+              "Introduce rate-limiting tests to validate 429 responses and Retry-After headers under burst traffic.",
+              "Add a 403 Forbidden scenario for an authenticated user without transfer permission.",
+              "Add a concurrency test issuing two simultaneous transfers on the same bundle; assert only one succeeds and the other fails cleanly (e.g., 409) with no data corruption.",
+              "Verify the Location header by performing a GET on it and asserting the transferred bundle is returned with the new account association.",
+              "Add invalid target accountId format test (non-UUID) expecting 400.",
+              "Cover requestedDate boundary cases (past/future dates, timezone/DST edges, leap day).",
+              "Validate pluginProperty encoding using repeated pluginProperty parameters (collectionFormat=multi) and URL-encoded values; assert correct parsing.",
+              "Strengthen response schema checks for Bundle (IDs, accountId switched, subscription state invariants) across success and error responses.",
+              "Optionally add audit verification to ensure X-Killbill-Reason/Comment are persisted as expected."
+            ],
+            "usage": {
+              "completion_tokens": 7390,
+              "prompt_tokens": 7734,
+              "total_tokens": 15124,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6464,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

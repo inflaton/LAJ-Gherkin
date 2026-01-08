@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-14T03:34:07.426658",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T03:31:15.880941",
+    "benchmark_end_time": "2025-10-14T03:34:07.426652",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 171.545711,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple success paths (delete all, delete subset, duplicates, large list) verify 204 and that only intended custom fields are removed.",
+              "Non-Existent Resource: 404 for a valid-but-missing invoiceItemId is covered.",
+              "Path and query validation: invalid invoiceItemId (400), malformed customField values (400), mixed valid/invalid IDs (400), extra params tolerated, duplicates handled.",
+              "Headers: required X-Killbill-CreatedBy enforced (400 when missing); optional X-Killbill-Reason/Comment accepted; long Comment and lenient header parsing covered.",
+              "Security/Resilience: Unauthorized token (401), injection attempt in query (400/422), dependency failure (503), and load/performance conditions are tested.",
+              "Idempotency baseline: Deleting when no custom fields remain returns 204 (graceful no-op)."
+            ],
+            "gaps": [
+              "Concurrency: No scenarios for simultaneous deletions or interleaving operations (e.g., two users deleting the same fields at once) to confirm race-free behavior.",
+              "Soft delete/audit behavior: Not validated whether removals are soft-deleted with audit entries or hard-deleted; no checks that Reason/Comment show up in audit logs.",
+              "Unknown-but-valid customField IDs: Missing case where provided UUIDs are valid but do not belong to the invoice item; expected result (ignore vs error) is not defined or tested.",
+              "Empty customField parameter: Behavior when customField is present but empty (e.g., customField=) is not exercised.",
+              "Idempotent repeat: No test that repeating the exact same DELETE after a 204 still returns 204 and makes no changes.",
+              "Response headers: The story states Produces application/json, but tests don\u2019t assert response headers for 204/4xx (e.g., Content-Type on errors, Content-Length/absence of body on 204).",
+              "Authorization/permission granularity: 403 forbidden (authenticated but not authorized) is not covered, if applicable.",
+              "Whitespace/formatting in parameter values: Not tested for trimmed UUIDs or values with leading/trailing spaces, or case normalization for header values beyond basic parsing."
+            ],
+            "recommendations": [
+              "Add a concurrency scenario: fire two DELETEs concurrently for the same invoice item and overlapping customField IDs; assert deterministic outcome (both 204 and state consistent, or well-defined 409/404 on one request).",
+              "Verify soft-delete/audit semantics: after a successful DELETE, fetch audit logs and assert X-Killbill-CreatedBy/Reason/Comment are recorded; clarify whether deletions are soft vs hard.",
+              "Add test for valid-but-nonexistent customField IDs (belonging to another item or not present at all) to define whether the API ignores unknown IDs (204) or errors (400/404).",
+              "Add scenario where customField is present but empty (customField= or customField with no value); define and assert expected behavior.",
+              "Add explicit idempotency test: repeat the same DELETE and ensure it remains a no-op with 204.",
+              "Assert response headers: ensure errors return application/json with standard error schema; for 204 verify empty body and appropriate headers (e.g., no Content-Type or Content-Length: 0 as per service conventions).",
+              "Extend header validation: long/Unicode X-Killbill-CreatedBy and X-Killbill-Reason, blank/whitespace-only CreatedBy, and header injection attempts (CRLF) should be validated.",
+              "Add parameter formatting tests: UUIDs with uppercase letters, leading/trailing spaces, and confirm collectionFormat=multi is honored (vs comma-separated values rejected or handled explicitly)."
+            ],
+            "usage": {
+              "completion_tokens": 8085,
+              "prompt_tokens": 5523,
+              "total_tokens": 13608,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7296,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

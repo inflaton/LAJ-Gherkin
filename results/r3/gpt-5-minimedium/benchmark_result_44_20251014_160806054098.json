@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-14T16:08:06.054067",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T16:06:53.744374",
+    "benchmark_end_time": "2025-10-14T16:08:06.054061",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 72.309687,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01, TC02, TC03, TC10, TC13) validate typical and boundary successful uses (default params, explicit offset/limit, max limit).",
+              "Empty Response: TC04 covers the case when no parked accounts exist and response indicates nothing processed.",
+              "Pagination / Query Parameters: TC02, TC06, TC07, TC11, TC13 exercise offset/limit combinations, invalid numeric values, non-integer types, and unexpected extra parameters.",
+              "Authorization & Required Header: TC05 (missing X-Killbill-CreatedBy) and TC08 (invalid/expired token) check authentication/authorization failure modes.",
+              "Input Validation & Security: TC06, TC07, and TC14 cover numeric validation and header injection attempts.",
+              "Server / Dependency Errors: TC09 covers service unavailability (503).",
+              "Large Volume & Performance: TC12 and TC18 exercise very large datasets and concurrency, checking throughput and duplicate-generation concerns.",
+              "Idempotency / Duplicate Submissions: TC15 and TC18 explicitly address retry and concurrent requests to avoid multiple invoice generation for the same account.",
+              "Auditing / Header Recording: TC03 and TC16 check that optional headers reason/comment are accepted and that header parsing/regression is covered.",
+              "Accessibility / Documentation: TC19 ensures API docs accessibility and that required fields are described."
+            ],
+            "gaps": [
+              "Rate Limiting: No tests cover rate limiting, throttling or behavior under burst traffic (beyond TC18 concurrency which focuses on correctness, not throttling controls).",
+              "Response Schema & Content Verification: Tests assert application/json and counts, but there are no strict assertions about the JSON response schema/fields (e.g., numberProcessed, errors array, per-account status) or error payload structure.",
+              "Exact Status Code Semantics: Many scenarios accept multiple codes (e.g., 400 or 401, 200 or 400). There is no coverage that verifies the exact intended status codes per spec for each precise failure mode (e.g., missing header -> 401 vs 400), nor standardized error codes/codes-in-body.",
+              "Empty-but-Present Header Values: No scenario tests X-Killbill-CreatedBy present but empty/whitespace (vs completely missing).",
+              "Wrong HTTP Method / Method Safety: No tests for unsupported methods (e.g., GET/PUT/DELETE on this endpoint) expecting 405.",
+              "Server Internal Errors (500): Only 503 (dependency down) is covered; internal server errors like DB failure producing 500 are not explicitly tested.",
+              "Content-Type & Unexpected Request Body: Although request body is N/A, there are no tests for clients sending a body or wrong Content-Type and how the server responds.",
+              "Idempotency Mechanism Details: Retry/concurrent tests check for no duplicate invoices but do not verify existence/behavior of any idempotency key or deduplication token, nor check how partial successes are reported.",
+              "Boundary / Limit Policy Enforcement: Tests include very large limits (TC10/12) but do not exercise or verify system-enforced maximums or clear rejection when a configured max is exceeded (the spec did not define an absolute max).",
+              "Caching Behavior: No tests for caching headers (ETag, Cache-Control) \u2014 while POST typically isn\u2019t cached, the guidelines mention caching checks and they are absent."
+            ],
+            "recommendations": [
+              "Add schema-level assertions for response JSON: define and validate expected fields (e.g., totalProcessed, processedIds[], failures[], perAccountStatus) and error payload format to make tests deterministic.",
+              "Tighten expected status codes: replace ambiguous \u201c200 or 400\u201d style expectations with precise expected codes per documented behavior (update spec if necessary) and add tests that assert the exact code and error codes/messages in body.",
+              "Add tests for empty-but-present X-Killbill-CreatedBy and invalid header formats/lengths to ensure header validation is robust.",
+              "Add method safety tests (e.g., GET/PUT/DELETE) to assert 405 Method Not Allowed for unsupported methods.",
+              "Introduce explicit 500/Internal Server Error tests simulating DB or code failures (distinct from dependency 503) to assert graceful error handling and monitoring hooks.",
+              "Add rate-limiting/throttling tests (burst requests, sustained high rates) and assert 429 responses or documented behavior.",
+              "Add tests that submit unexpected request bodies and incorrect Content-Type headers to ensure the endpoint rejects or ignores as designed.",
+              "Explicit idempotency tests: define and test expected semantics for retries and provide tests for duplicate submission handling (with and without an idempotency token if supported).",
+              "Boundary tests for limit enforcement: add tests that attempt slightly-above-allowed limits (if a server-side max exists) and confirm correct rejection or truncation behavior.",
+              "If caching or proxy behavior is relevant for POST in your environment, add tests to check response cache headers or ensure proxies do not cache POST results; otherwise document why caching tests are not applicable."
+            ],
+            "usage": {
+              "completion_tokens": 2587,
+              "prompt_tokens": 5207,
+              "total_tokens": 7794,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1536,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

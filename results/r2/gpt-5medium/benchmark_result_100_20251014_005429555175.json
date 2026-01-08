@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-14T00:54:29.555146",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T00:52:23.960825",
+    "benchmark_end_time": "2025-10-14T00:54:29.555142",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 125.594317,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Deletion: Happy-path deletions covered (remove all, specific IDs, single ID) with 204 and empty body (TC01, TC02, TC03, TC07, TC20).",
+              "Non-Existent Resource: 404 when payment does not exist (TC09).",
+              "Input Validation: 400 on invalid paymentId format (TC08), invalid customField ID format (TC13, TC16), and missing required X-Killbill-CreatedBy (TC11).",
+              "Optional Headers: Acceptance of X-Killbill-Reason and X-Killbill-Comment verified (TC03).",
+              "Query Parameters: Behavior with no customField param (remove all) and multi-value handling verified; non-existent IDs result in no-op 204 (TC01, TC02, TC10).",
+              "Security Hardening: XSS in header and SQL injection patterns in query rejected (TC17, TC18).",
+              "Authorization: 401 for invalid/unauthorized token (TC12).",
+              "Service Unavailable: 503 path covered (TC14).",
+              "Performance/Scale: Heavy load and large numbers of query params tested (TC15, TC19).",
+              "Robustness: Unknown/extra query parameter tolerated without breaking delete (TC05)."
+            ],
+            "gaps": [
+              "Concurrency: No scenarios for race conditions (simultaneous deletes by multiple clients) as per DELETE guidelines.",
+              "Idempotency: No explicit test that repeating the same DELETE request returns 204 and leaves state unchanged.",
+              "Soft Deletes: Not verified whether deletes are soft or hard; if soft deletion is expected, behavior is untested.",
+              "Verification via retrieval: Post-delete verification relies on assumptions; lacks a follow-up GET to confirm fields are actually removed.",
+              "Mixed existence in query: No case with a mix of existing and non-existent customField IDs in the same request (e.g., cf1 plus nonexistent) to confirm partial removal with 204.",
+              "Duplicate customField IDs: No test to ensure duplicates in the query are handled gracefully (deduplicated, still 204).",
+              "Header value edge cases: No tests for empty/whitespace or overly long X-Killbill-CreatedBy values.",
+              "Response headers: For 204, no checks that response has no body and appropriate headers (e.g., absent/consistent Content-Type).",
+              "Ambiguous expectations: TC17 and TC22 allow multiple possible status codes; tests should assert a single, deterministic outcome."
+            ],
+            "recommendations": [
+              "Add concurrency tests: two clients deleting overlapping sets of custom fields at the same time; verify no race conditions and consistent final state.",
+              "Add idempotency test: perform DELETE twice (same inputs); both should return 204 and state remains unchanged.",
+              "Clarify and test deletion semantics: if soft delete is applicable, verify flags/audit records; otherwise confirm hard delete by retrieving custom fields after deletion.",
+              "Add a scenario mixing existing and non-existent customField IDs; expect 204 and removal of existing ones only.",
+              "Add a scenario with duplicate customField IDs in the query to ensure duplicates do not cause errors.",
+              "Add header validation edge cases for X-Killbill-CreatedBy (empty string, whitespace, max-length).",
+              "Make expectations deterministic: update TC17 and TC22 to assert a single status code per case, aligned with API spec.",
+              "Assert 204 response has no body and consistent headers (e.g., Content-Length: 0, no misleading Content-Type).",
+              "Optionally add a negative test for internal server error behavior (e.g., database failure) if the API contract defines 500 handling."
+            ],
+            "usage": {
+              "completion_tokens": 5066,
+              "prompt_tokens": 6120,
+              "total_tokens": 11186,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4288,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-14T00:00:53.547725",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T00:00:32.396324",
+    "benchmark_end_time": "2025-10-14T00:00:53.547721",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 21.151397,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE > Valid Deletion: Multiple success paths with 204, including default behavior and all query-parameter combinations (TC01\u2013TC07, TC19\u2013TC20).",
+              "DELETE > Non-Existent Resource: Explicitly covered with idempotent 204 for non-existent and already-closed accounts (TC11, TC12).",
+              "DELETE > Soft Deletes: Verifies the account is marked as closed (soft delete) and not hard-deleted (TC01, TC06).",
+              "DELETE > Query Parameters/Validation: Exhaustive coverage of defaults and combinations, including each flag alone and pairs; invalid format for accountId returns 400 (TC02\u2013TC05, TC08).",
+              "Headers: Required header X-Killbill-CreatedBy enforced (400 on missing) and optional headers handled; backward compatibility with only required headers (TC09, TC20).",
+              "Authorization: Missing or invalid auth returns 401 (TC10).",
+              "Server error handling: Simulated 500 on DB outage (TC14).",
+              "Security: SQL injection in path rejected (400); XSS attempt in header handled safely (TC15\u2013TC16).",
+              "Performance/Scalability: Large dataset processing and concurrent closures receive 204 and timing expectations (TC07, TC18).",
+              "Idempotency: Repeated/duplicate closure yields 204 with no further changes; retry on transient failure remains safe (TC11, TC17).",
+              "Robustness: Extra/unsupported query parameters are ignored without failure (TC13)."
+            ],
+            "gaps": [
+              "DELETE > Concurrency (race conditions on same resource): No scenario where two clients concurrently delete the SAME account and validate idempotent 204s, absence of conflicts, and consistent side effects.",
+              "DELETE > Concurrency with dependent resources: No test where subscription/invoice actions race with account closure (e.g., cancellation in progress) to ensure consistent final state.",
+              "Input validation for query parameters: No negative tests for invalid boolean values (e.g., cancelAllSubscriptions=abc), duplicated params, or mixed-case booleans.",
+              "Response contracts on 204: No assertions that the 204 response has an empty body and appropriate headers (e.g., Content-Type absent or consistent with API contract).",
+              "Authorization/Permissions depth: No 403 scenario for authenticated user lacking permission/role to close accounts.",
+              "Auditability: No verification that CreatedBy/Reason/Comment are recorded in audit logs or system history (if expected by platform conventions).",
+              "Error payload consistency: While errors are asserted, there is no validation of error schema/fields (code, message, type) or content type for 400/401/500 responses.",
+              "Soft delete propagation: No checks that closed account is no longer actionable by other endpoints (e.g., creating new subscriptions) post-closure."
+            ],
+            "recommendations": [
+              "Add a concurrency test deleting the same account from two clients at once and confirm both return 204, with consistent, single-set side effects and no conflicts.",
+              "Introduce a scenario where dependent operations race (e.g., subscription cancellation running concurrently) to verify consistent final state and absence of partial failures.",
+              "Add negative query-parameter validation: invalid boolean values, repeated parameters, mixed-case values, and unexpected numeric/string for boolean flags should yield 400 or be explicitly ignored per spec.",
+              "Assert 204 has no response body and verify headers per contract (e.g., no Content-Type or a specific header policy for 204 responses).",
+              "Add a 403 Forbidden test for an authenticated user lacking the permission to close accounts.",
+              "Verify audit trail persistence of X-Killbill-CreatedBy/Reason/Comment where applicable (e.g., fetch audit logs) to ensure traceability.",
+              "Validate error response schema and content type for 400/401/500 (fields like code, message, reason, requestId), and ensure consistency across failures.",
+              "Post-closure behavior: Add tests ensuring closed accounts cannot perform new actions (e.g., create subscription), confirming soft-delete is enforced across the system."
+            ],
+            "usage": {
+              "completion_tokens": 1631,
+              "prompt_tokens": 6316,
+              "total_tokens": 7947,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

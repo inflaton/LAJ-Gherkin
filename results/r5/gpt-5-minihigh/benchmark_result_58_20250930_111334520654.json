@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "58_2025-09-30T11:13:34.520620",
+    "jira_id": "58",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/customFields - Remove custom fields from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-30T11:11:41.251401",
+    "benchmark_end_time": "2025-09-30T11:13:34.520613",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 20000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 113.269212,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "58_qe_sup-gpt4.1_agent-gpt4.1_1748919726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Functional acceptance criteria: Primary behaviors from the Jira story are exercised (DELETE path, bundleId validation, customField semantics, required X-Killbill-CreatedBy header, optional X-Killbill-Reason and X-Killbill-Comment, success 204, error 400/404). (TC01-TC07, TC18, TC22, TC23)",
+              "Query parameter variations: single, multiple (multi), empty, invalid UUID and extra/unsupported params are tested (TC02, TC03, TC09, TC11, TC19)",
+              "State verification via GET: Several scenarios validate post-delete state via GET returning remaining or empty lists (TC01, TC02, TC03, TC05, TC25)",
+              "Authentication and header validation: Missing required header and invalid/expired tokens are tested (TC08, TC13); optional headers handling and length edge cases are covered (TC04, TC20, TC21)",
+              "Error handling & resilience: Invalid/truncated bundleId, non-existent bundle, DB-empty state, service unavailable and degraded dependent service are covered (TC06, TC07, TC22, TC23, TC12, TC24)",
+              "Security and input validation: Header injection attempt and invalid customField UUID format covered (TC14, TC09)",
+              "Idempotency and semantics: Deleting non-present custom field returns 204 and leaves other fields intact (TC10)",
+              "Concurrency and performance: Concurrent delete requests and a high-volume deletion performance test are present (TC15, TC16)",
+              "Regression/integration and data consistency: Tests ensure operations do not affect unrelated bundles and that database consistency holds after operations (TC17, TC25)"
+            ],
+            "gaps": [
+              "Pagination: No tests for pagination behavior on GET listing of custom fields (if the GET supports paging).",
+              "Rate limiting / throttling: No tests for burst requests / 429 responses or server throttling behavior.",
+              "Caching behavior: No assertions for ETag / Cache-Control / Last-Modified headers or cache invalidation after delete.",
+              "Authorization (403): Tests cover unauthenticated (401) and missing header (400) but not role/permission based Forbidden (403) scenarios.",
+              "Response headers / Content-Type validation: The suite asserts body contents but does not assert Content-Type on error responses or the absence of body/headers for 204 responses as documented (produces application/json not explicitly validated).",
+              "Soft-deletes / audit trail: No checks for whether deletes are soft vs hard, nor verification that X-Killbill-CreatedBy / Reason / Comment are recorded in audit logs or history.",
+              "Atomicity for mixed valid/invalid customField lists: No test for requests that mix valid and invalid customField UUIDs (should document expected all-or-nothing vs partial behaviour).",
+              "Duplicate query parameters and edge header values: No tests for duplicate customField entries in the same request, blank/whitespace X-Killbill-CreatedBy value, or repeated identical deletes in a single request to verify idempotency beyond TC10.",
+              "Content negotiation and error schema: No tests asserting error response schema or content negotiation (Accept header variations)."
+            ],
+            "recommendations": [
+              "Add pagination tests for GET /1.0/kb/bundles/{bundleId}/customFields (if supported): verify page sizes, next/prev links (or offsets), and correct behavior when result set > page size.",
+              "Add rate-limiting / throttling tests: send bursts of DELETE requests and expect 429 with Retry-After (or verify documented behavior); ensure deletes are safe under throttling.",
+              "Add caching tests: assert ETag/Cache-Control/Last-Modified on GET; verify GET after DELETE reflects removed data (cache invalidation).",
+              "Add authorization (403) tests: attempt delete using credentials that authenticate but lack permission and assert 403 Forbidden; cover role-based access if applicable.",
+              "Assert response headers and content-type: validate Content-Type application/json for error responses, validate 204 responses have no body and appropriate headers, and validate error response schema (fields/message).",
+              "Add audit / soft-delete verification: test that X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment are recorded in audit logs or DB history; if soft-delete is expected, verify deleted flag and recovery endpoints or that history retains prior values.",
+              "Add atomicity tests for mixed valid/invalid customField lists: define expected API behavior and test that a request with both valid and invalid UUIDs either fails atomically or clearly documents partial success; verify DB consistency after such calls.",
+              "Add tests for duplicate customField parameters and idempotency: send same customField twice in query string and ensure expected behavior (no double-deletion errors); test repeated identical deletes over time.",
+              "Add header edge-case tests: blank / whitespace X-Killbill-CreatedBy, large/invalid characters in X-Killbill-Reason and Comment beyond length tests, and injection attempts in optional headers (Reason/Comment) to mirror TC14.",
+              "Expand load/concurrency tests: scale up TC15/TC16 to multiple bundles and larger concurrency to detect race conditions, deadlocks, or DB contention; add long-running stress tests and verify SLA (latency, error rates).",
+              "Prioritize additions: High priority: authorization (403), atomicity for mixed IDs, audit/logging of headers, and response header/content-type validation. Medium priority: caching/pagination (if applicable), duplicate param handling, blank header validation. Lower priority: extended load beyond current perf test and Accept-content-negotiation tests."
+            ],
+            "usage": {
+              "completion_tokens": 7318,
+              "prompt_tokens": 6309,
+              "total_tokens": 13627,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6144,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

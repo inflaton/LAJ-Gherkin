@@ -1,0 +1,97 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-13T21:04:37.322101",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T21:02:43.255376",
+    "benchmark_end_time": "2025-10-13T21:04:37.322098",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 114.066722,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid PUT requests: multiple success scenarios (TC01, TC02, TC03, TC04, TC24) asserting HTTP 204 and DB updates.",
+              "Header handling: required header validation and missing-header error (TC01, TC08); optional headers accepted (TC02); unsupported headers ignored (TC05).",
+              "Path parameter validation: invalid UUID format (TC06) and non-existent account (TC07) error handling.",
+              "Request body validation: missing body (TC09), malformed JSON (TC10), invalid CustomField schema / missing required fields (TC11).",
+              "Edge cases for request payloads: empty array deletes all custom fields (TC15), large arrays (TC04), maximum field lengths (TC16), extra/unexpected properties ignored (TC17), partial/mixed-validity payloads handled (TC18).",
+              "Authorization: unauthorized access tested (TC12 -> 401).",
+              "Server & dependency errors: service down (TC13 -> 503) and dependent-service failure (TC14 -> 502).",
+              "Timeout and retry behavior: long-running operation -> timeout (TC19 -> 504) and retry success on transient network error (TC22).",
+              "Security validation: SQL injection and XSS payloads lead to rejection (TC20, TC21).",
+              "Concurrency & performance: concurrent requests and data consistency (TC25), large payload near limits including 413 outcome (TC26).",
+              "Regression & backward-compatibility: duplicate-field-name regression (TC23) and previous-client format compatibility (TC24).",
+              "Integration & observability: audit-log and external reporting integration checks (TC27, TC28).",
+              "Accessibility: documentation and error message accessibility tested (TC29)."
+            ],
+            "gaps": [
+              "Content-Type / Media type enforcement: no explicit tests for missing or incorrect Content-Type header (e.g., expect 415 Unsupported Media Type or documented error).",
+              "Idempotency / duplicate submission behavior for PUT: no test that repeated identical PUTs are idempotent and leave consistent state.",
+              "Concurrency on the same resource: missing tests that perform simultaneous conflicting updates to the same account to detect lost updates, locking, or conflict resolution behavior.",
+              "Explicit PUT semantics (replace vs merge): no explicit test asserting whether PUT replaces the entire customFields set versus merges with existing fields (TC15 implies replacement but not explicit).",
+              "Data-type and value-constraint validation: tests check missing fields and lengths but not incorrect data types for CustomField properties (e.g., numbers vs strings, invalid enum values).",
+              "Header value validation: no tests for invalid/empty/oversized X-Killbill-CreatedBy (or malformed Reason/Comment) values and their validation errors.",
+              "Authorization scope/permission errors (403): no test for insufficient privileges (403 Forbidden) when authenticated but unauthorized.",
+              "Rate limiting / throttling: no tests verifying behavior under rapid repeated requests and proper 429 responses.",
+              "Structured error schema & response content-type: tests assert an error message exists but do not validate the error JSON schema, fields, or Content-Type of error responses.",
+              "Audit/log content verification: TC27 asserts audit log service recorded changes but does not validate the recorded content (e.g., that X-Killbill-Reason/Comment were captured)."
+            ],
+            "recommendations": [
+              "Add Content-Type enforcement tests: send requests with missing and non-application/json Content-Type headers and assert expected error code (415 or documented behavior) and message.",
+              "Add idempotency tests: issue the same PUT twice and assert second request is 204 and database state is unchanged (verify no duplicate or side-effect entries).",
+              "Add same-resource concurrency tests: run two concurrent, conflicting PUTs to the same account to observe conflict resolution, verify final state deterministically (or assert appropriate conflict/error response).",
+              "Add explicit semantics test for full-replace behavior: send a payload that omits previously present fields and assert whether those fields are removed (or test that partial updates are rejected if API should not merge).",
+              "Add data-type & value-constraint validation tests: submit CustomField objects with wrong types, invalid enum values, and out-of-range values to verify 400 responses and clear validation messages.",
+              "Add header-value validation tests: test empty/oversized/malformed X-Killbill-CreatedBy (and optional headers) to ensure server-side validation and meaningful errors.",
+              "Add 403 scenario tests: create an authenticated user with insufficient privileges and assert 403 Forbidden is returned with an appropriate message.",
+              "Add rate-limiting tests: exercise rapid repeated requests to confirm throttling behavior and correct 429 responses and Retry-After headers where applicable.",
+              "Validate structured error responses: assert error response JSON schema, presence of error codes/fields, and Content-Type header for both 4xx/5xx cases.",
+              "Enhance audit/log verification: in integration tests, assert the audit record contents include createdBy/reason/comment and payload diffs; use mocks or test hooks to validate exact audit payloads.",
+              "For dependency error simulations (TC14/TC27/TC28), use service virtualization to assert deterministic behavior and recovery patterns; add tests to assert rollback/no partial writes on dependent failures.",
+              "Add automated performance/load tests that assert throughput and latency SLAs under realistic concurrent update patterns (including same-account contention) and monitor for data consistency anomalies."
+            ],
+            "usage": {
+              "completion_tokens": 6308,
+              "prompt_tokens": 6919,
+              "total_tokens": 13227,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5184,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

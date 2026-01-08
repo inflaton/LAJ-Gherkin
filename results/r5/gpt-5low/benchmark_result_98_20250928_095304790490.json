@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "98_2025-09-28T09:53:04.790458",
+    "jira_id": "98",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/customFields - Add custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:52:25.799024",
+    "benchmark_end_time": "2025-09-28T09:53:04.790452",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 38.991428,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "98_qe_sup-gpt4.1_agent-gpt4.1_1748922413.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST - Valid Payload: Multiple happy-path scenarios validate 201 and JSON array response, including optional headers and persistence (TC01-TC05, TC24).",
+              "POST - Invalid Payload: Malformed JSON (TC08), missing required fields in CustomField (TC16), invalid paymentId format (TC10), missing required header (TC09), unexpected body fields (TC06), and security payloads (SQLi/XSS) (TC14).",
+              "POST - Large Payloads: Near-maximum payload size handled with 201/413 outcomes (TC15).",
+              "POST - Validation: Basic field presence and response schema checks (fieldName, fieldValue, objectType) (TC01); invalid UUID format (TC10).",
+              "POST - Server/Error Handling: 404 for non-existent payment (TC11), 401 for missing/invalid auth (TC12), 503 for dependency down (TC13), timeout behavior including 504 (TC18).",
+              "Concurrency/Performance: Concurrent POSTs without data loss (TC19), normal/peak performance SLAs (TC22, TC23).",
+              "Headers behavior: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason/Comment accepted (TC02, TC09).",
+              "Response format/content type: Background enforces request Content-Type and scenarios assert JSON array body (TC01, TC02, etc.)."
+            ],
+            "gaps": [
+              "POST - Duplicate Submission: No scenario for replaying the exact same POST (e.g., retry) and expected behavior (idempotency, deduplication, or 409).",
+              "POST - Server Error Handling (500): No test simulating unexpected internal errors to validate 500 responses and error payload shape.",
+              "POST - Unsupported Media Type (415): No test for missing/incorrect Content-Type (e.g., text/plain) or incorrect charset.",
+              "POST - Validation depth: No tests for invalid data types, max length/size constraints per field, empty/blank strings, invalid objectType values, or disallowed characters; duplicate field name rules are ambiguous (TC20 covers only outcome variability).",
+              "Array with mixed validity: No scenario where one CustomField is valid and another invalid to confirm all-or-nothing vs partial acceptance behavior (e.g., 207/400).",
+              "Authorization (403): No scenario for authenticated user lacking permission to add custom fields (forbidden).",
+              "Response headers: No assertions on response Content-Type application/json for success/error, nor any Location/links if applicable.",
+              "Business rules around existing fields: No explicit test for updates vs rejects when the same fieldName already exists (distinct from just \u201calready has custom fields\u201d)."
+            ],
+            "recommendations": [
+              "Add a duplicate submission scenario: send the same payload twice (back-to-back and with network retry) to define expected behavior (idempotency key if supported, dedupe with 200/201, or 409 conflict).",
+              "Introduce a 500 Internal Server Error simulation (e.g., forced exception) and assert standardized error response contract.",
+              "Add Unsupported Media Type tests: omit Content-Type, use wrong media type, wrong charset; expect 415 with clear error.",
+              "Expand validation coverage: invalid data types, excessive lengths, empty/whitespace-only values, invalid objectType, disallowed characters; explicitly define behavior for duplicate field names (accept, overwrite, or reject with 400).",
+              "Create a mixed-validity array test to verify whether the API rejects the entire batch or supports partial success with clear semantics.",
+              "Add a 403 Forbidden scenario for authenticated but unauthorized principals to ensure permission checks are enforced.",
+              "Assert response headers on success and error: Content-Type application/json; verify Produces contract. If API returns any Location or correlation/idempotency identifiers, validate them.",
+              "Clarify and test behavior when adding a field that already exists by name on the payment: overwrite vs reject vs create another entry, and ensure invariants remain consistent."
+            ],
+            "usage": {
+              "completion_tokens": 1803,
+              "prompt_tokens": 6845,
+              "total_tokens": 8648,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

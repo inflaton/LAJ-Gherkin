@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-10-15T11:11:23.723481",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:11:04.964299",
+    "benchmark_end_time": "2025-10-15T11:11:23.723473",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 18.759174,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "PUT - Valid Request: Multiple success scenarios (required headers, optional headers) verifying 204 response and backend CBA update.",
+              "PUT - Non-existing Resource: TC08 and TC17 cover attempts to rebalance non-existent accounts and empty DB scenarios (400 expected).",
+              "PUT - Input validation for accountId: TC09 and TC16 validate invalid format and oversized accountId boundary cases.",
+              "PUT - Required header validation: TC10, TC11, TC25, TC26 cover missing, empty, whitespace-only and null X-Killbill-CreatedBy header cases.",
+              "PUT - Optional header handling: TC02 verifies optional headers are accepted; TC24/TC15 test for XSS/SQL injection-like payloads in headers (security validation).",
+              "PUT - Concurrency and Idempotency concerns: TC18 (high concurrency) addresses race-condition / consistency under concurrent requests.",
+              "Error handling / resilience: TC13 covers transient network retries and TC14 covers service unavailable (503).",
+              "Unsupported method: TC22 verifies method-not-allowed (405) for GET against this endpoint.",
+              "Business logic variation coverage: TC04\u2013TC07, TC12, TC19 cover multiple account states (zero, negative, large, multiple transactions, regression cases).",
+              "Performance: TC20 and TC21 provide basic response-time requirements under normal and peak load."
+            ],
+            "gaps": [
+              "Authorization: No negative tests for authentication/authorization (401/403) despite Background mentioning a valid auth token\u2014scenarios for missing/invalid tokens are absent.",
+              "Rate limiting / throttling: No tests that exercise API rate limits or server behavior under abusive request rates (distinct from performance/concurrency tests).",
+              "Server error handling (500): No explicit tests that simulate internal server/database failures producing 500 responses or verify graceful degradation/error format for 5xx errors beyond 503.",
+              "Response body / content-type verification: Story mentions produces application/json, but 204 responses have no body; tests do not verify response headers (Content-Type) or error response JSON schema/fields for non-204 responses.",
+              "Idempotency / duplicate submission semantics: While concurrency is tested, there is no explicit test for repeated identical requests (duplicate submission) and verifying idempotent behavior or side-effects count.",
+              "Validation of optional headers contents and limits: No tests checking invalid/overly long values for X-Killbill-Reason or X-Killbill-Comment (length, character set), or header injection beyond SQL/XSS payloads.",
+              "CBA numeric edge cases: No tests for precision/rounding, currency/scale boundaries, overflow/underflow when rebalancing very large monetary values, or negative/zero transaction edge conditions in detail.",
+              "Atomicity / rollback: No tests that simulate partial failure during rebalancing (e.g., failure after partial DB changes) to verify transactional integrity or rollback behavior.",
+              "Audit/logging side-effects: No tests to verify audit trail headers (X-Killbill-CreatedBy/Reason/Comment) are persisted to logs or audit records.",
+              "Rate-limit vs concurrency distinction: TC18 tests concurrency correctness but does not assert throttling behavior or server responses when concurrency exceeds configured limits."
+            ],
+            "recommendations": [
+              "Add authentication/authorization tests: include scenarios for missing token, invalid token, and insufficient permissions asserting 401/403 responses and proper error bodies.",
+              "Add rate-limiting/throttling tests: create tests that exceed configured request rates to verify 429 or other throttling behavior and system stability under abusive load.",
+              "Add internal-server/database-failure tests: simulate DB errors or unhandled exceptions to verify 500 responses and consistent error JSON without leaking internals.",
+              "Verify response headers and error schema: add assertions for Content-Type and a canonical error JSON schema for non-204 responses (400/403/500/503) to ensure clients can parse errors reliably.",
+              "Add idempotency / duplicate-submission tests: send identical requests multiple times and verify CBA is not over-applied and side-effects remain idempotent.",
+              "Test optional header validation and limits: include tests for extremely long or malformed X-Killbill-Reason and X-Killbill-Comment values, and verify proper rejection or sanitization.",
+              "Add numeric precision and boundary tests for CBA calculations: verify rounding, currency scale limits, and behavior with extremely large/small monetary amounts to prevent overflow/precision bugs.",
+              "Add transactional/rollback tests: simulate failures mid-update (e.g., injected DB exception) and verify no partial updates persist and system remains consistent.",
+              "Add audit/log persistence tests: assert that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs or change-history where applicable.",
+              "Clarify produce/content expectations in acceptance criteria: if successful responses must include a JSON body in any case, add tests accordingly; otherwise update API spec to avoid ambiguity between produces: application/json and 204 no-content."
+            ],
+            "usage": {
+              "completion_tokens": 2062,
+              "prompt_tokens": 5515,
+              "total_tokens": 7577,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

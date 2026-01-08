@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-10-14T19:43:11.900532",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:41:21.566266",
+    "benchmark_end_time": "2025-10-14T19:43:11.900528",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 110.334262,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid payloads and success paths: Positive scenarios for single and multiple tag additions, optional headers, accounts with/without existing tags, and expected 201 + persistence (TC01, TC02, TC03, TC04, TC05).",
+              "Request-body validation: Empty array, non-array payload, malformed UUIDs, non-existent tag-definition IDs and unexpected object entries are tested and produce 400 (TC07, TC08, TC09, TC10, TC17).",
+              "Path parameter validation: Missing accountId, invalid UUID format, and non-existent account cases are covered (TC12, TC13, TC14).",
+              "Header & authentication checks: Required createdBy header enforcement and missing-authentication are covered (TC11, TC15); optional headers are exercised (TC03).",
+              "Duplicate and concurrency behavior: Duplicate IDs in a single request and concurrent clients are tested to prevent duplicate tags (TC19, TC21).",
+              "Large-payload and performance boundary: 100-item bulk add and a 2s response-time performance check are present (TC18, TC20).",
+              "Dependency/service failure: External/tag service failure scenario covered (TC16) returning service-unavailable semantics.",
+              "Security/regression checks: Header injection and special-character regression cases are included (TC22, TC23).",
+              "Query parameters/ignored params: Pagination/sort/filter query params explicitly asserted to be ignored for POST (TC06).",
+              "Backward compatibility: API version regression test included (TC24)."
+            ],
+            "gaps": [
+              "Content-Type handling: No explicit tests for missing or incorrect \"Content-Type: application/json\" header even though the API consumes application/json (acceptance criteria).",
+              "Response schema & headers: Tests assert the response is a JSON array of Tag objects but do not validate Tag object schema fields (id/tagDefinitionId/accountId/createdBy/objectType/createdDate) or verify response Content-Type header is application/json.",
+              "Forbidden (403) case: There is no negative test that verifies behavior when a user is authenticated but lacks permission (403 Forbidden). The Background assumes correct permissions only.",
+              "500 Internal Server Error: A general server/DB error (500) is not explicitly tested \u2014 only a 503 dependency failure is simulated (TC16).",
+              "Idempotency / duplicate submission across requests: Re-submitting the same POST (client retry semantics) is not explicitly covered; only duplicates within payload and concurrent submissions are tested.",
+              "Rate limiting/throttling: No tests for throttling or rate limits (e.g., 429 responses under burst traffic).",
+              "Caching/response headers: No assertions about caching headers (Cache-Control, ETag) or ensuring POST responses are not cached. Even if POST typically should not be cached, it is useful to assert desired header behavior.",
+              "Very-large payload limits and failure modes: Only a 100-item boundary test exists; upper limits (e.g., 1k+ items), payload-too-large (413) behavior, and resource exhaustion scenarios are not covered."
+            ],
+            "recommendations": [
+              "Add Content-Type negative tests: POST with missing Content-Type or incorrect Content-Type (text/plain) and assert 400 and no tags created.",
+              "Add strict response-schema tests: Validate each returned Tag object contains expected fields and types (UUIDs for id/tagDefinitionId, accountId; createdBy matches header; timestamps present), and assert response Content-Type: application/json.",
+              "Add permission/403 tests: Create a scenario where the caller is authenticated but lacks the right permission and assert 403 Forbidden and no tag creation.",
+              "Add 500/Internal server error simulation: Introduce a test that simulates a DB or unhandled exception returning 500 Internal Server Error to ensure graceful error handling and useful error messages/logging.",
+              "Add idempotency/retry tests: Send the same exact POST twice (or retry after network failure) and assert the server does not create duplicate tags (or returns defined idempotent behavior) and returns appropriate status codes on retries.",
+              "Add rate-limiting tests: Burst a number of requests to validate throttling behaviour and assert 429 or backoff headers as appropriate, and document expected rate-limiting policy.",
+              "Assert caching/response headers: Add tests to verify Cache-Control/ETag behavior for POST responses (e.g., ensure responses are not cached or follow the API policy).",
+              "Extend large-payload tests and limits: Test beyond 100 items to discover practical upper limits, add tests expecting 413 or graceful failure, and measure resource consumption; also add timeouts for long-running operations."
+            ],
+            "usage": {
+              "completion_tokens": 7045,
+              "prompt_tokens": 6410,
+              "total_tokens": 13455,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

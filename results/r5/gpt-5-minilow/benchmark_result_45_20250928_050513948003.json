@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-09-28T05:05:13.947977",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:04:59.276587",
+    "benchmark_end_time": "2025-09-28T05:05:13.947972",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 14.671385,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Scenarios TC01 and TC02 validate successful invalidation (204) for all caches and a specific cache.",
+              "Non-Existent Resource: TC03 covers the behavior and 400 response when a cache does not exist.",
+              "Invalid / malformed parameters: TC05, TC10, TC11, TC15 cover empty, oversized, special-character and previously problematic cacheName formats.",
+              "Cache state checks: TC04 covers behavior when a cache exists but is not alive.",
+              "Authorization: TC06 verifies unauthenticated/unauthorized access returns 401/403 and blocks invalidation.",
+              "Server errors: TC07 covers 500 behavior when cache subsystem fails.",
+              "Edge/no-data handling: TC08 covers behavior when no caches exist (empty response, 204).",
+              "Concurrency and performance: TC13 and TC14 address large-scale invalidation and concurrent invalidation requests.",
+              "Query parameter tolerance: TC09 checks behavior with unsupported extra query parameters."
+            ],
+            "gaps": [
+              "Soft delete semantics: No test verifies whether invalidation is a soft vs. hard operation or any downstream effects (e.g., audit/log entries, recoverability).",
+              "Exact response body/content-type validation: Tests assert empty body or presence of an error message but do not validate content-type (application/json) or exact error payload structure/fields.",
+              "HTTP header validation: No scenarios validate relevant headers (e.g., Cache-Control, ETag, Retry-After) or expected admin/audit headers.",
+              "Rate limiting / throttling: Although TC14 covers concurrency, there are no explicit rate-limiting or throttling tests (e.g., many rapid requests causing 429).",
+              "Authorization granularity and roles: TC06 tests unauthenticated access but does not validate different authorization roles/permissions (e.g., admin vs non-admin authenticated user).",
+              "Idempotency and repeated requests: No explicit tests for idempotency semantics (re-sending the same valid DELETE should remain 204 and not cause errors), or for race conditions where a cache is deleted between validation and invalidation beyond TC14 concurrency.",
+              "Boundary values for cacheName length/encoding beyond 1024: TC10 checks 1024 chars, but there are no tests for near-boundary values or different encodings (UTF-8 multi-byte).",
+              "Timing/side-effects on performance: TC13 asserts acceptable response time but lacks clear thresholds and monitoring of system degradation or downstream impact (e.g., CPU/memory spike during invalidation).",
+              "Pagination / large response handling: While not strictly applicable to this DELETE, no tests cover listing or querying caches with pagination (if an administrative listing endpoint exists)."
+            ],
+            "recommendations": [
+              "Add tests to validate exact response headers and content-type for both success and error responses (Content-Type: application/json, empty bodies, structured error fields).",
+              "Introduce idempotency and repeated-request tests: verify repeated DELETEs for the same cache or all caches are safe and return expected status codes.",
+              "Add role-based authorization tests: verify an authenticated non-admin user receives 403 while admin succeeds, and verify token scopes/permissions if applicable.",
+              "Add rate-limiting tests: send a high rate of requests to verify 429 responses or documented throttling behavior and ensure system stability under heavy bursts.",
+              "Add soft-delete / audit/side-effect tests: verify whether invalidation is logged/audited and whether caches can be restored or observed as invalidated in monitoring endpoints.",
+              "Extend boundary testing for cacheName: include near-boundary lengths, multibyte UTF-8 names, and additional malicious input patterns (URL-encoded payloads, SQL-like strings) to ensure robust validation.",
+              "Clarify and codify performance thresholds in TC13 and add monitoring of CPU/memory and downstream latency during large invalidations.",
+              "Add idempotent race-condition tests beyond concurrent success (TC14) where a cache is removed/changed mid-operation to validate atomicity and correct error reporting."
+            ],
+            "usage": {
+              "completion_tokens": 1032,
+              "prompt_tokens": 3739,
+              "total_tokens": 4771,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

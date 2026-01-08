@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "59_2025-10-14T04:17:35.866880",
+    "jira_id": "59",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles - Retrieve a bundle by external key",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T04:14:28.117369",
+    "benchmark_end_time": "2025-10-14T04:17:35.866876",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 187.749507,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "59_qe_sup-gpt4.1_agent-gpt4.1_1748919811.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Request: Happy path returns 200 with application/json and a JSON array containing the matching Bundle (TC01), with schema/required fields validated (TC30).",
+              "Query Parameters: externalKey required (400 on missing or empty, TC07, TC29); includedDeleted behavior covered for true (TC02) and false (TC06); audit levels FULL/MINIMAL/NONE and invalid values handled (TC03\u2013TC05, TC10); unsupported params ignored (TC15).",
+              "Empty Response: Non-existent key and empty database return 404 as per story (TC08, TC16).",
+              "Authorization: 401 Unauthorized and 403 Forbidden paths validated (TC11, TC12).",
+              "Error Handling/Resilience: Service/database outages return 503 (TC13, TC28); transient failure with retry succeeds (TC21).",
+              "Security Hardening: SQL injection and XSS attempts are handled without leaking details (TC19, TC20).",
+              "Performance/Concurrency: Response time threshold and concurrent requests produce correct 200 responses (TC17, TC18).",
+              "Data Variation/Boundaries: Non-ASCII, max/min length, and unexpected input bytes covered (TC23\u2013TC26).",
+              "Multiple Matches: Duplicate externalKey returns an array of all matching Bundles (TC14).",
+              "Large Dataset: Retrieval still correct with 10,000 bundles present (TC27).",
+              "Produces: application/json verified via Content-Type (TC01).",
+              "Pagination: Not applicable to this endpoint (no pagination parameters; results filtered by single externalKey)."
+            ],
+            "gaps": [
+              "Caching Behavior: No tests for ETag/Last-Modified, Cache-Control directives, or conditional GET (If-None-Match/If-Modified-Since) leading to 304.",
+              "Rate Limiting/Throttling: No scenarios validating 429 Too Many Requests and Retry-After behavior under bursts.",
+              "Default Parameter Behavior: No explicit test that omitting audit defaults to NONE (no audit fields), or that omitting includedDeleted behaves as false when only a deleted bundle exists for the key.",
+              "Error Response Schema: Tests do not assert standardized error payload/headers across 4xx/5xx (e.g., JSON structure with code/message/requestId, consistent Content-Type).",
+              "Content Negotiation: No tests using Accept headers (e.g., Accept: application/json vs unsupported types leading to 406 or defined fallback).",
+              "Parameter Robustness: No checks for audit enum case sensitivity or trimming/normalization of externalKey (e.g., leading/trailing whitespace)."
+            ],
+            "recommendations": [
+              "Add caching tests: verify ETag (and/or Last-Modified) on 200 responses, Cache-Control directives, and conditional GET returning 304 with If-None-Match/If-Modified-Since.",
+              "Add rate limiting scenarios: send a burst of requests to trigger 429 Too Many Requests; assert Retry-After presence and that normal traffic remains unaffected.",
+              "Cover defaults explicitly: omit audit to confirm audit=NONE behavior (no audit fields); omit includedDeleted when only a deleted bundle exists to confirm default false produces 404.",
+              "Validate standardized error schema: assert JSON error structure (e.g., code, message, type, requestId), consistent Content-Type, and no sensitive details across 400/401/403/404/503.",
+              "Test content negotiation: vary Accept headers (application/json, */*, unsupported like text/xml) and assert expected behavior (200/406) and charset if applicable.",
+              "Add combined parameter tests: includedDeleted=true with audit=FULL and MINIMAL for deleted bundles to ensure parameters interplay correctly.",
+              "Add robustness tests for input normalization: externalKey with leading/trailing spaces or URL-encoded spaces; audit enum case sensitivity (e.g., full vs FULL) to confirm acceptance or proper 400.",
+              "Optionally verify 405 for unsupported methods on this route (if enforced by the API gateway) to harden the endpoint."
+            ],
+            "usage": {
+              "completion_tokens": 7953,
+              "prompt_tokens": 5485,
+              "total_tokens": 13438,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

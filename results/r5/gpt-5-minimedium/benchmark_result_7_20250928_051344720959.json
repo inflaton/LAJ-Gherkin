@@ -1,0 +1,99 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-09-28T05:13:44.720933",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:13:04.594099",
+    "benchmark_end_time": "2025-09-28T05:13:44.720929",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 40.12683,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: multiple scenarios (TC01, TC02, TC13) verify successful deletion and 204 responses.",
+              "Delete-all behavior: TC01 verifies that omitting customField deletes all custom fields for an account.",
+              "Selective deletion via query params: TC02 covers deleting specific customField IDs (multi format).",
+              "Required/optional headers: TC03 covers optional headers; TC07 validates missing required X-Killbill-CreatedBy header handling.",
+              "Path parameter validation: TC05 and TC19 validate invalid accountId formats and injection attempts.",
+              "Query parameter validation: TC08 and TC20 validate invalid/malicious customField values (invalid UUID/XSS).",
+              "Non-existent account handling: TC06 asserts deleting from a non-existent account returns 204 (idempotent behavior).",
+              "Idempotency / regression: TC15 verifies repeated deletion of already-removed custom field is tolerated.",
+              "Duplicate IDs & query normalization: TC14 covers duplicate customField IDs in request.",
+              "Unsupported extra params: TC09 covers ignoring/handling of extra query params.",
+              "Authorization: TC10 addresses unauthorized access (401/403) scenarios.",
+              "Error handling: TC11 (500) and TC12 (504/timeout) cover backend/network failures.",
+              "Concurrency & performance: TC16 exercises high-concurrency behavior and acceptable response times.",
+              "Integration / Consistency: TC17 ensures dependent services reflect deletions.",
+              "State variations: TC18 covers partially populated accounts."
+            ],
+            "gaps": [
+              "Soft delete vs hard delete: No test confirms whether deletions are soft (flagged) or hard (physically removed) and intended downstream implications.",
+              "Partial/atomic failure handling: No explicit test for a mixed request where some provided valid customField UUIDs exist and others are valid UUID format but do not belong to the account (should the operation be atomic, partial, or return an error?).",
+              "Valid-but-non-existent customField IDs: Missing case where customField query param contains syntactically valid UUID(s) that do not exist in the system (distinct from invalid UUID format).",
+              "Header value validation: No tests for invalid X-Killbill-CreatedBy values (e.g., malformed user id) or length/charset limits on X-Killbill-Reason/Comment.",
+              "Response metadata / content-type: Story declares produces: application/json but tests do not verify Content-Type for 204 responses or error response JSON schema/fields \u2014 consistency of error body format is not validated.",
+              "Audit/logging/retention: No tests that verify audit entries, deletion reason/comment persisted, or retention rules.",
+              "Transactional integrity under failure: Although TC12 and TC11 simulate failures, there are no tests proving deletions are rolled back on dependency failure (no partial side effects).",
+              "Authorization granularity and semantics: TC10 allows 401 or 403 but lacks tests to assert correct code for authenticated-but-unauthorized vs unauthenticated users, and no RBAC matrix coverage.",
+              "Rate limiting / throttling: No tests for rate limiting handling (429) or backoff behavior.",
+              "Caching / ETag behavior: No tests verify caching or cache-invalidation semantics for GET after DELETE (ETag, Cache-Control).",
+              "Pagination / very large result handling for GET: While not central to DELETE, no tests for GET pagination when verifying post-delete state on accounts with many custom fields."
+            ],
+            "recommendations": [
+              "Add tests to assert soft-delete semantics: verify DB record state (deleted flag, deleted_at), and downstream effects if deletion is soft vs hard.",
+              "Add an atomicity/partial-failure test: send a DELETE with a mix of valid existing IDs, valid-but-non-existent IDs, and invalid IDs to assert expected behavior (all-or-nothing vs partial + errors).",
+              "Add tests for valid-but-non-existent customField UUIDs in the query to ensure the service handles them deterministically (204 vs 4xx).",
+              "Validate header values: add tests for malformed X-Killbill-CreatedBy, extremely long Reason/Comment headers, and missing optional headers to ensure input validation and limits.",
+              "Verify response metadata and error schema: assert Content-Type, consistent JSON error structure for 4xx/5xx, and that 204 responses do not contain unexpected bodies or headers inconsistent with produces: application/json expectation.",
+              "Add audit/logging checks: assert deletion records include CreatedBy, Reason, Comment and timestamps in audit logs or DB audit tables as required.",
+              "Add transactional rollback tests: simulate backend failures in the middle of deletion and assert no partial deletions remain (or document intended behavior and test it).",
+              "Clarify and test authorization semantics: separate tests for unauthenticated (expect 401) vs authenticated-but-not-authorized (expect 403) and cover different roles/users.",
+              "Add rate limiting and throttling tests: assert behavior under rapid-fire requests (429) and ensure clients receive appropriate headers (Retry-After) if applicable.",
+              "Add caching / ETag tests: after deletion, GET should reflect change and caches (if any) should be invalidated; test ETag/Cache-Control headers where applicable.",
+              "Add GET pagination tests when validating post-delete results on accounts with many custom fields to ensure correctness in large datasets."
+            ],
+            "usage": {
+              "completion_tokens": 2383,
+              "prompt_tokens": 5440,
+              "total_tokens": 7823,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

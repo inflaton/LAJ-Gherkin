@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "85_2025-10-14T00:00:11.919696",
+    "jira_id": "85",
+    "jira_title": "Implement/Test API: GET /1.0/kb/export/{accountId} - Export account data",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:59:45.161579",
+    "benchmark_end_time": "2025-10-14T00:00:11.919691",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 26.758112,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "85_qe_sup-gpt4.1_agent-gpt4.1_1748921476.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "GET \u2022 Valid Request: Successful 200 with application/octet-stream and valid archive (TC01, TC02, TC14).",
+              "GET \u2022 Required/Optional Headers: Required X-Killbill-CreatedBy enforced; optional Reason/Comment accepted (TC01\u2013TC03).",
+              "GET \u2022 Invalid Path Parameter: 400 for malformed UUID and injection attempts (TC04, TC11).",
+              "GET \u2022 Non-Existing Resource: 404 for non-existent account and empty DB (TC05, TC07).",
+              "GET \u2022 Authorization: 401 when auth token is missing/invalid (TC18).",
+              "GET \u2022 Resilience/Errors: 500 when service unavailable and 504 on timeout (TC10, TC17).",
+              "GET \u2022 Performance/Scale: Large export and slow downstream behavior validated with acceptable response constraints (TC08, TC09).",
+              "GET \u2022 Concurrency: Multiple concurrent requests return 200 with valid archives (TC13).",
+              "Protocol correctness: 405 for unsupported HTTP method (TC16).",
+              "Robustness: Extra/legacy headers tolerated without breaking success (TC06, TC15)."
+            ],
+            "gaps": [
+              "GET \u2022 Caching Behavior: No checks for ETag/Last-Modified or Cache-Control headers on the export response.",
+              "GET \u2022 Rate Limiting/Throttling: No scenario asserting behavior under burst traffic (e.g., 429 Too Many Requests or appropriate headers).",
+              "GET \u2022 Error Schema Consistency: No validation that 400/404/500/504 responses follow a documented error contract (code, message, requestId, etc.).",
+              "GET \u2022 Content-Disposition/filename: No verification that response includes Content-Disposition with a sensible filename for download.",
+              "GET \u2022 Empty Response Semantics: No scenario for account that exists but has minimal/no data to confirm archive structure (non-empty stream vs explicit handling).",
+              "Security/Headers Auditing: No verification that audit headers (CreatedBy/Reason/Comment) are logged/propagated as expected (if required by platform standards).",
+              "Observability: No checks for correlation/request ID headers in responses (if part of API standards).",
+              "Documentation Accessibility (TC19) is outside API runtime behavior; no automated check that error messages are accessible/standardized in responses."
+            ],
+            "recommendations": [
+              "Add caching scenarios: assert absence or presence of Cache-Control (e.g., no-store) and ETag/Last-Modified as per API standards for binary exports.",
+              "Add rate limiting tests: send high-rate bursts, expect either 200 within limits or 429 with Retry-After and proper headers; ensure concurrency tests also observe rate limiting policy.",
+              "Validate error response schema: assert JSON error body fields (e.g., errorCode, message, type, requestId) for 400/404/500/504, and content type (application/json).",
+              "Verify Content-Disposition: assert header is present with attachment; filename includes accountId and extension (.zip/.tar.gz as applicable). Also consider Content-Length presence/accuracy.",
+              "Add minimal-data export case: seed account with no invoices/subscriptions and assert archive is valid, contains required scaffolding, and is not an empty stream.",
+              "Extend security/observability checks: assert response includes correlation IDs (e.g., X-Request-Id) and that CreatedBy/Reason/Comment are accepted but not echoed in response; optionally verify server-side audit logs in integration tests.",
+              "Clarify N/A items: Pagination and query parameters do not apply to this endpoint; document as intentionally not covered to avoid confusion.",
+              "Tighten performance expectations: replace vague thresholds with concrete SLOs (e.g., P95 < 5s for 100MB export) and verify streaming does not exhaust memory."
+            ],
+            "usage": {
+              "completion_tokens": 1575,
+              "prompt_tokens": 5510,
+              "total_tokens": 7085,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

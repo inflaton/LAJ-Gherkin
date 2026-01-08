@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-14T18:56:13.737807",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T18:54:03.688079",
+    "benchmark_end_time": "2025-10-14T18:56:13.737803",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 130.049724,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid deletion: TC01, TC10 and TC12 verify DELETE returns 204, an empty body, and the host is marked out of rotation.",
+              "Authentication failures: TC02 and TC03 cover unauthenticated and invalid token cases returning 401.",
+              "Already out / no hosts: TC04 and TC14 cover host already out of rotation and no hosts available scenarios (409).",
+              "Service and system errors: TC05 and TC06 cover service unavailable (503) and internal server error (500).",
+              "Method validation: TC07 verifies method not allowed (405) for incorrect HTTP verb.",
+              "Request validation: TC08 checks handling of extra query parameters and TC09 checks rejection of non empty or malicious request bodies (400).",
+              "Performance and concurrency: TC10 and TC11 address response time under normal load and concurrent requests behavior.",
+              "Security injection: TC13 covers header based injection attempts and expects 400/401.",
+              "Regression and post condition verification: TC12 validates the host state after operation and includes a query to confirm out of rotation.",
+              "Partial idempotency/concurrency coverage: TC04 and TC11 provide some coverage of repeated or concurrent deletes and related responses."
+            ],
+            "gaps": [
+              "Authorization roles and permissions: no scenario for authenticated users without admin privileges (expected 403 Forbidden) is present.",
+              "Content type and response headers: tests do not assert response headers such as Content Type (story specifies Produces: application/json) or other relevant headers for errors and success.",
+              "Error response schema: error body presence is checked but there is no validation of JSON schema, field names, codes or consistent error format.",
+              "Idempotency semantics: the expected behavior for repeated DELETE calls is ambiguous; tests allow both 409 and 204 without a deterministic spec driven expectation.",
+              "Soft delete and persistence semantics: no tests verify whether the host record remains in the system with a flag (soft delete) versus being removed, nor that the state persists across service restarts.",
+              "Integration with routing/load balancer: tests assert host marked out of rotation but do not verify that traffic is actually stopped or that service discovery/ load balancer was updated.",
+              "Rate limiting/throttling: no tests for rate limiting or 429 Too Many Requests behavior are present.",
+              "Deterministic concurrency/race conditions: TC11 is high level; there are no controlled tests that exercise DB locking, transactions or prove atomicity under race conditions.",
+              "Audit/logging: no scenarios verify that an audit trail, admin action log entry or event was recorded for the operation.",
+              "Accept/Content negotiation and malformed headers: tests do not validate Accept header handling, Content Type negotiation, or specific malformed header behaviors."
+            ],
+            "recommendations": [
+              "Add a test for authenticated but non admin user expecting 403 Forbidden to cover role based authorization.",
+              "Assert response headers: add checks that error responses use Content Type application/json and define expected headers for 204 responses (or explicitly assert absence where appropriate).",
+              "Add JSON schema validation tests for error responses to enforce a consistent error structure (fields, codes, messages).",
+              "Clarify idempotency in the API contract and add deterministic tests for repeated DELETE calls and for concurrent deletes that assert the single expected outcome (either always 204 or 204 then 409, per spec).",
+              "Add integration tests that validate the operational effect of taking a host out of rotation (for example verify host is deregistered from load balancer or stops receiving traffic).",
+              "Add rate limiting tests that perform request bursts and assert 429 responses and associated retry headers where applicable.",
+              "Create deterministic concurrency tests that use controlled parallelism to prove atomic state transition and absence of lost updates or double transitions at the DB/transaction level.",
+              "Add tests to verify audit/logging behavior, ensuring an audit record is created with admin identity and timestamp for the action.",
+              "Add tests for token expiry, insufficient scopes or privileges, and for malformed headers to cover additional auth/security edge cases.",
+              "Improve existing concurrency TC11 to remove ambiguous expectations; assert exact expected status codes and timing windows based on a clarified contract.",
+              "Introduce contract/OpenAPI driven tests to verify the API matches the documented Produces and response schemas.",
+              "If the system uses soft delete semantics, add explicit tests to confirm the host remains in storage with an out_of_rotation flag and that the flag survives service restarts."
+            ],
+            "usage": {
+              "completion_tokens": 6488,
+              "prompt_tokens": 3433,
+              "total_tokens": 9921,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5568,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

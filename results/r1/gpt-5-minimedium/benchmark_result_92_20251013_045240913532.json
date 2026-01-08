@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-13T04:52:40.913502",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:52:10.959696",
+    "benchmark_end_time": "2025-10-13T04:52:40.913497",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 29.953801,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple successful-deletion scenarios (all fields, subset of fields, single-field, no-fields) are present (TC01, TC02, TC03, TC04).",
+              "Header handling: Required and optional header combinations are tested (X-Killbill-CreatedBy required (TC06); optional X-Killbill-Reason and X-Killbill-Comment tested (TC05); regression for header parsing formatting issues (TC20)).",
+              "Validation of path/query input formats: Invalid invoiceItemId format and invalid customField format are tested (TC07, TC10).",
+              "Non-existent resource handling: Non-existent invoice item is covered (TC08).",
+              "Authentication/authorization negative case: Expired/invalid token scenario is covered (TC19).",
+              "Robustness / edge cases: Large number of IDs (TC12), duplicate IDs (TC18), partial payloads/security (injection attempt TC15), very long header length (TC16), extra/unexpected query parameters (TC11).",
+              "Service error handling / resilience: Dependent service unavailable scenario (TC14) and heavy-load responsiveness (TC13) are present."
+            ],
+            "gaps": [
+              "Idempotency / repeated deletes: No explicit test that deleting the same custom fields twice is idempotent (delete twice should still return 204).",
+              "Behavior for valid-but-nonexistent customField IDs: Missing a scenario that supplies UUID-formatted customField IDs that are valid UUIDs but not associated with the invoice item \u2014 expected behaviour (ignore vs error) is not asserted.",
+              "Concurrent deletion race conditions: There is no test simulating concurrent deletes (two actors deleting same fields concurrently) to validate race handling / lost updates.",
+              "Soft-delete semantics and persistence verification: No test verifies whether removal is a soft delete (e.g., a deleted flag, audit trail) or a hard delete, and no follow-up GET/database assertion to confirm persistence beyond the API response.",
+              "Response headers and content-type: Acceptance notes say \"Produces: application/json\" but tests uniformly assert an empty body; there are no checks for response Content-Type, ETag or other headers, or for the presence/format of an error response body when errors occur.",
+              "Behavior when customField query parameter collection format varies: No tests for different collection encodings (comma-separated vs repeated customField params vs URL-encoded arrays) to ensure consistent parsing.",
+              "Authorization scoping and role-based access: Although an invalid/expired token is tested, there are no tests for forbidden access (403) or role/permission-based restrictions.",
+              "Partial-success semantics: TC17 assumes the API should return 400 when a mix of valid/invalid IDs are supplied, but the story does not define expected behaviour for mixed lists; tests do not include alternate expected behaviors (e.g., partial success with a list of failures).",
+              "Rate limiting / throttling: Not covered (relevant for production load considerations)."
+            ],
+            "recommendations": [
+              "Add an idempotency test: send the same DELETE request twice and assert the second returns 204 and no side effects or errors.",
+              "Add tests for valid-but-nonexistent customField UUIDs: verify whether the API ignores them (204) or reports them (4xx), and make the expected behaviour explicit in the spec and tests.",
+              "Add concurrency/race tests: simulate two concurrent DELETE requests (or concurrent DELETE + DELETE/GET) to ensure deterministic behavior and no data corruption.",
+              "Add persistence verification: after DELETE, perform a GET or DB-level assertion to confirm custom fields are removed (and to detect soft-delete semantics such as a \"deleted\" flag and audit entries).",
+              "Add response header checks: assert Content-Type, and for error scenarios assert JSON error body structure. Reconcile acceptance criteria \"Produces: application/json\" with expected empty bodies for 204; add a test verifying content-type for non-204 responses.",
+              "Add collection-format tests for customField query parameter: comma-separated, repeated parameters, and URL-encoded arrays to ensure the endpoint handles all client encodings.",
+              "Add role/permission tests: exercise requests with a valid token that lacks delete permission and assert 403 where applicable.",
+              "Clarify and test partial-success semantics: decide whether mixed valid/invalid customField lists should be treated as an error or as a partial operation, and add tests accordingly (and assert which IDs failed).",
+              "Consider rate-limiting tests in a separate performance/security test suite to verify throttling behavior under high request rates."
+            ],
+            "usage": {
+              "completion_tokens": 1977,
+              "prompt_tokens": 5523,
+              "total_tokens": 7500,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

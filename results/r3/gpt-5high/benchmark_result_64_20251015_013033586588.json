@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-15T01:30:33.586560",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T01:28:30.512029",
+    "benchmark_end_time": "2025-10-15T01:30:33.586556",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 123.074527,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT - Valid Request: Successful resume of a paused bundle returns 204 and updates bundle to active; all paused subscriptions are resumed (TC01).",
+              "PUT - Optional inputs: requestedDate schedules resume (TC02); pluginProperty processed (TC03); reason/comment recorded in audit (TC04); only required fields supported (TC18); extra param ignored (TC11); header whitespace/case variations handled (TC26); max header lengths accepted (TC12).",
+              "Validation - Path/Header/Query: invalid bundleId format -> 400 (TC06); missing X-Killbill-CreatedBy -> 400 (TC07); pluginProperty wrong type -> 400 (TC19); requestedDate in the past -> 400 (TC20); large pluginProperty list handling/limits (TC13).",
+              "Business rules: invalid state transitions are rejected (active or cancelled -> 400) (TC08, TC09).",
+              "Non-Existing Resource: 404 when bundle not found (empty DB) (TC05).",
+              "Concurrency Issues: Multiple concurrent requests handled (first 204; subsequent 400/409) (TC21).",
+              "Authorization: Unauthorized access returns 401/403 (TC10).",
+              "Server error/timeout handling: dependency down -> 500 (TC14); plugin service degraded -> 204 or 504 (TC25).",
+              "Security hardening: SQL injection attempt in pluginProperty safely handled (TC16); XSS attempt in comment safely handled (TC17).",
+              "Non-functional: Performance under load (TC22); regression coverage (TC23); backward compatibility with legacy headers (TC24)."
+            ],
+            "gaps": [
+              "Produces/application/json for 204 vs error responses: No assertions that 204 responses have no body and appropriate headers, or that error responses use application/json as specified.",
+              "Non-existing resource (data-present case): No explicit 404 scenario for a non-existent bundleId when other bundles exist (only empty DB case covered).",
+              "requestedDate format edge cases: No tests for invalid date format (e.g., 2025-13-40), timezone/offset handling (if any), or same-day/today boundary behavior.",
+              "pluginProperty collectionFormat=multi: No scenario validating repeated query parameters (pluginProperty=a&pluginProperty=b), URL-encoding, empty values, or duplicate keys.",
+              "Unexpected request body: Request body is N/A, but there is no negative test ensuring a non-empty body is rejected with 400/415 or safely ignored.",
+              "Idempotency around scheduled resumes: No scenarios for a second resume call before the requestedDate effective time (expected 400/409) and after it becomes active.",
+              "Audit log completeness: Only verifies presence when reason/comment provided; does not verify CreatedBy, reason, and comment fields are correctly captured/omitted across success/error paths.",
+              "Error response schema: Tests check for error message text but don\u2019t validate structured error fields (e.g., code, message, type) in the JSON body.",
+              "Header name case-insensitivity: No scenario verifying that differently cased header names (e.g., x-killbill-createdby) are accepted per HTTP semantics.",
+              "Multi-subscription behavior nuance: Only states \"all subscriptions are resumed\"; no test that non-paused subscriptions remain unchanged while paused ones resume (mixed-state bundle)."
+            ],
+            "recommendations": [
+              "Add checks for 204 responses to assert empty body and consistent headers; assert error responses return application/json with a defined schema (code/message/type).",
+              "Create a 404 test using a random non-existent UUID while the database contains other bundles (non-empty DB case).",
+              "Expand requestedDate tests: invalid format (YYYY-MM-DD validation), today vs future behavior, and clarify/verify timezone handling if applicable.",
+              "Validate pluginProperty as collectionFormat=multi using repeated query parameters, including URL-encoded values, duplicates, and empty values; assert server behavior.",
+              "Add a negative test that sends a JSON body to the PUT endpoint and verify it is rejected (400/415) or ignored per spec; document expected behavior.",
+              "Add idempotency tests around scheduled resumes: second call before effective date and immediately after effective date, with expected status codes (400/409/204) clearly defined.",
+              "Augment audit log checks to assert CreatedBy is recorded for all requests and reason/comment are captured only when provided; verify audit entries on both success (204) and failure (4xx).",
+              "Validate a consistent error response schema across 400/404/500/504, not just message substrings.",
+              "Add a scenario asserting header name case-insensitivity for X-Killbill-CreatedBy.",
+              "Refine mixed-state verification: seed a bundle with both paused and active subscriptions and assert only paused subscriptions transition to active after resume."
+            ],
+            "usage": {
+              "completion_tokens": 6261,
+              "prompt_tokens": 6265,
+              "total_tokens": 12526,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5248,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "86_2025-09-28T08:24:32.645601",
+    "jira_id": "86",
+    "jira_title": "Implement/Test API: GET /1.0/kb/invoiceItems/{invoiceItemId}/tags - Retrieve invoice item tags",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T08:22:49.675261",
+    "benchmark_end_time": "2025-09-28T08:24:32.645596",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 102.970335,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "86_qe_sup-gpt4.1_agent-gpt4.1_1748921548.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01, TC02, TC03, TC04, TC06) validate successful retrieval and combinations of query parameters returning HTTP 200 and Tag arrays.",
+              "Empty Response: TC05 verifies behavior when no tags exist (empty JSON array).",
+              "Query Parameters: accountId required, includedDeleted true, audit FULL/MINIMAL, invalid values, missing param are tested (TC01, TC02, TC03, TC04, TC11, TC13, TC14, TC15).",
+              "Error Handling: 400 for invalid invoiceItemId/accountId formats (TC07, TC08), 404 for non-existent invoice item/account (TC09, TC10), and 401 for missing/invalid auth (TC12) are covered.",
+              "Schema and content: TC01 explicitly validates returned Tag objects against the Tag schema; other success scenarios assert JSON arrays and audit content where applicable (TC02, TC03, TC04).",
+              "Deleted tags: Inclusion of deleted tags when includedDeleted=true is covered (TC02, TC23).",
+              "Security: SQL injection and XSS are tested (TC19, TC20) and ensure no sensitive data is leaked.",
+              "Resilience and integration: Backend unavailability (TC18), downstream audit logging integration and failure modes (TC24, TC25), and regression scenarios (TC23) are present.",
+              "Performance: Normal and peak load tests are present (TC21, TC22) and state variations are covered (TC26, TC27)."
+            ],
+            "gaps": [
+              "Pagination: No tests for pagination or handling of large tag lists (no page, limit, offset, or Link header tests).",
+              "Caching Behavior: No assertions for response headers like Content-Type, ETag, Cache-Control, or conditional GET semantics (If-None-Match -> 304).",
+              "Rate Limiting and Throttling: No tests for rate limiting behavior, 429 responses, or Retry-After header under abusive request patterns.",
+              "Authorization scope/permissions: Tests cover missing/invalid token (401) but do not cover valid auth with insufficient permissions (403) or role-based access checks.",
+              "Default parameter behavior not explicitly asserted: There is no scenario that verifies omitted includedDeleted defaults to false (deleted tags excluded) or omitted audit defaults to NONE (no audit info returned).",
+              "Schema coverage is partial: Only TC01 explicitly validates Tag schema; other success scenarios do not consistently assert full schema conformance or audit fields for each audit level.",
+              "Response header validations: Tests do not assert Content-Type: application/json header or other relevant headers for content negotiation.",
+              "Ambiguous or redundant edge tests: TC16 and TC17 test min/max UUID lengths though UUIDs are fixed-length by spec; these tests may be unnecessary or should be clarified.",
+              "Error payload schema and leakage: While some tests assert error messages, there is no uniform validation of error payload schema or checks that error responses avoid internal stack traces across all error scenarios.",
+              "Performance tests need defined thresholds: TC21/TC22 lack explicit response time SLAs, throughput targets, and verification for graceful degradation or 429/503 behavior under extreme load."
+            ],
+            "recommendations": [
+              "Add pagination tests if the API can return large tag lists: test page/limit parameters, Link headers, and client consumption of paginated results; if pagination is not supported, document and assert behavior for very large lists.",
+              "Assert response headers: add checks for Content-Type: application/json, charset if applicable, and for caching headers (ETag, Cache-Control). Add conditional GET test using If-None-Match to verify 304 behavior if ETag is implemented.",
+              "Add rate limiting tests: simulate bursts to verify throttling responses (429) and presence of Retry-After header, and verify system stability under sustained high request rates.",
+              "Add authorization scope tests: include scenarios with valid tokens but insufficient privileges resulting in 403, and tests for different credential types if applicable.",
+              "Explicitly test default parameter behavior: create a scenario where invoice item has both active and deleted tags and call the endpoint without includedDeleted to assert deleted tags are excluded; similarly call without audit to assert audit NONE behavior.",
+              "Extend schema validation across all successful scenarios: assert each Tag object conforms to the Tag schema in TC02, TC03, TC04, TC06 and regression tests to ensure consistency across flags and audit levels.",
+              "Harden error payload checks: validate error response schema and ensure no internal details are leaked for all error cases (400, 401, 403, 404, 503).",
+              "Clarify or remove irrelevant UUID length edge tests: replace min/max length checks with tests for invalid characters, malformed UUIDs, and boundary character sets if needed.",
+              "Make performance tests measurable: define concrete SLAs (max p95/p99 response times, throughput) and add checks for data integrity under load and behavior when dependent services fail. Include tests that verify graceful degradation and appropriate status codes (503 vs 200) per design.",
+              "If audit logging integration is critical, add end-to-end assertions that audit messages are persisted or forwarded (and a teardown/verification strategy) and test retry/failure handling in the audit path."
+            ],
+            "usage": {
+              "completion_tokens": 6792,
+              "prompt_tokens": 6114,
+              "total_tokens": 12906,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5696,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

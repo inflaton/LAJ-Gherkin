@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-13T04:36:45.498333",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:36:26.819609",
+    "benchmark_end_time": "2025-10-13T04:36:45.498330",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 18.678721,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload / Success: Multiple scenarios (TC01, TC02, TC03, TC04, TC05, TC26) cover successful transfers with minimum and optional parameters, different billingPolicy values, requestedDate, pluginProperty handling, Location header presence, and response Bundle body.",
+              "Input Validation: Invalid bundleId format (TC08), invalid requestedDate (TC09), and invalid billingPolicy (TC10) are covered.",
+              "Missing required inputs: Missing required header (TC11) and missing request body/accountId (TC12) are covered.",
+              "Not Found / Error cases: Bundle not found (TC06) and target account not found (TC07, TC23, TC22) are covered.",
+              "Authentication and Authorization: Unauthorized access producing 401 is covered (TC13).",
+              "Service/Error Handling: Dependent-service unavailable and system error (TC14, TC24) are included to cover 503/500 server error behaviors.",
+              "Security: Basic injection/XSS checks for accountId and pluginProperty are included (TC15, TC16).",
+              "Edge cases and robustness: Empty pluginProperty (TC18), extra unexpected parameters ignored (TC19), large pluginProperty payload (TC20) and maximum header length (TC21) are present.",
+              "Concurrency & Performance: Concurrent requests (TC29), response time normal/peak load (TC27, TC28) and resource utilization (TC30) are included to cover scalability concerns.",
+              "Regression cases: Transfer to same account forbidden (TC25) and backward compatibility (TC26) are included."
+            ],
+            "gaps": [
+              "Duplicate Submission / Idempotency: No explicit scenario validates duplicate submissions, retry semantics besides TC17 transient network retry (TC17 covers a transient retry success, but not duplicate submission or idempotency semantics for repeated identical POSTs).",
+              "Malformed JSON / Content-Type validation: There is no explicit test for malformed JSON payloads, missing/incorrect Content-Type header, or schema-level validation failures beyond missing accountId.",
+              "Partial failure / Transactionality: No scenario asserts that partial failures (e.g., transfer partially applied across subsystems) are rolled back or leave system in consistent state.",
+              "Detailed Location header validation: Tests assert presence of Location header but do not validate its format/URL pattern or that it matches returned Bundle.id.",
+              "Authorization scopes / Forbidden (403): Only 401 (unauthorized) is covered; there is no 403 (forbidden) test for insufficient permissions when authenticated.",
+              "Duplicate target handling / idempotency token: No tests for using idempotency tokens or for how repeated identical requests are handled when transfer already occurred (duplicate transfer attempts).",
+              "Schema conformance: While bundle response is asserted to be a valid Bundle, there are no explicit negative tests for unexpected/missing fields in response schema nor versioning/backwards-compatibility checks beyond TC26.",
+              "Rate limiting and throttling: No tests to validate behavior when the API is rate-limited (relevant under POST method guidelines and performance).",
+              "Payload boundary specifics: TC20 covers large payloads generally, but there are no explicit tests for exact size limits, or server response codes for varying payload sizes except 413 possibility.",
+              "Audit/logging/non-functional checks: No explicit checks that required audit headers (CreatedBy/Reason/Comment) are recorded in logs/audit trails or surfaced in response metadata."
+            ],
+            "recommendations": [
+              "Add explicit duplicate-submission/idempotency tests: scenarios that POST the same transfer twice and assert either safe idempotent behavior or a clear error (e.g., 409) and no double-transfer side-effects.",
+              "Add malformed JSON and Content-Type tests: include scenarios that send invalid JSON, missing Content-Type, or wrong media type and expect 400 with a clear validation error.",
+              "Add permission/authorization (403) tests: include scenarios where an authenticated user lacks the proper role/permission and assert a 403 Forbidden response.",
+              "Improve Location and response consistency checks: add assertions that Location header URL matches the returned Bundle.id and follows expected URL pattern.",
+              "Add transactional consistency tests: simulate partial downstream failures and verify rollbacks or compensating actions, ensuring no partial state remains.",
+              "Expand payload boundary tests: define and test explicit payload size boundaries to ensure correct 413 vs 201 behavior and that system limits are enforced and documented.",
+              "Add rate limiting/throttling tests: simulate bursts to validate rate-limit responses and graceful degradation (e.g., 429) per POST guidelines and performance concerns.",
+              "Add schema conformance tests for response Bundle: include negative tests where response is missing critical fields and verify client-visible behavior; include version compatibility checks for response shape.",
+              "Add audit/logging verification: test that X-Killbill-CreatedBy, Reason, and Comment appear in audit logs or metadata where applicable.",
+              "Clarify and document retry semantics: extend TC17 to include idempotency headers or tokens and explicitly document expected behavior on retry vs duplicate submissions."
+            ],
+            "usage": {
+              "completion_tokens": 1233,
+              "prompt_tokens": 7734,
+              "total_tokens": 8967,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

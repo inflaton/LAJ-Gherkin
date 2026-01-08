@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "23_2025-09-28T16:49:27.116251",
+    "jira_id": "23",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/invoices - Retrieve account invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T16:46:55.595103",
+    "benchmark_end_time": "2025-09-28T16:49:27.116247",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 151.521144,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "23_qe_sup-gpt4.1_agent-gpt4.1_1748917429.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request: Success path returns 200 with a JSON array of Invoice objects; default behavior excludes migration and voided invoices (TC01).",
+              "Query Parameters: startDate/endDate filtering including combined, partial, invalid range, and boundary dates (TC02, TC21, TC22, TC23); boolean flags withMigrationInvoices, unpaidInvoicesOnly, includeVoidedInvoices individually and in combination (TC03\u2013TC05, TC24); audit levels FULL and MINIMAL (TC06, TC07); unsupported parameter is ignored (TC09).",
+              "Empty Response: 200 with empty array when the account has no invoices or filters match none (TC08, TC25).",
+              "Error Handling: 400 for invalid accountId format and invalid input attempts; 404 for non-existent account (TC10, TC11, TC15).",
+              "Authorization: 401 for missing and invalid tokens (TC12, TC13).",
+              "Resilience/Performance: Service unavailable 503 (TC14); slow downstream leading to timeout behavior (200 or 504) (TC17); large data volume performance expectations (TC16); concurrency consistency (TC18).",
+              "Security Hardening: SQL/XSS-like injection attempts in query parameters are rejected (TC15, TC27).",
+              "Regression/Compatibility: Unpaid filter correctness and backward compatibility without query params (TC19, TC20).",
+              "Integration Robustness: Graceful handling of inconsistent downstream data (TC28)."
+            ],
+            "gaps": [
+              "Pagination: No concrete verification of pagination mechanics (e.g., limit/offset/page size, next/prev links/headers, deterministic ordering). TC16 mentions pagination but does not assert behavior.",
+              "Caching Behavior: No tests for ETag/If-None-Match or Last-Modified/If-Modified-Since leading to 304 Not Modified; no Cache-Control assertions.",
+              "Rate Limiting: No scenarios to trigger and verify 429 responses, Retry-After headers, or backoff behavior.",
+              "Content Negotiation/Headers: 'Produces: application/json' not explicitly asserted; no checks for Content-Type or Accept handling.",
+              "Audit Defaults and Enum Validation: No explicit test for audit default NONE or audit=NONE; no test for invalid enum values (e.g., audit='INVALID') or case sensitivity; no verification of field presence differences across NONE/MINIMAL/FULL.",
+              "Input Validation Details: No tests for malformed dates (e.g., '2023-13-01', non-ISO formats, time zones) or invalid boolean values ('yes', '1', 'abc') and their corresponding error codes.",
+              "Invoice Schema Contract: Scenarios do not validate the response against the '#/definitions/Invoice' schema (required fields, types, enums).",
+              "Authorization 403: If RBAC/permissioning is applicable, there is no test for forbidden access (403)."
+            ],
+            "recommendations": [
+              "Add pagination scenarios: request with explicit page/limit (if supported), assert page size, total count, and next/prev links/headers; verify first/last/empty page behavior and stable sort order. If pagination is not supported, add a scenario asserting the absence of pagination metadata with large datasets.",
+              "Add caching tests: capture ETag/Last-Modified on 200, re-GET with If-None-Match/If-Modified-Since to assert 304 and proper Cache-Control/Expires.",
+              "Introduce rate-limiting tests: burst concurrent requests to trigger 429, assert Retry-After and error schema; verify normal throughput below thresholds.",
+              "Assert content negotiation: verify response Content-Type is 'application/json' and that the endpoint honors Accept headers; include a test that rejects unsupported media types if applicable.",
+              "Expand audit coverage: test default (no audit param) yields NONE; test audit=NONE explicitly; test audit=INVALID returns 400/422; assert field-level differences between FULL, MINIMAL, and NONE.",
+              "Strengthen input validation: add malformed date formats and timezone variants; add invalid boolean values; confirm consistent 400/422 responses with clear error messages.",
+              "Add contract tests for the Invoice schema: validate required fields (e.g., invoiceId UUID, status, amount, currency, dates, items) and types/enums against '#/definitions/Invoice'.",
+              "If applicable, add a 403 authorization test to distinguish authentication (401) from authorization (403).",
+              "Document and test the exact inclusivity of date filters (on or after/on or before) with boundary timestamps to avoid off-by-one issues."
+            ],
+            "usage": {
+              "completion_tokens": 7299,
+              "prompt_tokens": 6428,
+              "total_tokens": 13727,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6336,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

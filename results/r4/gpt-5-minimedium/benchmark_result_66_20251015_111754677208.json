@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-15T11:17:54.677172",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:17:27.185381",
+    "benchmark_end_time": "2025-10-15T11:17:54.677166",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 27.491785,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Happy-path (TC01) verifies successful rename and checks DB update and expected 204 response.",
+              "Required/optional headers: TC01, TC02 and TC14 cover required X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment behavior.",
+              "Invalid Path/IDs: TC03 (malformed id) and TC04 (non-existent id) verify validation and 400/404 behavior.",
+              "Invalid payloads: TC06 (no body), TC07 (malformed JSON), TC08 (missing externalKey) cover malformed/missing payload cases.",
+              "Conflict handling: TC05 covers duplicate externalKey conflict within same account (400).",
+              "Edge cases and validation: TC09 (extra fields), TC10 (very long key), TC11 (empty key), TC19 (special chars), TC20 (leading/trailing spaces) provide extensive input-validation coverage.",
+              "Concurrency & performance: TC17 covers concurrent updates; TC16 and TC23 address large payload/performance and response time expectations.",
+              "Availability & error handling: TC13 covers service/unavailable dependencies (503).",
+              "Authorization: TC12 includes unauthorized/forbidden scenario coverage.",
+              "Regression/backward compatibility: TC18 and TC22 provide regression and legacy client checks.",
+              "Operational/UX: TC21 (unexpected header) and TC24 (documentation accessibility) add robustness and docs verification."
+            ],
+            "gaps": [
+              "Account-scoped uniqueness nuance: No explicit test asserts that renaming to an externalKey that exists in a different account is allowed (story requires uniqueness per account).",
+              "Idempotency / duplicate submission: No test verifies behavior when the same rename is submitted multiple times (should be safely idempotent / clearly defined).",
+              "Exact Content-Type/Media Type handling: No tests for missing/incorrect Content-Type header (e.g., expect 415 or 400) or for the response Content-Type and response body presence/absence on 204.",
+              "Precise header validation: Tests cover missing CreatedBy header but not invalid/empty CreatedBy values, or size/format limits of audit headers.",
+              "Deterministic expectations for ambiguous cases: Several edge tests (TC10, TC14, TC16, TC17, TC18, TC19, TC20) allow either 204 or 400/409 \u2014 lack of a single expected behaviour makes acceptance ambiguous and reduces assertion strength.",
+              "Duplicate-key rename to same key: No scenario for renaming a bundle to its current externalKey (should be handled deterministically: no-op or error).",
+              "Authorization granularity: TC12 checks unauthorized/invalid token but does not test role-based permissions (403 vs 401 distinctions, or scope of the actor in X-Killbill-CreatedBy).",
+              "Rate limiting / throttling: No tests to verify rate limiting, burst handling, or behavior under repeated rapid requests beyond TC17 concurrency.",
+              "Response headers and audit logging: No assertions for audit trails, response headers (e.g., request id, timestamps), or server-provided metadata."
+            ],
+            "recommendations": [
+              "Add a test that attempts to rename a bundle to an externalKey that already exists but on a different account and assert it succeeds (or fails only if policy requires global uniqueness).",
+              "Add idempotency/duplicate submission tests: submit identical rename twice and assert either a safe no-op or defined response code; include tests for repeated requests to ensure duplicate handling.",
+              "Add media-type tests: verify behavior when Content-Type is missing or not application/json (expect 415 or documented error), and assert the response Content-Type and that 204 contains no body per API contract.",
+              "Tighten assertions for edge cases: replace \"204 or 400\" style expectations with precise expected behavior defined by product; if behavior is intentionally variable, add assertions that capture and assert the policy used.",
+              "Validate audit headers strictly: add tests for invalid/blank X-Killbill-CreatedBy values, and for maximum lengths/formats of X-Killbill-Reason/Comment.",
+              "Add a test for renaming to the same externalKey (idempotent case) and define expected outcome.",
+              "Expand authorization tests to cover role/permission scenarios (403 vs 401), and actor-scoped behavior when X-Killbill-CreatedBy differs from auth token subject if applicable.",
+              "Add rate-limiting / throttling tests to cover excessive request scenarios and verify returned status codes and Retry-After headers.",
+              "Add assertions for response headers and audit/logging side effects where applicable (e.g., request-ids, timestamps, audit entries in DB).",
+              "Clarify and add tests for any server constraints (max length, allowed characters) and make expected responses deterministic rather than permissive."
+            ],
+            "usage": {
+              "completion_tokens": 2535,
+              "prompt_tokens": 6051,
+              "total_tokens": 8586,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1536,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-13T12:53:41.721145",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T12:51:54.174915",
+    "benchmark_end_time": "2025-10-13T12:53:41.721138",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 107.546223,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE: Valid Deletion \u2014 successful 204 with side-effect verification (TC01, TC02, TC12, TC13, TC17, TC18, TC14 performance, TC19 retry).",
+              "DELETE: Non-Existent Resource \u2014 404 when account or email does not exist, including no emails case (TC03, TC04, TC09).",
+              "DELETE: Concurrency \u2014 concurrent deletes yield one 204 and remaining 404s (TC15).",
+              "Request validation \u2014 400 for invalid accountId or email, including injection/XSS (TC05, TC06, TC16).",
+              "Required/optional headers \u2014 required X-Killbill-CreatedBy present and enforced (TC01, TC07); optional Reason/Comment accepted (TC02).",
+              "Authorization \u2014 401 for invalid/expired token (TC10).",
+              "Server error handling \u2014 dependency/service unavailable returns 503 (TC11).",
+              "Query parameter tolerance \u2014 extra unsupported parameter does not break deletion (TC08)."
+            ],
+            "gaps": [
+              "DELETE: Soft Deletes \u2014 no test to verify whether deletion is soft vs hard (e.g., flagging email as deleted vs physical removal).",
+              "Response semantics \u2014 no assertions that 204 has an empty body and appropriate headers; no check that 4xx/5xx error responses are application/json as per 'Produces'.",
+              "Idempotency \u2014 no sequential repeat DELETE of the same email to confirm consistent behavior (e.g., first 204 then 404 or always 204).",
+              "URL/path encoding \u2014 no tests for emails requiring URL encoding (e.g., user+tag@example.com, percent-encoded characters, unicode/IDN) and proper decoding on the server.",
+              "Header edge cases \u2014 no tests for empty/whitespace or excessively long X-Killbill-CreatedBy; no boundary tests for Reason/Comment length and character set.",
+              "Authorization granularity \u2014 no test for authorized but forbidden user (403) if RBAC is enforced."
+            ],
+            "recommendations": [
+              "Add a scenario to determine and assert the intended delete model (soft vs hard) by querying emails after deletion or checking a 'deleted' flag.",
+              "Add response-shape checks: assert empty body for 204 and Content-Type header for error responses matches application/json; validate standard error schema.",
+              "Add an idempotency test: delete an existing email, then delete it again and assert the expected status code on the second call.",
+              "Add URL-encoding tests for special-character emails (e.g., user+tag@example.com encoded as user%2Btag@example.com) and ensure correct matching.",
+              "Add header boundary tests: missing vs blank vs overly long X-Killbill-CreatedBy; large Reason/Comment values and Unicode handling.",
+              "If applicable, add a 403 Forbidden scenario to cover RBAC where a valid token lacks delete permissions."
+            ],
+            "usage": {
+              "completion_tokens": 5459,
+              "prompt_tokens": 5675,
+              "total_tokens": 11134,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4864,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-09-28T05:11:38.754675",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:11:23.669388",
+    "benchmark_end_time": "2025-09-28T05:11:38.754668",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 15.08528,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01, TC02, TC13, TC14, TC15, TC23) verify successful updates and correct persistence for valid payloads and optional fields.",
+              "Request validation (format & presence): TC03, TC04, TC05, TC09, TC10 cover missing headers, invalid UUID formats, missing body, and malformed JSON.",
+              "Non-existing resources: TC06, TC07, TC12 check 404 behavior when payment or transaction is absent or DB is empty.",
+              "State validation / business rules: TC08 addresses inconsistent or invalid state transitions and expects 400 responses.",
+              "Authorization: TC11 verifies authentication requirement (401).",
+              "Optional headers and variations: TC02, TC24, TC26 exercise optional headers present/missing and whitespace/case variations.",
+              "Concurrency and race conditions: TC17 tests concurrent updates to the same transaction and verifies final consistency.",
+              "Security: TC18 and TC19 include SQL injection and XSS payload checks.",
+              "Resilience / timeouts / degraded dependencies: TC16 and TC22 cover backend timeouts and degraded dependent services behavior.",
+              "Performance & load: TC21 addresses bulk requests / high load and performance expectations.",
+              "Edge cases & regression: TC20 addresses a previously problematic state; TC25 ignores unsupported query params."
+            ],
+            "gaps": [
+              "PUT-specific standard guidance: Server Error Handling (5xx) \u2014 No explicit tests that simulate internal server errors (e.g., DB failure) and assert 500 responses or graceful degradation.",
+              "Idempotency / Duplicate Submission: No explicit test for duplicate/replayed requests and whether updates are idempotent or handled gracefully.",
+              "Detailed schema/type validation: While malformed JSON and invalid states are covered, there are no explicit tests for invalid data types for specific AdminPayment fields (e.g., numeric fields sent as strings, invalid enum values beyond state transitions).",
+              "Partial update semantics clarity: Although TC23 covers \"only required fields\", there is no explicit negative test asserting partial updates are rejected if the API does not allow them (i.e., behavior is asserted only for success path, not for \"partial update not allowed\").",
+              "HTTP headers & response metadata: No tests check response headers, caching or semantics (ETag, Cache-Control) \u2014 less relevant for PUT but sometimes required by guidelines for clients to detect changes.",
+              "Rate limiting / throttling at API gateway level: TC21 stresses performance but there are no explicit rate-limiting/throttling tests that ensure correct 429 behavior under abusive request rates.",
+              "Validation of maximum/edge numeric precision and encoding: TC14 checks max lengths, but not numeric overflow/precision or unusual encodings (e.g., unicode, surrogate pairs).",
+              "Audit / logging / auditing headers effects: The story requires X-Killbill-CreatedBy and optional reason/comment headers; tests check presence and variation but do not validate audit/log entries or that reason/comment are persisted in an audit trail."
+            ],
+            "recommendations": [
+              "Add server-error simulation tests (e.g., simulate DB exception or dependent service crash) and assert 500 responses and that no partial state is persisted.",
+              "Add duplicate-submission / idempotency tests: send the same update twice (same payload and headers) and assert expected behavior (no duplicate side-effects, idempotent result or documented error).",
+              "Add strong schema/type validation tests: include invalid data types for specific AdminPayment fields (numbers as strings, invalid enum values) and assert 400 with descriptive validation errors.",
+              "Clarify and test partial-update contract: add negative test(s) to assert PUT rejects partial updates if the API requires full AdminPayment objects, or add tests verifying partial updates are accepted only for documented fields.",
+              "Add rate-limiting / throttling tests to assert 429 responses or graceful degradation when request rates exceed limits.",
+              "Add tests that verify audit/log behavior for X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment (are these recorded and queryable?), or at least assert headers surface in audit metadata if that is a contract requirement.",
+              "Extend security tests to include payloads exercising field-level type coercion and large payload abuse (e.g., very large strings or binary-like payloads) to ensure denial-of-service protection and correct validation.",
+              "If response metadata is part of API contract, add tests for response headers and any caching/consistency headers relevant to clients."
+            ],
+            "usage": {
+              "completion_tokens": 1189,
+              "prompt_tokens": 6337,
+              "total_tokens": 7526,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

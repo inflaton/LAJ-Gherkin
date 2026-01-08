@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-14T20:45:02.048812",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:44:22.729810",
+    "benchmark_end_time": "2025-10-14T20:45:02.048807",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 39.318997,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple successful paths returning 204 (all fields removed, subset removed, min/max counts, no fields present).",
+              "Parameter Semantics: Behavior with and without customField= UUIDs is validated; multi-valued query param handling is exercised; invalid customField format returns 400.",
+              "Required Header Validation: Missing X-Killbill-CreatedBy returns 400; optional X-Killbill-Reason and X-Killbill-Comment covered.",
+              "Path Parameter Validation: Invalid paymentId format returns 400; non-existent paymentId returns 404.",
+              "No-op Deletions: Deleting non-existent customField IDs results in 204 with no changes.",
+              "Auth/Error Handling: Unauthorized (401) and service unavailable (503) paths are covered.",
+              "Robustness/Hardening: Tests for unexpected query params, injection attempts (XSS/SQLi), and performance under load.",
+              "Integration/Regression: Audit log integration (available/unavailable) and regression case for previous bug are included."
+            ],
+            "gaps": [
+              "Concurrency: No scenarios where another actor deletes or modifies custom fields between request initiation and processing; no simultaneous DELETE requests racing on the same payment.",
+              "Idempotency: No test verifying that repeating the same DELETE (after all fields were removed) consistently returns 204 and remains a no-op.",
+              "Soft Delete Behavior: No explicit verification of whether deletions are soft vs hard per system expectations (e.g., ability to audit/restore or flags).",
+              "Response Headers/Content Negotiation: No checks for expected headers (e.g., Content-Type for 204, application/json \u201cproduces\u201d contract) or absence thereof for 204.",
+              "Authorization Variants: 403 forbidden (authenticated but not permitted) not covered, if applicable to this API.",
+              "Validation Edge Cases: Duplicate customField IDs in query, mixture of valid and non-existent UUIDs with defined outcome (partial success vs 204 no-op vs 400) not fully specified/tested.",
+              "Cross-Resource Validation: Behavior when customField UUIDs belong to a different payment (valid UUIDs but not associated) is not tested.",
+              "Rate Limiting/Throttling: No scenario for too many DELETE requests (429) if enforced by the platform."
+            ],
+            "recommendations": [
+              "Add concurrency scenarios: two clients deleting overlapping sets of custom fields simultaneously; verify no data corruption and consistent 204/appropriate error.",
+              "Add idempotency scenario: perform DELETE to remove all fields, then repeat the exact request; expect 204 and unchanged state.",
+              "Clarify and test deletion semantics (soft vs hard). If soft delete is expected, verify audit/undelete implications; if hard, assert absence via a GET of custom fields.",
+              "Verify response headers for 204 responses, including Content-Type, Cache-Control, and lack of body; ensure \u201cproduces application/json\u201d contract is respected or clarified.",
+              "Include authorization negative path for 403 (authenticated user without permission), if applicable to Kill Bill\u2019s RBAC.",
+              "Add validation edge cases: duplicate customField parameters; mixture of valid and invalid UUIDs\u2014confirm whether request should fail (400) or partially apply.",
+              "Test cross-association: supply valid UUIDs that belong to another payment; assert documented behavior (ignore with 204 vs 400).",
+              "If platform enforces limits, add rate limiting/throttling tests (429) for burst DELETE requests."
+            ],
+            "usage": {
+              "completion_tokens": 1498,
+              "prompt_tokens": 6120,
+              "total_tokens": 7618,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

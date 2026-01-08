@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-15T12:09:03.397895",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:07:59.781607",
+    "benchmark_end_time": "2025-10-15T12:09:03.397890",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 63.616283,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid PUT requests: Immediate resume and scheduled resume flows are covered (TC01, TC02, TC18) including plugin properties processing (TC03) and use of optional headers (TC04).",
+              "Error handling for resource state and existence: 404 for not found (TC05), 400 for invalid bundleId format and invalid parameter formats (TC06, TC19, TC20), and 400 for invalid state (active/cancelled) (TC08, TC09).",
+              "Authorization and header validation: missing and invalid X-Killbill-CreatedBy handled (TC07, TC10); header whitespace/case tolerance checked (TC26).",
+              "Concurrency, retries and duplicate requests: concurrent request handling and retry scenarios are addressed (TC15, TC21).",
+              "Server / integration failure handling: dependency and plugin failures simulated (TC14, TC25) and appropriate 5xx/504 behavior asserted.",
+              "Performance and scale: load/performance under normal/peak conditions and large pluginProperty payloads are covered (TC22, TC13).",
+              "Security: injection and XSS attack vectors are tested (TC16, TC17).",
+              "Boundary and input size tests: maximum header/parameter length and large numbers of pluginProperty values covered (TC12, TC13).",
+              "Extra/unexpected parameters and backward compatibility: unknown query params, legacy headers, regression scenarios covered (TC11, TC23, TC24).",
+              "Audit logging: reason/comment recorded verification exists (TC04).",
+              "Response-status assertions: success (204) and expected client/server error codes (400, 404, 401/403, 500, 504) are explicitly asserted across scenarios."
+            ],
+            "gaps": [
+              "Produces / response format verification: acceptance criteria says \"Produces: application/json\" but there are no assertions that error responses (and any non-204 responses) include Content-Type: application/json or follow a documented error JSON schema.",
+              "Subscription-level semantics: no scenario verifies that only paused subscriptions are resumed and that active or cancelled subscriptions within the same bundle remain unchanged (i.e., per-subscription state validation after resume).",
+              "RequestedDate input validation edge-cases: malformed date strings, timezone/offset variations, non-ISO formats and boundary dates (e.g., requestedDate == now) are not covered (only past vs future tested).",
+              "Atomicity / transactional integrity: no tests verify all-or-nothing behavior (if resume fails mid-way, does the system roll back or leave partial changes?).",
+              "PluginProperty semantics: missing coverage for duplicate keys, empty values, special characters/encoding, very large single property key/value sizes and the system behaviour when plugin processing fails for a subset of subscriptions.",
+              "Explicit idempotency expectations: while concurrency and retry are covered, there is no definitive test that asserts the API's documented idempotency semantics for repeated identical requests (what exact status to return on a repeated resume).",
+              "Rate limiting / throttling: standard guideline item not covered \u2014 no tests for 429 responses or how the system degrades under extreme request rates.",
+              "Error response schema & fields: tests refer to an \"error message\" but do not validate a consistent error payload structure (error code, type, message, timestamps, etc.).",
+              "Database / side-effect verification: no tests verify downstream side effects such as billing events, schedule updates, or subscription effective dates after resume; also no verification of audit entries beyond one happy-path check.",
+              "Negative plugin interaction: partial-success scenarios where plugin failures affect some subscriptions (and the expected behavior) are not fully exercised (beyond generic degraded-plugin/timeout tests)."
+            ],
+            "recommendations": [
+              "Add assertions for Content-Type and error response JSON schema on all non-204 responses (e.g., check Content-Type: application/json and standard error fields).",
+              "Add scenarios where a bundle contains mixed subscription states (paused, active, cancelled) and assert per-subscription post-conditions: only paused subscriptions become active; others unchanged.",
+              "Introduce malformed requestedDate tests (bad formats, timezone offsets, invalid ISO strings) and a case for requestedDate==now to validate boundary handling.",
+              "Create atomicity tests: simulate a mid-operation failure (e.g., fail a dependent service after some subscriptions resumed) and assert that system either fully rolls back or documents partial success behavior with clear error reporting.",
+              "Expand pluginProperty tests to cover duplicate keys, empty values, very long key/value pairs, special characters/encoding, and behavior when plugin processing succeeds for some properties and fails for others.",
+              "Define and add explicit idempotency tests that repeat the same PUT request and assert the exact expected response per the API contract (document whether repeat should be 204, 400, or 409).",
+              "Add rate-limiting/throttling tests to validate 429 or other throttling behavior under high-frequency requests.",
+              "Add tests to verify audit/log entries consistently for success, client errors, and server errors (fields: user, reason, comment, timestamp, operation), not just for one happy-path scenario.",
+              "Add end-to-end integration tests that validate downstream side effects (billing events, subscription effective dates, scheduled events) to ensure correctness after resume and to detect regressions in business logic.",
+              "Add more granular negative tests around plugin failures producing partial effects (e.g., plugin times out for some subscriptions) and assert documented behavior (rollback, partial success with detailed error, or compensating actions)."
+            ],
+            "usage": {
+              "completion_tokens": 6775,
+              "prompt_tokens": 6265,
+              "total_tokens": 13040,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5632,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

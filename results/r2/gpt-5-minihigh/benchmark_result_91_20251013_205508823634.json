@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-13T20:55:08.823607",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T20:52:52.662969",
+    "benchmark_end_time": "2025-10-13T20:55:08.823602",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 70,
+    "average_generation_time_seconds": 136.160633,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 70,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 70,
+            "covered": [
+              "Valid PUT requests: Multiple scenarios (TC01\u2013TC05) verify successful updates return 204 and that the database is updated/created accordingly.",
+              "Required and optional headers: TC01/TC03/TC09 validate presence/absence of required X-Killbill-CreatedBy and TC02 verifies optional X-Killbill-Reason and X-Killbill-Comment are accepted.",
+              "Path parameter validation: TC06 verifies invalid invoiceItemId format (non-UUID) yields a 400.",
+              "Non-existent resource handling: TC07, TC24 and TC25 cover 404 responses when invoice items are missing (single and database state variations).",
+              "Request body validation: TC08 (malformed JSON), TC10 (empty body) and TC11 (unsupported/extra fields) exercise request-body validation and error handling.",
+              "Payload size and performance: TC12 & TC21 exercise very large payload conditions; TC20 covers parallel requests/performance across many items.",
+              "Authentication and security: TC13 covers missing/invalid authentication (401); TC14 covers SQL-injection / invalid input payloads.",
+              "Server and dependency failures: TC15 tests DB-unavailable -> 500, TC16 tests timeout -> 504, TC19 tests dependent service unavailable -> 503.",
+              "Idempotency and regression: TC17 verifies repeated identical requests remain consistent; TC18 checks for regression (no unrelated data loss).",
+              "Edge cases and URL handling: TC22 covers minimum-value payloads; TC23 covers unexpected query parameters handling."
+            ],
+            "gaps": [
+              "Concurrency on the same resource: No explicit test for race conditions where multiple clients concurrently PUT different payloads to the same invoiceItemId (lost updates / conflict detection).",
+              "Partial-update semantics and replace/merge behavior: No test clarifies whether PUT replaces all existing custom fields, merges with existing fields, or removes omitted fields (e.g., sending an array that omits existing fields).",
+              "Content-Type enforcement and 415 behaviour: Tests do not check missing or incorrect Content-Type headers (e.g., non-application/json -> 415).",
+              "Authorization / insufficient privileges (403): There is a test for authentication failure (401) but none for authenticated users lacking modify privileges returning 403.",
+              "Field-level schema validation: Missing/invalid properties inside individual CustomField objects (wrong types, missing required attributes, boundary/format validation) are not exercised beyond generic malformed/unsupported-field tests.",
+              "Response headers and side-effect verification: No checks for response headers (Content-Type on error responses, any audit-trail headers) or positive verification that audit/log entries are created on success.",
+              "Atomicity / transactional behaviour: No tests simulate partial failures mid-update to ensure the operation is atomic (all-or-nothing) and rolls back on error.",
+              "HTTP method handling: No tests for incorrect HTTP methods (e.g., POST/GET/DELETE to this endpoint) returning 405.",
+              "Rate limiting / throttling: No tests for high-frequency bursts that would exercise rate limits or 429 responses.",
+              "Behavior of an explicit empty JSON array: TC10 covers an empty request body (invalid), but there is no test that sends an empty JSON array [] to validate whether that clears existing custom fields or is rejected."
+            ],
+            "recommendations": [
+              "Add concurrency tests that fire concurrent PUTs against the same invoiceItemId with different payloads and assert correctness (no lost updates) or defined conflict behavior; mark as high priority.",
+              "Add tests to define and assert PUT semantics for custom fields: replace vs merge vs delete. Include a case sending an empty JSON array to document whether it clears existing custom fields or is invalid.",
+              "Add Content-Type tests: missing Content-Type and incorrect Content-Type (e.g., text/plain) should produce a 415 or documented behavior.",
+              "Add authorization tests (403) for authenticated users without modify permissions to ensure proper access control.",
+              "Add fine-grained schema tests for CustomField objects: missing required properties, invalid data types, invalid field-name formats and boundary lengths (expect 400/422).",
+              "Add tests for response headers and audit side-effects: verify error responses include application/json, and verify audit logging is created on success (or that failure of audit logging is handled as in TC19).",
+              "Add atomicity tests that induce partial failures (e.g., simulate DB write failure mid-operation) and assert rollback/consistency.",
+              "Add negative tests for incorrect HTTP methods (expect 405) and rate-limiting tests (expect 429 or throttling behavior) to cover operational edge cases."
+            ],
+            "usage": {
+              "completion_tokens": 8131,
+              "prompt_tokens": 6450,
+              "total_tokens": 14581,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7168,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

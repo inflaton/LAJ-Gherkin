@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "3_2025-09-28T11:30:03.494308",
+    "jira_id": "3",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/tags - Remove tags from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:28:28.743911",
+    "benchmark_end_time": "2025-09-28T11:30:03.494304",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 94.750393,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "3_qe_sup-gpt4.1_agent-gpt4.1_1748915976.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "DELETE Method - Valid Deletion: Success paths returning 204 and empty body are well covered for single, multiple, all tags, empty array, and with/without optional headers (TC01, TC02, TC03, TC04, TC11, TC13, TC19, TC20).",
+              "DELETE Method - Non-Existent Resource: Invalid/non-existent accountId scenarios return 400 as expected (TC06, TC07).",
+              "Input validation: Invalid/malformed tagDef UUIDs and mixed valid/invalid values return 400 (TC08, TC14, TC18).",
+              "Required headers: Missing X-Killbill-CreatedBy returns 400; optional Reason/Comment accepted and omission supported (TC09, TC04, TC19).",
+              "Idempotency baseline: Deleting when no tags (or tag not present) still returns 204 (TC05).",
+              "Business rule: AUTO_PAY_OFF without default payment method returns 400 (TC10).",
+              "Authorization: 401/403 for unauthenticated/unauthorized client (TC15).",
+              "Resilience: 5xx service-unavailable handling is covered (TC12).",
+              "Concurrency (partial): Concurrent requests across multiple accounts with acceptable response times are exercised (TC17)."
+            ],
+            "gaps": [
+              "DELETE Method - Concurrency (race conditions on the same resource): No scenario where two users delete the same tag(s) on the same account at the same time, or a delete occurs while another request removes all tags; expected idempotent and conflict-free behavior not asserted.",
+              "DELETE Method - Soft delete/audit trail: No verification of audit/history entries capturing CreatedBy/Reason/Comment or whether tag removals are logically/audit-logged rather than hard-deleted.",
+              "Response headers: The story notes Produces: application/json, but tests do not validate response headers on 204 (e.g., Content-Type presence/absence) or other standard headers if required.",
+              "Collection format compliance: Spec indicates tagDef uses collectionFormat=multi. No negative test for incorrect formats (e.g., comma-separated list) to ensure proper 4xx handling.",
+              "Duplicate query params: No scenario covering duplicate tagDef values to confirm deduplication or defined behavior.",
+              "Partial presence in bulk delete: No explicit scenario where multiple tagDefs are sent but only a subset are currently applied; expected 204 and correct final state not asserted.",
+              "Idempotent retries: While TC16 covers retry after a transient network failure, there is no explicit check that submitting the same DELETE twice (without failure) consistently returns 204 and remains safe."
+            ],
+            "recommendations": [
+              "Add a race-condition scenario: send two concurrent DELETEs for the same account/tag(s); assert both return 204 and the final state has the tags removed exactly once.",
+              "Verify audit/soft-deletion expectations: after deletion, fetch audit/history to confirm CreatedBy/Reason/Comment are recorded and that the removal behavior matches the product\u2019s audit model.",
+              "Validate response headers for 204 responses: ensure Content-Type handling aligns with Produces and HTTP semantics (likely no body, and Content-Type absent or consistent).",
+              "Add a negative test for incorrect collection formatting (e.g., tagDef=uuid1,uuid2 as CSV) to ensure a 4xx is returned per collectionFormat=multi.",
+              "Add a test with duplicate tagDef parameters to define/verify deduplication behavior and ensure a 204 is still returned with correct final state.",
+              "Add a test where some provided tagDefs are not applied on the account; expect 204 and verify only applied tags are removed.",
+              "Add an explicit idempotency test: perform the same DELETE twice in succession; both should return 204 and the second call should be a no-op."
+            ],
+            "usage": {
+              "completion_tokens": 4390,
+              "prompt_tokens": 5684,
+              "total_tokens": 10074,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3584,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

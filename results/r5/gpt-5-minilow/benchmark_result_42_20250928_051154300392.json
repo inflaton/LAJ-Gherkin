@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "42_2025-09-28T05:11:54.300364",
+    "jira_id": "42",
+    "jira_title": "Implement/Test API: GET /1.0/kb/admin/queues - Get queues entries",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:11:38.755464",
+    "benchmark_end_time": "2025-09-28T05:11:54.300361",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 15.544897,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "42_qe_sup-gpt4.1_agent-gpt4.1_1748918658.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01-TC11, TC23, TC24) validate successful retrieval with different combinations of query parameters and default behavior.",
+              "Empty Response: TC11 and TC29 verify behavior when no data or filters produce no results (returns 200 and empty body).",
+              "Query Parameters: Extensive coverage for query parameters (accountId, queueName, serviceName, minDate/maxDate, withHistory, withInProcessing, withBusEvents, withNotifications); includes single-parameter, combined-parameter, boundary and malformed inputs (TC02-TC10, TC13, TC14, TC25, TC24).",
+              "Input Validation & Error Handling: Scenarios for invalid accountId format (TC13), account not found (TC14), malformed date (TC25), injection/XSS attempts (TC17, TC26) and general server errors/timeouts (TC19, TC30) are present.",
+              "Authorization: TC15 covers unauthorized access (401).",
+              "Resiliency & Scale: Large data volume (TC18), concurrent requests (TC20), transient network recovery (TC27) and a previously-fixed regression check (TC21) are included.",
+              "Response Type: TC01 asserts the response content-type is application/octet-stream as required by the story."
+            ],
+            "gaps": [
+              "Pagination: No scenarios exercise pagination or verify behavior when result sets are paginated (e.g., page/limit params, offsets, streaming chunking). The story expects an octet-stream but large-result pagination/streaming semantics are not validated beyond a single large-volume performance test (TC18).",
+              "Caching Behavior / Headers: No tests validate caching-related headers (ETag, Cache-Control, Last-Modified) or conditional GETs.",
+              "Rate Limiting / Throttling: No tests cover rate limiting, throttling responses (429) or behavior under rapid repeated requests; TC20 checks concurrency correctness but not throttling or limits.",
+              "Authorization - Permission Levels: Only 401 (unauthorized) is covered. There is no test for authenticated but unauthorized (403 / insufficient privileges) or token scope/roles variations.",
+              "Response Schema / Binary Content Validation: While content-type is asserted in one scenario, there are no tests validating the octet-stream contents (e.g., schema/format of the streamed data, ability to deserialize, binary integrity checks, or partial stream handling).",
+              "Cache/Idempotency for repeated identical requests: No checks for idempotent behavior or cache revalidation behavior on repeated requests.",
+              "Error payload schema consistency: TC28 mentions error message accessibility, but there are no concrete tests asserting a consistent error JSON schema across different error scenarios (400/404/500/etc.).",
+              "Rate-limit + large-volume intersection: No tests validate how large-volume requests behave when rate limits are enforced or how pagination interacts with streaming performance/timeouts."
+            ],
+            "recommendations": [
+              "Add pagination tests: include scenarios for page/limit or cursor-based retrieval, verify correct slicing of results, boundary conditions (last page, page beyond range), and streaming behavior when content is large.",
+              "Add caching tests: assert ETag, Cache-Control, Last-Modified headers where applicable; include conditional GET (If-None-Match / If-Modified-Since) behavior and 304 responses.",
+              "Add rate limiting tests: simulate rapid repeated requests to assert 429 responses or configured throttling behavior and proper Retry-After headers.",
+              "Extend authorization tests: include 403 tests for authenticated users without admin privileges and tests for expired/insufficient-scope tokens.",
+              "Validate response payload/schema for application/octet-stream: add tests that deserialize/parse the stream, assert expected message structure, binary boundaries, and that history/bus events/notifications flags affect the serialized output correctly.",
+              "Standardize error schema tests: assert that 400/404/500/503/504 error responses follow a consistent JSON error payload structure (human-readable message, machine-readable code, trace/id where applicable).",
+              "Combine large-volume and pagination/rate-limit tests: exercise scenarios where large datasets are paginated and rate limits are in effect to validate graceful degradation and acceptable response times.",
+              "Add tests for caching + concurrency interactions: ensure consistent results under concurrent conditional requests and that caching headers do not leak sensitive data."
+            ],
+            "usage": {
+              "completion_tokens": 1095,
+              "prompt_tokens": 6030,
+              "total_tokens": 7125,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

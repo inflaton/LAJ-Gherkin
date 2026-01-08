@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-13T04:32:03.030454",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:31:41.069888",
+    "benchmark_end_time": "2025-10-13T04:32:03.030451",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 21.960563,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01..TC07, TC11, TC12, TC20) verify successful deletion returns 204 and account marked closed (including idempotency).",
+              "Query Parameters: Comprehensive coverage of the four optional boolean query parameters \u2014 default behavior (TC01), all-true (TC02), all-false (TC03), single-true permutations (TC04), pairwise combinations (TC05), and extra/unsupported param ignored (TC13).",
+              "Input Validation: Explicit test for invalid accountId format (TC08) and SQL injection attempt (TC15) validating defensive input handling.",
+              "Authorization and Headers: Tests for missing required header X-Killbill-CreatedBy (TC09), missing/invalid auth (TC10), and backward compatibility with only required headers (TC20).",
+              "Error Handling / Server Errors: System error scenario (TC14) covering 500 responses when dependencies (database) are unavailable.",
+              "Scale and Performance: Large dataset handling (TC07) and concurrent closures (TC18) to validate performance and concurrency behavior.",
+              "Security: XSS attempt in header (TC16) and SQL injection (TC15) cover common security attack vectors and ensure inputs are sanitized/blocked.",
+              "Idempotency / Non-existent resource: TC11 (already closed) and TC12 (non-existent) verify idempotent behavior (204) for repeated or missing resources.",
+              "Regression & Accessibility: Regression tests for a previous bug with unpaid invoices (TC19) and documentation/accessibility check (TC21).",
+              "Timeout / Retry: Transient network retry scenario (TC17) ensures retry behavior and idempotency."
+            ],
+            "gaps": [
+              "Response Body / Content-Type: The story notes 'Produces: application/json'. The Gherkin asserts status codes but does not assert response Content-Type headers or validate that response bodies (where applicable) are JSON or include expected error payload structure.",
+              "Detailed Header Validation: Tests assert presence/missing X-Killbill-CreatedBy but do not validate optional header behaviors in detail (e.g., X-Killbill-Reason content handling, maximum lengths, or malformed header values besides XSS).",
+              "Boolean/query-parameter parsing robustness: No negative tests for invalid boolean values (e.g., cancelAllSubscriptions=notABool, or numeric/empty values) to verify input validation and defaulting behavior.",
+              "Transactionality / Partial Failure: No scenario exercises partial failure during multi-step cleanup (e.g., subscriptions cancel succeeds but invoice write-off fails) to verify atomicity/rollback or clear partial-failure semantics.",
+              "Soft Delete semantics and data state post-delete: The tests check 'marked as closed' but do not verify underlying soft-delete fields, audit trails, timestamps, or that records remain accessible/read-only as required by soft-delete policies.",
+              "Exact semantics of defaults: The API spec lists default for removeFutureNotifications=true; test suite implicitly assumes defaults but does not explicitly assert the default values conversion/behavior for every relevant scenario boundary.",
+              "Edge cases for accountId pattern: The invalid-accountId test exists, but there's no coverage for borderline valid UUID variations or very long path segments to ensure path parsing is safe.",
+              "Rate Limiting / Throttling: No tests for rate limiting (standard guidance) or behavior under burst load beyond the single concurrent scenario (TC18).",
+              "Caching / Headers (notable in GET guidance): While not strictly DELETE-specific, there is no verification that responses include appropriate cache headers (e.g., no-cache) for mutating endpoints.",
+              "Pagination / Large-list handling for dependent resources: When cancelling subscriptions or enumerating invoices, there is no explicit test verifying proper pagination/streaming behavior if the backend returns paged lists."
+            ],
+            "recommendations": [
+              "Add assertions for response Content-Type and JSON error payload schema for error scenarios (400/500), and for any success responses that include a body (even if empty).",
+              "Introduce negative tests for invalid boolean query parameter values and empty parameters to verify validation and defaulting logic.",
+              "Add tests for partial-failure/in-flight failure semantics: simulate failure in one cleanup sub-step (e.g., invoice write-off) while others succeed to validate transactionality, rollback, or documented partial-success behavior.",
+              "Add tests to verify soft-delete implementation details: check 'closed' flag, closure timestamp, audit trail entries, and whether data remains accessible or is hidden as expected.",
+              "Add boundary tests for accountId path parsing: very long strings, near-UUID borderline strings, and confirm the API rejects malformed path segments with 400 and does not interpret extra URL parts.",
+              "Expand header validation: tests for long/invalid X-Killbill-Reason and X-Killbill-CreatedBy values, and behavior when optional headers are present but empty.",
+              "Add rate-limiting / throttling tests (burst requests) and extended performance tests under load beyond the 10-concurrent scenario to validate stability and graceful degradation.",
+              "If the backend enumerates subscriptions/invoices in pages, add tests that mock paged responses and verify the DELETE correctly iterates through all pages when cancelAllSubscriptions/writeOff... are true.",
+              "Add tests to verify the API returns appropriate cache-control headers (e.g., no-store/no-cache) for mutating endpoints, or at least that caching behavior is explicit and safe.",
+              "Document expected behavior in partial edge cases (e.g., simultaneous deletes on same account) and create tests for race conditions (concurrency conflict handling beyond happy-path concurrency)."
+            ],
+            "usage": {
+              "completion_tokens": 1408,
+              "prompt_tokens": 6316,
+              "total_tokens": 7724,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

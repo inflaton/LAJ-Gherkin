@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-14T20:48:12.800186",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:47:18.706565",
+    "benchmark_end_time": "2025-10-14T20:48:12.800182",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 54.093617,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Valid Deletion: 204 returned and caches invalidated for a valid account (TC01).",
+              "DELETE Non-Existent Resource: 404 for unknown or absent accounts (TC02, TC16, TC18).",
+              "Input Validation: 400 for invalid UUID formats and injection/XSS attempts; missing path segment handled (TC03, TC04, TC10, TC12, TC14, TC15).",
+              "Authorization (unauthenticated): 401 for missing/invalid auth (TC05, TC06).",
+              "Operational robustness: 503 when system or cache service is degraded/unavailable; recovery via retry covered (TC07, TC08, TC17).",
+              "Concurrency/Performance: Concurrent DELETEs across accounts succeed within SLA (TC13).",
+              "Unsupported Method: 405 for GET on DELETE-only endpoint (TC11).",
+              "Query Parameters: Extra query params ignored without breaking success path (TC09).",
+              "Regression coverage: Prior defects and no regressions validated (TC12, TC19)."
+            ],
+            "gaps": [
+              "DELETE Concurrency on same resource: No test for idempotency/race on repeated DELETEs for the same account (should consistently return 204 and be safe).",
+              "Authorization (forbidden): No scenario for authenticated non-admin user receiving 403.",
+              "Error contract and headers: No assertions on error response schema and Content-Type=application/json for 4xx/5xx; no check that 204 has empty body and appropriate headers.",
+              "Server error handling: No coverage for 500 Internal Server Error from backend failures.",
+              "Rate limiting: No scenario for 429 Too Many Requests under burst traffic.",
+              "Method coverage breadth: Only GET checked for 405; no checks for POST/PUT/PATCH/HEAD/OPTIONS returning 405.",
+              "UUID pattern edge cases: No tests for uppercase hex, hyphenless UUIDs, segment length mismatches, or underscores (pattern vs true UUID validation).",
+              "Security hardening: No test for authenticated request with tampered/insufficient scopes (e.g., valid token lacking admin permissions)."
+            ],
+            "recommendations": [
+              "Add idempotency tests: send multiple concurrent and sequential DELETEs for the same accountId; all should return 204 and have no adverse side-effects.",
+              "Add a 403 scenario: authenticated non-admin (or token without admin scope) should be forbidden.",
+              "Validate response contracts: assert Content-Type=application/json and standard error fields (code, message, reason) for 4xx/5xx; assert empty body and appropriate headers for 204.",
+              "Introduce a backend failure simulation to verify 500 handling and error payload.",
+              "Add a rate limiting test: burst DELETEs to verify 429 (if enforced) and retry-after semantics.",
+              "Expand unsupported methods coverage to POST, PUT, PATCH, HEAD, and OPTIONS returning 405 with Allow header.",
+              "Broaden UUID validation: test uppercase UUIDs, hyphenless strings, incorrect segment sizes, and characters outside hex to ensure strict UUID handling.",
+              "Add a permissions test to ensure tokens without admin privileges cannot invalidate caches (expect 403)."
+            ],
+            "usage": {
+              "completion_tokens": 2079,
+              "prompt_tokens": 4640,
+              "total_tokens": 6719,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1408,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

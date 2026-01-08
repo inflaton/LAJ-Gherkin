@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-14T14:23:59.132874",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:23:18.565664",
+    "benchmark_end_time": "2025-10-14T14:23:59.132869",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 40.567205,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01\u2013TC04, TC18, TC24) validate correct behavior for resuming a paused bundle including required and optional headers/params.",
+              "Non-Existing Resource: TC05 verifies 404 when bundle not found.",
+              "Invalid Identifier: TC06 covers invalid UUID format with a 400 response.",
+              "Authorization: TC10 covers unauthorized access (invalid token) returning 401/403.",
+              "Required Header Validation: TC07 covers missing required X-Killbill-CreatedBy header (400).",
+              "State Validation: TC08 and TC09 cover attempts to resume bundles in invalid states (active, cancelled) with 400 responses.",
+              "Query Parameters: TC02 (requestedDate), TC03/TC13/TC19 (pluginProperty variations and limits), TC20 (requestedDate in past) check parameter handling and validation.",
+              "Optional Headers & Audit: TC04 checks reason/comment handling and audit log recording.",
+              "Concurrency: TC21 tests concurrent requests/race conditions.",
+              "Error Handling / Server Errors: TC14 models dependency failure -> 500; TC25 handles plugin service timeout behavior.",
+              "Retries/Transient Failures: TC15 validates retry behavior after transient network failure.",
+              "Security: TC16 and TC17 include SQL injection and XSS attempts to ensure safe handling.",
+              "Edge/Robustness: TC11 (extra params), TC12 (max length headers), TC26 (whitespace/case variations), TC22 (performance under load), TC23 (regression), TC25 (integration with degraded plugin) provide broad robustness coverage."
+            ],
+            "gaps": [
+              "Partial Update semantics: The story indicates no request body (N/A) but there is no explicit test confirming that partial payloads (if any are sent mistakenly) are rejected or ignored \u2014 useful to assert behavior when body is present.",
+              "RequestedDate format validation: Tests cover requestedDate in the past (TC20) and valid future date (TC02) but there is no explicit test for malformed date formats (e.g., bad string) returning 400.",
+              "PluginProperty format edge cases: TC19 tests non-array value, TC16 tests injection content, and TC13 tests very large counts \u2014 but there is no test for malformed key=value pairs (e.g., missing \"=\" or empty key/value) and behavior is unspecified.",
+              "Deterministic Authorization codes: TC10 accepts 401 or 403; there is no explicit distinction/test that differentiates authentication vs authorization failures (e.g., expired token -> 401, insufficient permissions -> 403).",
+              "Duplicate submission idempotency/duplicate requests semantics: While concurrency (TC21) and retry (TC15) exist, there is no explicit test for duplicate identical request semantics (idempotency expectations) beyond concurrency.",
+              "Rate limiting / throttling: No tests cover rate limiting, throttling, or API quota behavior.",
+              "Response headers and content-type expectations: The acceptance mentions producing application/json for errors, but there are no explicit tests asserting response Content-Type and any caching/headers for 204 or error responses.",
+              "Observability/audit detail coverage: TC04 checks audit recording generally, but there are no tests asserting exact audit payload contents (who, when, reason, comment) or traceability fields.",
+              "Client error vs server error boundaries for plugin interactions: TC25 and TC14 cover timeouts and dependency unavailability but do not exhaustively map which plugin failures should surface as 4xx vs 5xx."
+            ],
+            "recommendations": [
+              "Add a test for malformed requestedDate formats (e.g., requestedDate=not-a-date) expecting 400 to cover input validation beyond past/future semantics.",
+              "Add tests for malformed pluginProperty entries (missing \"=\" or empty key/value) to validate parameter parsing and error messages.",
+              "Add an idempotency/duplicate-request test to assert expected behavior when identical resume requests are re-sent (beyond concurrency/retry scenarios).",
+              "Split authorization tests into distinct scenarios for authentication (expired/invalid token -> 401) and authorization (valid token but insufficient permissions -> 403) to be explicit and deterministic.",
+              "Add assertions for response headers and content-type for both success (204) and error responses (error Content-Type application/json, relevant error fields) to meet the \"Produces: application/json\" note.",
+              "Add a test to confirm behavior when a request includes an unexpected request body (since payload is N/A in the spec) \u2014 ensure the server rejects or ignores it consistently.",
+              "Add rate-limiting/throttling tests if the API is subject to quotas (simulate many rapid requests and assert 429 or acceptable behavior).",
+              "Expand audit/log assertions to validate the exact recorded fields for reason/comment/createdBy and timestamps where required, to improve observability coverage.",
+              "Clarify and add tests mapping plugin/service failure types to expected HTTP codes (e.g., plugin validation -> 4xx vs plugin outage -> 5xx) to remove ambiguity."
+            ],
+            "usage": {
+              "completion_tokens": 1296,
+              "prompt_tokens": 6265,
+              "total_tokens": 7561,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

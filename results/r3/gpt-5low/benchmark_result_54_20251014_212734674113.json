@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-14T21:27:34.674078",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:27:06.876599",
+    "benchmark_end_time": "2025-10-14T21:27:34.674072",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 27.797473,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE: Valid deletion paths covered: full removal with no tagDef, selective removal by tagDef, empty-array regression, and empty-bundle case all return 204 with empty body.",
+              "DELETE: Non-existent resource handled with 404 and invalid bundleId format with 400.",
+              "DELETE: Concurrency covered via 100 concurrent DELETEs with expectation of no race conditions.",
+              "Input validation: Required header X-Killbill-CreatedBy presence and error when missing; optional headers Reason/Comment exercised; invalid tagDef UUID and mixed valid/invalid tagDef values return 400.",
+              "Query parameters: Multiple tagDef values using multi format and very large lists covered.",
+              "Operational robustness: Service unavailable (503) and timeout behavior (504 vs 204) considered.",
+              "Integration/data consistency: Post-delete GET verifies remaining tags."
+            ],
+            "gaps": [
+              "Soft delete behavior not defined or tested (e.g., audit trail/state versus permanent removal).",
+              "Response headers not validated (e.g., Content-Type/Produces application/json expectation for 204 responses).",
+              "Idempotency not verified (repeating the same DELETE should remain safe and return consistent status).",
+              "Behavior when tagDef contains valid UUIDs not associated to the bundle is not tested (should operation still return 204?).",
+              "Authorization/permission distinction is unclear: only 401 tested; 403 forbidden not covered if authenticated but not permitted.",
+              "Query param encoding nuances not tested (e.g., multi vs comma-separated; duplicate tagDef entries; whitespace/casing).",
+              "Error contract not standardized across cases (structure/schema of error body, error codes).",
+              "Audit/logging side effects not verified (e.g., entries created with CreatedBy/Reason/Comment).",
+              "Method/contract edges: 405 for unsupported methods on the same resource not covered; 415/Accept headers not applicable but not asserted.",
+              "Race with simultaneous tag add/remove by another client not covered (concurrency conflict beyond same-operation)."
+            ],
+            "recommendations": [
+              "Add a scenario to verify idempotency: delete same tags twice returns 204 and bundle remains without those tags.",
+              "Define and test soft-delete/audit expectations: verify audit logs/history record CreatedBy/Reason/Comment for the deletion.",
+              "Validate response headers: assert absence or presence of Content-Type for 204 and compliance with Produces application/json if any body is ever returned on error; also check standard error response schema.",
+              "Test deletion when tagDef includes valid UUIDs not on the bundle; expect 204 and no-op for those IDs (or document expected behavior).",
+              "Add authorization coverage for 403 Forbidden when authenticated but lacking permission; keep 401 for unauthenticated.",
+              "Expand query parameter tests: multi vs CSV encoding, duplicate tagDef values, URL-encoded values, and excessive length limits with expected errors.",
+              "Add a scenario covering concurrent add vs delete to the same bundle to ensure no lost updates or inconsistent state.",
+              "Standardize negative tests to assert a consistent error contract (fields like code, message, type, requestId).",
+              "Optionally add a 405 check on the same path for unsupported methods to validate contract hardening."
+            ],
+            "usage": {
+              "completion_tokens": 1382,
+              "prompt_tokens": 4976,
+              "total_tokens": 6358,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

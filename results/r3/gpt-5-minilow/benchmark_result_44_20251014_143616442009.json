@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-14T14:36:16.441977",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:35:29.057753",
+    "benchmark_end_time": "2025-10-14T14:36:16.441972",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 47.384219,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple successful scenarios (default params, explicit offset/limit, optional headers) validate the happy path and header usage.",
+              "Empty Response: TC04 verifies behaviour when no parked accounts exist.",
+              "Query Parameters: Tests for valid (offset, limit), invalid (negative, zero), non-integer and unexpected extra query parameters are present (TC02, TC06, TC07, TC11, TC13).",
+              "Authorization: Authentication token presence/absence and invalid/expired token are tested (TC01, TC05, TC08).",
+              "Error Handling: Server/unavailable dependency scenario (TC09) and invalid parameters produce appropriate error codes are included.",
+              "Headers and Auditing: Required header presence is tested and optional headers (reason, comment) are validated for auditable recording (TC03, TC16).",
+              "Edge Cases / Scale: High-volume and large-limit edge cases are included (TC10, TC12).",
+              "Concurrency / Idempotency Concerns: Concurrent requests and retry semantics are considered (TC15, TC18).",
+              "Security: Basic header-injection attempt is included (TC14).",
+              "Regression & Back-compat: Regression and older-client compatibility tests are included (TC16, TC17).",
+              "Accessibility / Documentation: API documentation accessibility test is present (TC19)."
+            ],
+            "gaps": [
+              "POST-specific guidelines: \"Valid Payload\" and \"Invalid Payload\" tests are not applicable or absent \u2014 story indicates no request body, but tests do not explicitly verify content-negotiation beyond application/json responses or validate that body-less requests behave consistently with different Content-Type headers.",
+              "Duplicate Submission / Idempotency: There is no explicit test ensuring duplicate submissions (replay of identical requests) are handled idempotently or produce safe results beyond TC15's retry with transient failure \u2014 no explicit duplicate-request detection/handling test.",
+              "Detailed Server Error Handling: 500 Internal Server Error simulation and clear verification of server-side error handling and client-visible error schema (stack-trace suppression, consistent error body) aren't explicitly covered (TC09 covers 503 but not 500).",
+              "Rate Limiting / Throttling: No tests for rate limiting, throttling or behavior under rapid repeated requests beyond TC18 concurrency (which focuses on correctness and resource utilization).",
+              "Caching Behavior: No tests for caching headers (ETag, Cache-Control) or caching semantics (not typical for this admin POST but listed in guidelines).",
+              "Response Body Schema & Assertions: Tests assert response code and content-type but lack explicit schema-level assertions (exact JSON structure, fields indicating how many invoices generated, per-account results, errors per-account).",
+              "Pagination semantics: While offset/limit numeric behaviours are tested, there is no test that walks pages across multiple requests to verify consistent and non-overlapping coverage across pagination boundaries (e.g., run offset=0, limit=100 then offset=100, limit=100 and ensure no overlap / full coverage).",
+              "Limits and Boundaries: Maximum allowed limit is tested conceptually (TC10), but there is no explicit test for server-enforced maximums vs provided maximums (e.g., what if client requests limit greater than server max), or the server response when limit exceeds a configured absolute cap.",
+              "Authentication / Authorization details: TC05 and TC08 cover missing/invalid auth at a high level but do not verify role-based authorization (is the token for an admin role vs regular user) or auditing of which user triggered operation beyond CreatedBy header parsing."
+            ],
+            "recommendations": [
+              "Add an explicit duplicate-submission test: send the same POST twice (with same headers/params) and assert invoices are not created twice and response indicates duplicate-safe behavior.",
+              "Introduce a 500 Internal Server Error simulation test to confirm consistent error responses and that no sensitive information (stack traces) is returned.",
+              "Add pagination-walk tests: issue successive requests with offset/limit to cover the entire parked-account set and assert non-overlap and full coverage (ensures correct pagination implementation).",
+              "Add tests for server-enforced maximum limit vs requested limit: request limit greater than the configured max and assert server either caps it or returns a meaningful error.",
+              "Add response-body schema validations: assert JSON fields that indicate number of invoices generated, per-account status, and error details when partial failures occur.",
+              "Add rate-limiting and throttling tests: rapid-fire requests and behaviour when limits are exceeded (expected 429 or other configured response).",
+              "Add role-based authorization tests: ensure only admin-scoped tokens can perform the operation and regular users receive 403.",
+              "Add caching-related checks if relevant for admin endpoints (confirm absence/presence of caching headers) or document that caching is intentionally not applied to this POST.",
+              "Add more detailed security fuzzing for headers and query params (beyond simple injection) to verify robust input sanitization and logging without leakage.",
+              "Clarify and add tests for content negotiation and Content-Type handling: include requests with different Content-Type headers and an explicit empty body to ensure consistent behavior."
+            ],
+            "usage": {
+              "completion_tokens": 1320,
+              "prompt_tokens": 5207,
+              "total_tokens": 6527,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-09-28T04:49:49.617603",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:49:37.285946",
+    "benchmark_end_time": "2025-09-28T04:49:49.617599",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 12.331653,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Successful cache invalidation for a valid account (TC01, TC19) with expected 204 and empty body.",
+              "Non-Existent Resource: Tests for account not found returning 404 (TC02, TC16, TC18).",
+              "Input Validation / Invalid ID Format: Multiple scenarios for malformed UUIDs and invalid patterns returning 400 (TC03, TC12, TC14, TC15).",
+              "Authentication: Unauthenticated and invalid/expired token scenarios returning 401 (TC05, TC06).",
+              "Unsupported Methods: Method-not-allowed behavior validated (TC11).",
+              "Error Conditions/Service Unavailability: Degraded performance and dependent cache service down scenarios (TC07, TC08) with expected 503 handling.",
+              "Query Parameters: Extra query param tolerated (TC09).",
+              "Concurrency & Performance: Concurrent DELETE requests and a response-time expectation (TC13).",
+              "Edge & Regression Cases: Tests for no accounts in system, large accountId edge, transient network recovery, and backward-compatibility regression (TC10, TC16, TC17, TC19).",
+              "Security Validation: Protection against SQL injection and XSS attempts in the accountId path (TC14, TC15)."
+            ],
+            "gaps": [
+              "Soft Delete Semantics: No scenario verifies whether deletion is soft vs. hard or asserts post-delete visibility in storage (e.g., record marked deleted vs present).",
+              "Authorization Scope / Roles: Tests assume admin auth but do not verify role enforcement (e.g., admin vs non-admin authorized but forbidden (403) behavior).",
+              "Detailed Response Contract: No tests asserting response headers, content-type in error responses, or presence/absence of caching headers for this admin endpoint.",
+              "Rate Limiting / Throttling: No tests for rate limiting, throttling, or behavior under rapid repeated requests beyond concurrent functional test (TC13 focuses on concurrency & perf but not throttling limits).",
+              "Idempotency / Race Conditions Beyond Concurrency: While concurrent deletes are tested, there is no scenario asserting idempotency (DELETE on already-invalidated cache should still return expected status) or validating race ordering results.",
+              "Persistence Verification: No test that verifies caches are actually invalidated by attempting to read cached values before/after the call (TC01 asserts \"should be invalidated\" but lacks explicit read/verification steps).",
+              "Detailed error responses: Tests check status codes and a generic error message existence but don\u2019t assert standardized error payload schema or exact error codes/messages."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification: after DELETE, check underlying storage or cache layer to confirm whether the cache keys were removed or marked deleted; include an idempotency test: re-DELETE the same account and assert the expected response (204 or 404 based on contract).",
+              "Add authorization role tests: send requests with a valid non-admin user to assert 403 Forbidden (or the correct policy), and test admin vs system/service tokens where applicable.",
+              "Assert response contract details: include checks for Content-Type, standardized error payload fields (code/message/type), and any relevant headers (e.g., Retry-After on 503).",
+              "Add rate-limiting/throttling tests: hammer the endpoint to validate proper rate limit responses (429) or graceful degradation policies.",
+              "Extend functional verification to prove cache was actually invalidated: before DELETE, populate cache/read cached values; after DELETE, verify cache miss or updated values.",
+              "Add idempotency and race-order tests: sequence of concurrent deletes and reads to assert deterministic behavior and proper handling when cache is already invalidated.",
+              "Include negative authorization tests for missing vs insufficient scopes and tests for malformed but long payloads to ensure robust input validation."
+            ],
+            "usage": {
+              "completion_tokens": 986,
+              "prompt_tokens": 4640,
+              "total_tokens": 5626,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

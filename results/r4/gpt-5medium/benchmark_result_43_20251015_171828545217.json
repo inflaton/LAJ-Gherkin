@@ -1,0 +1,97 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-10-15T17:18:28.545176",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T17:17:25.840601",
+    "benchmark_end_time": "2025-10-15T17:18:28.545168",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 62.704567,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "PUT \u2022 Valid Request: Multiple success paths verify 204 and state changes (TC01, TC02, TC14, TC15, TC23, TC24, TC26).",
+              "Headers \u2022 Required and optional: Required X-Killbill-CreatedBy validation (TC03) and optional X-Killbill-Reason/Comment presence/combinations (TC02, TC24).",
+              "Path parameters \u2022 UUID validation: Invalid paymentId/paymentTransactionId formats return 400 (TC04, TC05).",
+              "Non-existing resources: Proper 404 handling for missing payment/transaction and mismatched IDs (TC06, TC07, TC12, TC27).",
+              "Request body validation: Missing body (TC09), malformed JSON (TC10), invalid/inconsistent state data (TC08).",
+              "AuthN: 401 Unauthorized when credentials are missing/invalid (TC11).",
+              "Concurrency: Simultaneous updates ensure consistency and no corruption (TC17).",
+              "Resilience/timeouts: Backend slow/unavailable leads to 503/504 or resilience behavior (TC16, TC22).",
+              "Performance: High-load behavior assessed with rapid successive PUTs (TC21).",
+              "Security hardening: Inputs resilient to SQL injection and XSS (TC18, TC19).",
+              "Extraneous inputs: Unsupported body fields ignored (TC13) and extra query parameters ignored (TC25)."
+            ],
+            "gaps": [
+              "PUT \u2022 Partial update policy: No assertion whether unspecified fields are rejected or left unchanged; TC23 only checks required fields but not partial-update semantics.",
+              "Idempotency/duplicate submission: No test that repeating the same PUT yields the same final state and 204 without unintended side effects (useful for retries).",
+              "Authorization \u2022 403 Forbidden: No scenario for authenticated but non-admin user (RBAC).",
+              "Content negotiation/headers: No validation of Content-Type=application/json requirement or 415 Unsupported Media Type for wrong/missing Content-Type; no 406 handling for incompatible Accept header if applicable.",
+              "Audit trail: No verification that X-Killbill-CreatedBy/Reason/Comment are persisted in audit logs/history and retrievable via API.",
+              "Atomicity/transactionality: No test that payment transaction and associated payment state update atomically (all-or-nothing) with rollback on failure.",
+              "Server error handling: No scenario simulating internal errors (e.g., database failure) to assert consistent 500 response and error body schema.",
+              "Required header edge cases: No test for empty/blank X-Killbill-CreatedBy or overlong header values and expected validation response.",
+              "Validation boundaries: While max/min values are tested, there is no explicit negative test for out-of-range numeric values or invalid enums beyond generic inconsistent state (TC08).",
+              "Verification via public API: Success scenarios assert DB changes abstractly; no follow-up GET to confirm externally observable state/history is correct.",
+              "Rate limiting/throttling: No coverage for 429 Too Many Requests behavior under burst traffic (distinct from general performance).",
+              "Response semantics for 204: No assertion that response body is empty and headers are appropriate (e.g., Content-Type absent for 204) despite \u201cProduces: application/json\u201d note."
+            ],
+            "recommendations": [
+              "Add a partial-update semantics test: (a) only specified fields update and others remain unchanged if partial updates are allowed; or (b) request is rejected with 400 if full object is required.",
+              "Add idempotency test: Repeat the same PUT multiple times and verify final state remains stable and response stays 204.",
+              "Add RBAC test: Authenticated non-admin user receives 403 Forbidden.",
+              "Validate media types: Test missing/wrong Content-Type returns 415; include an Accept header test (406) if the API enforces it.",
+              "Add audit verification: After successful update, retrieve audit/history and verify CreatedBy/Reason/Comment are recorded correctly.",
+              "Test atomicity: Force a mid-operation failure (e.g., fail state update) and assert no partial persistence; all changes roll back.",
+              "Simulate server-side failures (e.g., DB outage) and assert 500 with consistent error payload.",
+              "Expand header validation: Empty/blank CreatedBy and excessively long values should be rejected with clear 4xx errors.",
+              "Add explicit invalid-range/enum tests for AdminPayment fields to complement max/min value cases.",
+              "Validate via read path: After 204, call appropriate GET endpoints to confirm payment and transaction states/history reflect the update.",
+              "Consider rate limiting tests to assert 429 behavior or document that it is not applicable for this admin endpoint.",
+              "Assert 204 response semantics: Response body is empty and headers are appropriate, clarifying the \u201cProduces: application/json\u201d discrepancy."
+            ],
+            "usage": {
+              "completion_tokens": 3178,
+              "prompt_tokens": 6337,
+              "total_tokens": 9515,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2176,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

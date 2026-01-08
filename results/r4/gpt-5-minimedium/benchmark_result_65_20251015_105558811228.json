@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "65_2025-10-15T10:55:58.811199",
+    "jira_id": "65",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/block - Block a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:55:37.435051",
+    "benchmark_end_time": "2025-10-15T10:55:58.811195",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 21.376144,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "65_qe_sup-gpt4.1_agent-gpt4.1_1748920218.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Required happy path: Successful creation with required headers/body (TC01) and with optional headers/query params (TC02, TC03, TC04).",
+              "Request validation: bundleId format validation (TC06), requestedDate format validation (TC11), malformed/missing body (TC08, TC10).",
+              "Resource existence errors: bundle-not-found 404 handled (TC05, TC07).",
+              "Headers: required X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment covered (TC01\u2013TC04, TC09).",
+              "Response schema/content: tests assert HTTP 201 and a JSON array of BlockingState objects and presence of expected fields (TC01, TC02, TC12, TC13\u2013TC15).",
+              "Query parameters: requestedDate and pluginProperty covered, including effective date and plugin properties validation (TC02, TC04, TC11, TC12).",
+              "Robustness and edge cases: large payloads (TC16), missing service availability / downstream errors (TC17, TC28), invalid authentication (TC18), concurrency and retry scenarios (TC21, TC22), injection/XSS sanitization (TC19, TC20).",
+              "Non-functional: performance under normal/peak load and resource utilization (TC25\u2013TC27), accessibility and documentation (TC30).",
+              "Regression/backward compatibility and charset handling: special characters and backward client compatibility covered (TC23, TC24).",
+              "Integration/consistency: cross-system consistency and dependent service error handling covered (TC28, TC29)."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency: no explicit test for duplicate POSTs (same payload) and how duplicates are detected/handled (distinct from concurrency).",
+              "500 Internal Server Error simulation: tests cover 502/503 but not explicit server-side failures like DB exception returning 500 and how it surfaces to client.",
+              "Authorization/roles: invalid auth token (401) is present (TC18) but there are no tests for authorization/permission failures resulting in 403 (role-based access control).",
+              "Explicit Content/Response headers: no assertions for response headers (Content-Type, Location, ETag, Cache-Control) or for Location header semantics on create.",
+              "RequestedDate semantics/timezones: format validation exists, but there are no tests for timezone handling, past/future dates, or boundary semantics of effective date application.",
+              "PluginProperty edge cases: no tests for empty pluginProperty arrays, null values, duplicated pluginProperty entries, or very large numbers of pluginProperty values.",
+              "Partial failure / transactional behavior: while integration errors are tested, there is no explicit test that verifies rollback/atomicity when some downstream systems accept and others fail (ensuring no partial state left).",
+              "Duplicate/concurrent conflicting states: concurrency test (TC22) checks multiple creates but does not verify conflict resolution or business rules when conflicting blocking states are submitted simultaneously (ordering, last-wins, reject-on-conflict).",
+              "Rate limiting / throttling: no tests for API rate limiting or behavior under excessive request bursts beyond performance/load tests.",
+              "Schema field boundary testing per-field: there are max/min and large payload tests, but not fine-grained tests for each BlockingState field (e.g., boolean flags, enum values, numeric ranges)."
+            ],
+            "recommendations": [
+              "Add a duplicate-submission test that posts the same BlockingState twice and asserts expected behavior (idempotent response, duplicate detection error, or duplicate creation semantics).",
+              "Simulate internal server errors (e.g., DB exception) to verify 500 responses and the content of error payloads; add tests asserting appropriate retry/alert behavior if applicable.",
+              "Add authorization role tests to validate 403 Forbidden for users lacking permission to block bundles (differentiate from authentication 401).",
+              "Assert response headers on success and error: Content-Type, Location (if used), and any caching/ETag headers; include tests that verify correct content-type and any required metadata headers.",
+              "Test requestedDate semantics: timezone handling, future vs past dates, and effective-date resolution (server-side interpretation) to ensure expected behavior across locales.",
+              "Cover pluginProperty edge cases: empty arrays, nulls, duplicated keys, and very large pluginProperty lists to ensure validation and limits.",
+              "Add transactional/consistency tests that simulate partial downstream failures and verify system rolls back or leaves system in a consistent state (no half-applied blocking).",
+              "Extend concurrency tests to assert conflict resolution rules (ordering, deduplication, last-writer wins or explicit rejection) and validate final state ordering/visibility.",
+              "Include rate-limiting/throttling tests (burst requests) to ensure proper 429 or backpressure behavior when applicable.",
+              "Add per-field boundary and enum validation tests for BlockingState schema fields (valid/invalid enum values, boolean handling, max lengths per field) and assert precise validation error messages."
+            ],
+            "usage": {
+              "completion_tokens": 2254,
+              "prompt_tokens": 7893,
+              "total_tokens": 10147,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

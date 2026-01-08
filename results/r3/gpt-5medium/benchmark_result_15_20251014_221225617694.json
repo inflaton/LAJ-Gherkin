@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-10-14T22:12:25.617661",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T22:10:51.092286",
+    "benchmark_end_time": "2025-10-14T22:12:25.617656",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 94.52537,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "POST - Valid Payload: Successful creation using required and optional headers; asserts 201, JSON body, and Location header (TC01, TC02, TC03, TC16).",
+              "POST - Invalid Payload: Malformed JSON, missing required fields, and empty payload return 400 (TC05, TC06, TC12).",
+              "Header Validation: Required X-Killbill-CreatedBy enforced (positive and negative), optional X-Killbill-Reason/Comment accepted, invalid header types rejected (TC01-04, TC02, TC08).",
+              "Location Header: Presence validated and used to retrieve the newly created resource via GET (TC01-03, TC20).",
+              "Large Payloads: Maximum allowed field sizes handled (TC11).",
+              "Server Error Handling (dependency/transport): Database unavailable -> 503; network timeout -> 504 (TC10, TC14).",
+              "Security: Unauthorized access returns 401 (TC09).",
+              "Robustness: Extra headers tolerated; behavior for extra fields in payload asserted (TC17, TC07).",
+              "Sanitization intent: Injection/XSS scenario considered to prevent script execution (TC15)."
+            ],
+            "gaps": [
+              "Duplicate Submission: Expected behavior is ambiguous (201 or 409). The test does not assert a single, deterministic outcome or set up a known-duplicate fixture (TC13).",
+              "Validation Depth: No field-level validation cases (e.g., invalid email format, out-of-range numeric values, invalid enums like currency/locale/timezone, string length constraints). TC15 is also ambiguous about expected outcome.",
+              "Content Negotiation/Media Types: No tests for incorrect Content-Type (e.g., text/plain -> 415) or unsupported Accept header (-> 406). Also no explicit assertion that response Content-Type is application/json despite the contract.",
+              "Server Error Handling (500): No coverage for unexpected internal errors (e.g., unhandled exception returning 500). Only 503/504 are tested.",
+              "Schema Conformance: No strict request/response JSON schema validation against the Account definition; tests only say \"contains Account object\" without verifying required/optional fields, types, and presence of server-assigned identifiers.",
+              "Unknown Fields Policy: TC07 assumes extra fields are ignored and still returns 201. The expected behavior should be confirmed against the schema (e.g., reject with 400 if additionalProperties=false).",
+              "Resource Identity: Success scenarios do not assert that a unique account identifier is returned/populated and stable when retrieved via GET.",
+              "Authorization Depth: 403 Forbidden (insufficient privileges) not covered if the API distinguishes it from 401 (policy-dependent)."
+            ],
+            "recommendations": [
+              "Make duplicate handling deterministic: define and assert the expected outcome (409 conflict vs. 201 idempotent create), and add setup to ensure a true duplicate. Split TC13 into explicit cases.",
+              "Add field-level validation scenarios: invalid email format, invalid phone patterns, out-of-range numeric fields, invalid enums (currency/locale/timezone), and overlength strings -> expect 400 with clear errors.",
+              "Add content negotiation tests: wrong Content-Type -> 415; unsupported Accept -> 406; and assert response Content-Type: application/json on success and errors.",
+              "Add a 500 Internal Server Error scenario by simulating an unexpected server exception, verifying error body and headers.",
+              "Introduce JSON schema validation steps for both request and response against the Account definition, including verification of server-assigned fields (e.g., accountId) and required properties.",
+              "Clarify and align behavior for unknown/extra fields in Account payload with the API spec. Update TC07 to assert the correct outcome (ignore vs. reject).",
+              "Enhance success-path assertions: verify the Location header format (absolute URL to the GET endpoint), response includes a non-empty accountId, and that a subsequent GET returns consistent data.",
+              "Optionally add a 403 scenario if the API enforces role-based restrictions distinct from authentication failures."
+            ],
+            "usage": {
+              "completion_tokens": 4173,
+              "prompt_tokens": 4821,
+              "total_tokens": 8994,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3328,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

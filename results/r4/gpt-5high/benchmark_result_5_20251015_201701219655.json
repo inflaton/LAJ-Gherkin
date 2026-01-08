@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "5_2025-10-15T20:17:01.219627",
+    "jira_id": "5",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/customFields - Add custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T20:14:20.542535",
+    "benchmark_end_time": "2025-10-15T20:17:01.219622",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 160.677087,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "5_qe_sup-gpt4.1_agent-gpt4.1_1748916088.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST - Valid Payload: Multiple positive scenarios (TC01\u2013TC05) verify 201 Created with JSON array response, required vs optional headers, and association to the specified account (accounts with and without existing custom fields).",
+              "POST - Invalid Payload: Comprehensive negatives (TC06\u2013TC12, TC26\u2013TC28, TC30) cover invalid UUID format, missing required header, malformed JSON, empty body/array, missing required fields, wrong data types, unsupported fields, duplicate field names, and null handling.",
+              "POST - Large Payloads: Boundary and overflow covered (TC14, TC15).",
+              "POST - Validation: Field-level constraints (max/min in TC29), UUID pattern (TC06), and optional vs required headers (TC02\u2013TC04, TC07) verified.",
+              "Server Resiliency (partial): Service unavailable 503 (TC17) and transient network failure with retry (TC20).",
+              "Authorization: Unauthorized access (401) tested (TC16).",
+              "Security: SQL injection and XSS inputs rejected (TC18, TC19).",
+              "Performance and Concurrency: Response time and concurrent requests with integrity (TC21, TC22).",
+              "Unexpected Parameters: Extra query parameter is accepted/ignored with success (TC13).",
+              "Regression/Integration: Prior bug regression and dependent service inconsistency considered (TC23, TC25)."
+            ],
+            "gaps": [
+              "Duplicate Submission/Idempotency: No explicit test to ensure retrying or resubmitting the same POST does not create duplicate custom fields (idempotency behavior not asserted).",
+              "Server Error Handling breadth: No simulation of 500 Internal Server Error (e.g., DB failure) or 504 Gateway Timeout; only 503 is covered.",
+              "Content negotiation/Media types: No tests for request Content-Type=application/json requirement (415 when missing/wrong) or Accept header handling (406). Response Content-Type header validation is missing even though the API produces application/json.",
+              "Response and error schema contracts: Tests assert generic error messages and \"matching the request\" but do not validate the response CustomField schema (e.g., ids, objectType, timestamps) or a structured error model (code/type/message).",
+              "Status code semantics: Non-existent account uses 400 (TC10) where 404 Not Found may be expected; payload too large uses 400 (TC15) where 413 Payload Too Large may be appropriate. These should be aligned with API spec.",
+              "Bulk atomicity: No scenario with mixed valid and invalid items in the same array to verify all-or-nothing behavior vs partial creation (and how many were created).",
+              "Conflicts with existing data: No test for attempting to add a field that already exists on the account (conflict/dup across existing state), separate from duplicates within the same payload.",
+              "Audit propagation: Optional headers X-Killbill-Reason and X-Killbill-Comment are set but not verified to be persisted in audit logs or retrievable later.",
+              "Header value validation: No boundary/character set tests for X-Killbill-CreatedBy/Reason/Comment (length limits, whitespace-only, invalid characters, encoding).",
+              "Idempotency key header: If the API supports an idempotency key header, it is not exercised.",
+              "Internationalization: No tests for Unicode/UTF-8 characters in field names/values."
+            ],
+            "recommendations": [
+              "Add idempotency tests: submit the same payload twice (with and without an idempotency key if supported). Verify no duplicate fields are created and define expected status (201 with same result or 409/200 depending on API).",
+              "Add server error simulations for 500 (e.g., forced DB failure) and 504 (upstream timeout) with assertions on status codes and error response body.",
+              "Add content negotiation tests: wrong/missing Content-Type -> 415; unacceptable Accept -> 406; assert response Content-Type=application/json on success.",
+              "Validate response contracts with schema: assert all required CustomField properties (ids, objectType, name, value, timestamps) and that server-generated values are present and correct. Validate structured error schema (code/type/message).",
+              "Align status codes: Change TC10 to expect 404 Not Found for non-existent account if per spec, and TC15 to 413 Payload Too Large. Ensure consistency with API documentation.",
+              "Test bulk atomicity: send an array with mixed valid/invalid items; verify whether the operation is atomic (no partial writes) and assert exact counts with a follow-up read.",
+              "Add conflict-with-existing test: attempt to add a field that already exists on the account; expect 409 Conflict or defined 4xx and verify no duplicate persisted.",
+              "Verify audit propagation: after a successful POST with Reason/Comment, fetch audit logs or the created fields to confirm audit metadata is stored as expected.",
+              "Add header validation edge cases: overly long CreatedBy/Reason/Comment, whitespace-only, invalid characters/encoding; expect 400 with clear error.",
+              "If supported, add tests for an idempotency key header behavior and deduplication across retries/time windows.",
+              "Add i18n tests: use Unicode/emoji in names/values to ensure proper UTF-8 handling and storage."
+            ],
+            "usage": {
+              "completion_tokens": 8788,
+              "prompt_tokens": 6650,
+              "total_tokens": 15438,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7680,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

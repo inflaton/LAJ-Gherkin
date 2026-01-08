@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "56_2025-09-28T05:31:24.145721",
+    "jira_id": "56",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/customFields - Add custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:30:44.683701",
+    "benchmark_end_time": "2025-09-28T05:31:24.145717",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 39.462016,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "56_qe_sup-gpt4.1_agent-gpt4.1_1748919557.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Core acceptance criteria: Successful creation (HTTP 201) with response body as a JSON array of created CustomField objects (TC01, TC02, TC03, TC04, TC13, TC19).",
+              "Path and resource validation: Invalid bundleId format -> HTTP 400 (TC05); non-existent bundle -> HTTP 404 (TC06).",
+              "Required header validation: Missing X-Killbill-CreatedBy -> HTTP 400 (TC07).",
+              "Request body validation: Malformed JSON, empty body, empty array, invalid schema, unsupported additional fields -> HTTP 400 (TC08, TC09, TC10, TC12, TC18).",
+              "Duplicate field names within request are validated (TC11).",
+              "Optional headers (X-Killbill-Reason, X-Killbill-Comment) are handled (TC02) and missing optional headers are tolerated (TC19).",
+              "Error & resilience handling: Service/unavailable dependency and service errors modelled (TC15, TC20) and network timeout behavior considered (TC16).",
+              "Performance & concurrency: Large payload handling and response-time expectations (TC17), concurrent requests across bundles (TC22).",
+              "Security: Input-sanitization/validation tests for SQL injection and XSS attempts (TC23, TC24).",
+              "Regression/behavioral checks: Case-sensitivity/regression for field names (TC21).",
+              "Documentation/accessibility: API docs accessibility covered (TC25)."
+            ],
+            "gaps": [
+              "Duplicate submission idempotency/semantics across repeated identical POSTs: there is TC11 for duplicates within a single request but no scenario that resubmits the same payload twice (uniqueness/duplicate-creation handling).",
+              "Content-Type and response headers verification: No tests assert Content-Type, Location header (if applicable), or other headers (e.g., request/response charset). Story specifies produces application/json but tests do not check response Content-Type. ",
+              "Detailed bundleId edge-cases: No tests for borderline UUID variants (uppercase, missing hyphens, leading/trailing whitespace) to exercise pattern matching strictly.",
+              "500 Internal Server Error simulation: There are 503 scenarios, but an explicit 500 (e.g., DB failure) server error path is not present as per POST guidelines (Server Error Handling).",
+              "Concurrency on same resource: TC22 tests concurrent requests across multiple bundles but there is no explicit concurrent requests test targeting the same bundle to exercise race conditions/consistency when multiple clients add fields to the same bundle simultaneously.",
+              "Header validation beyond presence: No tests for invalid or empty X-Killbill-CreatedBy values, or overly long X-Killbill-Reason/X-Killbill-Comment values and their validation rules.",
+              "Content-Type mismatch: No test for requests with wrong or missing Content-Type header (e.g., text/plain) to confirm API rejects or handles them appropriately.",
+              "Duplicate-created-field constraints across requests: no test for attempts to create a custom field that already exists from a previous request (idempotency vs duplicate creation).",
+              "Rate limiting / throttling: Not covered (important for POST heavy traffic scenarios).",
+              "Observability/caching: While more relevant to GET, there are no checks for headers that may be set by the server under load or retries (e.g., Retry-After for 503)."
+            ],
+            "recommendations": [
+              "Add a duplicate-submission scenario that posts the same valid payload twice and assert the system behaviour (201 + duplicate created vs 409/conflict vs idempotent response) to clarify idempotency expectations.",
+              "Include assertions for response headers: verify Content-Type is application/json and check for any Location or other relevant headers on 201 responses.",
+              "Add tests for borderline UUID formats and whitespace to ensure the path parameter validation strictly follows the UUID pattern.",
+              "Introduce a test that simulates an internal server error resulting in HTTP 500 (e.g., simulate DB exception) to validate server error handling and client-visible messaging.",
+              "Create a concurrency test that issues multiple concurrent POSTs against the same bundleId to verify data consistency, deduplication behavior, and transactional integrity.",
+              "Add header-validation cases: invalid/empty X-Killbill-CreatedBy, overly long X-Killbill-Reason/X-Killbill-Comment to confirm length/format constraints are enforced.",
+              "Test Content-Type mismatch and missing Content-Type handling to ensure the API enforces JSON payloads.",
+              "Add tests for duplicate-created-field across requests (create same field twice in separate requests) to check for constraints or error responses.",
+              "Consider adding rate-limiting/throttling tests (high request volume) and checks for Retry-After or proper status codes when limits are exceeded.",
+              "Where applicable, assert presence and content of Retry-After or similar headers for 503 responses; include monitoring/observability expectations for degraded states."
+            ],
+            "usage": {
+              "completion_tokens": 2178,
+              "prompt_tokens": 6302,
+              "total_tokens": 8480,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

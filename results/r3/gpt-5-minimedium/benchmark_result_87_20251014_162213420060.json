@@ -1,0 +1,100 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-14T16:22:13.420033",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T16:21:12.851346",
+    "benchmark_end_time": "2025-10-14T16:22:13.420029",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 60.568683,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Payload: Multiple happy-path scenarios (TC01, TC02, TC03, TC04, TC05, TC22) verify creation of one or many tags and association with the invoice item.",
+              "Optional Headers: TC03 covers the optional headers (X-Killbill-Reason, X-Killbill-Comment) and TC01/others validate X-Killbill-CreatedBy usage.",
+              "Required Header / Missing Header: TC06 verifies behavior when the required X-Killbill-CreatedBy header is missing.",
+              "Invalid Payload / Malformed Body: TC09 (malformed JSON) and TC12 (unsupported extra parameters) check malformed or unexpected request bodies.",
+              "Empty Payload / Validation: TC10 (empty list) and TC24 (null/empty string entries) cover payload validation for empty or invalid tag ids.",
+              "Invalid Identifiers: TC07 validates invalid invoice item id format and TC11 validates invalid tag definition UUIDs.",
+              "Non-Existing Resource: TC08 and TC15 check behavior when the invoice item does not exist (404).",
+              "Duplicate / Idempotency-ish Cases: TC13 and TC20 address duplicate tag IDs in a request and adding an already-existing tag (no duplication in result).",
+              "Large Payloads: TC19 exercises extremely large payload handling (201 or 413 expected).",
+              "Performance / Load: TC14 simulates heavy load and response-time expectations.",
+              "Authorization: TC16 covers missing/invalid authentication (401).",
+              "Dependency & Service Unavailable: TC17 and TC21 cover service or dependency unavailability (503).",
+              "Timeouts: TC25 covers timeout behavior (504).",
+              "Security: TC18 addresses malicious payloads and expected rejection (400/422).",
+              "Edge-state DB scenarios: TC15 (empty DB) and TC22 (partially populated DB) test different DB states.",
+              "Limits: TC23 checks behavior when an invoice item already has maximum allowed tags."
+            ],
+            "gaps": [
+              "Atomicity / Partial Success: No test covers partial success when a mixed list contains some valid and some invalid tagDefinitionIds (should the operation be all-or-nothing or partially succeed?).",
+              "Concurrent Requests / Race Conditions: No tests for concurrent requests (e.g., two clients adding the same tag at the same time) to validate concurrency control or duplicate creation under race.",
+              "Idempotency / Retry Semantics: There is limited coverage for retry behavior (network retries sending the same request) beyond duplicate-in-request handling; no explicit idempotency tests for repeated identical POSTs across network retries.",
+              "Full Schema Validation: Tests assert tagDefinitionId presence but do not validate the full Tag object schema (all fields, types, timestamps, id, audit info) or response Content-Type header.",
+              "Content-Type & Accept Headers: No tests for missing/incorrect Content-Type (e.g., not application/json) or Accept header handling.",
+              "Server 500 / Internal Errors: While dependency/service-down 503 and timeout 504 are covered, there is no explicit test for 500 Internal Server Error (e.g., simulated DB failure returning 500) and correct error formatting.",
+              "Authorization Granularity (403): TC16 covers 401 for missing/invalid auth token but there are no tests for authenticated but unauthorized users (403) or role/permission checks.",
+              "Rate Limiting / Throttling: No tests for rate limiting behavior (429) or burst handling.",
+              "Response Headers and Location: No tests assert expected response headers (Content-Type: application/json) or presence/format of Location header (if applicable) on 201 responses.",
+              "Behavior When Some Tag Definitions Do Not Exist: No explicit test for when some tagDefinitionIds in a multi-id request are missing vs all missing (should it be 400, 404, partial success?).",
+              "Payload size and resource exhaustion edge-cases beyond single large body: e.g., validating memory/DB limits or streaming failures are not covered."
+            ],
+            "recommendations": [
+              "Add an atomicity test for mixed-validity arrays: submit a request containing both valid and invalid tagDefinitionIds and assert whether the operation is transactional (none created) or partially applied\u2014verify documented behavior and return code.",
+              "Add concurrency tests: simulate parallel POSTs that add the same tag(s) to the same invoice item to validate race conditions and ensure no duplicates or integrity errors occur.",
+              "Add idempotency/retry tests: re-send the same POST after receiving a network timeout/ambiguous result and assert safe behavior (no duplicate tags) and consistent response codes.",
+              "Add full response schema assertions: verify each Tag object contains all expected fields and types, and assert Content-Type: application/json and any other relevant headers (e.g., ETag/Location if applicable).",
+              "Add tests for Content-Type handling: send requests with missing or incorrect Content-Type header and assert 415/400 behavior per API contract, and ensure Accept header handling if relevant.",
+              "Simulate server internal failures and test 500 responses: inject DB or service failures to ensure the API returns 500 with appropriate error body and that clients can distinguish 500 vs 503/504.",
+              "Add authorization granularity tests: test authenticated users with insufficient privileges to ensure a 403 is returned when appropriate.",
+              "Add rate-limiting tests: exercise repeated rapid requests to observe 429 responses or throttling behavior and validate retry-after headers.",
+              "Clarify and test multi-id semantics: add scenarios for some-not-found tagDefinitionIds in a multi-id request and assert the documented behavior (fail whole request vs partial apply), and add tests for explicit 404 vs 400 distinctions.",
+              "Add response header and location verification: if API is expected to return Location or audit headers on creation, add assertions; otherwise document that header behavior is intentionally absent.",
+              "Add stress and resource-exhaustion tests beyond a single large body test: e.g., repeated large requests, memory pressure, and DB capacity to validate robust behavior under heavy sustained load."
+            ],
+            "usage": {
+              "completion_tokens": 2463,
+              "prompt_tokens": 6738,
+              "total_tokens": 9201,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

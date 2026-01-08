@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-13T09:29:20.267089",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:28:30.583460",
+    "benchmark_end_time": "2025-10-13T09:29:20.267085",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 49.683625,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT Valid Request: Multiple success scenarios (with/without optional headers, with/without existing custom fields) verify 204 and that DB state is updated.",
+              "Non-Existing Resource: 404 behaviors covered for non-existent invoice items and empty database states.",
+              "Input Validation: Invalid UUID format (400), malformed JSON (400), empty body (400), and unsupported fields in body (400) are tested.",
+              "Auth and security: Unauthorized access (401) and invalid input/security payloads (e.g., SQL injection resulting in 400/422) are covered.",
+              "Large payloads and performance: Max-size payload handling (204/413) and performance tests (parallel requests, large payload timing) are included.",
+              "Robustness/Error handling: 500 (DB unavailable), 503 (dependency unavailable), and 504 (timeout) scenarios are covered.",
+              "Idempotency: Repeated identical PUT requests return 204 and preserve consistent state."
+            ],
+            "gaps": [
+              "Partial Update semantics: No explicit test to confirm whether partial updates are allowed or must be rejected, nor atomicity when the array contains a mix of valid and invalid CustomField entries.",
+              "Concurrency on the same resource: No race-condition test where multiple clients update the same invoice item concurrently; conflict handling/last-write-wins/optimistic locking not verified.",
+              "Content negotiation and headers: No tests for 415 when Content-Type is missing/incorrect (non-JSON), no Accept negotiation/406 tests, and no verification of response headers (e.g., Content-Type presence/absence for 204).",
+              "CustomField schema depth: Missing tests for invalid data types within CustomField, missing required properties, value length/character set constraints, duplicate field names/entries, or handling of duplicates.",
+              "Empty JSON array vs empty body: No scenario for a well-formed empty array [] and the expected outcome (no-op 204 vs 400).",
+              "Authorization/tenancy: No 403/forbidden or cross-tenant access control checks to ensure the invoice item cannot be modified outside its owning context.",
+              "Update semantics coverage: No explicit verification of create vs update vs delete behavior (e.g., removing fields absent from payload), and no no-op test where payload matches current state.",
+              "Produces/application-json: Story notes produces application/json; tests do not assert response content-type or that 204 responses have no body."
+            ],
+            "recommendations": [
+              "Add scenarios defining partial update behavior: update a subset of fields and specify whether it is accepted; include a mixed-validity payload and assert atomic failure or per-item validation rules.",
+              "Introduce concurrent update tests on the same invoice item (simultaneous PUTs with different payloads) to verify final state and any concurrency control (ETag/version, last-write-wins, or rejection).",
+              "Add content negotiation tests: missing/incorrect Content-Type -> 415; unacceptable Accept -> 406; verify response headers (e.g., Content-Type or absence thereof) for 204.",
+              "Expand CustomField schema validation: wrong data types, missing required attributes, max lengths, unicode/special characters, and duplicate keys/entries handling.",
+              "Add an empty JSON array [] scenario and define the expected status (204 no-op vs 400) per API contract.",
+              "Include authorization/tenancy scenarios that validate 403 for forbidden cross-account/tenant updates and ensure CreatedBy/Reason/Comment are audited if applicable.",
+              "Clarify and test field-level semantics: how removals are expressed, ensure deterministic behavior when payload equals current state (no-op), and verify that only intended fields are created/updated/removed."
+            ],
+            "usage": {
+              "completion_tokens": 3010,
+              "prompt_tokens": 6450,
+              "total_tokens": 9460,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2240,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

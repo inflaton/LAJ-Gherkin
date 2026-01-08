@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-14T20:02:10.880417",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:59:58.161420",
+    "benchmark_end_time": "2025-10-14T20:02:10.880413",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 132.718993,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request / Success: TC01 (happy path) and TC09/TC14 verify the successful update flow and assert 204 and that the bundle externalKey is updated.",
+              "Path parameter validation and non-existent resource: TC03 validates malformed bundleId format (expect 400). TC04 and TC15 cover non-existent bundle scenarios (expect 404).",
+              "Required and optional headers: TC01 and TC14 validate X-Killbill-CreatedBy (required) and X-Killbill-Reason/X-Killbill-Comment (optional); TC02 tests missing CreatedBy returns 400.",
+              "Request body validation: TC06 (missing body), TC07 (malformed JSON), and TC08 (missing externalKey) cover common invalid payload cases and error handling for malformed/missing payloads.",
+              "ExternalKey conflict detection: TC05 tests the primary business rule that externalKey collisions within the same account produce a 400 and an explanatory error.",
+              "Input boundary and sanitization: TC10 (very long externalKey), TC11 (empty externalKey), TC19 (special characters), and TC20 (leading/trailing spaces) exercise input validation/edge cases.",
+              "Robustness to extra data: TC09 and TC21 validate the endpoint tolerates extra fields in the JSON and unexpected headers without breaking the update.",
+              "Authorization / Authentication: TC12 covers missing/invalid authentication token behavior (401/403 expected).",
+              "Service dependency handling: TC13 simulates dependent service/database unavailability and expects a 503, covering error propagation for outages.",
+              "Concurrency: TC17 addresses concurrent updates to the same bundle and expects only one successful change with appropriate failure codes for others (400/409), covering race conditions.",
+              "Performance and large payloads: TC16 (very large but valid JSON) and TC23 (response time under normal load) address non-functional requirements.",
+              "Regression / Backwards compatibility: TC18 and TC22 ensure previous bug cases and legacy client behavior are validated.",
+              "Documentation & accessibility: TC24 ensures the API documentation and required fields/error codes are documented and accessible (accessibility testing)."
+            ],
+            "gaps": [
+              "Content-Type / Media type handling: No explicit tests for missing or incorrect Content-Type header (e.g., expecting 415 Unsupported Media Type or defined behavior on absent/incorrect Content-Type).",
+              "Error response contract and headers: Tests do not assert the error response Content-Type (application/json) or the structure/schema of the error payload (error code, message, fields).",
+              "ExternalKey type/nullability: No tests for invalid data types (externalKey as null, number, array) or for null vs empty string semantics.",
+              "Cross-account uniqueness: There is a test for conflict within the same account, but no test verifying that identical externalKey values are allowed for bundles in different accounts (scoped uniqueness).",
+              "Idempotency / duplicate submissions: No tests that verify behavior of repeated identical rename requests (idempotency guarantees) or how duplicates are handled server-side.",
+              "Permission granularity: TC12 covers missing/invalid auth, but there are no tests for authenticated users with insufficient permissions (explicit 403 behavior for valid credentials but unauthorized action).",
+              "Partial-update semantics and other bundle fields: No explicit tests asserting whether additional bundle fields in the payload are ignored, rejected, or applied \u2014 i.e., whether only externalKey may change.",
+              "Internal server error (500) handling: No tests simulate unexpected server-side failures returning 500 and confirm graceful error reporting/monitoring hooks.",
+              "Rate limiting and throttling: No tests exercise rate limit behavior (429) or high-throughput throttling.",
+              "Response verification for 204: Tests assume 204 but do not assert that the response has no body and that response headers follow any spec (e.g., Content-Type absence or presence)."
+            ],
+            "recommendations": [
+              "Add Content-Type negative tests: send requests with missing or incorrect Content-Type and assert the service returns the expected status (415 or 400) and a descriptive error payload.",
+              "Assert error response contract: for each error scenario (400, 401/403, 404, 409, 503, 500) add assertions that the response Content-Type is application/json and that the error body follows the agreed schema (error code, message, field errors).",
+              "Add type/nullability tests for externalKey: include cases where externalKey is null, numeric, array, boolean or omitted to ensure strict schema validation and clear error messages.",
+              "Cross-account uniqueness tests: create bundles on two different accounts with the same externalKey and verify the rename succeeds (no cross-account conflict), ensuring uniqueness is enforced per account only.",
+              "Idempotency / duplicate submission tests: exercise repeated identical rename requests (repeat TC01) and verify the second request either succeeds idempotently (204 with no change) or returns an idempotency-appropriate response, and that no duplicate side effects occur.",
+              "Permission granularity tests: add scenarios where a valid token is used by a user lacking rename permission to assert explicit 403 responses and ensure CreatedBy header validation (empty/invalid values) is enforced.",
+              "Partial-update and payload whitelisting tests: include payloads that attempt to change fields other than externalKey and assert those fields are not modified (or are rejected) according to API contract.",
+              "Simulate 500 Internal Server Error: add an integration test that simulates an unexpected server error and asserts a 500 with appropriate error body and that monitoring/logging hooks capture the event.",
+              "Rate-limiting / throttling tests: include load/chaos tests that trigger rate limits and assert 429 responses and appropriate Retry-After headers where applicable.",
+              "Response header assertions for 204: explicitly assert that 204 responses return no body and that relevant headers conform to API expectations; follow-up with a GET to verify the persisted externalKey change."
+            ],
+            "usage": {
+              "completion_tokens": 8968,
+              "prompt_tokens": 6051,
+              "total_tokens": 15019,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7744,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

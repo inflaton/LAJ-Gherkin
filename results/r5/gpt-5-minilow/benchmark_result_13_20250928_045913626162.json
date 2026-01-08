@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-09-28T04:59:13.626108",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:58:55.529187",
+    "benchmark_end_time": "2025-09-28T04:59:13.626094",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 18.096907,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01-TC05, TC11, TC12, TC20) verify successful deletions and idempotency (204).",
+              "Query Parameters / Options: Extensive coverage of optional flags (cancelAllSubscriptions, writeOffUnpaidInvoices, itemAdjustUnpaidInvoices, removeFutureNotifications) including all-true, all-false, single-true, pairwise combinations (TC02-TC05).",
+              "Soft Delete / State Change: Tests assert that account is marked as closed (TC01, TC06, TC11).",
+              "Non-Existent Resource and Idempotency: Non-existent account returns 204 and is idempotent (TC12).",
+              "Input Validation: Invalid accountId format is tested (TC08) and SQL injection attempt is addressed (TC15).",
+              "Authentication & Authorization: Missing/invalid auth handled (TC10).",
+              "Required Headers: Missing required header X-Killbill-CreatedBy is tested (TC09).",
+              "Error Handling / Server Errors: Database unavailable -> 500 tested (TC14).",
+              "Security: XSS in header values test (TC16), and SQL injection test (TC15).",
+              "Performance & Concurrency: Large-volume and concurrent closure tests are present (TC07, TC18).",
+              "Retry / Transient Failure: Retry / transient network behavior tested (TC17).",
+              "Regression & Backwards Compatibility: Regression tests for unpaid-invoice bug and old clients (TC19, TC20).",
+              "Documentation / Accessibility: API docs and error response accessibility tested (TC21)."
+            ],
+            "gaps": [
+              "Boolean Query Parameter Validation: No tests for invalid/non-boolean values for query params (e.g., cancelAllSubscriptions=notabool) and how they're parsed/validated.",
+              "Default/Implicit Behavior Clarity: Although defaults are exercised, there's no explicit test verifying the declared default for removeFutureNotifications (default:true) vs other defaults; TC01 assumes certain default effects but doesn't assert the parameter default logic explicitly.",
+              "Downstream Partial Failures: Missing scenarios where downstream service operations partially fail (e.g., subscription cancellation fails while invoice write-off succeeds) and how the overall operation responds / rolls back or reports errors.",
+              "Atomicity & Transactional Behavior: No tests asserting transactional guarantees when multiple cleanup actions are requested (whether operation is atomic or best-effort and how failures are exposed).",
+              "Response Body / Headers Verification: Little/no coverage asserting response headers (Content-Type, caching-related headers if any) and that 204 responses have empty bodies; spec indicates application/json is produced but tests don't assert response body/content-type interactions.",
+              "Unsupported / Extra Query Parameters Handling Edge-cases: Extra parameter test exists (TC13) but does not verify behavior when unknown params are true/false or when many unknown params are provided; no explicit schema/validation error tests for unsupported parameters.",
+              "UUID Pattern Edge-cases: Invalid-ID test exists, but not tests for borderline valid/invalid UUIDs (case sensitivity, hyphen variations, leading/trailing spaces).",
+              "Concurrency Race Conditions Beyond Happy Path: Concurrency tests exist but do not cover races such as two users attempting to close the same account simultaneously with conflicting optional flags (e.g., one requests cancelAllSubscriptions=true while other requests false).",
+              "Rate Limiting / Throttling: No rate limit tests (relevant from standard guidelines).",
+              "Caching Behavior: No tests for caching headers/ETag even if not typically relevant to DELETE endpoints."
+            ],
+            "recommendations": [
+              "Add tests for invalid/non-boolean query parameter values (e.g., cancelAllSubscriptions=foo, cancelAllSubscriptions=1) to verify input validation and error responses or coercion behavior.",
+              "Explicitly test and assert the documented defaults for each optional flag (especially removeFutureNotifications default=true) \u2014 include a test that verifies behavior when the parameter is omitted vs explicitly set to its default value.",
+              "Introduce partial-failure scenarios for downstream services: simulate subscription cancellation failures, invoice-service failures, notification-service failures \u2014 assert overall response code, partial state, and whether retries / compensating actions occur.",
+              "Add transactional/atomicity tests: verify whether operation is atomic (rolls back on failure) or best-effort, and that failures are reported clearly to clients.",
+              "Verify response headers and body semantics: assert 204 responses have empty bodies, and if the API promises application/json, verify header consistency or documented exceptions for 204; include tests for Content-Type, Cache-Control, and any error response structures.",
+              "Add UUID edge-case tests: leading/trailing whitespace, uppercase vs lowercase, missing hyphens, max length strings to ensure strict pattern enforcement and proper 400 responses.",
+              "Add concurrency conflict tests for simultaneous deletes with differing query params to validate deterministic behavior and race handling.",
+              "Add rate-limiting / throttling tests if the system enforces them (multiple rapid DELETEs) per standard guidelines.",
+              "Expand unsupported query param tests to include many unknown params and verify no security/behavior changes.",
+              "Add downstream SLA/timeout tests (e.g., subscription service slow) to assert timeouts, retries, and client-visible behavior."
+            ],
+            "usage": {
+              "completion_tokens": 1419,
+              "prompt_tokens": 6316,
+              "total_tokens": 7735,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

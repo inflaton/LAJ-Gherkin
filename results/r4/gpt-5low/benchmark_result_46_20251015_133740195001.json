@@ -1,0 +1,82 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-15T13:37:40.194973",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:36:53.638346",
+    "benchmark_end_time": "2025-10-15T13:37:40.194970",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 46.556624,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Successful invalidation returns 204 and verifies account-level caches are invalidated (TC01).",
+              "DELETE - Non-Existent Resource: 404 when account does not exist, including empty DB and partially populated states (TC02, TC16, TC18).",
+              "Input Validation: 400 for invalid accountId formats, including malformed UUID, short IDs, injection/XSS attempts, and max-length edge (TC03, TC10, TC12, TC14, TC15).",
+              "Path Parameter Required: Missing accountId in path handled (404) (TC04).",
+              "Authorization: Unauthenticated and invalid/expired tokens handled with 401 (TC05, TC06).",
+              "Operational Resilience: Dependent service down and degraded performance scenarios covered (503 behavior) (TC07, TC08).",
+              "Protocol Correctness: Unsupported HTTP method returns 405 (TC11).",
+              "Concurrency/Load: Concurrent DELETEs complete successfully with acceptable performance (TC13)."
+            ],
+            "gaps": [
+              "DELETE - Concurrency/Idempotency: No scenario verifying repeated DELETE on the same account remains safe/idempotent (e.g., second call after a successful invalidation still returns 204 and no side effects).",
+              "Scope Isolation: No check that invalidating one account does not affect caches of other accounts (verify other accounts\u2019 caches remain intact).",
+              "Response Headers/Content Type: Story states produces application/json; tests do not assert Content-Type for error responses or confirm empty body with no Content-Type on 204, nor consistent error schema.",
+              "Authorization - Role/Permissions: No scenario for authenticated non-admin (403 Forbidden) for an admin-only endpoint.",
+              "DELETE - Concurrency Race: No scenario where two actors invalidate the same account simultaneously and system maintains consistency (e.g., no conflicting states or partial failures).",
+              "Observability/Audit: No verification that an admin action is logged/audited (if required by platform standards; not in story but often a guideline for admin APIs)."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: perform DELETE twice for the same valid account; expect 204 both times and identical cache state after each call.",
+              "Add scope-isolation scenario: invalidate account A and then verify account B caches remain valid/unaffected.",
+              "Assert headers: for error responses (400/404/503) verify Content-Type: application/json and error schema; for 204 verify empty body and either absent or appropriate Content-Type.",
+              "Add authorization role test: authenticated non-admin user receives 403 Forbidden for this admin endpoint.",
+              "Add a race-condition scenario: trigger two concurrent DELETEs for the same account and assert both return 204 with consistent post-conditions (no partial/inconsistent cache state).",
+              "If applicable to your org standards, add a check that the action is audit-logged with actor, accountId, timestamp, and outcome."
+            ],
+            "usage": {
+              "completion_tokens": 1588,
+              "prompt_tokens": 4640,
+              "total_tokens": 6228,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

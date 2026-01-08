@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-15T10:31:44.176001",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:31:34.313775",
+    "benchmark_end_time": "2025-10-15T10:31:44.175997",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 9.862222,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: TC01 / TC19 verify successful 204 for a valid account and that caches are invalidated.",
+              "Non-Existent Resource: TC02 / TC16 / TC18 validate 404 when account not found.",
+              "Invalid Path Parameter Format: TC03 / TC12 validate 400 for malformed/invalid UUIDs.",
+              "Missing Path Param: TC04 covers the missing accountId path case (expected 404 due to route).",
+              "Authorization: TC05 and TC06 cover unauthenticated and expired/invalid token cases (401).",
+              "Service Availability / Dependency Failures: TC07 and TC08 cover degraded system behavior and dependent cache service unavailability (503 behavior).",
+              "HTTP Method Safety: TC11 checks unsupported HTTP method returns 405.",
+              "Concurrency / Performance: TC13 covers concurrent DELETE requests and response-time expectations.",
+              "Security Input Validation: TC14 and TC15 exercise SQLi and XSS attempts in accountId and expect validation failures.",
+              "Edge & State Variations: TC10 (extreme-length id), TC17 (transient network recovery), TC16 (no accounts) cover various edge conditions and recovery semantics.",
+              "Regression / Backward Compatibility: TC12 and TC19 assert previously fixed invalid-UUID patterns and regression behavior."
+            ],
+            "gaps": [
+              "Soft-Delete vs Permanent Delete Semantics: The story/guidelines ask to ensure correct delete behavior (soft deletes) \u2014 no scenario verifies whether caches are marked/recorded vs permanently removed or whether any audit/log entry is produced.",
+              "Explicit Cache-Invalidation Verification Details: While TC01 asserts \"caches ... should be invalidated\", there is no explicit verification steps for the types of caches affected (e.g., authorization cache, billing cache) or observable side-effects (cache keys removed, TTL reset, or downstream cache hits/misses).",
+              "Granularity of Authorization/Authorization Roles: Tests assume an \"admin\" role exists; there is no scenario validating forbidden roles (403) when a non-admin authenticated user attempts the operation.",
+              "Race Condition: The DELETE-while-deleted-by-others race where one request deletes and a concurrent request receives 404/409 is not explicitly tested (TC13 covers concurrency but expects all 204s).",
+              "Idempotency Semantics: No explicit test for idempotency expectation (e.g., deleting same account twice -> first 204, second 404 or 204 depending on contract).",
+              "Rate Limiting / Throttling: No tests for repeated rapid requests triggering rate-limit responses (guidelines mention rate limiting).",
+              "HTTP Response Headers & Content-Type: There is no coverage checking response headers (Content-Type, caching headers, Retry-After for 503, etc.).",
+              "Logging / Auditing: No tests confirm that the operation is logged or audit-recorded as required for admin actions (if applicable).",
+              "Negative/Invalid Query Parameters: TC09 covers extra query param, but there is no coverage for invalid or unexpected query param values that might affect routing/validation."
+            ],
+            "recommendations": [
+              "Add an explicit soft-delete behavior scenario: define expected semantics for repeated deletes \u2014 add tests asserting idempotency (delete twice) and whether a second delete returns 204 or 404 based on contract.",
+              "Expand cache verification: add tests that confirm the specific cache layers/keys were invalidated (e.g., attempt to read cached values before and after invalidation or inspect cache store), not only HTTP 204.",
+              "Add role-based authorization tests: include a case where an authenticated non-admin (valid credentials but insufficient privileges) attempts DELETE and receives 403.",
+              "Add a race-condition test variant: concurrent deletes where one wins and the other receives a 404 or appropriate conflict code; assert consistent, documented behavior.",
+              "Add rate-limiting tests: hammer the endpoint to verify throttling behavior and expected status codes (429) or Retry-After header.",
+              "Assert response headers: add checks for Content-Type, Retry-After on 503/429, and any cache-control related headers relevant to the API.",
+              "Add logging/audit verification (integration test): confirm admin operations produce expected audit/log entries if that is a non-functional requirement.",
+              "Clarify and add tests for idempotency and exact error semantics for extreme/maximum-length accountId (TC10 should assert a single expected status once contract is decided)."
+            ],
+            "usage": {
+              "completion_tokens": 1050,
+              "prompt_tokens": 4640,
+              "total_tokens": 5690,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

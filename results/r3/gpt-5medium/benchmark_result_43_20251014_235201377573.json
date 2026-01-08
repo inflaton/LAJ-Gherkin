@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-10-14T23:52:01.377544",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T23:50:27.868739",
+    "benchmark_end_time": "2025-10-14T23:52:01.377540",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 93.508801,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "PUT: Valid Request \u2014 Successful updates with correct payload and headers (TC01, TC02), including handling of optional headers and benign extras (TC13, TC24\u2013TC26).",
+              "PUT: Non-Existing Resource \u2014 Proper 404 for missing payment/transaction and mismatched IDs, including empty DB (TC06, TC07, TC12, TC27).",
+              "PUT: Concurrency \u2014 Concurrent updates covered with consistency verification (TC17).",
+              "PUT: Partial Update behavior indicated via success with only required fields (TC23).",
+              "Input Validation \u2014 Invalid UUIDs, missing required header, inconsistent state, missing body, malformed JSON handled with 400 (TC03\u2013TC05, TC08\u2013TC10).",
+              "Authorization \u2014 401 for unauthenticated requests (TC11).",
+              "Resilience/Timeouts \u2014 503/504 and degraded dependencies behavior exercised (TC16, TC22).",
+              "Security \u2014 SQL injection and XSS payload handling validated (TC18, TC19).",
+              "Performance/Load \u2014 High-load behavior checked (TC21)."
+            ],
+            "gaps": [
+              "PUT: Partial update semantics not explicitly validated for rejection when fields are missing \u2014 add a negative case if full replacement is required, or clarify/lock down allowed minimal payload.",
+              "Idempotency \u2014 No scenario verifying that repeating the same PUT on the same transaction yields the same final state and no duplicate side effects.",
+              "Authorization \u2014 No 403 Forbidden scenario for authenticated user lacking admin privileges/roles.",
+              "Content negotiation \u2014 No test for missing or incorrect Content-Type (expect 415 Unsupported Media Type) or invalid Accept header handling (e.g., 406).",
+              "Server error handling \u2014 No explicit 500 Internal Server Error scenario (e.g., database failure) and error contract verification.",
+              "State transition coverage \u2014 Only one invalid transition checked; no matrix of valid transitions to ensure paymentTransaction and parent payment state update rules are enforced, including rollback paths.",
+              "Audit persistence \u2014 Headers X-Killbill-CreatedBy/Reason/Comment are not verified to be persisted in audit/history records.",
+              "Response contract \u2014 204 No Content should have no body; error responses should follow a standard error schema (code, message, type). Not validated.",
+              "Isolation \u2014 No test to ensure updating one transaction on a multi-transaction payment does not alter other transactions inadvertently.",
+              "Boundary negatives \u2014 No tests to validate that exceeding max lengths/invalid enums are rejected with 400 (only positive max/min covered)."
+            ],
+            "recommendations": [
+              "Add a scenario that attempts a PUT with missing required AdminPayment fields to confirm rejection (400) if full replacement is required; otherwise, explicitly document and test the minimal allowed payload.",
+              "Add an idempotency test: perform the same PUT twice on the same transaction; assert second call returns 204 and system state remains unchanged with a single audit entry.",
+              "Add a 403 Forbidden scenario: authenticated non-admin user attempts the update and is denied.",
+              "Add content negotiation tests: missing Content-Type and wrong media type -> 415; unsupported Accept -> 406 (if enforced).",
+              "Introduce a 500 Internal Server Error simulation (e.g., DB outage) and verify standardized error response mapping.",
+              "Expand state transition tests: cover representative valid transitions and ensure associated payment state updates accordingly; include rollback to a prior state when allowed.",
+              "Verify audit logging: assert CreatedBy/Reason/Comment are captured in audit trails with correct timestamps and user.",
+              "Assert HTTP semantics: 204 responses contain no body and include expected headers; error responses conform to the standard error schema.",
+              "Add an isolation test where another transaction on the same payment remains unchanged after the update.",
+              "Add negative boundary validation: strings exceeding max length or invalid enum values return 400, with clear validation messages."
+            ],
+            "usage": {
+              "completion_tokens": 4133,
+              "prompt_tokens": 6337,
+              "total_tokens": 10470,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3328,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-13T11:47:17.502039",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T11:45:23.458263",
+    "benchmark_end_time": "2025-10-13T11:47:17.502035",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 114.043772,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "DELETE: Valid Deletion \u2014 204 with empty body for removing all fields and specific fields; idempotent-like behavior when payment has no fields.",
+              "DELETE: Non-Existent Resource \u2014 404 when paymentId not found; 204 when specified customField IDs do not exist.",
+              "Query Parameters \u2014 Covered none vs one vs many vs very large; unexpected parameters; malformed IDs; mixed valid/invalid; non-existent IDs.",
+              "Headers \u2014 Required X-Killbill-CreatedBy enforced (400 when missing); optional X-Killbill-Reason and X-Killbill-Comment accepted.",
+              "Authorization \u2014 401 for invalid/expired token.",
+              "Input Validation/Security \u2014 400 for invalid paymentId format; 400/422 for malicious header (XSS); 400 for SQL injection-like query; 400 for partially invalid customField list.",
+              "Performance \u2014 Response time under load validated.",
+              "Integration \u2014 Audit log creation validated when available; behavior considered when audit service unavailable."
+            ],
+            "gaps": [
+              "DELETE: Concurrency \u2014 No tests for race conditions (simultaneous deletes of same or overlapping custom fields).",
+              "DELETE: Soft Deletes \u2014 No verification whether deletions are soft vs hard; no retrieval to confirm persistence semantics.",
+              "Response headers/content negotiation \u2014 Story says Produces: application/json but no checks for Content-Type (especially for 204), nor Accept handling.",
+              "Idempotency \u2014 No repeat-delete test to ensure 2nd identical request returns the same safe outcome (e.g., 204) and no side effects; no test for duplicate customField IDs in the query.",
+              "Query parameter edge cases \u2014 No tests for empty values (customField=), whitespace-only, or URL-encoding/decoding nuances; no test mixing existing and non-existent IDs together expecting 204 with only existing removed.",
+              "Server errors/rate limits \u2014 No simulation of 500 Internal Server Error; no 429 rate limiting/throttling behavior.",
+              "Authorization granularity \u2014 No 403 Forbidden/role-based permission checks.",
+              "Data realism \u2014 Many \u201cvalid\u201d examples use placeholders like cf1 instead of UUIDs, risking false positives against the documented UUID constraint.",
+              "Ambiguity \u2014 TC22 expects 204 or 503; expected behavior should be deterministic and asserted accordingly."
+            ],
+            "recommendations": [
+              "Add concurrency tests: run parallel DELETEs for the same payment and overlapping customField IDs; assert atomicity and final state consistency.",
+              "Clarify and validate deletion semantics: verify via a follow-up GET of custom fields (or audit log inspection) whether deletes are soft vs hard; assert expected behavior.",
+              "Assert response headers: for 204, confirm correct headers (e.g., Content-Type absent or compliant with service spec); optionally test Accept negotiation.",
+              "Add idempotency scenarios: repeat the same DELETE request; include duplicate customField IDs in a single request; expect stable 204 and correct final state.",
+              "Cover query edge cases: empty value (customField=), blank/whitespace, URL-encoded parameters, and a mix of existing + non-existent IDs in one call (expect 204, removing only existing).",
+              "Introduce negative infra tests: simulate 500 DB failure and validate error shape; add rate limiting test for 429 when applicable to DELETE endpoints.",
+              "Expand authorization: include 403 Forbidden for authenticated but unauthorized users/roles if applicable.",
+              "Use real UUIDs for paymentId and customField IDs in all positive-path tests to meet the documented schema.",
+              "Resolve TC22 ambiguity: define and enforce a single expected status when the audit log service is unavailable; add assertions for the presence/content of audit entries including CreatedBy."
+            ],
+            "usage": {
+              "completion_tokens": 7113,
+              "prompt_tokens": 6120,
+              "total_tokens": 13233,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6336,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

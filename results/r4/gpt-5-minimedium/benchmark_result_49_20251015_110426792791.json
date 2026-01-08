@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-15T11:04:26.792762",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:04:08.941533",
+    "benchmark_end_time": "2025-10-15T11:04:26.792759",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 17.851226,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Deletion: TC01 and TC12 verify successful DELETE returns 204 and that the host is marked out of rotation.",
+              "Authentication/Authorization negative cases: TC02 and TC03 cover missing and invalid tokens (401).",
+              "Error handling: TC04 (409 for already out of rotation), TC05 (503 service unavailable), TC06 (500 internal error) cover common error classes >=400 per story.",
+              "Invalid method: TC07 verifies method-not-allowed (405).",
+              "Request validation: TC09 covers malformed/non-empty request body handling (400).",
+              "Extra parameters: TC08 verifies query parameters are ignored/handled for DELETE and still succeed.",
+              "Concurrency and race conditions: TC11 addresses concurrent requests and expected differing responses for first vs subsequent requests.",
+              "Performance: TC10 and TC11 include response-time expectations under normal and concurrent load.",
+              "Security edge cases: TC13 checks header injection handling and maps to 400/401.",
+              "Edge conditions and regression: TC14 covers no-hosts-in-rotation, TC12 is a regression check confirming host status after delete."
+            ],
+            "gaps": [
+              "Response headers / Content-Type: The Jira story notes \"Produces: application/json\" but there is no scenario asserting response headers (Content-Type) especially for error responses or for 204 where a header presence/absence may be important.",
+              "Idempotency semantics: There is ambiguity about the expected behavior for repeated DELETEs. TC11 mentions subsequent requests may be 409 or 204 but there is no authoritative test that defines and asserts the API's idempotency contract (e.g., repeated DELETE should return 204 or 404/409 consistently).",
+              "Authorization scope / role checks: Tests check authentication presence/validity (401) but do not verify authorization/role-based access (403) for non-admin users or insufficient scopes.",
+              "Non-existing resource semantics: The standard DELETE guideline expects testing non-existent resources (commonly 404). TC14 covers \"no hosts in rotation\" with 409, but a test for explicit non-existent host identifier or context leading to 404 is missing.",
+              "Soft-delete / persistence semantics: No tests verify whether the host is soft-deleted (flag only) vs permanently removed, nor verify persistence across restarts or that the host can be brought back.",
+              "Explicit request/response schema and body expectations: While TC09 covers malicious bodies, there are no tests asserting strict rejection of any body content for an endpoint documented as N/A for body (e.g., content-type request header validation).",
+              "Audit / logging / metrics: No tests validate that the operation is logged/audited or that metrics are emitted (important for admin APIs).",
+              "Rate limiting and throttling: Concurrency/performance tests exist, but there are no explicit rate-limiting tests (429) or throttling behavior checks.",
+              "Clear expected status codes on concurrent/duplicate requests: TC11 allows \"409 or 204 as appropriate\" \u2014 this is vague. Tests should assert a single defined behavior to prevent flakiness."
+            ],
+            "recommendations": [
+              "Assert response headers: Add scenarios that assert Content-Type for error responses and clarify expectations for 204 responses (presence/absence of Content-Type and body).",
+              "Define and test idempotency: Add deterministic tests for repeated DELETE requests (e.g., first DELETE -> 204, repeated DELETE -> 204 or 404/409 depending on chosen contract) and make API contract explicit in the story/tests.",
+              "Add authorization role tests: Include scenarios where an authenticated user lacks admin privileges and should receive 403 Forbidden, to distinguish authentication vs authorization failures.",
+              "Add explicit Non-Existent Resource test: If the API can target a specific host identity or context, add a test that attempts deletion of a clearly non-existent host and assert expected status (404 or 409 per API contract).",
+              "Soft-delete / persistence checks: Add tests to verify whether the host removal is a flag (soft-delete) and persists across service restarts, and add restore/bring-back scenarios if applicable.",
+              "Tighten concurrency expectations: Replace vague \"409 or 204 as appropriate\" with concrete expected behavior for subsequent concurrent/de-duplicated requests to avoid flakiness; add automated race-condition tests that assert consistent outcomes.",
+              "Add rate-limiting tests: Create tests that induce high request rates and assert 429 responses or other throttling behavior if the system enforces rate-limiting.",
+              "Extend input validation tests: Add tests for Content-Type request header validation, extremely large request bodies, and malformed headers/encoding to ensure robust rejection of invalid inputs.",
+              "Add audit/logging checks: Where feasible, include tests that verify an audit record/metric is produced when taking a host out of rotation."
+            ],
+            "usage": {
+              "completion_tokens": 1834,
+              "prompt_tokens": 3433,
+              "total_tokens": 5267,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 832,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

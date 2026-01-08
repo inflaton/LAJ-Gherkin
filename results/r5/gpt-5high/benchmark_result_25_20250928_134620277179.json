@@ -1,0 +1,99 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-09-28T13:46:20.277155",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T13:43:56.532848",
+    "benchmark_end_time": "2025-09-28T13:46:20.277151",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 143.744303,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Payload/Request: Multiple success paths returning 204 with only required header and with all optional params (defaults vs explicit).",
+              "Query Parameters: Broad coverage of valid/invalid combinations for paymentMethodId, externalPayment, paymentAmount, targetDate, and pluginProperty; unknown params handling included.",
+              "Validation: Strong negative tests for types/ranges/formats (malformed UUIDs, invalid boolean/date/amount, empty required header).",
+              "Invalid Payload: Missing/empty X-Killbill-CreatedBy and bad parameter types handled with 4xx.",
+              "Duplicate Submission: Retry/idempotency behavior covered (no duplicate on retry/network error).",
+              "Large Payloads: Max paymentAmount and large pluginProperty arrays tested.",
+              "Server Error Handling: Simulated DB (500), gateway (502/503), and plugin failures (502/503).",
+              "Authentication/Authorization: Unauthorized (401) scenario covered.",
+              "Empty/No-op Behavior: Accounts with no unpaid invoices or no invoices return 204 with no processing.",
+              "Payment business rules: Partial, exact, and over-amount behaviors verified (no overpayment; partial applied).",
+              "Plugin pass-through: pluginProperty multi-value behavior verified and delivered to plugin layer.",
+              "Security: SQL injection in path and XSS in pluginProperty handled without leakage.",
+              "Performance: Response time under normal/peak load and resource utilization under stress tested."
+            ],
+            "gaps": [
+              "Rate Limiting/Throttling: No tests for burst behavior or 429 Too Many Requests and related backoff headers.",
+              "Payment method ownership: No scenario where paymentMethodId is well-formed but not associated with the account (expected 400/404/403).",
+              "No default payment method: Behavior when no paymentMethodId is provided and the account lacks a default method is untested.",
+              "Target date semantics: Only format is checked; no verification that targetDate affects payment execution date/timezone handling or invoice selection.",
+              "Partial payment allocation: No assertion of allocation ordering across multiple invoices (e.g., oldest-first) or rounding rules.",
+              "Deterministic status codes: Several tests allow multiple possible codes (e.g., 400 or 401/404), reducing precision; should assert exact codes per API spec.",
+              "Response headers/content negotiation: Success 204 should have no body; Content-Type for error responses (application/json) and Accept handling are not asserted.",
+              "Concurrency on same account: No test for two simultaneous POSTs causing potential double charge; idempotency under true parallelism not covered.",
+              "Authorization scopes: 403 Forbidden (authenticated but not permitted to trigger payments) not tested.",
+              "Audit headers robustness: No tests for max length, unicode/UTF-8, special characters, or whitespace-only values for X-Killbill-Reason/Comment.",
+              "PluginProperty constraints: No tests for per-entry size limits, encoding of special characters, or behavior for unknown keys (ignore vs error).",
+              "Error schema consistency: Error response body structure (code/message/type/correlationId) and Content-Type consistency not validated."
+            ],
+            "recommendations": [
+              "Add rate limiting tests (burst of POSTs) verifying 429 handling and Retry-After/backoff headers if applicable.",
+              "Add scenarios where paymentMethodId is not owned by the account and where the account lacks a default payment method; assert precise error codes.",
+              "Verify targetDate semantics: payment execution date-time, timezone handling, and any business rules tied to targetDate.",
+              "Add checks for partial payment allocation order and rounding rules across multiple invoices (e.g., oldest-first, smallest balance first).",
+              "Make status codes deterministic per spec (replace \"400 or 401/404\" with the single expected code) and assert standardized error schema.",
+              "Assert that 204 responses have no body and appropriate headers; for errors, assert Content-Type: application/json and consistent schema.",
+              "Introduce a true concurrency test: two simultaneous POSTs for the same account should result in a single payment. If supported, add Idempotency-Key header tests.",
+              "Add 403 tests for authenticated users lacking permission to trigger payments.",
+              "Expand audit header tests for length limits, unicode/emoji, trimming behavior, and validation feedback.",
+              "Test pluginProperty constraints: very long values, special character encoding, and policy for unknown keys (ignored vs rejected).",
+              "Add a scenario confirming externalPayment default is false when omitted and that the internal gateway path is used.",
+              "If clients send Content-Type: application/json with no body, verify server behavior (tolerated vs required) and document expectations."
+            ],
+            "usage": {
+              "completion_tokens": 6655,
+              "prompt_tokens": 7048,
+              "total_tokens": 13703,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5696,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

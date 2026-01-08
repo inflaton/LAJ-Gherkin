@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-09-28T05:53:12.162677",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:52:43.792919",
+    "benchmark_end_time": "2025-09-28T05:53:12.162673",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 28.369754,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: Multiple happy-path scenarios (single tag, multiple tags, optional headers) verify successful creation and 201 responses (TC01, TC02, TC03, TC04, TC05, TC22).",
+              "Invalid Payload: Malformed JSON, empty array, invalid tag UUID format, unsupported extra fields, null/empty elements are covered (TC09, TC10, TC11, TC12, TC24).",
+              "Required Headers: Presence and absence of required header X-Killbill-CreatedBy are tested (TC01, TC06).",
+              "Path Parameter Validation: Invalid invoiceItemId format and non-existent id cases are tested (TC07, TC08, TC15).",
+              "Duplicate Submission / Idempotency: Duplicate tag entries and re-adding existing tags are tested to ensure no duplication (TC13, TC20).",
+              "Large Payloads & Limits: Extremely large body test is present (TC19) and maximum-tags scenario is covered (TC23).",
+              "Authorization: Unauthorized access scenario present (TC16).",
+              "Server & Dependency Failures: Service unavailable and dependent-service-unavailable scenarios are covered (TC17, TC21).",
+              "Performance / Timeouts: Performance under load and timeout scenarios are included (TC14, TC25).",
+              "Security: Malicious payload handling (SQL/script injection) is included (TC18)."
+            ],
+            "gaps": [
+              "Rate Limiting / Throttling: No tests simulate many repeated requests to verify rate limiting behavior or throttling responses.",
+              "Concurrency / Race Conditions: No tests simulate concurrent requests (e.g., two clients concurrently adding the same tag(s)) to validate atomicity and race handling.",
+              "Schema and Response Header Validation: Tests assert a JSON array of Tag objects but do not validate full Tag schema fields, content-type, or response headers (e.g., Content-Type, Location, caching headers if any).",
+              "Partial Success / Mixed Inputs: No explicit test for mixed payloads where some tag definition IDs are valid and others are invalid (should the call be all-or-nothing or partial success?).",
+              "Server 500 / DB Failure: While service-unavailable and dependency failures are tested, a simulated internal server error (500) from the DB or unexpected server error is not covered.",
+              "Authorization Granularity (403): No tests distinguish between unauthenticated (401) and unauthorized (403/forbidden) roles/permissions.",
+              "Content-Type Handling: No test for missing or incorrect Content-Type header (application/json) and how the API responds.",
+              "Exact Validation of Optional Headers: Optional header behavior is tested for presence, but header validation (e.g., empty CreatedBy value, limits/format of Reason/Comment) is not covered."
+            ],
+            "recommendations": [
+              "Add rate-limiting tests: flood the endpoint and verify 429 or other throttling responses and behavior under burst traffic.",
+              "Introduce concurrency tests: simulate simultaneous POSTs adding the same tag(s) to verify idempotency, atomicity, and race-condition handling (no duplicate tags, consistent final state).",
+              "Validate response schema and headers: add assertions for Content-Type, response schema fields for Tag objects (id, tagDefinitionId, objectType, objectId, createdBy, createdDate, etc.), and any relevant headers.",
+              "Add mixed-input/partial-success scenarios: test behavior when request contains a mix of valid and invalid tagDefinitionIds to confirm transaction semantics (all-or-nothing vs partial success) and expected status code and error payload.",
+              "Simulate 500/Internal Server Error (DB failures): add tests that mock DB exceptions to ensure 500 responses are handled and surfaced correctly.",
+              "Distinguish 401 vs 403: add tests for authenticated-but-unauthorized clients that should receive 403, to cover authorization edge cases.",
+              "Test Content-Type handling: include cases with missing or wrong Content-Type header to ensure correct 4xx response and helpful error messages.",
+              "Add header validation tests: validate rejection of empty X-Killbill-CreatedBy and limits/validation for X-Killbill-Reason and X-Killbill-Comment.",
+              "Add schema/contract tests for large successful payloads: if 201 is returned for very large creates, verify that the returned array accurately represents created tags (count, uniqueness) and does not omit items."
+            ],
+            "usage": {
+              "completion_tokens": 2003,
+              "prompt_tokens": 6738,
+              "total_tokens": 8741,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-10-15T11:23:37.732529",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:23:13.120547",
+    "benchmark_end_time": "2025-10-15T11:23:37.732525",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 24.611978,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Required header handling (X-Killbill-CreatedBy) including success and missing header error (TC01, TC03).",
+              "Optional headers (X-Killbill-Reason, X-Killbill-Comment) presence handling (TC02).",
+              "Valid payload creation paths including success with required fields, max/min bounds, empty catalog and partially populated catalog (TC01, TC12, TC13, TC19, TC20).",
+              "Schema validation and invalid-payload cases: missing required field (planId), malformed JSON, empty body, invalid currency, XSS/SQL injection attacks (TC04, TC05, TC08, TC09, TC18).",
+              "Conflict/duplicate planId handling (TC06) and concurrent creation attempts (TC22).",
+              "Large payload behavior and system limits (TC15).",
+              "Network/integration resilience: catalog unavailable/service unavailable (TC11), dependent services available/degraded (TC23, TC24), temporary network failure and retry behavior (TC16).",
+              "HTTP method correctness: unsupported method returns 405 (TC14).",
+              "Authentication handling (missing credentials -> 401) (TC10).",
+              "Performance/SLAs: response time verification (TC17).",
+              "Response expectations for success (HTTP 201 and confirmation string/URI) are asserted in multiple scenarios (TC01, TC02, many success cases)."
+            ],
+            "gaps": [
+              "Server-side 5xx error handling for internal failures (e.g., DB exception producing HTTP 500) is not explicitly tested; TC11 covers 503 but not generic 500 server errors.",
+              "No explicit tests asserting Content-Type or response headers (e.g., Content-Type: application/json as the spec indicates \"Produces: application/json\").",
+              "Not all SimplePlan schema fields and combinations are validated (e.g., productCategory enumerations, billingPeriod allowed values/formats, numeric ranges for amount beyond min/max cases). Several fields are only implicitly covered.",
+              "Idempotency / duplicate submission semantics beyond planId conflict aren\u2019t explicitly exercised (e.g., identical repeated request causing safe retry vs double-creation).",
+              "Authorization scope/permission errors (403 Forbidden) are not covered \u2014 only missing-auth (401) is present.",
+              "Validation of omission of optional headers (e.g., behavior when X-Killbill-Reason or X-Killbill-Comment are explicitly omitted) is not shown (only presence is tested).",
+              "No tests for response body type being a plain string vs structured JSON object \u2014 acceptance says response body will be a string; tests assert presence of confirmation but not strict type/format checks.",
+              "No rate-limiting / throttling tests to verify behavior on many requests in short bursts.",
+              "No tests verifying catalog versioning effects (the story mentions \u201ccurrent version of the catalog\u201d and live catalog modify caution) \u2014 e.g., whether version increments, or changes are applied to correct version and rollback semantics.",
+              "No tests for client error variants like 422 Unprocessable Entity where applicable vs 400; not checking precise error code semantics beyond 400/401/503/405."
+            ],
+            "recommendations": [
+              "Add an explicit test for 500 Internal Server Error (simulate DB failure or unexpected exception) to validate server error handling and that clients receive a proper 5xx response and message.",
+              "Add tests asserting response headers including Content-Type: application/json and any relevant caching or audit headers, and verify the response body is a plain string (or exact URI format) per the API contract.",
+              "Extend schema validation coverage to include all SimplePlan fields: productCategory enum validation, billingPeriod allowed values/formats, numeric range checks for amount (too large/negative) and type mismatch tests for each field.",
+              "Add idempotency and duplicate-request tests: retry the exact same request (same client-generated idempotency key, if supported) and verify single creation or safe duplicate handling. If idempotency key not supported, assert expected behavior on retries.",
+              "Include authorization-role/permission tests that produce 403 Forbidden for authenticated but unauthorized users (different roles/scopes).",
+              "Add tests for omission of optional headers to assert they are truly optional (submit with and without them and assert identical behavior).",
+              "Add rate-limiting / throttling tests (burst of requests) to ensure proper status codes (429) or documented behavior.",
+              "Add tests to verify catalog versioning behavior (that the change applies to the current version, version metadata changes, and rollback behavior when downstream services fail).",
+              "Tighten certain existing tests to assert exact error codes and error payload formats (e.g., schema for error responses) rather than only the presence of an error message."
+            ],
+            "usage": {
+              "completion_tokens": 2908,
+              "prompt_tokens": 5854,
+              "total_tokens": 8762,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1920,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

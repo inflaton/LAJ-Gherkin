@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "70_2025-10-13T04:24:22.184680",
+    "jira_id": "70",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/catalog - Delete all versions for a per tenant catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:23:59.923312",
+    "benchmark_end_time": "2025-10-13T04:24:22.184677",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 22.261365,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "70_qe_sup-gpt4.1_agent-gpt4.1_1748920522.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC05, TC10, TC15) verify successful deletion and expected 204 responses.",
+              "Required/Optional Headers: TC01/TC02/TC03/TC07/TC14 cover presence, absence, malformed and partial header combinations for X-Killbill-CreatedBy, Reason and Comment.",
+              "Authorization: TC04 covers invalid/expired token resulting in 401 and ensures no deletion on auth failure.",
+              "Non-Existent Resource: TC06 covers deletion attempt for a non-existent tenant and expects 404.",
+              "Error Handling / Server Errors: TC09 covers an internal error path (e.g., DB unavailable) returning 500 and preventing deletion.",
+              "Concurrency: TC13 addresses concurrent delete requests and system consistency.",
+              "Security Validation: TC11 covers injection/malicious payloads in headers to validate rejection and protection.",
+              "Performance/Scale: TC10 targets large numbers of catalog versions and response-time expectations.",
+              "Regression/Integrity: TC12 checks that deletion does not leave orphaned references.",
+              "Unexpected Input Handling: TC08 (extra headers) and TC15 (request body on DELETE) confirm tolerant/defined behavior for extraneous inputs."
+            ],
+            "gaps": [
+              "Soft Delete vs Hard Delete: No explicit test verifies whether delete is soft (flagged) or hard (physically removed) and related retention/audit behavior.",
+              "Authorization/Permissions granularity: Tests cover invalid token (401) but do not cover permission/scopes where authenticated user lacks permission (403) or tenant-isolation access controls.",
+              "Idempotency / Subsequent Idempotent Behavior: While TC01 and TC13 imply behavior after deletion, there is no explicit idempotency test for repeated DELETE calls (expected codes beyond 204/404 unclear).",
+              "Audit/Logging & Header Propagation: No tests verify that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs or included in response headers/traces.",
+              "Response Body Content & Error Details: Error scenarios check status codes but lack assertions about structured error bodies (error codes, messages, fields) beyond generic indications.",
+              "Rate Limiting / Throttling: No tests for high request rates, throttling responses, or retry behavior.",
+              "Multi-tenant Isolation & Cross-tenant Safety: No tests ensure one tenant cannot delete another tenant's catalog or that tenant context is strictly enforced.",
+              "Caching / HTTP headers: No tests for caching behavior, ETag, Cache-Control, or how cached GETs behave after deletion.",
+              "Pagination / Large-result GET verification: Although TC10 covers deletion performance for many versions, there is no coverage of GET endpoint pagination behavior nor verification of subsequent GETs across paginated results after deletion.",
+              "Boundary/Input Constraints: No tests for maximum header lengths, unicode characters, or extremely large header values beyond malicious payloads."
+            ],
+            "recommendations": [
+              "Add a soft-vs-hard-delete test: verify whether records are marked deleted vs physically removed and include retention and undelete behavior if applicable.",
+              "Add permission/authorization tests for authenticated-but-unauthorized users (expect 403) and ensure tenant isolation (attempt deletion from another tenant should fail).",
+              "Add explicit idempotency tests: call DELETE twice and validate the expected status codes for repeat calls (204 then 404 or 204/200 depending on API contract).",
+              "Add audit/logging verification: ensure X-Killbill-CreatedBy/Reason/Comment are persisted in audit records or returned in response headers/traces.",
+              "Improve error body assertions: assert structured error responses (error code, message, fields) for 4xx/5xx cases, not just status codes.",
+              "Add rate-limiting tests: burst of requests to verify throttling (e.g., 429 responses) and retry/backoff behavior.",
+              "Add multi-tenant isolation tests: try deleting tenant A's catalog while authenticated as tenant B and verify failure.",
+              "Add caching-related tests: check ETag/Cache-Control on GET responses pre-deletion and confirm cache invalidation after deletion (subsequent GETs do not return stale data).",
+              "Add pagination checks on GET /1.0/kb/catalog for large datasets and verify deletion clears all pages; include combination of pagination + deletion.",
+              "Add boundary/input tests for header size, unicode, long strings, and confirm proper validation/error codes for excessive lengths."
+            ],
+            "usage": {
+              "completion_tokens": 1122,
+              "prompt_tokens": 4159,
+              "total_tokens": 5281,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

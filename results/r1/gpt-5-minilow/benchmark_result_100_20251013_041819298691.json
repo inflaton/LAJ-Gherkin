@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-13T04:18:19.298665",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:17:58.645989",
+    "benchmark_end_time": "2025-10-13T04:18:19.298660",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 20.652671,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC06, TC07, TC10, TC15, TC20, TC23) validate successful removals including full-delete, selective-delete and boundary counts.",
+              "Required/Optional Headers: TC01 and TC03 validate presence and usage of X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment.",
+              "Invalid Path Parameter: TC08 covers invalid paymentId format (400).",
+              "Non-Existent Resource: TC09 covers 404 when paymentId not found.",
+              "Input Validation for query params: TC13, TC16, TC18 check malformed/SQL-injection/partial invalid customField values and expect 400.",
+              "Authentication/Authorization: TC12 covers invalid authentication token (401).",
+              "Empty state: TC04 covers deletion when payment has no custom fields (empty result but 204).",
+              "Robustness/Edge cases: TC05 (unexpected query param), TC10 (non-existent customField), TC06/TC15 (large numbers / max/min), TC16 (mixed valid/invalid), TC19 (performance under load), and TC14 (service unavailable) cover many robustness and error conditions.",
+              "Integration: TC21 and TC22 address dependent service (audit log) availability and expected behavior.",
+              "Security-related input sanitization: TC17 and TC18 include XSS and SQLi attempts and expected rejection/validation."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No explicit scenarios for concurrent deletions or race conditions (e.g., two clients deleting overlapping custom fields simultaneously).",
+              "Soft Delete vs Hard Delete Semantics: Story/guidelines do not clarify soft-delete behavior; tests do not assert whether deletions are soft (flag) or hard (removed from DB) beyond \"removed\".",
+              "Authorization Variants: TC12 tests invalid token (401) but there is no test for insufficient privileges (403) or role-based access scenarios.",
+              "Header Validation Coverage: While the presence of X-Killbill-CreatedBy is tested, there is limited coverage of boundary/header length, encoding, or permitted characters beyond XSS attempt; no tests assert allowed header value formats beyond presence/invalid scripts.",
+              "Behavioral Contract (Response Content-Type / Headers): Tests assert empty body and status codes but do not verify response Content-Type, caching headers, or other standard response headers from the API (e.g., ETag, Cache-Control, Retry-After on 503).",
+              "Rate Limiting / Throttling: No tests verify behavior under rapid repeated requests (429 or throttling).",
+              "Pagination / Collection Formats: While the DELETE endpoint uses query params to list IDs, there are no tests for very large query-URL limitations, multipart/batched payload alternatives, or server limits except TC15 (1000). True pagination guidelines (from GET) are not applicable but the guideline mention is not addressed.",
+              "Error body contract: Tests often assert \"contains an error message\" but do not validate standardized error schema/fields (error codes, error types, timestamps).",
+              "Transactionality / Partial Success Semantics: There is no explicit assertion about atomicity when some customField IDs exist and others do not (beyond TC10 and TC16 which expect either no-op or 400). The story acceptance criteria do not fully define expected partial-success semantics, and tests reflect multiple possible behaviors rather than a single defined contract."
+            ],
+            "recommendations": [
+              "Add concurrency scenarios: simulate two simultaneous DELETE requests targeting overlapping sets of custom fields to validate race conditions and final state (e.g., one succeeds, other returns 404/204 depending on timing).",
+              "Clarify and test delete semantics (soft vs hard): add tests asserting whether deleted custom fields are removed from reads and whether a deleted flag/audit record exists.",
+              "Add authorization role tests: include scenarios for valid auth but insufficient permissions (expect 403) and ensure RBAC rules are enforced if any.",
+              "Extend header validation tests: add cases for overly long header values, non-UTF-8 characters, and permitted character sets to ensure robust header validation and consistent error codes.",
+              "Standardize and validate error response schema: assert specific error fields (code, message, field) and not only free-text presence to improve automation and client handling.",
+              "Add rate-limiting/throttling tests: repeated rapid DELETE calls to validate 429 responses or server-imposed limits.",
+              "Verify response headers and content-type: assert Content-Type, and optionally caching or retry-related headers for error responses (e.g., Retry-After on 503), even if the endpoint normally returns empty bodies.",
+              "Define and test atomicity for mixed valid/invalid customField lists: decide expected behavior (partial success vs fail-fast) and add explicit test(s) to lock down contract and implementation.",
+              "Add tests for very long query strings / server limits: beyond TC15, include tests to verify server returns 414 or handles chunked/batched deletes if applicable.",
+              "Add negative integration scenarios with dependent services: extend TC22 to assert exact behavior (fail-open vs fail-closed) for dependent service outages and ensure consistent client-visible outcomes."
+            ],
+            "usage": {
+              "completion_tokens": 1218,
+              "prompt_tokens": 6120,
+              "total_tokens": 7338,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

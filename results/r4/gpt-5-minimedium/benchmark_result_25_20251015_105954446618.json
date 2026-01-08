@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-15T10:59:54.446582",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:59:28.913515",
+    "benchmark_end_time": "2025-10-15T10:59:54.446576",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 25.533061,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid POST request: Multiple success scenarios (TC01, TC02, TC03, TC04, TC05, TC06, TC07, TC29) cover normal and optional-parameter flows.",
+              "Input validation: Many invalid-input cases covered (TC08 malformed accountId, TC09 non-existent accountId, TC11 invalid paymentMethodId, TC12 invalid paymentAmount, TC13 malformed targetDate, TC14 invalid externalPayment type, TC15 invalid pluginProperty type, TC16 empty required header).",
+              "Authorization/authentication: Missing/invalid auth scenarios included (TC10, TC17).",
+              "Error & dependency handling: Gateway and database failures plus plugin system failures are covered (TC18, TC19, TC27).",
+              "Idempotency / duplicate submissions & retry behavior: Retries and duplicate payment prevention covered by TC22 and the regression TC28.",
+              "Edge cases / limits: Large payment amount and large pluginProperty array considered (TC23, TC24).",
+              "Plugin integration: Passing pluginProperty and verifying plugin processing covered (TC02, TC05, TC27).",
+              "Security: SQL injection and XSS attempts are covered (TC20, TC21) with expectations to avoid information leaks or script execution.",
+              "Performance and scalability: Response time and resource utilization under normal/peak/stress loads are included (TC30, TC31, TC32).",
+              "Behavior with no-data states: Accounts with no unpaid invoices or no invoices covered (TC06, TC07).",
+              "Unknown/extra parameters: Extra query parameters considered (TC25).",
+              "State variation & integration: Mixed database states and integration concerns are addressed (TC26, TC27).",
+              "Accessibility / documentation: API documentation accessibility covered (TC33)."
+            ],
+            "gaps": [
+              "Response semantics and headers for success: Although many scenarios assert HTTP 204, no tests explicitly validate response body presence/absence and response headers/content-type (the story mentions \"Produces: application/json\" despite 204).",
+              "Payment failure semantics (declines/processor errors): Tests cover gateway unavailability, but not specific payment declined scenarios (e.g., card declined, insufficient funds, or plugin-level rejection where gateway returns 402/402-like business errors).",
+              "Fine-grained idempotency under high concurrency: Retry/duplicate scenarios exist (TC22/TC28) but there is no explicit high-concurrency race-condition test to prove no duplicate payments when many concurrent requests target the same account.",
+              "Rate limiting / throttling: No tests exercise rate limits, request bursts, or verify proper HTTP 429 handling.",
+              "Content-Type / Accept header handling: No tests for missing/invalid Content-Type or Accept headers; also no verification of consistency of produced content type on error responses.",
+              "Audit/logging/headers propagation: Tests do not verify propagation of X-Killbill-Reason / X-Killbill-Comment into audit records or plugin inputs beyond existence checks; no assertions on audit trail/transaction records.",
+              "Validation error payloads and schema: Tests assert HTTP 4xx but do not validate the exact structure/schema of error responses (standardized error codes, fields).",
+              "Behavior for unknown/unsupported HTTP methods on this endpoint: Not tested (e.g., GET/PUT/DELETE handling).",
+              "Persistence/verifiability of side effects: While scenarios say invoices are marked paid, there are no explicit verification steps defined for ledger entries, payment records, or plugin callbacks to prove side effects beyond invoices being marked paid."
+            ],
+            "recommendations": [
+              "Add assertions to success scenarios that validate response headers and body behavior for 204 (e.g., no body; if API claims application/json, confirm header behavior) and to error scenarios to validate content-type and error schema.",
+              "Introduce tests for payment declines and processor-level business errors (e.g., declined card -> expect 402/4xx with clear error), including plugin-returned error payloads and partial-failure semantics.",
+              "Create high-concurrency stress tests that issue many concurrent POSTs against the same account to assert no duplicate payments and verify idempotency under load (measure DB uniqueness constraints / transactional behavior).",
+              "Add rate-limiting tests: send bursts of requests and assert appropriate throttling responses (429) or behavior under allowed rates.",
+              "Verify Content-Type and Accept header handling for the endpoint, and add tests for malformed/missing content-type headers if applicable.",
+              "Add tests that confirm X-Killbill-Reason and X-Killbill-Comment are persisted and propagated to plugins/audit logs, and validate resulting ledger/payment records where appropriate.",
+              "Define and assert a canonical error response schema for validation/400/404/5xx responses and add tests that assert that schema consistently.",
+              "Add tests for unsupported HTTP methods to verify correct 405 or other behavior.",
+              "Expand persistence verification: after a successful payment trigger assert the existence and correctness of payment records, ledger entries and plugin callbacks (not just invoice paid flags).",
+              "Add negative tests for very large payloads beyond limits and ensure the system responds with appropriate 4xx/5xx rather than failing silently; though large-amount/property cases exist, extend to payload-size and array-element-size limits."
+            ],
+            "usage": {
+              "completion_tokens": 2239,
+              "prompt_tokens": 7048,
+              "total_tokens": 9287,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

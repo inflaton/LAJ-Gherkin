@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-10-15T20:03:29.801087",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T20:01:02.571890",
+    "benchmark_end_time": "2025-10-15T20:03:29.801083",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 147.229193,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "POST \u2013 Valid Payload: Success paths with single/multiple tags and 201 status are well covered (including when account has no tags and when it already has tags).",
+              "POST \u2013 Invalid Payload: Robust negative coverage (empty array, non-array body, malformed UUIDs, non-existent tag IDs, unexpected fields, missing required header, missing/invalid path param).",
+              "Validation: UUID format checks for accountId and tag definition IDs; required vs optional headers (Reason/Comment) behavior; security input in headers; ignoring unexpected query params.",
+              "Large Payloads: Boundary test with 100 tag IDs.",
+              "Authorization: 401 when authentication token is missing.",
+              "Concurrency/Deduplication: Concurrent requests ensure no duplicate tags are created.",
+              "Operational/Resilience: 503 dependency failure case included.",
+              "Performance: Basic latency expectation within 2 seconds."
+            ],
+            "gaps": [
+              "Server Error Handling: No 500 Internal Server Error scenario; only 503 is tested.",
+              "Duplicate Submission/Idempotency: No scenario posting the exact same payload twice sequentially to verify behavior (idempotent vs duplicate creation vs conflict).",
+              "Large Payload Extremes: Only a boundary of 100 is tested; no stress tests for very large arrays and no 413 Payload Too Large expectation.",
+              "Body/Content-Type Handling: No test for completely missing body or incorrect/missing Content-Type header; no assertion of response Content-Type = application/json.",
+              "Mixed Validity Inputs: No case with a mix of valid and invalid tag IDs in the same request to define all-or-nothing vs partial success semantics.",
+              "Element-level Validation: No tests for null elements, empty strings, whitespace-only IDs, or leading/trailing spaces.",
+              "Authorization/Permissions: No 403 Forbidden scenario for insufficient permissions despite valid authentication.",
+              "Response Contract: No schema-level validation against #/definitions/Tag (fields/structure), only high-level array/type assertions.",
+              "Spec Alignment: TC05 expects response to include pre-existing tags; story specifies the response should represent created tags only.",
+              "Ambiguity: TC22 allows multiple outcomes (400 or 201), making the test nondeterministic and hard to automate reliably."
+            ],
+            "recommendations": [
+              "Add a 500 Internal Server Error test (e.g., database exception) and validate proper error payload/headers.",
+              "Add an idempotency/duplicate-submission test: send the same payload twice and verify expected behavior (no duplicate tags, consistent status code).",
+              "Expand large-payload testing: try 1,000+ IDs to validate performance and server limits; add a negative case asserting 413 if applicable.",
+              "Add scenarios for missing body and wrong/missing Content-Type (e.g., text/plain) to assert 415 Unsupported Media Type, and assert response Content-Type is application/json on success/errors.",
+              "Add a mixed-validity test (one valid, one invalid ID) to define whether the API fails the whole request or partially applies.",
+              "Add element-level validation tests: null, empty string, whitespace-only IDs, IDs with leading/trailing spaces; ensure these return 400.",
+              "Add a 403 Forbidden test for authenticated users lacking permission to add tags.",
+              "Introduce response contract tests validating each Tag object against the schema (required fields, types, and no extra fields).",
+              "Align TC05 with the story: assert the response includes only the newly created tags, not pre-existing ones.",
+              "Make TC22 deterministic: choose a single expected outcome (either reject with 400 or accept after sanitization with 201) and assert no reflection of unsanitized content.",
+              "Optionally verify auditability: when Reason/Comment headers are provided, confirm they are persisted (if system supports auditing).",
+              "Document or drop TC06 if query params are truly irrelevant for POST, or explicitly assert they are ignored without changing behavior."
+            ],
+            "usage": {
+              "completion_tokens": 7472,
+              "prompt_tokens": 6410,
+              "total_tokens": 13882,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6656,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-13T20:06:39.012249",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T20:06:01.216496",
+    "benchmark_end_time": "2025-10-13T20:06:39.012243",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 37.795747,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Happy path: Minimal successful transfer (required body + required header) with 201 and Location header (TC01).",
+              "Optional parameters: Successful transfer with requestedDate, billingPolicy, pluginProperty, and optional headers (TC02).",
+              "billingPolicy enumeration: All legal values exercised (START_OF_TERM, END_OF_TERM, IMMEDIATE) (TC03).",
+              "requestedDate handling: Valid date (today) and invalid date format (TC04, TC09).",
+              "pluginProperty handling: multiple values, empty array, and large payload edge case (TC05, TC18, TC20).",
+              "Required header validation: X-Killbill-CreatedBy required and missing header negative test (TC11).",
+              "Request body validation: Missing required accountId negative test and SQL injection check (TC12, TC15).",
+              "Path parameter validation: Invalid bundleId format negative test and not-found bundle (TC08, TC06).",
+              "Target account not found: 404 test (TC07, TC23).",
+              "Authorization: Missing/invalid auth token negative test (401) (TC13).",
+              "Service / dependency failures: Unavailable and inconsistent data -> 503 and 500 (TC14, TC24).",
+              "Business/regression scenarios: transfer to same account disallowed (TC25), backward compatibility (TC26).",
+              "Security: XSS in pluginProperty negative test (TC16).",
+              "Concurrency / performance: concurrent requests and other perf tests included (TC27-TC30, TC29).",
+              "Response semantics: tests assert response body is Bundle object and Location header presence/format (TC01, TC02)."
+            ],
+            "gaps": [
+              "Duplicate submissions / idempotency: No explicit test for duplicate POSTs (e.g., replay of identical request producing safe/expected behavior or dedup headers).",
+              "Malformed JSON / Content-Type enforcement: No tests for malformed request body (syntactic JSON errors) or missing/incorrect Content-Type headers resulting in 400.",
+              "Authorization scope / permission errors (403): Tests cover missing/invalid token (401) but not insufficient permissions (403) or role-based access control scenarios.",
+              "Exact response schema validation and field-level assertions: Scenarios assert \"valid Bundle\" but do not enumerate field-level validations (e.g., accountId set, bundleId unchanged, dates, subscription list integrity).",
+              "Location header exactness: Presence is tested, but not full validation of URL format, bundleId in Location, or canonical path.",
+              "PluginProperty type validation: No negative tests for wrong data types (e.g., pluginProperty provided as non-array or non-string items).",
+              "Header value validation: No tests for empty X-Killbill-CreatedBy, or exceeding allowed lengths causing 4xx (TC21 only covers max length success; missing negative case for too-long headers).",
+              "Duplicate/parallel transfers of same bundle (race conditions): Concurrency (TC29) is present, but there is no targeted race condition test for two simultaneous transfers of the same bundle to different targets and the expected resolution/locking behaviour.",
+              "Rate limiting and throttling: Not covered (relevant for standard guidelines and performance under bursts).",
+              "Content-negotiation and caching behavior: Not covered (ETag/Cache-Control or content-negotiation tests are missing)."
+            ],
+            "recommendations": [
+              "Add a duplicate-submission test: send identical POST twice (with/without idempotency key) to assert expected behavior (either safe retry or informative error).",
+              "Add malformed JSON and Content-Type tests: syntactically invalid JSON bodies and missing/incorrect Content-Type should return 400 with clear error.",
+              "Add permission/403 tests: exercise valid auth token with insufficient privileges or role to verify 403 is returned where applicable.",
+              "Add strict response-schema assertions: validate key Bundle fields (bundleId, accountId, effective dates, subscription entries) to ensure the returned Bundle object matches expectations after transfer.",
+              "Add Location header validation: assert Location URL matches /1.0/kb/bundles/{bundleId} of the transferred bundle and that the bundleId in the URL equals the returned bundleId.",
+              "Add negative pluginProperty type tests: send non-array pluginProperty and non-string entries to ensure 400 validation responses.",
+              "Add header-validation negatives: test empty X-Killbill-CreatedBy and headers exceeding max allowed length to confirm 4xx responses when appropriate.",
+              "Add a targeted race-condition test: two concurrent transfers of the same bundle to different accounts to assert locking/ordering behavior and deterministic outcome.",
+              "Add rate-limiting/throttling tests: rapid repeated requests to verify 429 or other throttling behavior per SLA.",
+              "Add caching and content-negotiation checks where applicable: ensure responses include expected caching headers if relevant and that Accept header behaviour is correct."
+            ],
+            "usage": {
+              "completion_tokens": 2171,
+              "prompt_tokens": 7734,
+              "total_tokens": 9905,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

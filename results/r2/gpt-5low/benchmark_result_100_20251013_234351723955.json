@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-13T23:43:51.723923",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:43:29.541980",
+    "benchmark_end_time": "2025-10-13T23:43:51.723917",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 22.181937,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Successful 204 when removing all fields (no query param) and specific fields (multi query params).",
+              "DELETE - Non-Existent Resource: 404 when paymentId does not exist.",
+              "Input Validation: 400 for invalid paymentId format; 400 for malformed customField UUID; 400 when required header X-Killbill-CreatedBy is missing.",
+              "Optional Headers: Presence of X-Killbill-Reason and X-Killbill-Comment validated without affecting success (204).",
+              "Query Parameters: Multi-valued customField handled; scenarios for one, many, maximum-sized lists; behavior when customField values do not exist is exercised.",
+              "Security/Hardening: XSS in header and SQLi-like customField param rejected with 400/422.",
+              "Service Reliability: 503 when service unavailable; performance under load scenario included.",
+              "Integration: Audit log dependency scenario covered (available/unavailable).",
+              "Authorization: 401 for invalid authentication token (beyond story but valuable)."
+            ],
+            "gaps": [
+              "DELETE - Concurrency: No scenarios for race conditions (simultaneous deletions or delete while another operation modifies custom fields).",
+              "DELETE - Soft Deletes: No verification of soft-deletion semantics (e.g., audit/state flags vs. permanent removal) if applicable.",
+              "Contract Details: No assertion of response headers such as Content-Type (produces application/json) for 204 responses, or lack thereof, and no validation of error response schema/body shape.",
+              "Idempotency: No test confirming repeated DELETE calls yield consistent results (e.g., second call still 204 and no side effects).",
+              "Query Param Edge Cases: No scenarios for empty customField parameter, duplicate IDs in query, mixed valid/invalid with partial-success behavior as per spec (current tests assume full 400 on any invalid).",
+              "Header Edge Cases: No tests for max length/character set for X-Killbill-CreatedBy/Reason/Comment, or unsupported/extra headers handling beyond one unexpected query param case.",
+              "Auditing Guarantees: While audit integration is tested, there is no explicit verification that audit entries include CreatedBy/Reason/Comment correctly.",
+              "Rate Limiting/Throttling: No scenarios for fast repeated DELETE requests and expected status (e.g., 429) if enforced by the platform.",
+              "Error Spectrum: No tests for 500-class server errors beyond 503 (e.g., DB failure), and no retry behavior validation if applicable."
+            ],
+            "recommendations": [
+              "Add concurrency scenarios: two clients deleting the same set of custom fields simultaneously; delete while another request adds/removes a field; ensure atomicity and final state correctness.",
+              "Clarify and test soft vs hard delete semantics; if soft delete is expected, assert flags/audit reflect deletion while data remains non-functional; if hard delete, verify fields are not retrievable afterward.",
+              "Assert response headers and content-negotiation contract: verify Content-Type (or its absence) on 204; verify error responses include consistent JSON structure with code/message.",
+              "Add idempotency test: repeat the same DELETE request and confirm 204 (or defined behavior) and no adverse effects.",
+              "Extend query param edge cases: empty customField parameter, duplicate IDs, whitespace, case sensitivity, and confirm defined behavior; add a test for mixed valid/invalid where spec defines whether to reject all or delete valids.",
+              "Expand header validation: boundary tests for length, allowed characters, and trimming behavior for X-Killbill-CreatedBy/Reason/Comment; verify extraneous headers are ignored safely.",
+              "Enhance audit verification: assert that audit entries capture CreatedBy, Reason, and Comment exactly as sent and are created once per operation.",
+              "Consider rate limiting/throttling scenarios if applicable to this endpoint (multiple rapid DELETEs leading to 429 or logged warnings).",
+              "Add server-error simulation (e.g., DB outage) to verify 500 handling and consistent error payloads; if retries/backoff are part of client behavior, validate those."
+            ],
+            "usage": {
+              "completion_tokens": 1882,
+              "prompt_tokens": 6120,
+              "total_tokens": 8002,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

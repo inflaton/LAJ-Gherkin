@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-14T20:58:00.343514",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:57:23.846929",
+    "benchmark_end_time": "2025-10-14T20:58:00.343510",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 36.496581,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT - Valid Request: Success path with 204 covered, including required header only and with optional requestedDate and pluginProperty (TC01, TC02, TC03, TC04, TC18).",
+              "Non-Existing Resource: 404 when bundle not found covered (empty DB/path with random UUID) (TC05).",
+              "Input Validation: Invalid bundleId format -> 400 (TC06); missing required header -> 400 (TC07); invalid state transitions (active/cancelled) -> 400 (TC08, TC09); invalid pluginProperty format -> 400 (TC19); requestedDate in the past -> 400 (TC20).",
+              "Authorization: Unauthorized/forbidden access -> 401/403 (TC10).",
+              "Concurrency: Multiple concurrent resume requests; first 204, subsequent 400/409 (TC21).",
+              "Optional headers/metadata: Reason/Comment captured in audit log (TC04) and header edge cases like whitespace/case and max lengths (TC12, TC26).",
+              "Plugin properties: Multiple values, large counts and degraded plugin service behavior including timeout (TC03, TC13, TC25).",
+              "Reliability/Resilience: Transient failure + retry success (TC15); dependency service unavailable -> 500 (TC14).",
+              "Security: SQL injection and XSS attempts safely handled (TC16, TC17).",
+              "Functional scope: Confirms all paused subscriptions in bundle resume and final state becomes active (TC01)."
+            ],
+            "gaps": [
+              "PUT - Partial Update semantics: Endpoint has no body; there is no test asserting that sending a request body is rejected or ignored (e.g., 400/415 or ignored with 204).",
+              "Non-Existing Resource in populated environment: No explicit scenario for valid-but-unknown UUID when other bundles exist (404 expected).",
+              "requestedDate validation: No test for invalid date format or timezone edge cases (e.g., non-ISO date, malformed string) returning 400.",
+              "Accept/Content-Type handling: No tests asserting correct behavior for 204 with no body, absence/presence of Content-Type, or handling of incorrect Content-Type/Accept headers (e.g., 415/406).",
+              "Idempotency (sequential): No explicit sequential duplicate call on already resumed bundle to confirm stable 400/409 outside of a concurrency race.",
+              "Query parameter encoding: No test for pluginProperty using multi-parameter form (?pluginProperty=a&pluginProperty=b) per collectionFormat=multi and behavior with URL-encoded values.",
+              "Response contract: No checks for error payload schema/fields beyond a generic message (e.g., code, message, requestId), and no verification of standard headers in errors (e.g., Retry-After for 409/429, if applicable)."
+            ],
+            "recommendations": [
+              "Add a scenario that sends a non-empty JSON body with the PUT and assert the API rejects it (400/415) or ignores it as per spec.",
+              "Add a scenario for a valid-but-nonexistent bundleId in a non-empty DB and assert 404.",
+              "Add scenarios for requestedDate with invalid format (e.g., 2025-13-01, not ISO-8601, bad timezone) and assert 400; also test boundary like requestedDate=now.",
+              "Validate header negotiation: send incorrect Content-Type or unacceptable Accept; assert 415/406 as appropriate, and confirm 204 responses have no body and expected headers.",
+              "Add a sequential idempotency test: resume paused bundle -> 204; immediately repeat same request -> 400/409 expected.",
+              "Test pluginProperty using repeated multi-form parameters and URL-encoded values to confirm parsing per collectionFormat=multi.",
+              "Define and verify a consistent error response schema (fields like errorType, code, message) and assert presence in 400/404/500 responses."
+            ],
+            "usage": {
+              "completion_tokens": 1852,
+              "prompt_tokens": 6265,
+              "total_tokens": 8117,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

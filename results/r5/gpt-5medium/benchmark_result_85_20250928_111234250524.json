@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "85_2025-09-28T11:12:34.250499",
+    "jira_id": "85",
+    "jira_title": "Implement/Test API: GET /1.0/kb/export/{accountId} - Export account data",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:11:07.306141",
+    "benchmark_end_time": "2025-09-28T11:12:34.250495",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 86.944354,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "85_qe_sup-gpt4.1_agent-gpt4.1_1748921476.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Happy paths return 200 with application/octet-stream and a valid export archive (TC01, TC02, TC14).",
+              "Header Handling: Required X-Killbill-CreatedBy enforced (TC03); optional X-Killbill-Reason and X-Killbill-Comment accepted (TC01); extra/legacy headers tolerated without breaking (TC06, TC15).",
+              "Input Validation: Malformed UUID and injection attempts yield 400 (TC04, TC11).",
+              "Resource Existence: Non-existent account and empty DB yield 404 (TC05, TC07, TC12).",
+              "Authorization: Unauthorized request returns 401 (TC18).",
+              "Robustness/Resilience: Slow downstream within timeout (TC09); long-running operation times out with 504 (TC17); backend failure returns 500 (TC10).",
+              "Performance/Scalability: Large export size and response-time assertions (TC08); concurrent requests for same account succeed (TC13).",
+              "HTTP Semantics: Unsupported method returns 405 (TC16).",
+              "Documentation/Accessibility: API documentation clarity validated (TC19)."
+            ],
+            "gaps": [
+              "Caching Behavior: No checks for Cache-Control, ETag/Last-Modified, or conditional requests (If-None-Match/If-Modified-Since).",
+              "Rate Limiting: No scenarios for throttling/429 responses and Retry-After headers under burst traffic.",
+              "Empty-but-existing account: Behavior not verified when an existing account has minimal/no data (e.g., empty archive vs specific status).",
+              "Content headers: No verification of Content-Disposition (download filename) and Content-Length; no check that the payload is compressed as noted in story \u201ctypically a compressed archive\u201d.",
+              "Accept/content negotiation: No assertion that requests with Accept: application/octet-stream are honored and unacceptable Accept yields 406 (if applicable).",
+              "Authorization depth: No 403 Forbidden scenario for authenticated but unauthorized principals (if RBAC applies).",
+              "Data correctness: Tests assert \u201cvalid archive\u201d but do not verify archive contents belong exclusively to the requested account (e.g., metadata includes the same accountId, no cross-account leakage).",
+              "Boundary/negative for headers: No tests for empty/oversized/special-character values in X-Killbill-CreatedBy, Reason, Comment."
+            ],
+            "recommendations": [
+              "Add caching tests: verify ETag/Last-Modified and Cache-Control; perform conditional GET with If-None-Match/If-Modified-Since to expect 304 when unmodified (if supported).",
+              "Add rate limiting tests: hammer endpoint to trigger 429, assert Retry-After and correct backoff behavior.",
+              "Define and test behavior for accounts with no exportable data: expect 200 with empty/minimal archive or a defined status; add a scenario accordingly.",
+              "Verify content headers and archive characteristics: Content-Disposition filename pattern, Content-Length present, and that the archive is compressed as per \u201ctypically a compressed archive\u201d.",
+              "Test Accept header handling: with Accept: application/octet-stream succeed; with an unsupported Accept expect 406 (if implemented).",
+              "Include 403 Forbidden scenario if the system distinguishes authenticated vs authorized users for export.",
+              "Strengthen data validation: unzip the export and assert it contains only the requested account\u2019s data and correct metadata (e.g., accountId matches).",
+              "Add header robustness tests: empty, overly long, and special-character values for CreatedBy/Reason/Comment to ensure validation and error messaging.",
+              "Clarify expected code for backend unavailability (500 vs 503) and align tests and implementation; consider adding a 503 Service Unavailable scenario if appropriate."
+            ],
+            "usage": {
+              "completion_tokens": 4303,
+              "prompt_tokens": 5510,
+              "total_tokens": 9813,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3520,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

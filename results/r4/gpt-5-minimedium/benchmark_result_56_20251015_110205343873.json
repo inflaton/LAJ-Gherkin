@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "56_2025-10-15T11:02:05.343836",
+    "jira_id": "56",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/customFields - Add custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:01:42.316223",
+    "benchmark_end_time": "2025-10-15T11:02:05.343832",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 23.027609,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "56_qe_sup-gpt4.1_agent-gpt4.1_1748919557.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: Multiple success scenarios (TC01, TC02, TC03, TC04, TC13, TC17, TC19) verify 201 responses and response body arrays for created CustomField objects.",
+              "Path param validation: Invalid UUID format (TC05) and non-existent bundle (TC06) map to the 400/404 acceptance criteria.",
+              "Required/Optional headers: Presence and absence of X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment are tested (TC01, TC02, TC07, TC19).",
+              "Request body validation: Malformed JSON, empty body, empty array, missing required fields, unsupported additional fields, and schema validation errors are covered (TC08, TC09, TC10, TC12, TC18).",
+              "Duplicate and conflict rules within a request: Duplicate field names in the same request and case-sensitivity regression are covered (TC11, TC21).",
+              "Security: SQL injection and XSS attempts are explicitly covered (TC23, TC24).",
+              "Authorization: Missing/invalid authentication token is covered (TC14).",
+              "Resilience & error handling: Dependency/service unavailability and service unavailable scenarios are covered (TC15, TC20), and network timeout is considered (TC16).",
+              "Performance & concurrency: Large payloads and concurrent requests are covered (TC17, TC22).",
+              "Extra parameters: Extra query parameters handling is tested (TC13).",
+              "Acceptance criteria mapping: Success (201 with JSON array) and primary error cases (400 malformed/invalid, 404 not-found) are explicitly tested as requested in the Jira story."
+            ],
+            "gaps": [
+              "Duplicate Submission / Idempotency: There is no test for re-submitting the same POST twice (same payload) to confirm whether duplicates are created, rejected, or deduplicated by the server.",
+              "Internal Server Error (500): No explicit test simulates an internal server/database failure that should produce a 500 and a safe error response.",
+              "Content-Type / Accept headers: No tests verify behavior when Content-Type is missing/incorrect or when Accept negotiation affects responses; response Content-Type and other response headers (e.g., Location) are not asserted.",
+              "Persistence / End-to-end verification: There is no follow-up GET (or equivalent) to confirm the CustomField objects are persisted and retrievable after creation.",
+              "Rate limiting / Throttling: No tests for rate limiting, 429 responses, or behavior under burst traffic beyond the performance/concurrency test.",
+              "Validation edge-cases and constraints: Missing tests for field-level constraints such as maximum lengths, allowed character sets for field names/values, numeric range checks, or other domain-specific validations beyond schema presence/absence.",
+              "Request too large / Payload limits: No test for exceeding server payload limits (413 Request Entity Too Large) or behavior when near/over system limits beyond the successful large-payload scenario.",
+              "Response headers and caching: Although caching is typically more relevant to GET, tests do not assert response headers (Content-Type, Location, caching info if any) that can matter even for POST responses.",
+              "Concurrent duplicate-name race: While concurrent requests are covered, there is no explicit scenario for race conditions where two concurrent requests attempt to create the same field name in the same bundle (to validate atomicity/uniqueness across requests).",
+              "Client retry/idempotency behavior: TC16 mentions retry per client policy, but there is no server-side guidance/test for idempotency keys or how clients should safely retry without causing duplicates."
+            ],
+            "recommendations": [
+              "Add a duplicate-submission test: send the same valid POST twice (immediately) to validate whether the service creates duplicates or rejects/merges the second request; assert expected behavior and idempotency semantics.",
+              "Simulate server/internal failures: add tests forcing 500-level errors (e.g., DB failure, unhandled exception) and assert safe, non-sensitive error responses and proper status codes.",
+              "Validate Content-Type/Accept handling and response headers: tests for missing/incorrect Content-Type, assert response Content-Type header, and check for Location or other relevant headers returned on 201.",
+              "Add persistence verification: after a successful POST, perform a GET on /1.0/kb/bundles/{bundleId}/customFields (or bundle-level retrieval) to confirm creation persisted and data matches.",
+              "Introduce rate-limiting and throttling tests: simulate high-rate requests to observe 429 behavior and service degradation characteristics.",
+              "Expand validation-edge tests: add tests for max length, illegal characters, numeric bounds, and other domain constraints for CustomField name/value, including header length/format validations (e.g., empty X-Killbill-CreatedBy, overly long values).",
+              "Test payload limit and 413 behavior: attempt payloads exceeding configured limits and assert proper error handling or streaming behavior.",
+              "Concurrent conflict scenario: add a test where two concurrent requests attempt to create the same custom field name in the same bundle to validate uniqueness enforcement and transactional integrity.",
+              "Specify idempotency/retry behavior: either add an Idempotency-Key header tests or clearly document expected server behavior on retries and implement tests accordingly.",
+              "Assert no sensitive data leakage on errors: extend security tests to verify error response bodies and logs do not leak stack traces or internal identifiers."
+            ],
+            "usage": {
+              "completion_tokens": 2658,
+              "prompt_tokens": 6302,
+              "total_tokens": 8960,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1536,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

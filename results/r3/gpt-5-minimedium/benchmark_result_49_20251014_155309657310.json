@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-14T15:53:09.657283",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:52:20.763169",
+    "benchmark_end_time": "2025-10-14T15:53:09.657278",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 48.894109,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Deletion: TC01 verifies successful DELETE returns 204 and host is marked out of rotation.",
+              "Authorization: TC02 and TC03 cover missing and invalid authentication (401).",
+              "Error Handling: TC05 and TC06 cover service-unavailable (503) and internal server error (500) responses.",
+              "Non-Existent / Already-Out Cases: TC04 and TC14 cover attempts to take a host out of rotation when it is already out or when no hosts exist (conflict semantics).",
+              "Invalid Method Handling: TC07 tests method-not-allowed (405).",
+              "Input Validation / Security: TC09 and TC13 cover malicious request body and header injection attempts.",
+              "Concurrency and Performance: TC10 and TC11 include response-time expectations and concurrent DELETE handling (race conditions).",
+              "Regression / Correctness: TC12 validates that the host state is actually updated and can be queried afterward.",
+              "Extra Parameters: TC08 verifies that extra query parameters do not break the operation."
+            ],
+            "gaps": [
+              "Produces / Content-Type header: No assertions that responses include the declared application/json Content-Type header (the story specifies \"Produces: application/json\").",
+              "Soft-delete semantics and persistence model: No tests check whether the host is soft-deleted (flagged) versus hard-removed, or verify persistent state beyond an API-level flag (DB/state verification beyond \"marked out of rotation\").",
+              "Role-based authorization / Forbidden (403): Tests cover unauthenticated (401) and invalid tokens, but not an authenticated user lacking admin privileges (403).",
+              "Explicit idempotency behavior: Repeated DELETE behavior is only partially covered (TC11/TC04 imply conflicts). The spec does not define whether repeated deletes should be idempotent (204) or return 409; tests assume 409 but the API spec is ambiguous.",
+              "Content negotiation and headers: No tests for response headers such as Cache-Control, ETag, or other operational headers; also no assertion of response Content-Length behavior for 204.",
+              "Rate limiting and throttling: No tests for rate limits or API throttling beyond simple concurrency/performance timing.",
+              "Audit/logging and observability: No tests to verify that the operation is logged/audited or that healthcheck/out-of-rotation events emit metrics."
+            ],
+            "recommendations": [
+              "Add explicit tests that verify the response Content-Type header is application/json where applicable, and assert header semantics for 204 responses (e.g., absence/presence of Content-Length).",
+              "Clarify and test idempotency semantics: decide whether repeated DELETE should return 204 (idempotent success) or 409 and update tests accordingly; add a dedicated idempotency test (repeat same DELETE twice from same client).",
+              "Add role-based authorization tests: include an authenticated non-admin user and assert 403 Forbidden if appropriate.",
+              "Add persistence-level checks for soft-delete vs hard-delete: verify DB/state flag or long-term status (not only API-level flag) to ensure correct persistence semantics.",
+              "Introduce rate-limiting tests: simulate rapid-fire requests to confirm proper throttling and expected 429 responses if rate limits apply.",
+              "Add audit/logging/metrics tests or hooks: verify that actions are recorded in audit logs or emit expected metrics/events.",
+              "Clarify expected behavior for request bodies on DELETE and align tests: either accept and ignore bodies (return 204) or reject non-empty bodies (return 400); update TC09 to match the defined behavior."
+            ],
+            "usage": {
+              "completion_tokens": 1895,
+              "prompt_tokens": 3433,
+              "total_tokens": 5328,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

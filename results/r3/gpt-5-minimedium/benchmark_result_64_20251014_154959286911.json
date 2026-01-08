@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-14T15:49:59.286880",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:47:58.545618",
+    "benchmark_end_time": "2025-10-14T15:49:59.286873",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 120.741255,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01-TC04, TC18) verify a paused bundle can be resumed immediately or scheduled (requestedDate) and with pluginProperty and optional headers.",
+              "Required Header Validation: TC01 and TC07 validate presence and absence of the required X-Killbill-CreatedBy header.",
+              "Path Parameter Validation: TC06 checks invalid bundleId format; TC05 covers non-existing bundle (404).",
+              "Success Response: TC01..TC04 assert the expected success status (204) and state transition (bundle -> active) and subscription resumption.",
+              "Query Parameters: requestedDate (future, scheduled) and pluginProperty (single/multiple/large count) are tested (TC02, TC03, TC13).",
+              "Error Scenarios: 400 for invalid state / invalid input (TC06, TC07, TC08, TC09, TC20, TC19) and 404 for missing resource (TC05) are explicitly covered.",
+              "Authorization: TC10 covers unauthorized access (401/403).",
+              "Concurrency & Idempotency: TC21 covers concurrent requests and expected responses for first/next callers; TC15 covers retry after transient failure.",
+              "Performance & Load: TC22 includes acceptable response time under normal/peak load.",
+              "System & Dependency Failures: TC14 (service unavailable -> 500) and TC25 (plugin degraded -> 504 or 204) are present.",
+              "Security: TC16 and TC17 cover SQL injection and XSS attempt handling in inputs.",
+              "Edge cases & robustness: TC11 (extra params), TC12 (max header lengths), TC24 (legacy header formats), TC26 (whitespace/case variations), TC23 (regression) cover many robustness/regression/back-compat scenarios."
+            ],
+            "gaps": [
+              "Produces / Content-Type: The story notes \"Produces: application/json\" but there are no assertions verifying response Content-Type headers (including for 204 responses) or body presence/absence.",
+              "Invalid requestedDate formats and parsing errors: Tests cover future requestedDate (TC02) and past date rejection (TC20) but do not cover malformed date strings (e.g., \"not-a-date\") or time-zone / \u201ctoday\u201d boundary conditions.",
+              "PluginProperty transmission formats: The suite checks array, non-array and large counts (TC03, TC19, TC13) but lacks explicit tests for alternative encodings (repeated query params vs. comma separated vs. URL-encoded values) and how the server maps those to the pluginProperty array.",
+              "Partial / unexpected transitional states: The story mentions \"invalid state\" generically; tests cover active and cancelled (TC08/TC09) but do not exercise other possible states or transitional states (e.g., PENDING, SUSPENDED, or mid-transaction states) that may affect resume behavior.",
+              "Response body / error payload shape: Error scenarios assert status codes but do not assert the structure/fields of error responses (consistent error codes/messages/JSON schema).",
+              "Idempotency semantics: Concurrency test (TC21) covers first vs subsequent responses but does not explicitly assert idempotency guarantees or the API's documented behavior on repeat identical requests.",
+              "Rate limiting & throttling: No tests cover rate limiting behavior or API throttling under burst traffic (relevant in guidelines).",
+              "Caching behavior: While not usually applicable to PUT, there are no tests asserting appropriate cache-related headers or that caching layers do not cache non-idempotent requests (per guidelines)."
+            ],
+            "recommendations": [
+              "Add Content-Type and response-body assertions: verify response headers (Content-Type: application/json) for error responses and confirm 204 responses do not contain a body or include expected headers.",
+              "Add malformed requestedDate tests: include invalid-date-format (e.g., \"abc\"), timezone boundary tests (requestedDate == today at different timezones), and business-rule tests for \"today\" vs \"immediate\".",
+              "Expand pluginProperty format tests: include repeated query param form (pluginProperty=prop1=val1&pluginProperty=prop2=val2), URL-encoded values, comma-separated and empty-value cases, and validate how they map into server-side pluginProperty arrays.",
+              "Exercise transitional and additional bundle states: add scenarios for other lifecycle states (e.g., PENDING, SUSPENDED, pending-cancellation) to ensure resume rejection or acceptance is correct and consistent with business rules.",
+              "Assert error payload schema: add tests that validate JSON error response structure (errorCode, message, field, etc.) and localization/consistent messaging.",
+              "Idempotency tests: include explicit idempotency tests (repeat identical request multiple times) to document and verify server behavior (should be safe/repeatable or return a deterministic error/status).",
+              "Rate limiting and throttling: add stress/burst tests that assert correct 429 responses or backoff behavior under high request rates.",
+              "Security/input encoding fuzzing: expand security tests to include URL-encoded payloads, header-encoded attacks, and ensure pluginProperty and headers are sanitized and stored safely; include checks on audit log escaping.",
+              "Integration/contract tests: add an API contract test that ensures the OpenAPI/Swagger contract (if present) is satisfied (parameter types, required headers, produced media types)."
+            ],
+            "usage": {
+              "completion_tokens": 2649,
+              "prompt_tokens": 6265,
+              "total_tokens": 8914,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1536,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

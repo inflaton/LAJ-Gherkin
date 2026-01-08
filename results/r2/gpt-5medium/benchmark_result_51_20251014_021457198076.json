@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-14T02:14:57.198047",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T02:13:27.328634",
+    "benchmark_end_time": "2025-10-14T02:14:57.198043",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 89.869409,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST Valid Payload: Successful transfers with minimum fields and with all optional parameters return 201, include a Bundle JSON body, and set the Location header (TC01, TC02).",
+              "Validation: Invalid inputs are exercised (invalid bundleId format, invalid requestedDate, invalid billingPolicy=ILLEGAL, missing required X-Killbill-CreatedBy, missing body, SQLi/XSS attempts, extra params ignored) returning proper 400s (TC08\u2013TC12, TC15\u2013TC16, TC19).",
+              "Optional parameters behavior: requestedDate today, billingPolicy START_OF_TERM/END_OF_TERM/IMMEDIATE, pluginProperty multiple and empty array are covered (TC03\u2013TC05, TC18).",
+              "Not-found handling: 404 for non-existent bundle and target account, including empty/partially populated DB states (TC06\u2013TC07, TC22\u2013TC23).",
+              "Authorization: Unauthorized access returns 401 (TC13).",
+              "Large payloads: Large pluginProperty list and max-length headers are exercised (TC20\u2013TC21).",
+              "Server error handling and resiliency: Simulated 500/503 and inconsistent dependency responses handled; transient network retry succeeds (TC14, TC17, TC24).",
+              "Performance and concurrency: Normal/peak load, concurrent requests, and resource utilization scenarios are included (TC27\u2013TC30).",
+              "Success contract details: Location header presence/format and Bundle associated with target account are asserted (TC01\u2013TC02)."
+            ],
+            "gaps": [
+              "Duplicate submission/idempotency: No test verifies behavior when the same transfer request is submitted twice (e.g., at-least-once retry without creating duplicate transfers).",
+              "Default billingPolicy behavior: No scenario confirms that omitting billingPolicy applies the documented default END_OF_TERM and its functional effect.",
+              "Content negotiation/headers: No assertions for response Content-Type=application/json on success/errors; no test for 415 Unsupported Media Type when sending non-JSON or wrong Content-Type.",
+              "pluginProperty encoding: collectionFormat=multi not explicitly validated (e.g., repeated pluginProperty query keys, URL-encoding/special characters).",
+              "Invalid target accountId format: No explicit 400 test for malformed/non-UUID accountId value in the request body (distinct from non-existent or SQL injection).",
+              "Partial body validation: No scenario for a JSON body present but missing the accountId field (as opposed to entirely missing body).",
+              "Location header follow-up: No test that performing a GET on the Location actually returns the transferred Bundle in its new state.",
+              "Authorization/permissions depth: No 403/role-based test for an authenticated user lacking transfer permission (if applicable).",
+              "requestedDate boundary and timezone: No tests for past/future dates, timezone offsets, or clock skew handling around day boundaries.",
+              "Rate limiting/throttling: No scenario validating behavior under burst POST traffic (e.g., 429), if enforced by the API."
+            ],
+            "recommendations": [
+              "Add an idempotency/duplicate-submission scenario: send the same transfer twice (including retry after timeout) and verify only one transfer occurs or a deterministic error/response is returned.",
+              "Add a scenario omitting billingPolicy to assert default END_OF_TERM is applied, including verifying effective date/proration behavior consistent with that policy.",
+              "Assert HTTP headers: verify response Content-Type=application/json on success and error; add a negative test for 415 when Content-Type is not application/json or body is non-JSON.",
+              "Validate pluginProperty collectionFormat=multi: pass repeated pluginProperty params, include URL-encoded characters/specials, and assert values are received and applied as intended.",
+              "Add explicit 400 tests for invalid target accountId format (malformed/non-UUID) and for a body present but missing the accountId field.",
+              "Verify the Location header by following it with a GET and asserting the returned Bundle reflects the transfer and is associated with the target account.",
+              "If authorization rules exist, add a 403 scenario for an authenticated user lacking permission to transfer bundles.",
+              "Expand requestedDate tests to include past/future dates and timezone boundary cases to validate effective date semantics.",
+              "If applicable to this API, include a rate-limiting/throttling test to validate 429 behavior and headers (Retry-After)."
+            ],
+            "usage": {
+              "completion_tokens": 4178,
+              "prompt_tokens": 7734,
+              "total_tokens": 11912,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3264,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

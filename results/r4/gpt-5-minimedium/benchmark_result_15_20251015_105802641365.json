@@ -1,0 +1,101 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-10-15T10:58:02.641329",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:57:31.795401",
+    "benchmark_end_time": "2025-10-15T10:58:02.641324",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 30.845923,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Payload: Multiple happy-path scenarios (TC01, TC02, TC03, TC16) verify successful creation with required and optional fields and return 201.",
+              "Response Contract: Success scenarios assert response body contains created Account JSON and Location header contains the new account URL (TC01, TC02, TC03, TC20).",
+              "Invalid Payload / Validation Basics: Malformed JSON, missing required fields and empty payload are covered (TC05, TC06, TC12).",
+              "Header Validation (required): Missing required header condition is tested (TC04) and invalid header type is tested (TC08).",
+              "Authorization: Unauthorized access is covered (TC09 -> 401).",
+              "Duplicate Handling: Duplicate submission is considered (TC13), acknowledging the system handling (created or error).",
+              "Large Payload / Boundary: Large payload (max sizes) is tested (TC11).",
+              "Server/Dependency Failures: Database/unavailability and network timeout conditions are addressed (TC10 -> 503, TC14 -> 504).",
+              "Extra/Unexpected Input: Extra unsupported fields and unexpected headers are tested to ensure they are ignored (TC07, TC17).",
+              "Security: XSS/SQL-injection style malicious input is considered (TC15).",
+              "Performance/Concurrency: Concurrent creation and performance boundary are included (TC18).",
+              "Integration / Retrieval: End-to-end verification that created account is retrievable via Location (TC20).",
+              "Regression: Specific previously problematic field behavior (e.g., truncation) is included (TC19)."
+            ],
+            "gaps": [
+              "Field-level validation coverage is incomplete: there are no explicit tests for schema constraints such as email format, numeric ranges, max/min length for specific Account fields, enum values, or date formats (beyond \u201cmissing fields\u201d and malformed JSON).",
+              "Content-Type and Accept negotiation: No tests for invalid/missing Content-Type (e.g., sending text/plain), or asserting response Content-Type: application/json.",
+              "Server 500 / generic error handling: Tests simulate 503 and 504 but there is no explicit 500 Internal Server Error test or verification of consistent error payloads for server errors.",
+              "Deterministic duplicate-handling expectation: TC13 leaves handling ambiguous (\"201 or 409\"). The suite lacks tests that assert the system's chosen policy (e.g., idempotent creation vs. duplicate conflict) and race-condition duplicates under concurrency.",
+              "Precise Location header validation: Tests assert the Location header \"contains\" the URL but don't assert exact format, ID presence, or correctness (e.g., canonical path, trailing slash, URL encoding).",
+              "Response schema validation: While tests check that an Account object is returned, they don't assert the response strictly matches the Account schema (field presence/types/constraints) or include contract tests (e.g., JSON Schema validation).",
+              "Optional header validation: There are no focused tests validating types/lengths/encoding for optional headers (X-Killbill-Reason, X-Killbill-Comment).",
+              "Payload-too-large / rejection behavior: TC11 tests maximum allowed sizes but there is no test for payloads exceeding allowed limits (e.g., expecting 413 or validation error).",
+              "Role-based authorization / 403: Only 401 unauthorized is covered; there are no tests for authenticated but forbidden (403) scenarios or role/permission checks.",
+              "Rate limiting / throttling: No tests for rate limits or abuse protection (standard POST guideline item).",
+              "Caching and headers: No tests assert caching-related headers (ETag, Cache-Control) or ensure POST responses are not cached improperly.",
+              "Content negotiation and Accept header: No tests for various Accept headers or ensuring produced media-type is application/json.",
+              "Race conditions for create semantics: TC18 is a performance test but does not explicitly test race conditions that produce duplicates or inconsistent state (atomicity/isolation checks)."
+            ],
+            "recommendations": [
+              "Add strict schema/contract tests: validate the response body against the Account JSON schema (field names, types, required fields, formats such as email, numeric ranges).",
+              "Add field-level validation tests: include invalid email format, out-of-range numeric values, overly short/long strings, invalid enum values, and invalid date formats to ensure fine-grained validation errors return 4xx with clear messages.",
+              "Test Content-Type and Accept handling: add tests that send wrong Content-Type (e.g., text/plain) and missing Content-Type to verify server returns 415/4xx as appropriate, and assert response Content-Type is application/json.",
+              "Clarify and test duplicate policy deterministically: decide expected behavior (idempotent create vs. 409 conflict) and add tests that assert that behavior, including concurrent duplicate creation leading to expected outcome (race-condition tests).",
+              "Add server error simulation for 500: simulate unexpected failures (e.g., forced exception path) and assert 500 + predictable error payload format.",
+              "Add tests for payloads exceeding limits: send payloads larger than allowed to assert 413 or appropriate rejection and graceful error message.",
+              "Validate Location header precisely: assert that the Location header contains a well-formed URL, includes the new account id, and that GET on that URL returns the expected resource; include tests for URL encoding edge cases.",
+              "Add optional header validation tests: verify behavior when optional headers are too long, non-string, or contain unsupported characters and assert how they are handled/stored.",
+              "Add authorization/permission variations: include tests for authenticated but unauthorized (403) roles or scopes if applicable.",
+              "Add rate-limiting and throttling tests: verify behavior under bursts, including returned status codes and Retry-After headers when applicable.",
+              "Add caching-related checks where relevant: ensure POST responses include correct headers (e.g., no-store) and that subsequent GETs follow expected cache behavior; assert presence/absence of ETag if API supports it.",
+              "Improve security tests: expand XSS/SQLi checks to verify stored vs reflected XSS and ensure the system sanitizes or rejects malicious inputs; assert that responses do not reflect executable scripts.",
+              "Make performance/concurrency tests assert correctness under contention: beyond timing (TC18), add assertions that concurrent requests do not lead to inconsistent duplicates, partial writes, or data corruption."
+            ],
+            "usage": {
+              "completion_tokens": 2913,
+              "prompt_tokens": 4821,
+              "total_tokens": 7734,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1600,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

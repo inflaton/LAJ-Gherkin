@@ -1,0 +1,102 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-09-28T06:57:01.072630",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T06:55:14.370628",
+    "benchmark_end_time": "2025-09-28T06:57:01.072625",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 106.701997,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid POST success paths: multiple scenarios assert HTTP 204 and verify side effects (full/partial payments, use of default or specified payment method) (TC01, TC02, TC03, TC04, TC05, TC29).",
+              "Optional query parameters & header usage: paymentMethodId, externalPayment, paymentAmount, targetDate, pluginProperty and X-Killbill-CreatedBy/Reason/Comment are exercised (TC02, TC05).",
+              "Path parameter validation: malformed UUID and non-existent account cases are covered (TC08, TC09).",
+              "Header validation: missing and empty X-Killbill-CreatedBy tested; presence of X-Killbill-Reason/Comment exercised (TC10, TC16, TC02).",
+              "Authentication/Authorization: missing/invalid auth tokens tested (TC17).",
+              "Input validation: invalid paymentMethodId, negative/zero paymentAmount, malformed targetDate, non-boolean externalPayment, invalid pluginProperty types covered (TC11\u2013TC15).",
+              "Empty / no-data cases: accounts with no unpaid invoices and with no invoices return 204 and do not process payments (TC06, TC07).",
+              "Payment amount boundary behaviors: partial, equal and greater-than-outstanding are tested, including no overpayment behavior (TC02, TC03, TC04).",
+              "Duplicate submission / retry behavior: transient network retry and duplicate-prevention/regression scenarios included (TC22, TC28).",
+              "Integration failure handling: payment gateway, plugin system, and database unavailability are simulated and error responses expected (TC18, TC19, TC27).",
+              "Security tests: SQL injection in accountId and XSS in pluginProperty are tested to ensure no sensitive leakage or script execution (TC20, TC21).",
+              "Performance & stress: normal and peak response-time checks plus resource utilization/stress scenarios are present (TC30\u2013TC32).",
+              "Edge cases: extremely large paymentAmount and very large pluginProperty arrays are present, as well as extra unexpected query params handling (TC23, TC24, TC25).",
+              "State variations & backwards compatibility: mixed invoice states and tests for clients that omit optional parameters are covered (TC26, TC29).",
+              "Error response presence: many error scenarios assert a 4xx/5xx response and an error message body (throughout the error scenarios)."
+            ],
+            "gaps": [
+              "Idempotency header handling is not covered (no tests for an Idempotency-Key or equivalent to prevent duplicate payments at the API level).",
+              "Concurrent-race duplicate creation under high concurrency is not explicitly asserted \u2014 TC31 covers concurrent load but there is no explicit test ensuring no duplicates when multiple simultaneous requests target the same account.",
+              "Behavior when an account has no default payment method and no paymentMethodId is supplied is not tested (expected error or fallback behavior unclear).",
+              "TargetDate semantics are not fully exercised: scheduling vs immediate execution for future dates, timezone handling and verification of scheduled payments are not validated.",
+              "Payment allocation strategy is not asserted: tests do not verify invoice selection/order (oldest-first vs other), nor per-invoice / per-line allocation rules.",
+              "Cross-account paymentMethod misuse (using a paymentMethodId that belongs to another account) is not covered. ",
+              "Multi-currency/currency-mismatch/rounding behavior is not covered (e.g., invoice currency vs payment amount, conversion or rejection rules).",
+              "Malformed numeric types for paymentAmount (e.g., non-numeric strings, extreme decimal precision) are not explicitly tested. ",
+              "Exact error schema (structure, error codes, machine-readable fields) is not asserted; tests check an error message exists but not schema or consistent error codes/messages for each failure. ",
+              "Content-Type / Accept header handling and response header assertions (e.g., 'Produces: application/json' vs. 204 no-body, Content-Type on error responses, Retry-After, rate-limit headers) are not validated.",
+              "Rate-limiting and throttling behavior (429) are not covered.",
+              "Audit/logging verification that X-Killbill-CreatedBy is recorded in server logs/audit trail / transaction history is not covered."
+            ],
+            "recommendations": [
+              "Add idempotency-key tests: include an Idempotency-Key header to verify that repeated identical requests do not create duplicate payments and that the server returns the same response for the same key.",
+              "Add explicit concurrent-race tests: fire multiple identical POSTs concurrently against the same account and assert no duplicate payments are created (verify DB/transaction locks or dedup logic).",
+              "Add test for account with no default payment method and no paymentMethodId supplied to assert expected failure mode and error message.",
+              "Add targetDate semantics tests: schedule payments for future dates and assert payment is scheduled (not executed) until targetDate; test past dates; verify timezone handling and validation errors.",
+              "Add allocation tests: create multiple unpaid invoices and assert how a partial payment is applied across invoices (oldest-first vs configured strategy) and verify resulting invoice balances.",
+              "Add tests for cross-account paymentMethod usage: attempt to use a paymentMethodId that belongs to another account and assert a clear 4xx error.",
+              "Add multi-currency tests: invoices and payment amounts in different currencies, verify acceptance, rejection or conversion rules, and rounding behavior.",
+              "Add tests for non-numeric or malformed paymentAmount values and for extreme decimal precision to validate parsing/validation.",
+              "Define and assert a canonical error response schema in tests (fields, codes, correlation id) and add assertions for those fields in each error scenario.",
+              "Add header/content-type tests: missing/incorrect Content-Type or Accept header behavior, and verify response headers (Content-Type on errors, Retry-After where relevant).",
+              "Add rate-limiting/throttling tests: simulate bursts and assert 429 responses or other throttling behavior and related headers.",
+              "Add audit/logging verification tests: assert that X-Killbill-CreatedBy and other audit metadata are recorded and retrievable via logs or audit endpoints.",
+              "Consider adding tests for disabled/inactive payment methods, and tests that verify pluginProperty edge values (very long strings, nulls, reserved characters) and plugin error propagation details."
+            ],
+            "usage": {
+              "completion_tokens": 7577,
+              "prompt_tokens": 7048,
+              "total_tokens": 14625,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6272,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

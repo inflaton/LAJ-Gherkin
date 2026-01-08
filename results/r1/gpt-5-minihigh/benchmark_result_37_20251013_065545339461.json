@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "37_2025-10-13T06:55:45.339435",
+    "jira_id": "37",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/emails/{email} - Delete email from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T06:54:18.256054",
+    "benchmark_end_time": "2025-10-13T06:55:45.339431",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 87.083377,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "37_qe_sup-gpt4.1_agent-gpt4.1_1748918404.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Success scenarios (TC01, TC02, TC12, TC13, TC17, TC18) verify 204 responses for normal and boundary email values.",
+              "Headers: Required header presence and missing-header validation covered (TC02, TC07); optional headers (X-Killbill-Reason, X-Killbill-Comment) exercised (TC02).",
+              "Invalid input handling: 400 responses for malformed accountId and invalid email formats covered (TC05, TC06, TC16).",
+              "Resource-not-found handling: 404 responses for non-existent account and non-existent email covered (TC03, TC04, TC09).",
+              "Authorization: Unauthorized access tested (invalid/expired token returned 401) (TC10).",
+              "Concurrency: Race-condition and concurrent deletion behavior tested (TC15) demonstrating correct handling of concurrent deletes.",
+              "Resilience and retries: Service-unavailable and transient-network-retry scenarios covered (TC11, TC19).",
+              "Performance: Response-time SLA tested (TC14).",
+              "Security input sanitization: XSS/injection attempt in email parameter tested (TC16).",
+              "Extra parameters handling: Extra/unsupported query parameter behavior covered (TC08)."
+            ],
+            "gaps": [
+              "Soft-delete vs hard-delete semantics: No tests verify whether deletions are soft (flagged) vs permanent or whether deleted records remain in audit/history.",
+              "Response format and headers: Tests do not assert response Content-Type/application-json or verify error response JSON schema despite \"Produces: application/json\".",
+              "Authorization granularity and permissions: No tests for 403 Forbidden or role-based permission checks; only invalid token (401) is covered; missing-auth-header scenario is not explicitly tested.",
+              "URL encoding and special characters: No tests for emails requiring URL encoding (e.g., +, % encodings, spaces, Unicode/local-part edge cases).",
+              "Idempotency semantics beyond concurrency: No sequential repeated-delete tests to validate consistent idempotent behavior/policy (e.g., expected code on repeated delete).",
+              "500/Internal server errors: Only 503 is covered; lack of tests simulating 500-level server/DB exceptions and their handling. ",
+              "Rate limiting/throttling: No tests for high request rates (429 responses, Retry-After headers).",
+              "Caching and cache-control headers: No tests verifying cache-related headers (e.g., that delete responses are not cached or that caches are invalidated).",
+              "Recording of X-Killbill-Reason/Comment: Tests exercise optional headers but do not validate these values are recorded/audited in system history.",
+              "Response body schema and error codes: Tests assert presence of error messages but do not verify structured error payloads (fields, codes, correlation IDs)."
+            ],
+            "recommendations": [
+              "Add tests to verify Content-Type and response payload schema for both success (where applicable) and error responses (confirm application/json and expected fields).",
+              "Add tests to assert the X-Killbill-Reason and X-Killbill-Comment are persisted to the audit/logging subsystem or resource history after deletion.",
+              "Add RBAC tests: simulate authenticated users with insufficient privileges expecting 403 Forbidden, and add a missing-authentication-header test expecting 401 to complement the invalid-token test.",
+              "Add URL-encoding and special-character tests for email path parameter (e.g., local parts with +, % encoding, spaces encoded as %20, Unicode characters) to ensure proper validation and routing.",
+              "Add sequential idempotency tests: delete the same email twice sequentially and assert the policy (e.g., first request 204, subsequent request 404 or repeatable 204 depending on API contract).",
+              "Simulate server-side failures (e.g., DB exception) to verify 500 Internal Server Error behavior and that client receives sensible error payloads and correlation IDs.",
+              "Add rate-limiting tests by firing bursts of requests and validating 429 responses and Retry-After header semantics.",
+              "Add tests to verify cache-control behavior for DELETE responses (e.g., ensure responses are not cached and appropriate headers are present).",
+              "Add assertions that optional headers (Reason/Comment) are validated (length/encoding) and that invalid values return appropriate validation errors.",
+              "Add structured error-schema validation tests (check fields like code, message, details, timestamp) to ensure error responses are consistent and machine-parsable."
+            ],
+            "usage": {
+              "completion_tokens": 5918,
+              "prompt_tokens": 5675,
+              "total_tokens": 11593,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4992,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

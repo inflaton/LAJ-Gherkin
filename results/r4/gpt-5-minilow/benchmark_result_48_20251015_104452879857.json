@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-15T10:44:52.879828",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:44:41.926259",
+    "benchmark_end_time": "2025-10-15T10:44:52.879824",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 10.953565,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid PUT Request: TC01 and TC02 verify successful PUT and response 204 for hosts out-of-rotation and already-in-rotation.",
+              "Empty Response Body: TC01/TC02/TC07/TC08 validate that the response body is empty on success.",
+              "Authorization: TC03, TC09 cover unauthenticated requests returning 401.",
+              "Authorization (Permissions): TC04 covers authenticated-but-forbidden (403) responses.",
+              "Method Handling: TC06 verifies method-not-allowed (405) behavior for incorrect HTTP method.",
+              "Service Unavailability: TC05 covers a 503 when the service/endpoint is down.",
+              "Unexpected Payload Tolerance: TC07 verifies behavior when a non-empty payload is sent with PUT (the story says no body; test ensures tolerance/ignored payload).",
+              "Headers Robustness: TC08 and TC12 check handling of extra headers and malicious header payloads (basic hardening checks).",
+              "Performance / Timeout: TC10 checks response within acceptable timeout and behavior under degraded performance.",
+              "Retry / Transient Failures: TC13 verifies retry behavior after network interruption.",
+              "Concurrency / Race Conditions: TC14 attempts to exercise concurrent PUTs and idempotency/race handling.",
+              "Regression: TC11 ensures a previously fixed bug does not reoccur."
+            ],
+            "gaps": [
+              "Response Content-Type and Headers: The story specifies \"Produces: application/json\" but there is no explicit test asserting response Content-Type or other headers (e.g., Content-Length, Cache-Control).",
+              "HTTP error body formats: While error status codes (401/403/503/405) are covered, there are no explicit assertions for standardized error payload shape/fields (e.g., code, message, timestamp) when errors occur.",
+              "Idempotency semantics and side-effects: Although TC02 covers already-in-rotation, there is no explicit test asserting idempotency across repeated PUTs under different timing conditions (beyond TC14 concurrency).",
+              "Persistence across restarts / durable state: No test verifies that the host state change persists across service restarts or is reflected in downstream systems (load balancer, registry).",
+              "Audit / Logging / Metrics: No scenarios check audit entries, admin action logs, or emitted metrics indicating the host was returned to rotation.",
+              "Boundary/Negative Data Validation: The story states request body N/A; tests cover non-empty payloads, but there is no test for malformed content types (e.g., Content-Type: application/json with invalid JSON) and how the API responds.",
+              "Generic 4xx/5xx coverage: Tests cover some specific error codes, but not generic 400/422 validation scenarios or internal server error (500) behavior (e.g., DB failure).",
+              "Rate limiting / Throttling: TC14 addresses concurrent requests in a functional sense but there is no test for rate limiting / throttling (guideline asks rate limiting verification).",
+              "Partial/Resource Not Found: PUT guidelines mention updating non-existing resources; here the endpoint is global and story doesn\u2019t define behavior if no host exists \u2014 there is no explicit test for \"no host present\" or for multiple hosts targeting."
+            ],
+            "recommendations": [
+              "Add assertions for response headers including Content-Type: application/json on success and on error responses, and verify Content-Length behavior for empty responses.",
+              "Define and test standardized error payload schema for 4xx/5xx responses; add tests that validate presence/format of error fields (code/message) for 401/403/405/503 and 500 scenarios.",
+              "Add explicit idempotency tests: repeated sequential PUTs (not just concurrent) with timing variations to show no unintended side-effects.",
+              "Add persistence tests: verify host remains in rotation after service restart and that external systems (where applicable) observe the updated state.",
+              "Add tests for audit/logging: validate that an admin action record is created (if audit is a requirement) and any admin identifier is logged.",
+              "Add negative tests for malformed headers/body: e.g., Content-Type: application/json with invalid JSON payload, unsupported content types, and verify proper 4xx responses.",
+              "Add a test to simulate internal server error (e.g., DB or state store failure) to ensure API returns >=400 (500) per the error scenarios in the story.",
+              "Add rate-limiting/throttling tests to confirm behavior under many requests in a short time and to detect any protection/regression in overload scenarios.",
+              "Clarify and, if needed, add tests for behavior when there are zero hosts available or when multiple hosts are managed by the endpoint (if the system can address a specific host vs global)."
+            ],
+            "usage": {
+              "completion_tokens": 1167,
+              "prompt_tokens": 3274,
+              "total_tokens": 4441,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

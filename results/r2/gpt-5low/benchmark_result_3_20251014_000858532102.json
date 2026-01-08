@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "3_2025-10-14T00:08:58.532070",
+    "jira_id": "3",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/tags - Remove tags from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T00:08:21.400324",
+    "benchmark_end_time": "2025-10-14T00:08:58.532066",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 37.131742,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "3_qe_sup-gpt4.1_agent-gpt4.1_1748915976.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE Valid Deletion: Successful removal of one, many, all tags; 204 with empty body (TC01\u2013TC05, TC13, TC19, TC20).",
+              "Non-Existent Resource: 400 for invalid/non-existent accountId and invalid accountId format (TC06, TC07).",
+              "Input Validation: Invalid/malformed tagDef values and mixed valid/invalid sets return 400 (TC08, TC14, TC18).",
+              "Required/Optional Headers: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment handled (TC04, TC09, TC19).",
+              "Business Rule: AUTO_PAY_OFF requires default payment method; enforced with 400 (TC10).",
+              "Empty/No-op Behavior: Deleting from accounts with no tags is a no-op with 204; empty tagDef array and no tagDef remove all tags (TC03, TC05, TC20).",
+              "Resilience/Errors: 5xx when service unavailable; retry after transient network failure succeeds (TC12, TC16).",
+              "Performance/Load: Concurrent DELETEs across multiple accounts complete within acceptable time (TC17).",
+              "Query Parameters: Multi-value tagDef, unexpected extra params tolerated (TC02, TC11, TC13)."
+            ],
+            "gaps": [
+              "Concurrency (same resource): No scenario for concurrent DELETEs against the same account/tags to detect race conditions or lost updates.",
+              "Idempotency: No explicit test that repeating the same DELETE (tags already removed) consistently returns 204/no-op.",
+              "Soft delete vs hard delete: No verification of audit/history behavior or that deletion is not a soft delete, per guideline.",
+              "Response headers: No checks for Content-Type on 204 responses, and no verification of error response schema/headers despite \"produces: application/json\" in story.",
+              "Account with no tags + no tagDef: Missing explicit scenario for removing all (no tagDef) when the account already has zero tags.",
+              "Security/Authorization breadth: Unauthorized is covered, but no test for forbidden (403) due to insufficient permissions vs unauthenticated (401) distinction.",
+              "Validation of tagDef duplication: No case where duplicate tagDef IDs are sent to ensure de-duplication/no side effects.",
+              "Large input robustness: Large tagDef list boundary conditions (max count/size, URL length) are not asserted with expected server handling."
+            ],
+            "recommendations": [
+              "Add a scenario for concurrent DELETEs on the same account/tag set (e.g., two clients removing the same tags simultaneously) and assert consistent outcomes and absence of 409/500 unless specified.",
+              "Add an idempotency test: issue DELETE twice with identical parameters; both should return 204 and leave the account with expected tags.",
+              "Clarify and test deletion model: verify audit logs/history entries and confirm that tags are actually removed (not soft-deleted), or capture expected soft-delete behavior if applicable.",
+              "Validate response headers and error schema: assert Content-Type on error responses, and that 204 responses do not include an inappropriate Content-Type; verify error payload structure.",
+              "Add a scenario: no tagDef provided on an account with no tags, expect 204 and no changes.",
+              "Split 401 vs 403: create separate scenarios for unauthenticated (401) and authenticated-but-unauthorized (403) clients.",
+              "Test duplicate tagDef UUIDs in the request to ensure server handles duplicates gracefully and still returns 204.",
+              "Define and test boundary limits for tagDef parameter count/URL length; include expected behavior when limits are exceeded (e.g., 414 URI Too Long or 400 with clear validation message)."
+            ],
+            "usage": {
+              "completion_tokens": 1624,
+              "prompt_tokens": 5684,
+              "total_tokens": 7308,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 832,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

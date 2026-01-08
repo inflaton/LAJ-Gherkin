@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-09-28T11:09:55.837199",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:08:49.746957",
+    "benchmark_end_time": "2025-09-28T11:09:55.837194",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 66.090237,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Success path returns 204 with empty body; idempotency covered when cache already empty; actual cache invalidation verified via subsequent requests and regression check.",
+              "DELETE - Non-Existent Resource: 404 when tenant context points to a non-existent tenant.",
+              "DELETE - Concurrency: Concurrent DELETEs under load return 204 with no race conditions; performance threshold asserted.",
+              "Robust Error Handling: 400 (malformed/extra params), 401 (missing/invalid auth), 500 (internal error), 503 (service unavailable), 504 (timeout) covered.",
+              "Security Hardening: Malicious header/injection attempt handled with 400/403.",
+              "State Variations: Partially populated cache and already-empty cache cases covered.",
+              "Integration Effects: Dependent services observe and reflect cache invalidation."
+            ],
+            "gaps": [
+              "Content negotiation/headers: No checks that error responses include Content-Type: application/json as per story; no explicit assertion about headers for 204 (e.g., no body, possibly no Content-Type).",
+              "Tenant isolation: No scenario ensuring invalidation is scoped to the current tenant and does not affect other tenants\u2019 caches.",
+              "Authorization granularity: No 403 Forbidden scenario for an authenticated but non-admin caller.",
+              "Missing tenant context: No test for requests that omit tenant context headers/tokens entirely and expected error response.",
+              "Unsupported media type: No scenario for sending an unexpected request body with Content-Type leading to 415 Unsupported Media Type (or defined behavior).",
+              "Multi-tenant concurrency: No scenario for concurrent deletes across different tenants ensuring isolation and absence of cross-tenant impact.",
+              "Operational headers: No validation of Retry-After on 503 to guide clients; no correlation/request-id headers for traceability (optional).",
+              "Method constraints: No 405 Method Not Allowed test for unsupported verbs on this endpoint (optional)."
+            ],
+            "recommendations": [
+              "Add header validation: assert Content-Type: application/json on error responses and verify 204 responses have no body; clarify expected header behavior in API contract.",
+              "Add tenant isolation tests: invalidate cache for Tenant A and verify Tenant B\u2019s caches remain intact; also add concurrent invalidations for different tenants to ensure isolation.",
+              "Add a 403 Forbidden scenario for an authenticated non-admin user attempting the DELETE to validate role-based access.",
+              "Add a missing-tenant-context scenario (no tenant header/token) and define/verify expected status (e.g., 400/412) and error body.",
+              "Add an unsupported media type test: send a non-empty body with Content-Type (e.g., application/json) and verify 415 or specified error handling.",
+              "Enhance 503 test to validate presence and correctness of Retry-After header if service advertises retry semantics.",
+              "Add a 405 Method Not Allowed scenario for unsupported methods to ensure the endpoint is locked down (if applicable)."
+            ],
+            "usage": {
+              "completion_tokens": 3309,
+              "prompt_tokens": 3389,
+              "total_tokens": 6698,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2688,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

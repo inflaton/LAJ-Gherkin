@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-09-28T12:18:50.842772",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T12:15:40.260014",
+    "benchmark_end_time": "2025-09-28T12:18:50.842767",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 190.582753,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Payload: Multiple happy-path scenarios validate 201 Created, Location header presence, and DB association (TC01, TC03, TC04, TC05, TC22).",
+              "Invalid Payload: Malformed JSON and empty body are handled with 400 (TC10, TC17).",
+              "Validation: Path parameter format/omission (TC07, TC08), missing required fields (TC11), invalid email format (TC12) lead to 400.",
+              "Non-Existing Resource: 404 when account does not exist (TC09).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional Reason/Comment covered (TC02, TC05, TC13).",
+              "Large Payloads: Boundary testing for maximum sizes (TC16).",
+              "Server Error Handling: External dependency down returns 503; slow DB performance captured (TC15, TC19).",
+              "Security/Robustness: SQLi/XSS inputs rejected (TC23, TC24).",
+              "Integration/Consistency: Added email visible via subsequent GET and downstream propagation (TC26).",
+              "Resilience: Retry on transient network failure (TC25).",
+              "Query Parameters: Behavior with unexpected query params explored (TC18)."
+            ],
+            "gaps": [
+              "Duplicate Submission: No scenario for posting the same email twice to the same account (idempotency/uniqueness), expected 409 or 200 with no duplicate.",
+              "Server Error 500: No explicit coverage for internal server errors (e.g., unhandled DB exception) returning 500.",
+              "Content Negotiation and Media Types: No tests for Content-Type=application/json requirement (415 on wrong/missing content type) or Accept header handling (406), nor verification of response Content-Type=application/json.",
+              "Response Body Shape: Story specifies response is a JSON array of AccountEmail objects; many success scenarios only assert the object is present rather than asserting array type and contents consistently.",
+              "Location Header Semantics: Presence is checked, but no assertion that the Location value is a valid URL pointing to the created email resource (or list) per API behavior.",
+              "Required Header Edge Case: Missing X-Killbill-CreatedBy is covered, but no test for empty/blank value or overly long values.",
+              "Unknown Fields Handling: TC06 is non-deterministic (201 or 400). Expectation should be concrete: either strict schema validation with 400, or permissive with ignored fields verified."
+            ],
+            "recommendations": [
+              "Add a duplicate submission test: POST the same AccountEmail twice to the same account; assert either 409 Conflict or idempotent behavior (no second record created; 200/201 with unchanged state) per API spec.",
+              "Add a server-side failure test that forces a 500 Internal Server Error (e.g., simulate DB exception) distinct from 503 to meet Server Error Handling guidelines.",
+              "Add media type tests: (a) send Content-Type other than application/json -> expect 415; (b) omit Content-Type -> 415; (c) set Accept header and verify response Content-Type=application/json or 406 if unacceptable.",
+              "Align success assertions with the story: verify the response body is a JSON array of AccountEmail objects and includes the newly added entry (and existing ones if applicable) across success scenarios.",
+              "Strengthen Location header checks: validate it is a well-formed URL to either the created email resource or the emails collection, consistent with API behavior; assert it is resolvable via a follow-up GET.",
+              "Add a test for X-Killbill-CreatedBy being empty/blank or exceeding reasonable length to ensure robust header validation.",
+              "Make TC06 deterministic: decide and assert the exact behavior for extra/unsupported fields (strict 400 vs. ignore and persist only known fields), and verify persisted payload matches schema."
+            ],
+            "usage": {
+              "completion_tokens": 7789,
+              "prompt_tokens": 6487,
+              "total_tokens": 14276,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6976,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

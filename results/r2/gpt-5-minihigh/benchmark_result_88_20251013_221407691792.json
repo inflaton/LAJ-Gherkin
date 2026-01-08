@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-13T22:14:07.691760",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:12:11.801281",
+    "benchmark_end_time": "2025-10-13T22:14:07.691755",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 115.890474,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Core success flows: deletion of all tags (no tagDef) and deletion of a subset of tags (tagDef present) are covered (TC01, TC02).",
+              "Header handling: required X-Killbill-CreatedBy and optional X-Killbill-Reason and X-Killbill-Comment are exercised, including special-character comment/regression (TC03, TC18).",
+              "Idempotency / empty-state: deletion when invoice item has no tags returns 204 and is tested (TC04), covering idempotent behaviour in practice.",
+              "Query-parameter variations: empty tagDef, tagDef with non-present IDs, extra/unexpected query parameters, very large tagDef lists are included (TC05, TC06, TC07, TC14).",
+              "Validation and error handling: invalid invoiceItemId format (400), invoice item not found (404), malformed tagDef (400 / TC13 / TC16), and missing required header (400) are covered (TC08, TC09, TC10, TC13, TC16).",
+              "Authentication / availability: invalid/expired token (401) and service-unavailable (503) scenarios are covered (TC11, TC12).",
+              "Security: XSS/injection attempts in headers are explicitly tested (TC15).",
+              "Concurrency & performance: high-concurrency behaviour is specified to detect race conditions and performance issues (TC17).",
+              "Integration & partial-failure: dependent service (audit logging) unavailability is considered (TC19).",
+              "Accessibility & docs: API documentation and error message accessibility is included (TC20)."
+            ],
+            "gaps": [
+              "Soft-delete semantics: no scenario verifies whether tags are soft-deleted vs permanently removed (e.g., follow-up GET or admin query to assert deleted flag).",
+              "Authorization/authorization levels: tests cover token invalidity (401) but not authenticated-but-forbidden cases (403) where a user lacks permissions to remove tags.",
+              "Response contract / headers: there are no explicit assertions about response headers (Content-Type) or the API's \"Produces: application/json\" contract for error responses; 204 responses and their header expectations aren't validated.",
+              "Error payload schema: tests check that an error message exists but do not validate the error JSON structure (fields, codes, types, machine-readable error codes).",
+              "Duplicate or mixed tagDef values: no test for tagDef containing duplicate UUIDs or a mix of valid and invalid UUIDs in a single request to verify deterministic handling.",
+              "Explicit idempotency sequence: while TC04 implies idempotency, there is no scenario that performs the same DELETE twice in sequence to assert idempotent behaviour programmatically.",
+              "Audit logging verification on success: TC19 tests logging unavailability only; no test asserts that audit records are created and contain createdBy/reason/comment on success.",
+              "Rate limiting / throttling: no tests simulate bursts to validate rate limiting (429) or throttling behavior.",
+              "Caching behaviour: no tests validate cache invalidation or caching headers (ETag, Cache-Control), even if less common for DELETE, should be considered where applicable.",
+              "Concurrency conflict semantics: TC17 checks performance but does not assert specific conflict handling semantics (e.g., expected 409 or other concurrency responses) under conflicting simultaneous updates."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification scenario: after DELETE, call GET /invoiceItems/{id}/tags (or admin/read endpoint) to assert tags are removed or flagged as deleted as per design; include DB-level or admin-API verification if needed.",
+              "Add an authenticated-but-forbidden (403) test: use a valid token for a user without deletion privileges to assert a 403 response and clear error payload.",
+              "Assert response headers and contract: add checks for Content-Type on error responses and ensure 204 responses do not return unexpected bodies; add contract tests for \"Produces: application/json\" where applicable.",
+              "Add strict error-schema/contract tests: verify error JSON contains expected fields (errorCode, message, stack/field info if applicable) and types for 400/401/404/503 responses.",
+              "Add tests for duplicate and mixed tagDef values: send requests with duplicate UUIDs and with a mix of valid+malformed UUIDs to define and verify expected server behaviour (reject whole request vs ignore invalid entries).",
+              "Add an explicit idempotency test: perform the same DELETE twice (or more) and assert consistent 204 responses and no side-effects after the first deletion.",
+              "Add audit-log verification on success: after successful DELETE, check that the audit/audit-log service recorded the operation including createdBy, reason, and comment (TC03 fields).",
+              "Add rate-limiting tests: simulate request bursts to ensure safe handling (expect 429 or system-specific behavior) and measure recovery/backoff behavior.",
+              "Add cache-invalidation tests if relevant: verify any caches are invalidated after deletion and that subsequent GETs reflect current state; at minimum assert Cache-Control/ETag behavior if the API returns these headers.",
+              "Harden concurrency tests: extend TC17 to verify conflict semantics (e.g., one request wins, others get 409 or are no-ops) and assert no data corruption under concurrent deletions; include stepped concurrency (overlapping tag sets).",
+              "Define and assert limits for large tagDef arrays: make TC14 deterministic by agreeing on expected threshold (e.g., 1000 IDs) and assert 413 or successful processing accordingly.",
+              "Prioritize the highest-risk additions first (403 test, soft-delete verification, error-schema assertions, idempotency sequence, and audit-log verification)."
+            ],
+            "usage": {
+              "completion_tokens": 6813,
+              "prompt_tokens": 5394,
+              "total_tokens": 12207,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5632,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

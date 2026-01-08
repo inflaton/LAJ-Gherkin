@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-13T21:02:43.254748",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T21:00:15.365497",
+    "benchmark_end_time": "2025-10-13T21:02:43.254743",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 147.889246,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid deletions: scenarios for removing all custom fields (no customField param) and removing specific custom fields are present (TC01, TC02, TC07).",
+              "Header handling: required X-Killbill-CreatedBy validation and optional X-Killbill-Reason/X-Killbill-Comment covered (TC03, TC11).",
+              "Path/query parameter validation: invalid paymentId and invalid/malformed customField UUIDs handled (TC08, TC13, TC16, TC18).",
+              "Error responses: 400 (bad request), 401 (unauthorized), 404 (not found) and 503 (service unavailable) scenarios are present (TC08, TC11, TC12, TC09, TC14).",
+              "Edge cases & robustness: unexpected query params, non-existent customField IDs, min/max/large numbers of customField params tested (TC05, TC10, TC06, TC15).",
+              "Security tests: XSS and SQL-injection style inputs are tested (TC17, TC18).",
+              "Performance and resiliency: heavy-load/response-time and service integration/audit-log scenarios included (TC19, TC21, TC22).",
+              "Regression and compatibility: regression scenario and legacy client scenario exist (TC20, TC23)."
+            ],
+            "gaps": [
+              "Concurrency/race conditions: no scenarios that simulate simultaneous deletions or race conditions (e.g., two clients deleting overlapping sets of custom fields concurrently).",
+              "Soft-delete semantics and persistence verification: tests do not assert whether fields are hard-deleted vs flagged (DB-level verification), or re-query the resource to confirm final state except via high-level assertions.",
+              "Authorization granularity (403): there is a test for invalid authentication (401) but no test for authenticated users with insufficient privileges (403/RBAC).",
+              "Idempotency/repeatability: no explicit test invoking the same DELETE multiple times to assert idempotent behavior and returned status for successive calls.",
+              "Response headers / content-type: acceptance states \"produces: application/json\" but tests do not assert response headers (Content-Type) or behavior for 204 with respect to headers.",
+              "Server-error (500) handling and database failure simulation: only 503 service-unavailable is covered; 500/internal-server-error cases are not exercised.",
+              "Rate-limiting and throttling: no tests around bursts of requests or 429 responses.",
+              "Ambiguous partial-existence behavior: mixing existing and non-existing valid customField UUIDs (some present, some not) is not explicitly covered to confirm whether API does partial delete or rejects the call."
+            ],
+            "recommendations": [
+              "Add concurrency tests that perform parallel DELETE requests (overlapping and disjoint sets) to validate atomicity, locking, and race-condition behavior; assert final state and acceptable response codes.",
+              "Add DB-level verification or follow-up GETs to confirm whether deletions are permanent (hard delete) or flagged (soft delete), and document expected persistence semantics in tests.",
+              "Add RBAC/authorization tests for authenticated users without permission to ensure 403 is returned when appropriate.",
+              "Add idempotency tests: call DELETE for the same payment/custom fields multiple times and assert the expected behavior (typically idempotent 204 or appropriate error).",
+              "Assert response headers: check Content-Type and any relevant headers (e.g., Content-Length) for success and error responses; confirm 204 behavior is consistent with \"produces: application/json\".",
+              "Simulate server-side errors (database exceptions, unexpected exceptions) and add tests expecting 500 Internal Server Error with appropriate error payloads/metrics.",
+              "Add rate-limiting/throttling tests (burst requests, verify 429 if applicable) and tests for retry/backoff behavior if the system supports it.",
+              "Add tests for additional edge query cases: empty customField values (customField=), duplicate IDs, mixed-existing/non-existing valid UUIDs, and URL-encoded special characters; assert clear, documented behavior for partial success vs failure."
+            ],
+            "usage": {
+              "completion_tokens": 6802,
+              "prompt_tokens": 6120,
+              "total_tokens": 12922,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5952,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

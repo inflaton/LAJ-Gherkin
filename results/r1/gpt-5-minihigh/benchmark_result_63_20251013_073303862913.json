@@ -1,0 +1,99 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-13T07:33:03.862887",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T07:31:19.086416",
+    "benchmark_end_time": "2025-10-13T07:33:03.862884",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 104.776468,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid requests and success paths: multiple scenarios (TC01-TC05, TC23, TC26) exercise immediate and scheduled pauses, optional headers, plugin properties and verify 204 + state changes.",
+              "Path parameter validation: TC06 verifies invalid UUID format -> 400; TC07 and TC20 cover non-existent bundle -> 404.",
+              "Query parameter validation: TC02/TC17/TC18 cover valid future requestedDate, past date and malformed date; TC03/TC19 and TC16 cover valid pluginProperty, malformed formats and very large arrays.",
+              "Header validation and auditing: TC01, TC04, TC05 verify required X-Killbill-CreatedBy and optional Reason/Comment are handled and recorded; TC10 tests missing required header.",
+              "Authorization and auth errors: TC11 tests unauthorized user (401).",
+              "Invalid state handling: TC08 and TC09 cover attempts to pause already paused or canceled bundles returning 400.",
+              "Security/input sanitization: TC13 (SQL injection) and TC14 (XSS in headers) validate input is sanitized and does not cause DB/script execution.",
+              "Concurrency and race conditions: TC21 verifies multiple concurrent pause requests and expected single success behavior.",
+              "Performance and load: TC22 tests bulk pauses and response time threshold under load.",
+              "Integration and dependency failures: TC25 covers plugin service down (502) and TC26 verifies downstream systems reflect the pause.",
+              "Regression and special characters: TC23 and TC24 ensure other bundles are unaffected and special characters in pluginProperty are handled.",
+              "Extra parameters handling: TC15 confirms unexpected query parameters are ignored.",
+              "Documentation/accessibility: TC27 checks API documentation accessibility and conformance to assistive technologies."
+            ],
+            "gaps": [
+              "Internal server errors (500) are not simulated; no test forces an unhandled exception or DB failure to validate 500 and error handling behaviour.",
+              "Authorization nuance: no test for authenticated but forbidden users (403) to distinguish insufficient permissions from unauthenticated (401).",
+              "Idempotency / duplicate sequential submissions: concurrency is tested, but there is no explicit test for repeated sequential requests and the exact expected behavior after an initial success.",
+              "Partial-update / unexpected request body handling: endpoint accepts no body per spec but there is no test that sending a JSON body or partial fields is rejected or ignored.",
+              "Response header and status semantics: tests do not assert response headers (Content-Type on errors, that 204 has no body/Content-Length, caching or other headers).",
+              "Rate limiting and throttling: no tests for client throttling / 429 scenarios despite load and concurrency tests.",
+              "Atomicity / transactional failures: no tests that simulate partial failure when pausing multiple subscriptions (ensuring rollback or consistent final state).",
+              "Timezone and date edge-cases: requestedDate timezone offsets, DST and end-of-day semantics are not tested.",
+              "Error response schema consistency: tests assert presence of error messages but do not validate structured error schema/fields for programmatic consumption.",
+              "HTTP verb semantics / method-not-allowed: no tests to ensure other HTTP methods (GET/POST/DELETE) on the endpoint return 405.",
+              "Boundary tests for pluginProperty element length and overall payload size: TC16 covers count, but not max element length or total request size limits leading to 413 in practice.",
+              "Audit log depth: reason/comment recording is checked but verification of createdBy, timestamps and full audit record shape is not covered."
+            ],
+            "recommendations": [
+              "Add a 500 internal server error test by simulating a DB failure or throwing an unhandled exception and assert proper 500 response and safe error message.",
+              "Add a 403 forbidden test for an authenticated user lacking the required permission to confirm correct 403 semantics.",
+              "Add idempotency tests: send the same PUT twice sequentially and assert the API behaviour is consistent with the contract (document whether second call should be idempotent or return an error).",
+              "Add tests for unexpected request bodies: send JSON bodies and partial fields and assert the API either rejects them (400) or ignores them; document expected behaviour.",
+              "Assert response headers: verify 204 responses have no body and expected headers, and error responses are application/json and conform to the API error schema.",
+              "Add rate limiting / throttling tests that produce 429 responses or verify graceful backoff under high request rates.",
+              "Add transactional/atomicity tests: simulate failure while pausing subscriptions (e.g., plugin error) and assert bundle and subscription states remain consistent or properly rolled back.",
+              "Add timezone and date edge-case tests for requestedDate (timezone offsets, DST transitions, end-of-day values).",
+              "Add boundary tests for pluginProperty values (very long strings, max element length and total payload size) to validate 413 vs successful processing.",
+              "Add method-not-allowed tests for other HTTP verbs to confirm 405 responses.",
+              "Enhance audit-log verification to assert createdBy, timestamps, and structure of audit entries rather than only presence of reason/comment.",
+              "Add structured error-schema validation tests so clients can reliably parse error responses (fields, codes and localization)."
+            ],
+            "usage": {
+              "completion_tokens": 7469,
+              "prompt_tokens": 6254,
+              "total_tokens": 13723,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

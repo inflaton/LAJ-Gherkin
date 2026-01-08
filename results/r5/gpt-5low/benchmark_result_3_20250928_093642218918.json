@@ -1,0 +1,81 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "3_2025-09-28T09:36:42.218886",
+    "jira_id": "3",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/tags - Remove tags from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:36:03.281245",
+    "benchmark_end_time": "2025-09-28T09:36:42.218880",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 38.937635,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "3_qe_sup-gpt4.1_agent-gpt4.1_1748915976.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "Valid Deletion: Multiple success paths covered (single, multiple, all tags; with/without optional headers; empty tagDef array; unexpected extra params) returning 204 and empty body.",
+              "Non-Existent Resource: Invalid/non-existent accountId handled with 400 (format and not found).",
+              "Concurrency: Concurrent DELETEs scenario included to verify 204s and correct tag removal.",
+              "Input Validation: tagDef validation covered (invalid UUID, malformed, mixed valid/invalid), and invalid/missing required header behavior.",
+              "Business Rule: AUTO_PAY_OFF constraint with no default payment method correctly returns 400.",
+              "Error Handling: Service unavailability (5xx) and transient network retry behavior covered.",
+              "Authorization: Unauthenticated/unauthorized access returns 401/403."
+            ],
+            "gaps": [
+              "Concurrency edge cases: Deletion when tags are simultaneously removed by another user/process (idempotency on second DELETE for same tags) not explicitly validated.",
+              "Non-matching tagDef: Case where provided tagDef(s) are valid but not present on the account (when other tags exist) is not covered; expected idempotent 204 vs 404/400 should be clarified and tested.",
+              "Audit/soft-delete behavior: No verification of audit trail entries for CreatedBy/Reason/Comment or confirmation of soft vs hard delete semantics.",
+              "Response headers: No assertions on Content-Type for 204, or standard headers (e.g., Date, Request-Id) and no-check that body is truly absent (no whitespace/JSON).",
+              "Rate limiting/throttling under high DELETE volume not exercised beyond basic concurrency.",
+              "Authorization nuance: No coverage of permission/role-based restrictions (e.g., user can/cannot remove certain protected tags aside from AUTO_PAY_OFF)."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: repeat DELETE for the same tagDef(s) after successful removal should return 204 and make no changes.",
+              "Add a scenario where tagDef(s) are valid but not currently applied to the account (with other tags present) to confirm expected behavior (likely 204 no-op).",
+              "Verify audit records: assert that audit entries are created with X-Killbill-CreatedBy/Reason/Comment and that deletion semantics align with product expectations (soft vs hard).",
+              "Include response header validations for 204 responses (no Content-Type body, absence of body) and any standard headers required by API guidelines.",
+              "Introduce rate limiting/throttling test under sustained DELETE load to observe correct status codes/headers if applicable.",
+              "Add RBAC tests to ensure only authorized roles can remove tags and that protected tags (if any) enforce proper errors."
+            ],
+            "usage": {
+              "completion_tokens": 1473,
+              "prompt_tokens": 5684,
+              "total_tokens": 7157,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

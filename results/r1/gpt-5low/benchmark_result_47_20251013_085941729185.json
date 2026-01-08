@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-13T08:59:41.729150",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:59:23.468810",
+    "benchmark_end_time": "2025-10-13T08:59:41.729143",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 18.260333,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE - Valid Deletion: Success path returns 204 with empty body (TC01, TC09, TC13, TC11).",
+              "DELETE - Non-Existent Resource: 404 for non-existent tenant context (TC04).",
+              "DELETE - Concurrency: Concurrent DELETE requests return 204 without race conditions (TC10).",
+              "Error Handling (>=400 on failure): 400 malformed/extra params (TC07), 401 missing/invalid auth (TC02, TC03), 500 internal error (TC05), 503 service unavailable (TC06), 504 timeout (TC14).",
+              "Security/Hardening: Injection attempt in headers handled with 400/403 (TC08).",
+              "Idempotency: Deleting when cache already empty still returns 204 (TC09).",
+              "Integration effects: Dependent services observe invalidation/no stale data (TC12).",
+              "Regression: Validates previously fixed bug does not recur (TC11).",
+              "Performance note from story: Under load responses remain 204 and within threshold (TC10).",
+              "Request body N/A: Extra payload or params rejected (TC07)."
+            ],
+            "gaps": [
+              "Authorization vs Authentication: No explicit 403 scenario for authenticated but not authorized admin/tenant role.",
+              "Tenant context header handling: No scenario for missing/invalid tenant context header format (distinct from non-existent tenant).",
+              "Response headers/content negotiation: No checks for Produces: application/json on error responses or absence of Content-Type on 204.",
+              "Multi-tenant isolation: No scenario verifying only the current tenant cache is invalidated and other tenants remain unaffected.",
+              "Rate limiting/throttling: No scenario for 429 or server behavior when many requests exceed limits.",
+              "Observability/audit: No scenario validating an audit/log entry or trace emitted for cache invalidation (if required by platform standards).",
+              "Method semantics: No explicit check that request body is ignored if sent (beyond extra params) and that DELETE is idempotent across retries with identical headers (retry semantics beyond TC09).",
+              "Soft deletes (guideline): Not applicable to caches, but explicitly documenting N/A would clarify intent."
+            ],
+            "recommendations": [
+              "Add a scenario for authorized vs unauthorized roles: authenticated user without required admin permission receives 403 with error payload.",
+              "Add scenarios for tenant context header handling: missing header -> 400; malformed header value -> 400; ensure behavior differs from non-existent tenant (404).",
+              "Assert response headers: for 204 ensure empty body and no Content-Type; for 4xx/5xx ensure Content-Type: application/json and structured error schema.",
+              "Add multi-tenant isolation test: invalidate in tenant A; verify tenant B caches remain intact.",
+              "Consider rate limiting test under stress: burst of DELETEs leads to 429 or documented behavior, without side effects.",
+              "Augment idempotency/retry semantics: repeated identical DELETEs produce consistent 204 and no partial state; simulate network retry.",
+              "If applicable, add an observability/audit scenario to verify an audit log/event is produced for the invalidation.",
+              "Note in the feature that soft delete checks are Not Applicable for cache invalidation to satisfy guideline traceability."
+            ],
+            "usage": {
+              "completion_tokens": 1461,
+              "prompt_tokens": 3389,
+              "total_tokens": 4850,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

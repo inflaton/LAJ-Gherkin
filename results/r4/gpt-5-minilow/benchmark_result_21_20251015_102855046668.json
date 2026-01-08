@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "21_2025-10-15T10:28:55.046632",
+    "jira_id": "21",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/timeline - Retrieve account timeline",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:28:43.512714",
+    "benchmark_end_time": "2025-10-15T10:28:55.046626",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 11.533912,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "21_qe_sup-gpt4.1_agent-gpt4.1_1748917310.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01-TC07, TC21, TC22) validate successful retrieval for valid accountId and combinations of query parameters.",
+              "Empty Response / No Data: TC06, TC17 explicitly cover accounts with no bundles/invoices/payments and empty timeline arrays.",
+              "Query Parameters: Good coverage for valid parameter values (parallel=true, audit=FULL/MINIMAL) and invalid values (TC27, TC28).",
+              "Error Responses: TC08 (malformed accountId -> 400) and TC09 (not found -> 404) cover path-parameter validation and not-found behavior; TC12-TC13 cover service and dependent-service failures (503/500).",
+              "Authorization: TC10 and TC11 cover missing and invalid authentication tokens (401).",
+              "Security: TC14 and TC15 include injection and XSS attempts and assert safe error handling.",
+              "Performance & Scalability: TC07, TC20, TC25 cover large payload performance, concurrent requests, and timeout/504 behavior.",
+              "Regression & Back-compatibility: TC21-TC23 target known regressions and casing/backwards compatibility of query parameters.",
+              "Robustness / Recovery: TC26 covers retry behavior after transient network errors.",
+              "Edge cases: TC18-TC19 address boundary/length-related accountId cases."
+            ],
+            "gaps": [
+              "Pagination: No scenarios address pagination (page/limit cursors) or response limits for very large timelines despite guideline emphasis on large datasets; TC07 expects all results but doesn't validate pagination semantics.",
+              "Caching Behavior: No tests examine caching headers (ETag, Cache-Control), conditional GET behavior (If-None-Match / 304), or TTL implications.",
+              "Rate Limiting / Throttling: No tests for API rate limits, 429 responses, or how the system behaves under abusive request rates (guideline requires rate limiting tests).",
+              "Authorization nuance (403/roles): Tests cover 401 for missing/invalid tokens but do not cover 403 (forbidden) scenarios such as valid token but insufficient permissions/roles.",
+              "Response Contract / Schema Validation: While tests assert \"valid AccountTimeline JSON\", there are no explicit tests validating full schema fields, types, required fields, content-type header, or production of application/json; no negative tests for malformed but well-formed JSON.",
+              "Unsupported/Extra Query Param Behavior Ambiguity: TC16 expects unsupported params are ignored, but there is no test for APIs that might reject unknown params (documented behavior should be asserted).",
+              "Caching & Consistency with parallel=true: No test verifies that parallel fetching yields consistent timestamps/ordering or stable ETags between parallel and non-parallel fetches.",
+              "Rate-limit + auth interaction: No tests for combined failures (e.g., hitting rate limit while authenticated) or retry-after headers.",
+              "HTTP Header Behavior: No checks for CORS, content-type, caching, request/response headers, or correlation/trace IDs."
+            ],
+            "recommendations": [
+              "Add pagination tests: create accounts with very large timelines and verify pagination parameters (limit/offset or cursor), correct next/prev links, page sizes, and consistent counts; include tests that request specific pages and ensure no duplicate/missing items.",
+              "Add caching tests: verify presence and correctness of Cache-Control and ETag headers; test conditional GET with If-None-Match to ensure 304 responses and that changes invalidate ETag.",
+              "Add rate-limiting tests: send bursts of requests to validate 429 responses, Retry-After header handling, and graceful degradation under throttling.",
+              "Add authorization role tests: include scenarios where a valid token lacks permissions and should receive 403, and verify error messages are appropriate.",
+              "Add explicit schema/contract validation: assert required fields, field types, array shapes, and Content-Type header (application/json); include negative schema tests (missing required fields in responses from faulty services).",
+              "Clarify unsupported-parameter behavior: add tests that assert whether unknown query parameters are ignored or cause 400s according to the API spec and document observed behavior.",
+              "Add consistency tests for parallel fetching: verify ordering, timestamps, and completeness are identical between parallel=true and default behavior; include deterministic checks rather than only log/performance verification.",
+              "Add header/CORS/tracing checks: validate presence of correlation IDs, CORS headers if applicable, and consistent response headers for monitoring/debugging.",
+              "Combine failure modes: add tests combining auth, rate-limit, and backend failures (e.g., valid token but DB down; authenticated requests hitting rate limits) to validate clear and correct error codes and headers."
+            ],
+            "usage": {
+              "completion_tokens": 1100,
+              "prompt_tokens": 5683,
+              "total_tokens": 6783,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

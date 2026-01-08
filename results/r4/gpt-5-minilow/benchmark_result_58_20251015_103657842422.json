@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "58_2025-10-15T10:36:57.842392",
+    "jira_id": "58",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/customFields - Remove custom fields from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:36:41.767480",
+    "benchmark_end_time": "2025-10-15T10:36:57.842385",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 16.074905,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "58_qe_sup-gpt4.1_agent-gpt4.1_1748919726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Successful delete flows (remove all, remove single, remove multiple) are well covered (TC01, TC02, TC03).",
+              "Optional Headers: Tests verify optional headers X-Killbill-Reason and X-Killbill-Comment and behaviour when omitted (TC04, TC18, TC20, TC21).",
+              "Error Handling - Input Validation: Invalid bundleId format, truncated UUID, invalid customField UUID, and empty customField are covered (TC06, TC22, TC09, TC19).",
+              "Error Handling - Non-Existent Resource: Attempt to delete from a non-existent bundle and empty DB covered (TC07, TC23).",
+              "Authorization/Authentication: Missing required header and invalid/expired auth token are covered (TC08, TC13).",
+              "Edge Cases & Robustness: Removing non-present custom field, ignoring extra query parameters, and malicious header payload are covered (TC10, TC11, TC14).",
+              "Concurrency & Regression: Concurrent deletes, cross-bundle isolation and regression checks are present (TC16, TC17).",
+              "Performance & Integration: High-volume removal performance and degraded dependent service handling are included (TC15, TC24).",
+              "Post-conditions / Consistency: Subsequent GET verifications and DB consistency checks are included (TC01, TC02, TC03, TC05, TC25).",
+              "Service Availability: Service-unavailable and gateway timeout scenarios covered (TC12, TC24)."
+            ],
+            "gaps": [
+              "Soft Delete vs Permanent Delete: No test explicitly verifies whether deletions are soft (flagged) or permanent (physical removal) and the expected system behavior for soft deletes.",
+              "Collection Format Variants for Query Parameter: Tests only use repeated query parameter form (?customField=uuid&customField=uuid). No coverage for alternative collection formats (e.g., comma-separated list) if the API supports them.",
+              "Response Body / Content-Type Assertions: Tests assert status codes and side effects but do not assert response headers (Content-Type/application/json) or exact error body schema/fields for errors.",
+              "Authorization Granularity (403/Role-based): No tests for forbidden access (HTTP 403) or role-based authorization differences; only missing and invalid credentials (400/401) are covered.",
+              "Rate Limiting / Throttling: No tests for rate limit behavior or handling of burst requests beyond concurrency of two requests.",
+              "Caching & Related Headers: No tests check caching headers (ETag, Cache-Control) or behavior of cached GET results after deletion.",
+              "Pagination / Large Result GETs: While DELETE-oriented story may not need this, the standard GET guideline (pagination for large datasets) is not covered for the subsequent GETs used to verify deletions.",
+              "Detailed Error Cases for Partial Failures: No tests that simulate partial failure when removing multiple custom fields (e.g., one removal fails at downstream service while others succeed) and the expected transactional behavior (rollback vs partial commit).",
+              "Idempotency Semantics: No explicit tests confirming idempotency of repeated identical DELETE requests beyond the \"non-present custom field\" case \u2014 need explicit repeated-request behavior verification.",
+              "Header Length/Encoding Limits: While X-Killbill-Comment extremes are covered, there is no systematic coverage for X-Killbill-CreatedBy length/encoding or other headers exceeding limits."
+            ],
+            "recommendations": [
+              "Add explicit tests to verify whether deletion is soft or permanent and the expected observable effects (e.g., existence in audit tables, soft-delete flag, restore behavior).",
+              "Add tests for alternative collection formats for customField (comma-separated, semicolon) if the API documents/supports them to avoid parsing inconsistencies.",
+              "Assert response headers and error body schema (Content-Type, structured error fields like code/message) in error scenarios to ensure clients can reliably parse errors.",
+              "Introduce role-based authorization tests (403) to validate access control policies, including cases where an authenticated user lacks permission to delete custom fields.",
+              "Add rate-limiting/throttling tests that hammer the endpoint to confirm proper 429 or throttling behavior; extend concurrency tests to more threads to verify locking and contention behavior.",
+              "Add caching-related tests: confirm that GETs used to validate deletions respect cache headers and that cache is invalidated or updated after DELETE.",
+              "Add tests for partial failure modes when downstream services fail during a multi-item delete to assert transactional or compensating behavior and expected error codes.",
+              "Explicitly test idempotency by repeating identical DELETE requests and asserting stable, documented responses and side effects.",
+              "Cover header boundary conditions for X-Killbill-CreatedBy and other headers (max length, non-ASCII, encoding/escaping) to ensure robust validation.",
+              "Include response-time variability tests for large deletes that assert acceptable SLA and behavior when timeouts occur (plus retry semantics if applicable)."
+            ],
+            "usage": {
+              "completion_tokens": 1279,
+              "prompt_tokens": 6309,
+              "total_tokens": 7588,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-15T11:22:02.240822",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:21:40.713472",
+    "benchmark_end_time": "2025-10-15T11:22:02.240817",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 21.527345,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Deletion: Multiple scenarios verify successful removals (all tags, specific tags, empty-array regression) returning 204 (TC01, TC02, TC04, TC12, TC16).",
+              "Query parameter validation: Tests for valid tagDef(s), invalid tagDef format, and mixed valid/invalid tagDef values (TC02, TC07, TC13).",
+              "Path parameter validation: Tests for invalid UUID format and non-existent bundle (TC05, TC06).",
+              "Header handling: Tests cover required X-Killbill-CreatedBy present and missing, and optional X-Killbill-Reason/Comment usage (TC03, TC08).",
+              "Authorization and availability errors: Scenarios for unauthorized user and service unavailable (TC09, TC10).",
+              "Edge / scale / concurrency: High-volume and concurrency tests (100 concurrent requests, 1000 tag removals, 10k/timeout condition) are present to exercise performance and race conditions (TC12, TC15, TC18).",
+              "Security / input-sanitization: Header XSS / injection check exists (TC14).",
+              "Integration / consistency: Post-delete consistency via GET to confirm remaining tags (TC17).",
+              "Idempotency / empty-state behaviour: Deleting when no tags exists and deleting with empty array expected to result in 204 (TC04, TC16)."
+            ],
+            "gaps": [
+              "Produces / Content-Type & response schema: The acceptance criteria state produces application/json, but the tests do not assert Content-Type headers or JSON error payload structure (error code, error message fields).",
+              "403 Forbidden and finer authorization semantics: There is a test for unauthorized (401) but no test for forbidden (403) or role-based access variations.",
+              "Server error handling (5xx) beyond service-unavailable: No tests simulate or assert behavior for internal server errors (500) or database failures and how those errors are represented.",
+              "Soft-delete vs hard-delete behavior: No tests verify whether tags are soft-deleted (e.g., marked deleted) vs physically removed or whether audit/history entries are created.",
+              "Idempotency / repeated deletes of the same tag: While empty-delete case exists, there is no explicit test that deleting an already-removed tag is idempotent for repeated identical requests (response should remain 204).",
+              "Rate limiting and throttling semantics: Concurrency/performance tests exist, but there are no tests for rate limiting (429) or throttling behavior.",
+              "Caching headers: No tests assert caching-related headers (ETag, Cache-Control) or verify caching behavior for GET of bundle after changes.",
+              "Pagination / large-list access patterns: Although large numbers of tags are used in stress tests, there are no tests for pagination behavior if the API were to return lists (relevant mainly for GET endpoints tied to bundles).",
+              "Request format variants for tagDef: No tests for different query parameter encodings (comma-separated list vs repeated tagDef params vs JSON body) or for unexpected encodings; format/collection semantics are not validated.",
+              "Error payload accessibility/structure: While accessibility UI test (TC19) is present, tests do not assert machine-readable error fields (error code, message, type) or localization/consistency in responses."
+            ],
+            "recommendations": [
+              "Assert Content-Type and response body schema for success and error responses: add assertions that successful responses have appropriate headers (Content-Type: application/json when applicable) and that error responses follow the agreed JSON error schema (code, message, type).",
+              "Add authorization role tests (403) and RBAC permutations: include tests for users with insufficient privileges (403) and verify RBAC behavior across roles.",
+              "Add server-failure simulations (500) and DB-error handling tests: simulate backend failures and assert proper 5xx responses and retry/rollback behaviors.",
+              "Verify soft-delete semantics and audit trail: if the system uses soft deletes, add tests to confirm deleted flags, timestamps, and audit records; if hard deletes, assert physical removal in DB.",
+              "Add explicit idempotency tests: send repeated identical DELETE requests (after successful removal) and assert consistent 204 responses and no side effects.",
+              "Add rate-limiting/throttling tests: simulate burst traffic to assert 429 responses or backoff behavior when limits are exceeded.",
+              "Add caching-related tests where applicable: after deletion, GET should not return stale data; verify ETag/Cache-Control behavior for bundle GETs and that caches are invalidated on delete.",
+              "Clarify and test accepted tagDef encodings and boundary formats: add tests for comma-separated vs repeated query params, very long param strings, duplicate tagDef entries, and ensure server handles each consistently.",
+              "Add structured error-content tests and accessibility checks for API consumers: verify error messages include stable machine-readable fields and are suitable for UI consumption and screen readers (as applicable)."
+            ],
+            "usage": {
+              "completion_tokens": 2178,
+              "prompt_tokens": 4976,
+              "total_tokens": 7154,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

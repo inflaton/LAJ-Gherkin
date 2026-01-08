@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-13T04:39:28.458567",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:39:10.575029",
+    "benchmark_end_time": "2025-10-13T04:39:28.458564",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 17.883535,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid Request: Successful PUT (TC01) and idempotent success when already in rotation (TC02) verify the expected 204 behavior.",
+              "Authorization: Positive and negative auth scenarios covered (TC01/TC02 positive auth; TC03 unauthorized; TC04 forbidden).",
+              "Empty Response / No Body: Tests assert empty response body for 204 responses (TC01/TC02/TC07/TC08).",
+              "Method Handling: Unsupported method behavior is tested (TC06 expects 405).",
+              "Error Conditions: Service unavailable scenario is present (TC05) and generic error classification (>=400) is implied in story and covered by auth/forbidden/service-down tests.",
+              "Concurrency: Race-condition style concurrent requests are addressed (TC14).",
+              "Resilience / Retries: Transient network interruption and retry behavior is included (TC13).",
+              "Operational / Performance: A degraded performance / timeout requirement is considered (TC10).",
+              "Security: A simple injection attempt in headers is included (TC12).",
+              "Regression: A regression test is included to prevent re-introduction of past bugs (TC11)."
+            ],
+            "gaps": [
+              "PUT-specific: No test for updating a non-existing resource or clearly defining which host is targeted (the story implies putting \"the host\" back but tests do not cover ambiguous or missing host identity).",
+              "Invalid Payload / Input Validation: Although the API accepts no body in the story, there is no test asserting API behavior for malformed payloads that could produce 400 (beyond TC07 which treats unexpected payload as success). No explicit 400 validation scenarios are present.",
+              "Server Error Handling (5xx): Apart from 503 service unavailable, there are no tests that simulate internal server errors (500) such as DB failures or exceptions during processing.",
+              "Idempotency & Duplicate Requests: While TC02 and TC14 partially address idempotency and concurrency, there is no explicit test ensuring exactly-once semantics vs. duplicate request handling (e.g., repeated identical requests from same client).",
+              "Headers / Response Meta: No assertions on response headers (Content-Type, Cache-Control, ETag, Retry-After for 503 etc.) even though the story notes produces application/json.",
+              "Logging / Audit / Observability: No tests verify audit logging or that an administrative action is recorded (important for admin APIs).",
+              "Authorization edge-cases: Granular permission variants (scoped tokens, expired tokens, token formats) are not covered.",
+              "Rate Limiting/Throttling: High frequency request throttling/rate-limit behavior is not tested beyond concurrency (TC14).",
+              "Partial Update semantics: The PUT guideline mentions partial updates; while not directly applicable to a no-body endpoint, there is no explicit test asserting that partial/field updates are not accepted (if the API later accepts payloads)."
+            ],
+            "recommendations": [
+              "Add a test for non-existing/unknown host behavior: if the API can target specific hosts, include a scenario where the specified host does not exist and expect a clear 404 or documented behavior.",
+              "Add 400/validation tests: send malformed JSON, unexpected fields, or invalid header formats and assert a 400 Bad Request where appropriate (or confirm documented acceptance of arbitrary bodies if intentional).",
+              "Simulate 500-level failures: include tests that simulate backend failures (database, internal exceptions) and assert 500 responses and graceful error messaging.",
+              "Assert response headers and content-type: add checks for Content-Type (application/json where applicable), caching and retry headers (e.g., Retry-After for 503) to satisfy API contract clarity.",
+              "Explicit idempotency tests: add scenarios that send repeated identical requests from same client and assert idempotent behavior and any idempotency-key handling if supported.",
+              "Enhance authorization edge-cases: test expired tokens, malformed tokens, and scoped/limited tokens to ensure correct 401/403 distinctions.",
+              "Add rate-limiting tests: verify behavior when requests exceed allowed rate (429 expected) or throttle handling.",
+              "Add observability/audit tests: verify an admin action generates appropriate audit/log entries (or include a test hook to validate side-effects).",
+              "Clarify and test payload acceptance policy: if the API must reject any non-empty body, change TC07 to expect 400; if it should ignore bodies, document and ensure tests assert that behavior consistently."
+            ],
+            "usage": {
+              "completion_tokens": 1249,
+              "prompt_tokens": 3274,
+              "total_tokens": 4523,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

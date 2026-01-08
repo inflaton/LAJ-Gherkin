@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-15T16:41:27.727528",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:40:07.366443",
+    "benchmark_end_time": "2025-10-15T16:41:27.727524",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 80.361081,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "PUT Valid Request: Successful update returns 204 and persists the new externalKey (TC01, TC14).",
+              "Non-Existing Resource: 404 when bundleId not found or when no bundles exist (TC04, TC15).",
+              "Invalid Arguments (400): missing required header (TC02), malformed bundleId (TC03), missing body (TC06), malformed JSON (TC07), missing externalKey in body (TC08), conflict when externalKey already used in same account (TC05), empty externalKey (TC11).",
+              "Path parameter validation: malformed UUID is rejected (TC03).",
+              "Concurrency: Only one of concurrent updates succeeds; others fail appropriately (TC17).",
+              "Optional headers handling: X-Killbill-Reason and X-Killbill-Comment accepted with success (TC14).",
+              "Authorization failures: 401/403 for missing/invalid auth (TC12).",
+              "Service dependency failure handling: 503 on outage (TC13).",
+              "Edge cases around payload: extra fields tolerated (TC09), long key attempt (TC10), special characters and whitespace handling explored (TC19, TC20).",
+              "Performance considerations: large payload handling and response time under normal load (TC16, TC23)."
+            ],
+            "gaps": [
+              "Idempotency/Duplicate submission: No test proving that repeating the same PUT with the same externalKey is idempotent (still 204, no side effects) and that updating to the same current value is handled deterministically (204 vs 400) and documented.",
+              "Account scoping of uniqueness: No scenario proving that an externalKey in a different account does NOT block the update (uniqueness is per-account).",
+              "Partial update semantics: No assertion that only externalKey changes and no other Bundle fields can be modified; TC09 does not verify that extra fields are ignored and that other fields remain unchanged.",
+              "Media type validation: No test for wrong/missing Content-Type leading to 415 Unsupported Media Type; no Accept header negotiation checks; no verification that error responses use application/json as specified.",
+              "Boundary values for externalKey length: Only a 255-char example; no explicit min/max definition or tests for max-1/max/max+1 (e.g., 254/255/256) outcomes.",
+              "Data type validation: No test where externalKey is non-string (number, boolean, null) to confirm proper 400 validation.",
+              "Internal server error path: Only 503 is covered; no 500 Internal Server Error simulation to validate generic server error handling path.",
+              "Response contract on 204: No explicit assertion that 204 responses have no body and appropriate headers (e.g., Content-Length=0) despite \"produces: application/json\" in spec.",
+              "Audit trail verification: No check that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs for the update."
+            ],
+            "recommendations": [
+              "Add idempotency tests: repeat the same valid PUT twice and expect 204 both times with no additional changes; add a case where new externalKey equals the current key and define/verify the expected status.",
+              "Add cross-account test: Ensure updating to an externalKey that exists in another account succeeds (uniqueness constrained to same account only).",
+              "Strengthen partial update checks: Include a payload with other Bundle fields set and verify they are not changed server-side; add a negative test attempting to modify immutable fields.",
+              "Add media-type tests: send Content-Type text/plain or omit it to expect 415; verify error responses include Content-Type application/json and a structured error body.",
+              "Complete length boundary testing: define the allowed externalKey length and test boundary values (min-1/min, max-1/max/max+1), asserting precise status codes and messages.",
+              "Validate data types: try externalKey as number, boolean, null to confirm 400 with clear validation errors.",
+              "Include a 500 error simulation (e.g., forced server exception) to validate generic error handling and response schema.",
+              "Verify 204 contract: assert no response body, appropriate headers, and no Content-Type on 204 if applicable; align with API spec expectations.",
+              "Add audit assertions: after a successful update with Reason/Comment, retrieve audit logs to confirm headers are persisted as audit metadata."
+            ],
+            "usage": {
+              "completion_tokens": 3662,
+              "prompt_tokens": 6051,
+              "total_tokens": 9713,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2752,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

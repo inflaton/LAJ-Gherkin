@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-14T16:05:27.460613",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T16:04:08.507258",
+    "benchmark_end_time": "2025-10-14T16:05:27.460609",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 78.953351,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC05) exercise successful account closure with default values and many combinations of the optional query parameters.",
+              "Path Parameter Validation: Invalid accountId format and SQL-injection style payloads are tested (TC08, TC15) to validate UUID pattern and input sanitization.",
+              "Headers / Auth: Required header presence (X-Killbill-CreatedBy) and missing/invalid authentication are tested (TC09, TC10); X-Killbill-Comment XSS case is included (TC16).",
+              "Idempotency / Soft Delete: Already closed and non-existent accounts are treated idempotently with 204 (TC11, TC12); state change is asserted (marked closed) in at least one scenario (TC01).",
+              "Error Handling: System error simulation returns 500 (TC14).",
+              "Optional Query Parameters: Individual parameters and many combinations (single, pairs, all-true, all-false) are covered (TC02, TC03, TC04, TC05) to validate behavior of cancelAllSubscriptions, writeOffUnpaidInvoices, itemAdjustUnpaidInvoices, removeFutureNotifications.",
+              "Edge / Non-functional: Large-scale processing and performance behavior is addressed (TC07 large numbers, TC18 concurrent closures), plus retry on transient network failure (TC17).",
+              "Extra Params: Unsupported query parameter behavior is tested (TC13).",
+              "Regression & Compatibility: Regression scenarios and backward compatibility (no optional headers) are present (TC19, TC20).",
+              "Documentation / Accessibility: API docs and error responses accessibility are included (TC21)."
+            ],
+            "gaps": [
+              "Same-resource concurrency / race conditions: There is no explicit test where multiple concurrent DELETEs target the same account id to exercise race conditions (TC18 uses unique account ids).",
+              "Invalid query parameter values/types: No tests for malformed boolean query values (e.g., cancelAllSubscriptions=notabool) or non-boolean inputs for the boolean flags.",
+              "Partial-failure / transactional consistency: No scenario that simulates partial failures during cleanup (e.g., subscriptions cancelled but invoice write-off fails) to verify atomicity/rollback or compensating behavior.",
+              "Response body and headers assertions: Tests do not assert response headers (Content-Type) or explicitly verify that 204 responses contain no body or that error responses contain structured JSON payloads as the spec indicates \"Produces: application/json\".",
+              "Validation of optional headers semantics and values: There is no test verifying acceptable content/length/blank-values for X-Killbill-CreatedBy, nor explicit tests asserting that X-Killbill-Reason and X-Killbill-Comment are recorded/handled (beyond XSS sanitization).",
+              "Behavior of default removeFutureNotifications: While default behavior is tested in TC01, there is limited focused coverage that explicitly asserts the default is true when that parameter is omitted across more scenarios.",
+              "Partial/failed clean-up side-effects: No assertions verifying the persisted state of subscriptions/invoices/notifications beyond \"processed\" \u2014 e.g., verifying invoice statuses, ledger changes, or audit events.",
+              "Rate limiting / throttling: No tests around rate limiting or API throttling on repeated calls.",
+              "Authorization granularity: Tests cover missing/invalid auth but do not cover role-based authorization or forbidden (403) scenarios if applicable."
+            ],
+            "recommendations": [
+              "Add a concurrency test that issues multiple concurrent DELETE requests against the same account id to validate race conditions and locking behavior; assert idempotency and lack of data corruption.",
+              "Add negative tests for query parameter types/values (e.g., cancelAllSubscriptions=foo, writeOffUnpaidInvoices=123) to ensure proper 400 validation and error messages.",
+              "Introduce tests that simulate partial failures in downstream cleanup steps (e.g., subscription service fails while invoice write-off succeeds) to verify transactional behavior, rollback, or compensating actions.",
+              "Assert response headers and bodies explicitly: verify Content-Type for error responses, that 204 responses have no body, and that error responses return structured JSON with clear error messages.",
+              "Add tests for header value validation: empty or overly long X-Killbill-CreatedBy, and explicit tests that X-Killbill-Reason and X-Killbill-Comment are recorded or handled as expected (not only XSS sanitization).",
+              "Add assertions verifying post-conditions in detail: subscription statuses, invoice status/ledger entries, notification removal from the future-notification store, and relevant audit/event records.",
+              "Add rate-limiting/throttling tests and a test for API behaviour when requests exceed quotas to ensure graceful handling.",
+              "Add role/permission tests (403) if the API enforces more granular authorization than presence of auth token.",
+              "Include tests that validate the documented default of removeFutureNotifications (true) when omitted across more scenarios to avoid regression in default semantics."
+            ],
+            "usage": {
+              "completion_tokens": 2951,
+              "prompt_tokens": 6316,
+              "total_tokens": 9267,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1920,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

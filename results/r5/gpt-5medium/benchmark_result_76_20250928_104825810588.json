@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-09-28T10:48:25.810563",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:47:01.111523",
+    "benchmark_end_time": "2025-09-28T10:48:25.810560",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 84.699037,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request: Success scenarios with both subscriptionId and requestedDate (TC01) and with subscriptionId only (TC02/TC19) returning 200 and a Product JSON; response Content-Type validated.",
+              "Empty Response/Not Found: Cases for nonexistent subscription (TC05), before start date (TC13), empty database (TC11), and potential future-date not found (TC12) handled via 404.",
+              "Query Parameters: Comprehensive combinations including valid, missing, invalid formats (TC01\u2013TC08), and unexpected extra parameters (TC14).",
+              "Authorization: Unauthorized access covered with 401 (TC09).",
+              "Server/Dependency Errors: Service down (TC10 -> 503) and downstream dependency failure (TC21 -> 502/503).",
+              "Security/Validation: SQL injection and XSS input rejected with safe errors and no leakage (TC16, TC17).",
+              "Performance/Load: Concurrency and response-time expectations present (TC15, TC20).",
+              "Schema/Contract: Product schema validation asserted in background and in success steps (TC01/TC02), and regression for boundary date (TC18).",
+              "Not Applicable: Pagination does not apply to a single-resource GET returning one Product."
+            ],
+            "gaps": [
+              "Ambiguous expectations: Several scenarios assert \"200 or error\" (TC03, TC04, TC12, TC14), making them non-deterministic and un-automatable; expected outcomes must be specified.",
+              "Caching Behavior: No tests verify Cache-Control/ETag/Last-Modified headers or conditional GET (If-None-Match/If-Modified-Since) and 304 responses.",
+              "Rate Limiting/Throttling: No scenarios for 429 Too Many Requests or Retry-After headers under burst traffic.",
+              "Accept header negotiation: No test for 406 Not Acceptable when clients request unsupported media types; no verification of response Vary headers.",
+              "Standardized error schema: Tests only check for \"error message\" text; they do not validate the API error object structure and content-type.",
+              "Temporal edge cases: No coverage for timezone handling (UTC vs tenant timezone), daylight-saving boundaries, or leap-day dates for requestedDate.",
+              "Parameter semantics: Behavior when requestedDate is provided without subscriptionId (TC03) is unclear and likely invalid for this endpoint; behavior for no parameters (TC04 vs TC07) and future dates (TC12) is inconsistent across tests.",
+              "Duplication/Redundancy: TC02 and TC19 cover the same case; keeps suite noisy without additional value."
+            ],
+            "recommendations": [
+              "Make scenarios deterministic: Replace \"200 or error\" with the single expected status and body per contract; clarify business rules for only requestedDate, no parameters, future dates, and extra parameters.",
+              "Add caching tests: Verify ETag/Last-Modified and Cache-Control on 200; send If-None-Match/If-Modified-Since to assert 304 Not Modified behavior.",
+              "Add rate-limiting tests: Burst requests to elicit 429 and validate Retry-After and rate-limit headers without breaking successful single requests.",
+              "Add content negotiation tests: Send Accept: application/json (happy path) and Accept: text/xml to expect 406; verify Content-Type and Vary headers.",
+              "Validate error schema: Assert error response structure (e.g., code, message, type) and application/json content type for 4xx/5xx responses.",
+              "Extend temporal edge tests: Include timezone-specific dates, midnight boundaries, and leap-day (e.g., 2024-02-29) to ensure correct product resolution.",
+              "Consolidate and de-duplicate: Merge TC02 and TC19; convert TC03 to a negative test (expect 400) or remove if not supported; make TC04 consistent with TC07 per final contract.",
+              "Enhance success assertions: Validate key Product fields (id, name, plan association) match the subscription plan effective on the requestedDate, not just schema validity."
+            ],
+            "usage": {
+              "completion_tokens": 4884,
+              "prompt_tokens": 5044,
+              "total_tokens": 9928,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4032,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

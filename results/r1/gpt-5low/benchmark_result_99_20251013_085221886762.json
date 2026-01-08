@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "99_2025-10-13T08:52:21.886737",
+    "jira_id": "99",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoicePayments/{paymentId}/customFields - Modify custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:51:59.213154",
+    "benchmark_end_time": "2025-10-13T08:52:21.886734",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 22.67358,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "99_qe_sup-gpt4.1_agent-gpt4.1_1748922485.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request (PUT): Multiple happy-path updates with required header (TC01, TC03), with optional headers (TC02), and integration verification via subsequent GET (TC17).",
+              "Error Handling: 400 for invalid UUID format (TC05), missing required header (TC07), missing body (TC08), malformed JSON (TC09), invalid CustomField schema (TC10).",
+              "Non-Existing Resource: 404 when payment not found (TC06).",
+              "Authorization: 401 when token missing/invalid (TC11).",
+              "Server Error Handling: 500 path via database failure (TC12).",
+              "Security/Validation Hardening: Injection attempt handling (TC13), duplicates behavior regression (TC18), extra/unexpected properties handling (TC16).",
+              "Scalability/Performance: Large number of custom fields and payload size with latency assertions (TC14, TC20).",
+              "Concurrency: Concurrent requests scenario exists (TC19)."
+            ],
+            "gaps": [
+              "PUT Partial Update Semantics: No explicit test to assert whether PUT replaces the entire set vs merges with existing fields; no negative test to reject partial updates if not allowed.",
+              "Same-resource Concurrency: No scenario where multiple concurrent PUTs target the same paymentId to detect race conditions/last-write-wins or optimistic locking behavior.",
+              "Idempotency: No test proving that repeating the same PUT request results in the same state and consistent 204 response.",
+              "Ambiguous Empty Array Behavior: TC04 leaves expected outcome undefined (\u201cremoved or remain unchanged\u201d); test should assert the contract (e.g., empty array removes all vs no-op).",
+              "Response/Headers Contract: Success scenario says Produces application/json but 204 usually has no body; tests do not assert Content-Type, nor that 204 has an empty body. Also no 415 Unsupported Media Type test when Content-Type is wrong.",
+              "Header Semantics: No validation for edge cases on X-Killbill-CreatedBy (e.g., empty/whitespace-only). Optional headers presence is covered, but not their recording/audit effects if applicable.",
+              "UUID Pattern Boundary: Valid UUIDs should be used in Given/When steps to strictly match the specified regex; current placeholders like \"valid-uuid-1\" are not guaranteed to match UUID format.",
+              "Data Integrity After Complex Cases: After duplicates, extra properties, or large arrays, no follow-up GET to validate persisted final set and ordering/uniqueness rules (except TC17 happy path)."
+            ],
+            "recommendations": [
+              "Add a scenario to define and assert PUT semantics: send a subset of custom fields when some already exist, then GET to verify whether the final set equals exactly the payload (replace) or is merged; include a negative test if partial updates are not allowed.",
+              "Create same-paymentId concurrency tests: fire concurrent PUTs with different payloads to the same paymentId; assert final state, absence of lost updates, and any versioning/optimistic locking behavior if supported.",
+              "Add idempotency test: repeat the exact same PUT twice and verify the second call returns 204 and state remains unchanged.",
+              "Resolve TC04 by specifying expected behavior for empty arrays (e.g., remove all custom fields) and assert it via subsequent GET.",
+              "Assert response headers/body for 204: verify empty body and appropriate headers; add a test for 415 when Content-Type is not application/json.",
+              "Validate X-Killbill-CreatedBy content rules: add tests for empty/whitespace-only or overly long values and expected 400 if invalid.",
+              "Use real UUIDs in all success scenarios to comply with the exact UUID regex; include a boundary-valid UUID test.",
+              "Add follow-up GET validations for complex/edge cases (duplicates handling, extra properties stripping, large arrays) to ensure persisted data matches the API contract."
+            ],
+            "usage": {
+              "completion_tokens": 1902,
+              "prompt_tokens": 5796,
+              "total_tokens": 7698,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

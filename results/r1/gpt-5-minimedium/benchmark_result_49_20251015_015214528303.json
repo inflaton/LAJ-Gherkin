@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-15T01:52:14.528270",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T01:51:44.284301",
+    "benchmark_end_time": "2025-10-15T01:52:14.528266",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 30.243965,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Deletion: TC01 verifies successful DELETE returns 204 and host is marked out of rotation.",
+              "Authorization (basic): TC02 and TC03 cover missing and invalid authentication (401 responses).",
+              "Non-Existent / Already Out: TC04 and TC14 cover cases where host is already out / no hosts available (conflict 409).",
+              "Error Handling: TC05 and TC06 cover service-unavailable (503) and internal server error (500) conditions.",
+              "Invalid Method: TC07 covers method-not-allowed (405).",
+              "Request Validation: TC09 and TC13 cover malformed/malicious request body and header-injection attempts (400/401).",
+              "Extra Parameters: TC08 verifies extra query parameters do not break the operation and still result in 204.",
+              "Concurrency / Race Conditions: TC11 addresses concurrent requests and expected behavior for first vs subsequent requests.",
+              "Performance: TC10 and TC11 include response-time expectations under normal and concurrent loads.",
+              "Regression / State Verification: TC12 ensures the host is actually marked out of rotation and that querying confirms the state."
+            ],
+            "gaps": [
+              "Role-based Authorization / Forbidden (403): No scenario for an authenticated but unauthorized user (valid token lacking admin role) receiving 403.",
+              "Content-Type / Response Headers: The story notes 'produces: application/json' but tests do not assert Content-Type or other headers (ETag, Cache-Control). 204 with empty body and expected media type is not validated.",
+              "Idempotency (sequential deletes): Concurrency is covered, but a clear sequential idempotency test (multiple sequential deletes from same client verifying consistent response codes and no side-effects) is missing.",
+              "Soft-Delete Persistence: While marking out of rotation is asserted, there is no explicit test verifying persistence across service restarts or that the host remains out of rotation (soft delete semantics).",
+              "Token edge-cases: Expired tokens, revoked tokens, or token scope/claim issues are not tested.",
+              "Rate Limiting / Throttling: There are no tests for rate limiting response (429) or behavior under extreme rapid request bursts beyond performance timing assertions.",
+              "Content validation contradictions: The story indicates application/json production while 204 is expected; tests don't validate how the API handles content-type negotiation or presence of a body with 204.",
+              "Logging/Audit: No tests to verify audit/log entries or that the operation is logged for operational traceability."
+            ],
+            "recommendations": [
+              "Add a 403 Forbidden scenario: authenticated admin API user without appropriate role/permission should receive 403 and relevant error message.",
+              "Assert response headers: add checks for Content-Type on success/error responses and, where applicable, caching-related headers or explicit absence for 204.",
+              "Add explicit idempotency tests: send sequential DELETE requests from same client and assert expected sequence of responses (e.g., first 204, subsequent 409 or repeated 204 depending on intended idempotency semantics).",
+              "Persistency/soft-delete tests: verify host remains out of rotation after simulated service restart or by reading persisted status from backing store; confirm whether the API implements soft vs hard removal.",
+              "Token edge-case tests: include expired token, revoked token, and insufficient-scope token scenarios to validate auth behavior beyond simply 'invalid' or 'missing'.",
+              "Rate-limiting tests: simulate high-frequency requests to validate throttling behavior and expected 429 responses (or confirm absence of rate limiting).",
+              "Clarify and test media-type contract: if the contract claims application/json, include at least one test validating that error responses return well-formed JSON error structures and content-type header, and document expected behavior for 204 responses.",
+              "Add audit/logging checks (where feasible): ensure the delete operation is recorded in audit logs with appropriate metadata (who/when) if auditing is a non-functional requirement."
+            ],
+            "usage": {
+              "completion_tokens": 1972,
+              "prompt_tokens": 3433,
+              "total_tokens": 5405,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

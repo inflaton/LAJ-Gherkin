@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "74_2025-09-28T11:45:25.470453",
+    "jira_id": "74",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/plan - Retrieve plan for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:44:00.615927",
+    "benchmark_end_time": "2025-09-28T11:45:25.470450",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 84.854523,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "74_qe_sup-gpt4.1_agent-gpt4.1_1748920805.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: Success cases covered for both parameters, single-parameter variants, and boundary date handling.",
+              "Empty Response: Scenarios for empty database and no matching plan paths are included.",
+              "Query Parameters: Broad combinations tested (both, one, none), plus invalid values and extra/ignored params.",
+              "Authorization: Unauthorized (401) case is covered.",
+              "Error Handling: Invalid UUID/date (400), not found (404), both invalid (400), and service unavailable (503) are covered.",
+              "Security: Input hardening via SQLi and XSS attempts is covered.",
+              "Performance: Basic latency under normal and concurrent load is covered.",
+              "Pagination: Not applicable for a single-resource lookup endpoint."
+            ],
+            "gaps": [
+              "Caching Behavior: No checks for ETag/Last-Modified, Cache-Control, or 304 with If-None-Match.",
+              "Deterministic Behavior for omitted parameters: Tests allow multiple outcomes (e.g., '200 or default'), not a single expected result per contract.",
+              "Content Negotiation/Headers: No assertion that Content-Type is application/json as per Produces, nor Accept handling.",
+              "Schema Validation: No strict validation of the Plan object against #/definitions/Plan (required fields, types).",
+              "No-match on requestedDate for an existing subscription: Missing scenario where subscription exists but no plan is effective on that date.",
+              "Rate Limiting: No scenarios for throttling/429 or related headers (Retry-After, rate-limit headers).",
+              "Authorization depth: No 403 coverage for authenticated-but-not-authorized cases (if applicable).",
+              "Date edge cases: No tests for leap day, time zones/offsets, DST boundaries, or trimming/normalization of inputs."
+            ],
+            "recommendations": [
+              "Define and assert a single expected outcome when parameters are omitted or only requestedDate is provided (e.g., 400 vs default plan vs 404), and update TC03/TC04 to be deterministic.",
+              "Add a scenario where subscriptionId exists but requestedDate falls outside any plan effective range; assert the expected status (e.g., 404) and error payload.",
+              "Validate response headers: assert Content-Type: application/json and correct charset; optionally verify Accept negotiation.",
+              "Add JSON Schema validation for the Plan object against #/definitions/Plan (required fields, enum values, types).",
+              "Add caching tests: capture ETag/Last-Modified and verify 304 Not Modified on conditional GET; assert Cache-Control policies.",
+              "Introduce rate limiting tests: burst requests until limit; expect 429 and verify Retry-After and X-RateLimit headers.",
+              "If RBAC applies, add a 403 Forbidden scenario for insufficient privileges.",
+              "Expand date edge coverage: leap years (e.g., 2024-02-29), timezone offsets (Z vs +00:00), DST boundaries, and input normalization (whitespace, case in UUID).",
+              "Add idempotency/repeatability check: repeated identical GET requests return identical body and headers (except volatile headers)."
+            ],
+            "usage": {
+              "completion_tokens": 3019,
+              "prompt_tokens": 4829,
+              "total_tokens": 7848,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2368,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-10-14T21:04:02.561727",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:03:29.055425",
+    "benchmark_end_time": "2025-10-14T21:04:02.561723",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 33.506298,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE > Valid Deletion: Multiple success paths (all tags, single tag, multiple tags, large list) return 204 with empty body.",
+              "DELETE > Non-Existent Resource: 404 when paymentId does not exist.",
+              "DELETE > Concurrency: Concurrent deletion handled gracefully (race condition coverage).",
+              "Headers: Required X-Killbill-CreatedBy covered; optional Reason/Comment covered.",
+              "Query Parameters: tagDef optional; supports multi; covers no tagDef, single, multiple, large number, not-present-on-payment (no-op 204), invalid format (400), extra unexpected param tolerated.",
+              "Input Validation: Invalid paymentId (400), invalid tagDef (400), injection attempt (400).",
+              "Authorization: 401 for missing/invalid auth token.",
+              "Reliability/Errors: 503 service unavailable, 504 timeout.",
+              "Data Consistency: Post-deletion GET verifies updated tags.",
+              "Auditability: Action recorded with user/reason/comment where provided."
+            ],
+            "gaps": [
+              "DELETE > Soft Deletes: No scenario to confirm hard vs soft deletion semantics (e.g., verifying tag removal is permanent vs flagged).",
+              "Content Negotiation/Headers: No checks for response headers such as Content-Type for 204, or absence of body per RFC; no validation of application/json \u201cproduces\u201d contract.",
+              "Mixed-Validity tagDef list: No case where one tagDef is valid and another invalid to define expected behavior (fail all vs best-effort).",
+              "Duplicates in tagDef: No scenario for duplicate tagDef values and expected idempotent handling.",
+              "Idempotency: No explicit test that repeating the same DELETE request results in 204 and stable state.",
+              "Authorization granularity: No 403/permissions/RBAC scenario (user authenticated but not authorized).",
+              "Validation boundaries: No tests for maximum number/length of tagDef parameters, very long headers, or Unicode handling in Reason/Comment."
+            ],
+            "recommendations": [
+              "Add a test to assert deletion semantics (soft vs hard). For soft delete, verify flags/audit states; for hard delete, ensure tags are actually removed and not retrievable.",
+              "Add scenarios to verify response headers: ensure 204 has no body, expected Content-Type/charset (if any), and that \u201cproduces: application/json\u201d is consistent or explicitly absent for 204.",
+              "Include a mixed-validity tagDef scenario (one invalid among many) and define expected outcome (400 vs partial success).",
+              "Add a scenario with duplicate tagDef values to confirm de-duplication and consistent 204.",
+              "Add an idempotency test: perform DELETE twice (or GET-DELETE-DELETE) and expect 204 and unchanged state on repeat.",
+              "Introduce a 403 Forbidden case to cover authenticated-but-unauthorized users per authorization best practices.",
+              "Add boundary tests: extremely large number of tagDef entries near documented limits, very long X-Killbill-Reason/Comment including Unicode, and ensure proper validation/handling."
+            ],
+            "usage": {
+              "completion_tokens": 1608,
+              "prompt_tokens": 5560,
+              "total_tokens": 7168,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

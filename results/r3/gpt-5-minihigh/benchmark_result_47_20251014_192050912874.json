@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-14T19:20:50.912845",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:18:19.971872",
+    "benchmark_end_time": "2025-10-14T19:20:50.912840",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 150.940968,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid deletion and idempotency: TC01, TC09, TC11, and TC13 verify successful DELETE returns HTTP 204, empty response body where applicable, idempotent behavior, and that tenant cache entries are invalidated.",
+              "Authentication failures: TC02 and TC03 cover missing and invalid credentials producing 401 responses.",
+              "Error status coverage: TC04, TC05, TC06, TC07, and TC14 exercise a range of error conditions and codes (404, 500, 503, 400, 504) as required by the story.",
+              "Security and input validation: TC07 and TC08 handle malformed requests and injection attempts (400/403), addressing input-sanitization concerns.",
+              "Concurrency and performance: TC10 tests concurrent DELETE requests, response-time expectations, and checks for race conditions.",
+              "Integration and downstream effects: TC12 checks that dependent services observe cache invalidation (consistency across consumers).",
+              "State variation: TC13 covers partially populated caches and ensures complete invalidation for the tenant.",
+              "Regression coverage: TC11 ensures a previously fixed bug (cache not invalidated) does not recur."
+            ],
+            "gaps": [
+              "Produces/application media type: There are no assertions that responses (errors or success) include the required Content-Type header (application/json) or that error responses conform to a JSON error schema as called out in the acceptance criteria.",
+              "Role-based authorization: No scenario for an authenticated non-admin or insufficient-privileges user (expected 403 Forbidden) to ensure admin-only access is enforced.",
+              "Tenant isolation/multi-tenant safety: Tests do not verify that only the current tenant cache is invalidated and that caches for other tenants remain unaffected.",
+              "Rate limiting/throttling: No scenarios exercise rate-limiting behavior (e.g., excessive request rate leading to 429) or throttling under high-frequency calls.",
+              "Partial/incomplete invalidation across distributed caches: There is no explicit scenario for partial failures (some cache nodes succeed while others fail) and how the API reports or handles partial invalidation.",
+              "Response schema/content validation: Error checks assert presence of an error message but do not validate JSON structure, specific fields (code, message, details), or consistent error format.",
+              "Headers and operational metadata: No tests assert or validate HTTP headers related to caching/operation (e.g., Content-Type on errors, Cache-Control, ETag, request tracing headers, or retry-after on 503).",
+              "Method constraints and negative HTTP verbs: No test verifies that unsupported HTTP methods (GET/POST/PUT/PATCH) against this endpoint are rejected (405 Method Not Allowed).",
+              "Audit/logging: No tests validate audit records/log entries or admin action tracing for the cache invalidation operation."
+            ],
+            "recommendations": [
+              "Add a scenario to assert Content-Type: application/json for error responses and validate the JSON error schema (fields such as code, message, details). Also specify expected behavior for 204 responses (either empty body with no Content-Type or an explicit application/json content-type policy).",
+              "Add a role-based authorization scenario: an authenticated non-admin user attempts DELETE and receives HTTP 403 and no cache invalidation. This verifies admin-only access enforcement.",
+              "Add tenant isolation tests: set up caches for Tenant A and Tenant B, invoke DELETE in Tenant A context, then assert Tenant A caches are invalidated and Tenant B caches are unchanged.",
+              "Add rate-limiting tests: send a burst of requests to verify throttling behavior and expected 429 responses, and verify graceful handling/backoff/retry headers where applicable.",
+              "Add a partial-failure scenario that simulates failures on a subset of distributed cache nodes; assert the API behavior (e.g., return 500 with details, retry semantics, or compensating actions) and that it surfaces actionable error information.",
+              "Add structured response validation for error cases: validate JSON schema, field types and semantics rather than only substring checks on message text.",
+              "Add header/metadata checks: validate Content-Type on all responses, and where applicable verify operational headers (Retry-After on 503, any tracing or audit headers, Cache-Control/ETag if relevant to your cache infrastructure).",
+              "Add negative HTTP method tests: verify GET/POST/PUT/PATCH to this URL return 405 and that only DELETE is allowed for invalidation.",
+              "If audit/logging is a requirement, add tests that confirm an audit event or admin action log record is created with tenant id, admin user id, timestamp, and outcome of operation."
+            ],
+            "usage": {
+              "completion_tokens": 6776,
+              "prompt_tokens": 3389,
+              "total_tokens": 10165,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

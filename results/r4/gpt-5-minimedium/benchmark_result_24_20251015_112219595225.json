@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "24_2025-10-15T11:22:19.595187",
+    "jira_id": "24",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/invoicePayments - Retrieve account invoice payments",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:22:02.241343",
+    "benchmark_end_time": "2025-10-15T11:22:19.595183",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 17.35384,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "24_qe_sup-gpt4.1_agent-gpt4.1_1748917532.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01, TC02, TC03, TC04, TC05, TC06, TC16, TC20) cover valid requests and combinations of query parameters including withPluginInfo, withAttempts, pluginProperty, and audit.",
+              "Empty Response: TC07 and TC17 explicitly cover accounts with no invoice payments returning an empty JSON array.",
+              "Query Parameters: Extensive coverage \u2014 valid and invalid values are tested (TC02, TC03, TC04, TC05, TC06, TC12, TC13, TC14). PluginProperty filtering, repeated pluginProperty values, unsupported audit values, and extra/ignored params are all exercised.",
+              "Path Parameter Validation: Malformed UUID and SQL-injection-like accountId cases are covered (TC08, TC23), and non-existent account (valid UUID but missing) is covered (TC09).",
+              "Authorization: Missing/invalid authentication is tested (TC10) returning 401.",
+              "Error Handling / Dependent Services: Service-unavailable conditions and dependent-service failures are covered (TC11, TC18) including 503 scenarios and partial-data behaviors.",
+              "Performance & Scalability: Performance and large dataset scenarios are present (TC15, TC21, TC22) to exercise response-time and large-number behavior.",
+              "Security: XSS attempts in pluginProperty and SQL-injection attempts are tested (TC24, TC23).",
+              "Regression & Integration: Regression tests for pluginProperty filtering and backward-compatibility are included (TC19, TC20).",
+              "Response format: Background asserts JSON response format and multiple scenarios check that the response is a JSON array of InvoicePayment objects (TC01 and others)."
+            ],
+            "gaps": [
+              "Pagination (detailed): While TC15 acknowledges very large result sets and mentions pagination as an option, there are no explicit tests validating pagination behavior: page size params, offsets/limits, pagination headers (Link, X-Next, X-Prev), or consistent deterministic slicing of results across pages.",
+              "Caching Behavior: No scenarios verify caching headers (ETag, Last-Modified, Cache-Control) or conditional GET behavior (If-None-Match / 304 responses).",
+              "Rate Limiting / Throttling: No tests exercise API rate limiting or behavior under burst traffic beyond response-time performance tests (no 429 scenarios).",
+              "Authorization/Permissions Granularity: Tests cover missing/invalid token (401) but do not cover forbidden access (403) when an authenticated user lacks permission/role to view another account's payments.",
+              "Strict Schema Validation: Tests assert that objects contain required fields but there is no explicit validation of full InvoicePayment schema (field types, date formats, numeric ranges, optional vs required fields) or contract changes across audit levels.",
+              "Pagination consistency and determinism: No tests for stable ordering across paginated responses (e.g., sort order, deterministic next-page tokens).",
+              "Malformed query parameter formats: While audit invalid value and XSS are tested, malformed pluginProperty formats (e.g., missing '=' or invalid encoding) are not explicitly tested for 400 handling.",
+              "Caching + Authorization interaction: No test for how caching headers behave for authenticated vs unauthenticated requests (sensitive data caching).",
+              "Rate-limiting under authenticated/unauthenticated mix: Not covered."
+            ],
+            "recommendations": [
+              "Add explicit pagination tests: request with page/limit (or offset/limit) parameters, validate pagination headers (Link or custom headers), validate number of items per page, fetch successive pages and assert no duplicates/missing items and stable ordering.",
+              "Add caching tests: verify presence and correctness of Cache-Control and ETag/Last-Modified headers, and test conditional GET (If-None-Match returns 304 when resource unchanged).",
+              "Add rate-limiting tests: simulate bursts of requests to trigger 429 responses and validate Retry-After header and graceful handling.",
+              "Add permission/authorization tests for 403 cases: authenticated user with insufficient permissions attempting to access another account's payments.",
+              "Expand schema contract validation: add tests asserting required fields and their types/format for InvoicePayment objects across audit levels (NONE/MINIMAL/FULL) and when withPluginInfo/withAttempts are true/false.",
+              "Add malformed query parameter tests: pluginProperty without '=' or invalid URL-encoding to assert 400 responses and clear error messages.",
+              "Add deterministic pagination ordering tests: ensure sorting is defined (e.g., by created date) and consistent across pages.",
+              "Add tests for caching sensitivity: ensure sensitive pluginInfo/attempts are not cached in ways that could leak across accounts or users; validate vary/authorization interactions.",
+              "Add rate-limiting tests under authentication mix and for recovery semantics (Retry-After and retry behavior)."
+            ],
+            "usage": {
+              "completion_tokens": 1928,
+              "prompt_tokens": 6242,
+              "total_tokens": 8170,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

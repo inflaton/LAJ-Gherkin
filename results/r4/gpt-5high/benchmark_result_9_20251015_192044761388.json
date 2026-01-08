@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "9_2025-10-15T19:20:44.761356",
+    "jira_id": "9",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/block - Block an account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:18:38.630892",
+    "benchmark_end_time": "2025-10-15T19:20:44.761352",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 126.13046,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "9_qe_sup-gpt4.1_agent-gpt4.1_1748916388.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST Valid Payload: Happy paths with minimal and full optional inputs return 201 and JSON array of BlockingState (TC01, TC02, TC03, TC04, TC05, TC15).",
+              "Headers: Required X-Killbill-CreatedBy enforced (TC08); optional X-Killbill-Reason and X-Killbill-Comment exercised (TC02).",
+              "Path/ID validation: Invalid accountId -> 400 (TC07, TC13); non-existent account -> 404 (TC06).",
+              "Query params: requestedDate and pluginProperty individually and together, including empty array and extra/unknown params (TC02, TC03, TC04, TC15, TC18).",
+              "Request body validation: Missing or malformed JSON -> 400 (TC09, TC10).",
+              "Security hardening: SQL injection in path and malicious body payload handled (TC13, TC14).",
+              "Server error handling: Upstream failures return 503 (DB down, plugin unavailable) (TC12, TC22).",
+              "Integration behavior: pluginProperty triggers/reflects plugin processing (TC21).",
+              "Performance/resilience: slow downstream still within timeout, high concurrency, sustained load resource bounds (TC19, TC25, TC26).",
+              "Regression protections: no duplicate entries in prior bug case; backward compatibility scenario (TC23, TC24)."
+            ],
+            "gaps": [
+              "Duplicate submission/idempotency: No scenario sending the same POST twice (with/without an Idempotency-Key) to verify dedupe or conflict handling.",
+              "Content negotiation and headers: No checks for response Content-Type application/json; no tests for 415 when Content-Type is not application/json or 406 for unsupported Accept.",
+              "Detailed schema validation: No strict validation of response body against BlockingState schema (required fields, types); only high-level assertions.",
+              "Request schema negative cases: No tests for missing required fields or wrong data types within BlockingState (e.g., booleans/enum ranges).",
+              "requestedDate validation: No invalid format/date edge cases (bad format, impossible dates), or semantics for past/future dates.",
+              "pluginProperty format: Not explicitly testing collectionFormat=multi encoding (pluginProperty=prop1&pluginProperty=prop2) or invalid types.",
+              "Authorization breadth: 401 covered, but no 403 Forbidden scenario for authenticated user lacking permission.",
+              "Same-resource concurrency: No tests for simultaneous blocks on the same account to check race conditions/duplicate prevention/ordering.",
+              "Server error breadth: Only 503 covered; no 500 Internal Server Error simulation.",
+              "Spec alignment: TC20 assumes sending an array in the request; the story specifies a BlockingState object as request body\u2014needs clarification or a negative test if arrays are invalid."
+            ],
+            "recommendations": [
+              "Add an idempotency/duplicate submission scenario: send identical POST twice rapidly (with and without Idempotency-Key) and assert expected behavior (second 200/201 with same result, 409, or explicit dedupe).",
+              "Verify Content-Type and Accept handling: assert response Content-Type=application/json on success; add tests for 415 (text/plain body) and 406 (unsupported Accept).",
+              "Introduce JSON Schema validation steps for BlockingState in responses and requests to ensure required fields, types, and constraints match the definition.",
+              "Create negative request-body validation cases: missing required BlockingState fields, wrong types (string for boolean), invalid enum values, and out-of-range numeric fields.",
+              "Expand requestedDate tests: invalid formats (e.g., 2024-13-40), non-ISO strings, and business rules for past/future dates; assert 400 or documented behavior.",
+              "Test pluginProperty encoding per collectionFormat=multi by sending repeated keys in the query string; add invalid type/empty string cases and duplicate values behavior.",
+              "Add a 403 Forbidden scenario for an authenticated user without sufficient privileges to apply blocks.",
+              "Add concurrency tests targeting the same account to ensure serialization/no duplicate BlockingState entries and deterministic ordering.",
+              "Simulate a generic 500 Internal Server Error (fault injection) and assert consistent error contract (body structure, correlation id).",
+              "Clarify request-body multiplicity: if only a single BlockingState object is supported, convert TC20 into a negative test expecting 400 on array input; if arrays are supported, document and validate array size limits and per-item schema."
+            ],
+            "usage": {
+              "completion_tokens": 7396,
+              "prompt_tokens": 7115,
+              "total_tokens": 14511,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6464,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

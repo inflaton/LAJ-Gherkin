@@ -1,0 +1,82 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-09-28T11:08:49.746483",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:06:50.606205",
+    "benchmark_end_time": "2025-09-28T11:08:49.746479",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 119.140274,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE: Valid Deletion is well covered (all tags removed, subset via tagDef, optional headers, item with no tags) with correct 204 and empty body assertions.",
+              "DELETE: Non-Existent Resource covered with 404 for unknown invoiceItemId.",
+              "Input validation breadth: invalid invoiceItemId (400), malformed/partial/empty tagDef handling, tagDef values not on item (no-op 204), extra query params tolerated.",
+              "Auth and headers: missing X-Killbill-CreatedBy -> 400; invalid/expired auth token -> 401; optional X-Killbill-Reason/Comment supported.",
+              "Error/robustness: service outage (503), dependency outage (integration) handled, large tagDef volume boundary, security (XSS/injection) validation.",
+              "Concurrency: high-concurrency scenario checks performance and data integrity (no corruption/race conditions)."
+            ],
+            "gaps": [
+              "DELETE: Concurrency race with another actor deleting the same tags (double-delete/idempotency guarantees and expected status).",
+              "DELETE: Soft delete vs hard delete behavior is not verified (e.g., audit history exists while tags are removed).",
+              "Query parameter encoding: collectionFormat=multi not explicitly tested (e.g., repeated tagDef parameters, duplicates, mixed valid/invalid values).",
+              "Error response contract: no assertions on Content-Type=application/json for errors or standardized error schema; ensure 204 truly has no body.",
+              "Authorization/permissions: no 403 Forbidden scenario when credentials are valid but lack permission/role.",
+              "Status code determinism: TC14 (204 or 413) and TC19 (204 or 207) are ambiguous; expected outcomes should be clarified and fixed to a single contract.",
+              "Idempotency over time: repeated DELETE calls on the same invoice item/tags sequence not explicitly tested beyond the \"no tags\" case."
+            ],
+            "recommendations": [
+              "Add explicit race-condition tests: (a) two clients delete the same tag(s) nearly simultaneously; (b) second DELETE after a successful first DELETE; assert defined, idempotent status (typically 204).",
+              "Verify soft-delete/audit semantics: after deletion, retrieve audit logs to confirm an audit entry with X-Killbill-CreatedBy/Reason/Comment while tags are no longer present on the item.",
+              "Cover collectionFormat=multi: test ?tagDef=id1&tagDef=id2 encoding, duplicates, whitespace, and mixed valid+malformed entries; define whether any invalid entry causes 400 for the whole request.",
+              "Define and assert error response schema and headers: ensure errors return application/json with consistent fields (code, message), and 204 responses have no body and no Content-Type header.",
+              "Add a 403 Forbidden scenario for a user lacking permission to remove tags to complement the 401 case.",
+              "Resolve ambiguous expectations in TC14/TC19: choose a single expected status per case (e.g., 413 for exceeding limits; define behavior when dependent services fail) to avoid flaky tests.",
+              "Add an explicit idempotency scenario: repeat DELETE with identical parameters on an already tag-free item and confirm stable 204 and no side effects."
+            ],
+            "usage": {
+              "completion_tokens": 4715,
+              "prompt_tokens": 5394,
+              "total_tokens": 10109,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4032,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

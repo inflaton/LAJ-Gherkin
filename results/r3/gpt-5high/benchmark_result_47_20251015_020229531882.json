@@ -1,0 +1,82 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-15T02:02:29.531854",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:00:27.035748",
+    "benchmark_end_time": "2025-10-15T02:02:29.531849",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 122.496101,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE: Valid Deletion \u2013 Success path returns 204 with empty body; cache invalidation is verified and reflected in subsequent requests (TC01, TC09, TC11, TC13).",
+              "DELETE: Non-Existent Resource \u2013 404 for non-existent tenant context (TC04).",
+              "DELETE: Concurrency \u2013 multiple concurrent DELETEs for the same tenant return 204 with no race conditions; idempotency covered (TC10, TC09).",
+              "Error handling breadth \u2013 400/401/404/500/503/504 scenarios for malformed requests, auth failures, backend/service failures, and timeouts (TC02, TC03, TC04, TC05, TC06, TC07, TC14).",
+              "Security negative testing \u2013 header injection attempts handled with 400/403 (TC08).",
+              "No request body supported \u2013 extra payload or unsupported query parameters rejected with 400 (TC07).",
+              "Integration effect \u2013 dependent services observe invalidation and no stale data (TC12).",
+              "Performance considerations \u2013 under load responses remain 204 and within latency thresholds (TC10)."
+            ],
+            "gaps": [
+              "Authorization vs authentication \u2013 No scenario where an authenticated but non-admin user receives 403 (permission check).",
+              "Tenant context missing/invalid \u2013 No test for missing tenant header/token leading to 400/401.",
+              "Cross-tenant isolation \u2013 No scenario proving invalidating tenant A does not impact tenant B caches.",
+              "Content negotiation/headers \u2013 Acceptance states Produces: application/json, but tests do not verify Accept handling, Content-Type on error responses, or standard error schema; also ensure 204 has no body and no conflicting Content-Type.",
+              "Rate limiting/throttling \u2013 No tests for burst traffic leading to 429 Too Many Requests and presence of Retry-After (or explicit absence if not enforced).",
+              "Concurrency across different tenants \u2013 No scenario with parallel DELETEs for multiple tenants verifying isolation and absence of cross-tenant races."
+            ],
+            "recommendations": [
+              "Add a scenario where a valid, authenticated non-admin attempts DELETE and receives 403 Forbidden.",
+              "Add a scenario for missing or malformed tenant context (e.g., missing tenant header/token) returning 400/401 with a clear error payload.",
+              "Add a multi-tenant isolation scenario: invalidate tenant A and verify tenant B\u2019s cache remains unchanged.",
+              "Assert content negotiation and headers: send Accept: application/json; verify error responses use Content-Type: application/json and conform to the standard error schema; confirm 204 has no body and no conflicting Content-Type.",
+              "Introduce rate-limiting tests: stress with rapid DELETEs to elicit 429 Too Many Requests and check Retry-After (or document and assert that rate limiting is not applied).",
+              "Extend concurrency coverage to parallel DELETEs across different tenants to confirm independence and isolation."
+            ],
+            "usage": {
+              "completion_tokens": 6625,
+              "prompt_tokens": 3389,
+              "total_tokens": 10014,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6016,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

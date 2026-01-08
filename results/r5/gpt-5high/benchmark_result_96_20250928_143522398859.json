@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-09-28T14:35:22.398833",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T14:33:28.863718",
+    "benchmark_end_time": "2025-09-28T14:35:22.398829",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 113.535111,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "DELETE Valid Deletion: Removal of all tags, a single tag, and multiple tags returns 204 with empty body.",
+              "Idempotent-like outcomes: Removing when no tags or when tag not present returns 204 and no change.",
+              "Header handling: Required X-Killbill-CreatedBy validated (present/absent); optional Reason/Comment exercised and linked to audit logs.",
+              "Query parameters: tagDef multi-value handling, single/multiple values, and large lists are covered.",
+              "Input validation: Invalid paymentId (format) -> 400; invalid tagDef (format) -> 400; injection attempt -> 400; unexpected extra parameter tolerated.",
+              "Non-existent resource: Unknown paymentId -> 404.",
+              "Concurrency: Concurrent deletes handled without race errors with correct final state.",
+              "Operational concerns: Unauthorized access -> 401; service unavailable -> 503; timeout -> 504; performance under load assessed; data consistency verified via GET; audit logging verified."
+            ],
+            "gaps": [
+              "Soft delete semantics not verified (whether deletions are soft vs hard and how they surface in subsequent reads/audits).",
+              "Authorization depth: No 403 case for authenticated user lacking permissions/role.",
+              "Idempotency explicitly not tested (repeat the same DELETE twice should remain 204 and stable).",
+              "Mixed-validity tagDef list behavior not specified/tested (some valid, some invalid) and handling of duplicate tagDef values.",
+              "Empty or malformed tagDef occurrences (e.g., tagDef=, whitespace, empty list) and extremely large query causing 414 URI Too Long not covered.",
+              "Header boundary cases: empty/whitespace X-Killbill-CreatedBy, very long values, or non-ASCII; Reason/Comment length/charset validation.",
+              "Error handling breadth: No explicit 500 Internal Server Error path (e.g., DB failure) or standardized error schema checks.",
+              "Response headers: For 204, Content-Type/Content-Length expectations and alignment with \u201cProduces: application/json\u201d not validated."
+            ],
+            "recommendations": [
+              "Add a soft-vs-hard delete verification scenario (or mark N/A) by checking downstream visibility and any \u201cdeleted\u201d flags if applicable.",
+              "Add a 403 Forbidden scenario for authenticated but unauthorized users.",
+              "Add an idempotency scenario: repeat DELETE requests for the same tags and verify 204 and stable state.",
+              "Add tests for mixed-validity and duplicate tagDef values; define whether the API should reject the request (400) or perform partial deletion.",
+              "Add edge-case tests for tagDef parsing (empty value, whitespace, duplicate keys) and for excessively long query strings (expect 400/414 per spec).",
+              "Add header robustness tests: empty/overlong/non-ASCII X-Killbill-CreatedBy and Reason/Comment; verify they appear correctly in audit logs.",
+              "Include server-error simulations returning 500 and validate error payload schema (code, message, type, requestId).",
+              "Validate response headers for 204 (no body, correct Content-Type handling) and reconcile with the spec\u2019s \u201cproduces: application/json\u201d.",
+              "Optionally, add rate-limiting/throttling scenarios (429) separate from performance testing."
+            ],
+            "usage": {
+              "completion_tokens": 6512,
+              "prompt_tokens": 5560,
+              "total_tokens": 12072,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

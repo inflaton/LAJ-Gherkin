@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-15T22:55:23.733608",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T22:54:14.510193",
+    "benchmark_end_time": "2025-10-15T22:55:23.733601",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 69.223408,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST - Valid Payload: Positive flows covered (TC01, TC02, TC03, TC04, TC05, TC18, TC26) including required and optional params; verifies 201, Location header, and Bundle in response.",
+              "POST - Validation/Invalid Payload: Robust negative coverage (TC08, TC09, TC10, TC11, TC12, TC15, TC16, TC21, TC19) for bad UUIDs, invalid enum/date, missing header/body, injection/XSS, and header length limits.",
+              "POST - Large Payloads: Large pluginProperty array and header limits exercised (TC20, TC21).",
+              "POST - Server Error Handling: 500 and 503 paths covered (TC24, TC14).",
+              "Authorization (Authentication): 401 for invalid/missing token covered (TC13).",
+              "Not Found semantics: 404 for missing bundle/target account and empty/partial DB states (TC06, TC07, TC22, TC23).",
+              "Query parameters: Variations of requestedDate, billingPolicy, and pluginProperty including multiple values and empty array (TC02, TC03, TC04, TC05, TC18).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional Reason/Comment supported (TC01, TC02, TC11, TC21).",
+              "Location header behavior: Presence and correctness asserted on success (TC01, TC02).",
+              "Performance/Concurrency (general robustness): Baseline and peak response times, concurrent requests, and resource utilization (TC27, TC28, TC29, TC30)."
+            ],
+            "gaps": [
+              "POST - Duplicate Submission/Idempotency: No scenario that repeats the exact same transfer request to ensure the second call is idempotent or returns a deterministic outcome (e.g., 409 or same-state 200/201); TC17 retries but does not assert duplicate-handling semantics.",
+              "Content Negotiation/Media Type: No tests for incorrect or missing Content-Type (expect 415) or unsupported Accept header (expect 406), nor verification that response Content-Type is application/json.",
+              "Authorization (Authorization vs Authentication): No 403 coverage when an authenticated user lacks permission/role/tenant to transfer bundles.",
+              "Defaults for optional parameters: No explicit assertion that billingPolicy defaults to END_OF_TERM when omitted, or what effective date is applied when requestedDate is absent.",
+              "Response headers completeness: Content-Type header not validated on success and errors; only Location is asserted.",
+              "Target accountId format validation: No explicit test for invalid accountId UUID format (distinct from SQL injection or non-existence).",
+              "Temporal edge cases for requestedDate: No tests for past/future dates, timezone boundaries, or invalid calendar dates (e.g., 2025-02-30).",
+              "Rate Limiting/Throttling: No scenarios for burst traffic leading to 429 or graceful degradation, distinct from performance timing.",
+              "Concurrency on the same resource: No test where two transfers target the same bundle concurrently to ensure serialization and no double-transfer (e.g., 409/conflict or one succeeds and one fails cleanly).",
+              "Business-state conflicts: No scenario for invalid state transitions (e.g., transferring an already canceled/locked bundle) returning a business error (often 409/422) if applicable."
+            ],
+            "recommendations": [
+              "Add a duplicate submission scenario: issue the same POST twice (with and without an idempotency key if supported) and assert deterministic behavior (e.g., second call returns 409 or is a safe no-op with same Location).",
+              "Add media-type tests: POST with Content-Type text/plain (expect 415), missing Content-Type (415), and Accept: text/plain (406). Also assert response Content-Type: application/json on success and errors.",
+              "Add authorization test for 403: authenticated user lacking transfer permission/tenant should receive 403 Forbidden.",
+              "Assert defaults: when billingPolicy is omitted, verify default END_OF_TERM is applied; when requestedDate is omitted, assert the effective date behavior (e.g., policy-driven or server \u201ctoday\u201d).",
+              "Validate accountId format: send a non-UUID accountId to elicit 400 invalid accountId (separate from 404 non-existent).",
+              "Extend requestedDate tests: include a past date, a future date, a leap-day, and an invalid calendar date to confirm correct acceptance/rejection and effective dating rules.",
+              "Verify response headers comprehensively: assert Content-Type on 201/4xx/5xx responses; ensure Location is absolute and points to the transferred bundle resource.",
+              "Rate limiting: simulate high-frequency bursts and assert 429 Too Many Requests (if supported) and proper Retry-After header.",
+              "Same-bundle concurrency: attempt two simultaneous transfers of the same bundle to different target accounts; assert one success and one deterministic failure (e.g., 409) with no data corruption.",
+              "If applicable, add business-state conflict scenarios (e.g., bundle in non-transferable state) to verify correct error code and message."
+            ],
+            "usage": {
+              "completion_tokens": 5482,
+              "prompt_tokens": 7734,
+              "total_tokens": 13216,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4416,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

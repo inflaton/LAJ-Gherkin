@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-09-28T11:31:11.302161",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:30:03.494799",
+    "benchmark_end_time": "2025-09-28T11:31:11.302156",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 67.807357,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT Valid Request: Happy paths with required-only params, optional headers, payAllUnpaidInvoices, and pluginProperty (TC01\u2013TC05, TC03, TC04, TC14, TC15, TC24).",
+              "Non-Existing Resource: 404 for missing account/payment method and method not belonging to account; account with no payment methods (TC08\u2013TC10, TC21).",
+              "Input Validation: Invalid UUID formats and partial UUIDs yield 400; missing required header yields 400; extra unexpected query param tolerated (TC06, TC07, TC23, TC11, TC14).",
+              "Authorization: 401 when auth token invalid/missing (TC12).",
+              "payAllUnpaidInvoices semantics: default false when omitted; true triggers invoice payment attempts; behavior with zero invoices covered (TC01, TC02, TC05).",
+              "Optional headers Reason/Comment persisted to audit log (TC04).",
+              "Resilience/Availability: 503 when service unavailable; 503/504 on downstream slowness (TC13, TC18).",
+              "Performance: Large number of unpaid invoices processed within limits (TC17).",
+              "Concurrency: Only one default after concurrent requests; system consistency preserved (TC22).",
+              "Regression behaviors: Old default cleared when new default set; account with no payment methods returns 404 (TC20, TC21)."
+            ],
+            "gaps": [
+              "Idempotency: Repeating the same PUT should be safe and result in no additional side effects (including setting the same payment method that is already default).",
+              "Request body handling: Endpoint declares no body; no scenario verifies rejection/ignoring of a non-empty JSON body or incorrect Content-Type (e.g., 400/415).",
+              "payAllUnpaidInvoices invalid values: No tests for non-boolean values, mixed-case booleans, or duplicate/conflicting params leading to 400.",
+              "Response contract: No assertions that 204 responses have no body and appropriate headers; no validation of Content-Type=application/json on error responses as documented.",
+              "Unhandled server errors: No scenario for unexpected 500 Internal Server Error and corresponding error schema.",
+              "Authorization/permissions: 403 Forbidden not covered (authenticated but not authorized), if applicable to this API.",
+              "Auditability: No explicit verification that X-Killbill-CreatedBy is recorded in audit logs alongside reason/comment and timestamps.",
+              "Plugin property edge cases: Special characters/URL encoding, very long values, duplicate pluginProperty entries, or invalid formats not tested.",
+              "Retry safety under network failures: No test that retried requests (due to client/network retries) maintain consistent default state.",
+              "Rate limiting/throttling: No coverage for 429 or similar limits under burst traffic."
+            ],
+            "recommendations": [
+              "Add idempotency scenarios: repeat the same request; set the same existing default; verify state unchanged and still 204.",
+              "Add request body negative tests: send a JSON body and/or wrong Content-Type; expect 400/415 per API contract.",
+              "Validate boolean parsing for payAllUnpaidInvoices: invalid values (e.g., payAllUnpaidInvoices=foo), case-insensitive true/false, and duplicate params.",
+              "Assert response semantics: 204 has no body; error responses include Content-Type: application/json and structured error payload.",
+              "Include a 500 Internal Server Error simulation (e.g., DB failure) and verify error mapping and observability (correlation id if available).",
+              "If authorization tiers exist, add 403 Forbidden for authenticated users lacking permission.",
+              "Extend audit tests to verify CreatedBy, Reason, and Comment are all persisted and retrievable via audit logs.",
+              "Add pluginProperty robustness tests: URL-encoded values, very long entries, duplicates, and invalid formats to ensure validation and safe handling.",
+              "Introduce retry-safety tests to ensure eventual consistency when the same request is retried due to timeouts.",
+              "Consider rate limiting/throttling tests to validate 429 behavior and headers (Retry-After) under bursts."
+            ],
+            "usage": {
+              "completion_tokens": 3545,
+              "prompt_tokens": 6898,
+              "total_tokens": 10443,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2688,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

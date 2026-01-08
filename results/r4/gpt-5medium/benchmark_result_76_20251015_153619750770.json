@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-10-15T15:36:19.750736",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:34:11.585362",
+    "benchmark_end_time": "2025-10-15T15:36:19.750731",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 128.165369,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: Positive flow covered with both parameters (TC01) returning 200, JSON Product schema, and Content-Type application/json; also covered when requestedDate is omitted (TC02).",
+              "Query Parameters: Broad combinations and validations covered, including missing params (TC04, TC07), invalid UUID (TC08), invalid date format (TC06), extra params (TC14), future/past/boundary dates (TC12, TC13, TC18).",
+              "Authorization: Unauthorized access (401) covered (TC09).",
+              "Empty/Not Found: No subscription, empty DB, and no product for date return errors as expected (TC05, TC11, TC13).",
+              "Error Handling: Appropriate 4xx for invalid inputs and not found, plus resilience scenarios for 5xx/502/503 (TC10, TC21).",
+              "Performance/Load: Concurrency and response time scenarios present (TC15, TC20).",
+              "Security Hardening (extra): Injection and XSS inputs validated and do not leak internals (TC16, TC17).",
+              "Regression: Boundary date bug and backward compatibility behaviors validated (TC18, TC19).",
+              "Pagination: Not applicable to this single-resource GET endpoint (correctly not tested)."
+            ],
+            "gaps": [
+              "Caching Behavior: No scenarios validate ETag/Last-Modified/Cache-Control headers or conditional GET (If-None-Match/If-Modified-Since) and 304 responses.",
+              "Rate Limiting/Throttling: No tests for burst traffic behavior (e.g., 429) or verification of rate-limit headers.",
+              "Deterministic Outcomes for Missing/Ambiguous Params: TC03 and TC04 allow \u201c200 or error\u201d; expected behavior must be explicit (e.g., require subscriptionId, define default semantics) and tests should assert one outcome.",
+              "Accept Header/Content Negotiation: No tests for Accept variations (e.g., unsupported media -> 406) and ensuring Content-Type is application/json for both success and error responses.",
+              "Authorization Granularity: Only 401 covered; no 403 scenario for valid token without sufficient permissions/roles.",
+              "Date/Time Edge Cases: No tests for timezone handling, DST transitions, leap days, or strict enforcement that requestedDate is date-only (rejects datetime).",
+              "500 Internal Error: No explicit simulation and verification of generic 500 with sanitized error body.",
+              "Error Schema Consistency: Negative tests do not assert a canonical error format (fields like code, message, type) across all error responses.",
+              "Catalog/Product Lifecycle: No scenario where the product/plan is retired or unavailable at requestedDate with defined expected response."
+            ],
+            "recommendations": [
+              "Add caching tests: verify Cache-Control and ETag/Last-Modified on 200 responses; exercise conditional GET (If-None-Match/If-Modified-Since) expecting 304 when applicable.",
+              "Introduce rate-limiting scenarios: burst requests should either succeed within limits or return 429; validate rate-limit headers if supported.",
+              "Clarify and make deterministic the behavior when parameters are omitted (especially subscriptionId/requestedDate); update TC03/TC04 to expect one specific status and body.",
+              "Add content negotiation tests: Accept application/json -> 200; unsupported Accept -> 406; confirm Content-Type is application/json for both success and error paths.",
+              "Add a 403 Forbidden scenario to cover insufficient permissions with a valid but unauthorized token.",
+              "Expand date edge coverage: timezone normalization, DST boundaries, leap day, and strict date-only parsing (reject timestamps).",
+              "Simulate unexpected server exception to verify 500 with sanitized, non-sensitive error details.",
+              "Validate a consistent error response schema across all negative tests, including presence/format of error code, message, and correlation ID if standard.",
+              "Add a scenario for retired/disabled product at requestedDate with clearly defined expected response (404 or documented fallback).",
+              "Apply Product schema validation in all successful retrieval scenarios (not just TC01) and assert no side effects (idempotent GET)."
+            ],
+            "usage": {
+              "completion_tokens": 5405,
+              "prompt_tokens": 5044,
+              "total_tokens": 10449,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4544,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "79_2025-10-15T15:50:57.925279",
+    "jira_id": "79",
+    "jira_title": "Implement/Test API: GET /1.0/kb/credits/{creditId} - Retrieve a credit by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:49:16.965525",
+    "benchmark_end_time": "2025-10-15T15:50:57.925273",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 100.959748,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "79_qe_sup-gpt4.1_agent-gpt4.1_1748921053.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Successful retrieval for both CREDIT_ADJ and CBA_ADJ types returns 200 with application/json and matching creditId (TC01, TC02, TC15).",
+              "Not Found/Empty Cases: 404 when creditId does not exist, when system has no matching credit types, or database is empty (TC03, TC04, TC11, TC14, TC18).",
+              "Input Validation (Path Param): Invalid UUID formats, truncated/whitespace IDs, and malicious inputs yield 400 without side effects (TC05, TC12, TC13, TC16, TC17).",
+              "Authorization: Missing or invalid token returns 401 (TC06, TC07).",
+              "Dependency Failure Handling: Database outage returns 503 with service unavailable message (TC10).",
+              "Query Parameters: Unexpected query parameter is safely ignored with 200 (TC08).",
+              "Performance/Load: Under load and with high concurrency, responses remain 200 and within defined SLA (TC09, TC19).",
+              "Content Type: application/json asserted for successful responses (TC01, TC02).",
+              "Domain Rule: Only InvoiceItem of type CREDIT_ADJ or CBA_ADJ is considered a credit; others return 404 (TC11).",
+              "Pagination: Not applicable for a single-resource-by-id endpoint (not required)."
+            ],
+            "gaps": [
+              "Caching Behavior: No scenarios validating ETag/Last-Modified, Cache-Control, or conditional GET (If-None-Match leading to 304).",
+              "Rate Limiting/Throttling: No tests for burst traffic exceeding limits or 429 responses and Retry-After headers.",
+              "Authorization (RBAC/403): No coverage for authenticated user lacking permission (expect 403 if enforced).",
+              "Error Payload Schema: Tests only check for an error message; they do not validate the structured Kill Bill error schema (e.g., errorCode, message, type).",
+              "Content Negotiation: No tests for Accept header handling (e.g., unsupported media types leading to 406) or ensuring consistent Content-Type for error responses.",
+              "Schema Validation (Success): \u201cValid InvoiceItem JSON\u201d is asserted but not validated against the full InvoiceItem schema (required fields, types, enums).",
+              "Header Validation: No verification of standard response headers (Date, Content-Type on errors) or correlation/trace IDs if required.",
+              "Method Constraints: No check that unsupported methods on this path return 405."
+            ],
+            "recommendations": [
+              "Add caching tests: capture ETag from a 200 response, reissue with If-None-Match to expect 304; verify Cache-Control/ETag presence on 200 and absence/policy on 4xx/5xx as applicable.",
+              "Add rate limiting tests: send bursts beyond expected thresholds to verify 429 Too Many Requests (or document N/A) and validate Retry-After header if applicable.",
+              "Include RBAC test: valid token without required role/permission should yield 403 Forbidden (if Kill Bill enforces granular permissions).",
+              "Validate error schema: assert full error response contract (HTTP code, errorCode, message, type) for 400/401/404/503 and ensure Content-Type is application/json (or problem+json) for errors.",
+              "Strengthen schema checks: validate the success payload against the InvoiceItem OpenAPI/JSON schema, including required fields and that type is CREDIT_ADJ or CBA_ADJ only.",
+              "Add Accept header scenarios: valid Accept: application/json returns 200; unsupported Accept returns 406 Not Acceptable.",
+              "Verify standard headers on all responses: Date, Content-Type, and any service-specific correlation/trace IDs.",
+              "Document N/A areas explicitly (e.g., pagination) in the feature Background or comments to avoid confusion.",
+              "Add a 405 test to confirm other HTTP methods (POST/PUT/PATCH/DELETE) on this endpoint are rejected with Method Not Allowed.",
+              "Refine redundant scenarios: consolidate TC03 and TC18 (both 404 when no data) and clarify TC20 (backward compatibility) or remove if not verifiable via /1.0."
+            ],
+            "usage": {
+              "completion_tokens": 3885,
+              "prompt_tokens": 4626,
+              "total_tokens": 8511,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3008,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-10-14T06:01:23.351364",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T05:58:01.177512",
+    "benchmark_end_time": "2025-10-14T06:01:23.351360",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 202.173848,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT - Valid Request: Success path returning 204 and correctly updating the default payment method with required header (TC01).",
+              "Query parameters - payAllUnpaidInvoices: Default false when omitted and true triggers payment attempts; includes no-unpaid-invoices and high-volume cases (TC01, TC02, TC05, TC17).",
+              "Query parameters - pluginProperty: Multiple entries, empty list, and max-length are exercised (TC03, TC24, TC15).",
+              "Headers: Required X-Killbill-CreatedBy present; optional X-Killbill-Reason and X-Killbill-Comment captured in audit logs (TC01, TC04).",
+              "Validation (path params): Invalid UUID formats and partial UUIDs return 400 (TC06, TC07, TC23).",
+              "Non-Existing Resources: 404 for non-existent account/payment method and when PM does not belong to account or none exist (TC08, TC09, TC10, TC21).",
+              "Authorization: 401 for unauthorized user (TC12).",
+              "Resilience/Availability: 503 when service unavailable and 503/504 on slow downstream (TC13, TC18).",
+              "Security: Header injection is rejected; no injection executed (TC19).",
+              "Concurrency: Only one default method after concurrent PUTs; system remains consistent (TC22).",
+              "Regression: New default clears previous default (TC20).",
+              "Tolerating unexpected query param without breaking operation (TC14)."
+            ],
+            "gaps": [
+              "Idempotency is not explicitly tested: setting the already-default payment method again should be a no-op and still return 204 (and not re-trigger invoice payments).",
+              "Error contract is not validated for structure/headers: no checks that error responses are JSON with standard fields (e.g., code, message) and appropriate Content-Type.",
+              "Ambiguous status expectations weaken assertions: TC16 allows 204 or 404; TC18 allows 503 or 504; TC19 allows 400 or 422. The story specifies 204 success, 400 invalid input, 404 not found\u2014tests should assert a single expected code.",
+              "Validation for payAllUnpaidInvoices type/casing is missing (e.g., payAllUnpaidInvoices=foo, TRUE/False); ensure server returns a proper 400 for invalid boolean input and accepts canonical forms.",
+              "pluginProperty value validation/encoding not covered (e.g., URL-encoded characters, Unicode, extremely long values) and server behavior on invalid values.",
+              "State validation for paymentMethod in disallowed states (inactive/disabled/deleted) when setting as default is not covered.",
+              "Audit trail completeness: tests verify reason/comment but not that CreatedBy is recorded correctly in audit logs.",
+              "No explicit assertion that 204 responses have an empty body and appropriate headers (e.g., no Content-Type or zero Content-Length).",
+              "Server error handling (500) on backend/database failures is not exercised."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: setting an already-default payment method should return 204, not duplicate side-effects, and leave state unchanged.",
+              "Validate the error contract: assert Content-Type application/json on error, and verify standard error schema fields (code, message, details).",
+              "Make status assertions deterministic: split TC16 into two cases (exists -> 204, not exists -> 404); decide on a single expected status for TC18 and TC19 per API contract and enforce it.",
+              "Add negative tests for payAllUnpaidInvoices with invalid values (e.g., foo, 123) and mixed casing; expect 400 for invalid input and acceptance of canonical boolean values.",
+              "Extend pluginProperty tests to include URL-encoded pairs (key=value), Unicode, and very long entries; define and assert behavior for invalid/oversized values.",
+              "Add scenarios for attempting to set an inactive/disabled/deleted payment method as default and assert the expected error (likely 404 or 422/409 per API contract).",
+              "Enhance audit tests to assert CreatedBy, Reason, and Comment are all persisted and retrievable in the audit log for the operation.",
+              "Assert that 204 responses have no body (empty Content-Length) and verify headers are appropriate for no-content responses.",
+              "Introduce a fault-injection test to simulate a database or internal server failure and assert a 500 response with a proper error payload."
+            ],
+            "usage": {
+              "completion_tokens": 9447,
+              "prompt_tokens": 6898,
+              "total_tokens": 16345,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 8512,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

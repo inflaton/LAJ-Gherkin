@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-15T14:28:56.977469",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T14:27:41.516182",
+    "benchmark_end_time": "2025-10-15T14:28:56.977463",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 75.461281,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Success paths for removing all tags, specific tags, empty tagDef array, and large lists (TC01, TC02, TC04, TC12, TC16).",
+              "DELETE - Non-Existent Resource: Proper handling of non-existent bundleId with 404 (TC06).",
+              "DELETE - Concurrency: Concurrent DELETEs with no data corruption or race conditions (TC15).",
+              "Input Validation: Invalid bundleId format (400), invalid tagDef UUID (400), mixed valid/invalid tagDef (400), unexpected query params tolerated (TC05, TC07, TC13, TC11).",
+              "Headers: Required X-Killbill-CreatedBy enforced (400 when missing), optional Reason/Comment accepted (TC08, TC03).",
+              "No-Op/Empty State Handling: Deleting when bundle has no tags returns 204 (TC04).",
+              "Service Reliability: Service unavailable (503) and timeout handling (504 vs 204) are covered (TC10, TC18).",
+              "Security Hardening: Malicious header content validation (TC14).",
+              "Integration Verification: Post-deletion GET confirms state (TC17)."
+            ],
+            "gaps": [
+              "DELETE - Soft Deletes: No verification of soft-deletion semantics or audit trail entries to confirm who/why (CreatedBy/Reason/Comment) were recorded.",
+              "Idempotency: No explicit test for repeating the same DELETE (second call after first 204) and expected behavior (typically still 204 or a defined response).",
+              "TagDef Not Associated: No test where valid tagDef UUIDs are provided but are not currently on the bundle; expected behavior should be verified (ignore vs error).",
+              "Authorization Depth: Only 401 covered; no 403 Forbidden scenario for authenticated but unauthorized users.",
+              "Error Contract: No validation of error response schema/Content-Type=application/json and structured fields (code, message) for 4xx/5xx responses; also no header checks on 204 (e.g., absence of Content-Type/body).",
+              "Concurrency Variant: No tests for interleaving operations (e.g., concurrent add vs delete on same bundle) or deletes by different users to verify audit and conflict behavior.",
+              "Header Boundary/Internationalization: No tests for very long values, UTF-8, or empty string values for CreatedBy/Reason/Comment.",
+              "Rate Limiting/Throttling: No scenario validating 429 or server handling under high-frequency requests beyond functional concurrency."
+            ],
+            "recommendations": [
+              "Add a soft-delete/audit test: Perform DELETE with Reason/Comment and verify audit logs/history entries record CreatedBy/Reason/Comment appropriately.",
+              "Add idempotency tests: Call DELETE twice (with same parameters) and assert the second call behaves as defined (commonly 204) without errors.",
+              "Add scenario for valid-but-not-associated tagDef IDs and define/verify expected behavior (e.g., ignore and return 204).",
+              "Expand authorization coverage: Include a 403 Forbidden case for authenticated users lacking permissions.",
+              "Validate error contract: Assert error responses have Content-Type application/json and expected fields; also assert 204 responses have no body and no misleading Content-Type.",
+              "Add concurrency interleaving tests: Concurrent DELETE with concurrent ADD (POST/PUT) of tags; verify final state and absence of race conditions.",
+              "Add header boundary tests: Extremely long values, UTF-8, and empty strings for CreatedBy/Reason/Comment to ensure validation and encoding are handled.",
+              "Consider rate limiting: Burst DELETE requests to confirm server behavior and any 429 responses or headers like Retry-After if applicable."
+            ],
+            "usage": {
+              "completion_tokens": 1932,
+              "prompt_tokens": 4976,
+              "total_tokens": 6908,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-10-14T14:37:23.013418",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:36:16.442571",
+    "benchmark_end_time": "2025-10-14T14:37:23.013414",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 66.570843,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "PUT Method - Valid Request: Multiple scenarios (TC01, TC02, TC03, TC04..TC07, TC19) validate successful 204 responses and backend CBA recalculation for a range of account states (zero, negative, large positive, multiple transactions, regression cases).",
+              "PUT Method - Non-Existing Resource: TC08, TC17 cover behaviour when account does not exist or DB is empty and validate 400 responses.",
+              "PUT Method - Input Validation (accountId format): TC09 and TC16 test invalid/oversized accountId formats and expect 400 responses.",
+              "PUT Method - Required Header Validation: TC10, TC11, TC25, TC26 test missing/empty/whitespace/null CreatedBy header validation and appropriate 400 responses.",
+              "PUT Method - Optional Headers Handling: TC02, TC12, TC23 validate optional headers (Reason, Comment), extra/unsupported headers, and unexpected query params are tolerated.",
+              "Concurrency: TC18 covers high concurrency / race condition behaviour expectation.",
+              "Resilience / Error Handling: TC13 (network retry) and TC14 (service unavailable -> 503) cover transient and service-down error scenarios.",
+              "Security Input Handling: TC15 and TC24 attempt SQL injection / XSS in headers and assert proper error responses / no leakage.",
+              "Performance: TC20 and TC21 provide response-time targets for normal and peak loads."
+            ],
+            "gaps": [
+              "Authorization (401/403): No scenarios verify that unauthorized or insufficiently-permissioned users are rejected (the story mentions CreatedBy header but not auth token behaviour \u2014 guideline requires authorization tests).",
+              "Response Contract / Content-Type: The API spec mentions \"Produces: application/json\" but tests do not assert response headers or body content-type for error responses nor verify that successful 204 has the expected empty body and headers.",
+              "Validation of X-Killbill-Reason / Comment content rules: No tests check allowed lengths, character sets, max sizes or rejection of overly large/invalid optional header values (e.g., huge comment header).",
+              "Duplicate/Idempotency/Repeatability: No explicit tests for repeated identical requests to verify idempotency of the PUT operation beyond concurrency; duplicate submission behavior and side-effects are not asserted.",
+              "Rate Limiting / Throttling: No tests for rate limits or behavior under extreme request rates (guideline: rate limiting).",
+              "Detailed backend state verification: While many scenarios assert \"CBA should be rebalanced\", tests do not enumerate expected numerical outcomes for representative cases (e.g., exact expected CBA values), which weakens verification of correctness.",
+              "Error response content: For error scenarios (400/503/405/etc.) the tests check existence of an error but do not verify structured error fields, codes, or lack of internal detail consistently.",
+              "Caching / HTTP semantics: No tests check caching headers, ETag, or HTTP semantics beyond method not allowed (TC22).",
+              "Boundary tests for header length and header encoding/charset: Except for SQL/XSS payloads and oversized accountId, there are no tests for header size limits, non-ASCII characters, or encoding edge cases."
+            ],
+            "recommendations": [
+              "Add authorization tests: include scenarios for missing/expired/invalid auth token and users without privileges to ensure 401/403 are returned as appropriate.",
+              "Assert response contract and headers: add assertions for Content-Type and response body structure on error responses and verify 204 returns no body and appropriate headers (e.g., Cache-Control if expected).",
+              "Add header-validation boundary tests: test very large X-Killbill-Comment and X-Killbill-Reason header values, non-ASCII characters, and encoding edge cases to ensure limits and sanitization.",
+              "Add idempotency/duplicate submission tests: send repeated identical PUTs and verify state does not change after first successful operation and no duplicate side-effects (audit records, events).",
+              "Add rate-limiting tests: simulate burst traffic to verify throttling behaviour and appropriate 429 responses or headers as applicable.",
+              "Improve numeric verification of CBA recalculation: for a representative subset of accounts include exact expected CBA numeric outcomes (not just \"rebalanced\") to verify correctness of calculation logic.",
+              "Add structured error payload assertions: verify error body fields (code, message, type) and ensure no internal stack traces or sensitive info are exposed.",
+              "Add header length/charset boundary tests: include very long CreatedBy values, non-UTF8 encodings, and whitespace-only vs trimmed values to ensure robust header handling.",
+              "Consider adding caching/HTTP semantics tests only if the endpoint is expected to support caching (ETag, Cache-Control); if not, assert absence to avoid client confusion."
+            ],
+            "usage": {
+              "completion_tokens": 1250,
+              "prompt_tokens": 5515,
+              "total_tokens": 6765,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

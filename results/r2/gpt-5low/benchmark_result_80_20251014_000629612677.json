@@ -1,0 +1,101 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-10-14T00:06:29.612636",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T00:05:35.430863",
+    "benchmark_end_time": "2025-10-14T00:06:29.612629",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 54.181766,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST/Valid Payload: Single and multiple credit creation with required fields (TC01, TC02).",
+              "POST/Valid Payload: Adjusting a specific invoice via invoiceId (TC03).",
+              "POST/Valid Payload: No invoiceId creates a credit/CBA as appropriate (TC07, TC26).",
+              "POST/Query Parameters: autoCommit behavior verified when true (TC04).",
+              "POST/Query Parameters: pluginProperty passed and integration observed (TC05).",
+              "Headers: Required X-Killbill-CreatedBy present; optional Reason/Comment supported (TC01, TC06).",
+              "Response: 201 Created, response body as JSON array of InvoiceItem, Location header checked (TC01, TC02, TC03).",
+              "Error Handling 400: Missing required header, malformed JSON, missing fields, invalid accountId format, unsupported currency, invalid pluginProperty, empty body (TC10, TC11, TC12, TC14, TC15, TC16, TC21).",
+              "Error Handling 404: Account not found, invoice not found (TC08, TC09).",
+              "Validation: Positive amount handling explored (TC13).",
+              "Duplicate Submission: Retry should not create duplicates (idempotency) (TC30).",
+              "Large Payloads and Limits: Max allowed, very large payload leading to 413/400, timeout handling (TC23, TC24, TC25).",
+              "Integration Failures: Plugin unavailable (503) and plugin error (400/500) (TC28, TC29).",
+              "System Unavailable: API down returns 503 (TC17).",
+              "Security Hardening: SQL injection and XSS payload handling (TC19, TC20).",
+              "State/Business Effects: New credit invoice when none exists; balance updated with existing credits/invoices (TC26, TC27).",
+              "Non-functional: Performance under normal and peak load; resource utilization under stress (TC32, TC33, TC34)."
+            ],
+            "gaps": [
+              "Server Error Handling: No explicit scenario simulating internal DB/storage failure returning 500 (distinct from plugin errors).",
+              "Content Negotiation: No checks for request Content-Type=application/json and response Content-Type=application/json; no behavior when incorrect Content-Type or missing Accept header.",
+              "autoCommit default semantics: No scenario verifying that omitting autoCommit leaves invoice uncommitted and requires manual commit.",
+              "Array semantics: No scenario for an empty JSON array ([]) body; expected 400 vs no-op is unspecified and untested.",
+              "Mixed validity in batch: No test where the array contains both valid and invalid items to confirm all-or-nothing vs partial success behavior and error reporting.",
+              "Cross-account items: No scenario with multiple InvoiceItems across different accountIds to confirm policy (allowed vs rejected with 400/409).",
+              "Amount validation boundaries: No tests for zero amount, excessively large magnitude, currency precision/scale rounding, or min/max constraints.",
+              "itemType validation: No negative test for unsupported itemType values and ensuring CREDIT_ADJ/CBA_ADJ are enforced/derived correctly.",
+              "Location header optionality: Tests assert Location header presence, while story says it may be present; no scenario allowing it to be absent without failing the test.",
+              "Response headers: No verification of Produces application/json beyond body shape; no checks for other standard headers (e.g., Location for multiple resources, correlation/request-id if applicable).",
+              "Authorization breadth: 401 unauthenticated (no/invalid auth token) not explicitly covered beyond missing CreatedBy; permission model beyond 403 not detailed."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate an internal server error (e.g., DB failure) returning 500 to complete POST server error handling coverage.",
+              "Add content negotiation tests: reject requests without Content-Type=application/json (415) or with wrong media type; verify response Content-Type=application/json.",
+              "Add a test for default autoCommit=false verifying the invoice remains uncommitted when the query param is omitted, and that a manual commit (via subsequent operation) is required.",
+              "Add a scenario sending an empty JSON array ([]) and assert the expected behavior (preferably 400 with a clear validation message).",
+              "Add a mixed-validity batch scenario to confirm transactional behavior (all-or-nothing vs partial success) and validate error structure per item if partial is supported.",
+              "Add a cross-account batch scenario (InvoiceItems with different accountIds) to confirm whether it is allowed; if not, assert appropriate 400/409.",
+              "Extend amount validation: zero value, extremely large amounts, precision/scale per currency, and rounding behavior; include clear expected codes (400).",
+              "Add negative tests for invalid itemType and a positive test asserting correct derivation/enforcement of itemType (CREDIT_ADJ vs CBA_ADJ) based on presence of invoiceId.",
+              "Relax Location header assertions or add a scenario that accepts its optional nature to match the story (\u201cmay point to created resources\u201d).",
+              "Verify response headers: ensure Produces application/json is honored; if multiple resources are created, define and test Location header behavior (single vs none vs collection URI).",
+              "Add an explicit 401 unauthorized scenario (e.g., missing/invalid auth token) if applicable to the API gateway/security layer to round out auth coverage."
+            ],
+            "usage": {
+              "completion_tokens": 2404,
+              "prompt_tokens": 8287,
+              "total_tokens": 10691,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

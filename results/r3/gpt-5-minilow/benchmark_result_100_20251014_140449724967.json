@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-14T14:04:49.724940",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:03:18.631650",
+    "benchmark_end_time": "2025-10-14T14:04:49.724936",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 91.093286,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC07, TC20, TC23) verify successful deletion of all or specific custom fields and expected 204 responses.",
+              "Query Parameters: Many combinations are tested (no customField, single, multiple, max/min, unexpected extra param, large number of params, non-existent IDs, partial invalid inputs) covering typical query-parameter behaviors.",
+              "Header Handling: Required header presence and absence are tested (TC11), optional headers X-Killbill-Reason and X-Killbill-Comment are exercised (TC03), and invalid header content (XSS) is tested (TC17).",
+              "Input Validation: Invalid paymentId format, malformed customField IDs, and SQL-injection-like input are covered (TC08, TC13, TC16, TC18).",
+              "Authorization: Authentication failure is tested (TC12) to ensure 401 handling.",
+              "Non-Existent Resource: Non-existent payment is tested (TC09) to verify 404 handling.",
+              "Error and Availability: Service unavailable behavior and heavy-load/performance are considered (TC14, TC19).",
+              "Integration / Audit: Both successful audit log integration and audit-service-unavailable cases are included (TC21, TC22).",
+              "Regression and Backward Compatibility: Regression scenario and legacy client compatibility are present (TC20, TC23)."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No explicit test for concurrent deletions or race conditions where another actor deletes or modifies the same custom fields concurrently (DELETE guideline: Concurrency).",
+              "Soft Delete Semantics: No checks for soft-delete vs hard-delete behavior (e.g., removed fields still present in audit/history or flagged as deleted).",
+              "Idempotency / Duplicate Requests: No test to ensure repeated identical DELETE requests are idempotent (DELETE should typically be idempotent).",
+              "Partial-success semantics: While partial invalid input is tested to produce 400 (TC16), there is no test for behavior when some requested IDs exist and some do not (should it remove existing ones and ignore non-existent ones or fail atomically?).",
+              "Rate Limiting / Throttling: No tests to validate behavior under rapid repeated requests or rate limits.",
+              "Boundary/value constraints unclear: The story specifies UUID format and pattern but the tests do not assert specific pattern enforcement beyond generic malformed cases; also maximum allowed number of query params is tested (TC06/TC15) but the service limit (if any) and resulting behavior when limits are exceeded are not specified or tested.",
+              "Response Headers / Content-Type: Tests assert empty body and status codes but do not assert response headers (e.g., Content-Type on error responses, caching headers if any).",
+              "Audit error handling determinism: TC22 allows either 204 or 503 depending on error handling; this leaves behavior under-specified and no test asserts consistent policy (retry vs. fail)."
+            ],
+            "recommendations": [
+              "Add concurrency tests: simulate two clients concurrently deleting overlapping sets of custom fields to verify atomicity, race handling, and correct final state.",
+              "Test soft-delete semantics and auditing: add scenarios that verify whether removals are soft (flagged) or hard (irreversible), and that audit/history entries reflect the correct state and metadata.",
+              "Add idempotency/duplicate request tests: send the same DELETE twice and assert the second returns 204 with no side effects (or the documented behavior).",
+              "Clarify and test partial-success behavior: define whether deletion should be atomic or partial; add tests where some customField IDs exist and others do not to assert the agreed behavior.",
+              "Add rate-limiting/throttling tests: fire many DELETE requests in short succession to validate 429 or other throttling behavior if applicable.",
+              "Explicitly assert response headers and error payload structure: test Content-Type, structured error codes/messages, and any audit-related headers.",
+              "Tighten limits/boundary tests: if the service has documented limits for number of query parameters or payload size, add negative tests that exceed those limits and assert expected error codes.",
+              "Make audit-service failure deterministic in tests: decide on expected behavior (fail the DELETE or succeed and log asynchronously) and add tests that assert that policy so regression is detectable."
+            ],
+            "usage": {
+              "completion_tokens": 1225,
+              "prompt_tokens": 6120,
+              "total_tokens": 7345,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-09-28T05:12:20.979819",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:11:54.767708",
+    "benchmark_end_time": "2025-09-28T05:12:20.979813",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 26.212105,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Payload: Happy path (TC01) and many variations (TC02, TC03, TC04, TC05, TC22, TC26) verify successful creation and response 201 with Location header and response body.",
+              "Required/Optional Headers: Presence/absence of X-Killbill-CreatedBy (TC05, TC13) and optional X-Killbill-Reason / X-Killbill-Comment (TC02) are tested.",
+              "Path parameter validation: Invalid format (TC07), missing accountId (TC08), and non-existent account (TC09) map to 400/404 error handling specified in the story.",
+              "Request body validation: Malformed JSON (TC10), missing required fields (TC11), invalid email format (TC12), empty body (TC17), extra/unexpected fields (TC06) are covered.",
+              "Error & dependency handling: External dependency down (TC15), slow DB/timeouts (TC19) and network retries (TC25) cover service-unavailable / degraded scenarios.",
+              "Security validation: SQL injection and XSS attempts (TC23, TC24) are included.",
+              "Concurrency & duplicate handling: Concurrent requests (TC20) and duplicate/previous-problematic inputs (TC21) address race conditions and regression cases.",
+              "Boundary & size: Large payload/boundary test (TC16) is present to exercise limits.",
+              "Integration/consistency: Follow-up visibility / propagation checks (TC26) ensure created email is retrievable and visible to downstream systems.",
+              "Authorization: Unauthorized access is addressed (TC14) with expected 401/403 variants.",
+              "Documentation & usability: Error message clarity and documentation (TC27) is noted."
+            ],
+            "gaps": [
+              "Explicit duplicate-submission/idempotency behavior: No deterministic test states expected behavior for repeated identical POSTs (should it create duplicates, be idempotent, or reject). TC20 checks concurrency but not deterministic duplicate semantics.",
+              "Exact schema/contract assertions: Tests check presence of AccountEmail object but do not assert full schema fields, types, required/optional field-level validations or that response is an array of AccountEmail objects conforming exactly to definitions (including IDs, timestamps).",
+              "Location header format and follow-up retrieval: While Location presence is asserted in many tests, there is no explicit test that GETting the Location returns the single created resource (TC01 & TC26 partially cover but not assert Location->GET round trip for the created resource).",
+              "Behavior with extra/unsupported fields is ambiguous: TC06 allows either 201 or 400 depending on API behavior; there is no strict expectation\u2014tests should assert the intended API contract.",
+              "Server 500 handling and logging: There is coverage for 503 (dependency down) but not explicit tests for 500 Internal Server Error scenarios or consistent error payloads for server errors.",
+              "Content-Type / Accept header handling: No tests for missing or incorrect Content-Type (should be application/json) or Accept header negotiation.",
+              "Rate limiting / throttling: No tests for rate limiting or how many rapid requests are handled (standard guideline missing).",
+              "Caching & related headers: Although not typical for POST, there are no checks for any caching or cache-busting behavior where relevant (e.g., Location responses), nor ETag usage for subsequent GET.",
+              "Exact authorization header formats and required permissions: TC14 allows 401/403 but does not exercise different roles/scopes or token formats to verify fine-grained authorization behavior.",
+              "Negative performance SLA assertions: There are performance-related scenarios (TC19) but no clear pass/fail thresholds or load testing for contention beyond concurrency functional correctness."
+            ],
+            "recommendations": [
+              "Add deterministic duplicate submission tests: define expected behavior (create duplicate vs reject vs idempotent) and add tests that POST the same AccountEmail twice, asserting exact response codes and database state.",
+              "Tighten schema/contract tests: Add assertions that response array items match the AccountEmail schema (field names, types, presence of id/timestamps) and validate the array length and contents precisely.",
+              "Location -> GET round-trip: After creation assert that the Location header is a valid URL and that a GET to it returns the created AccountEmail (201 -> Location -> GET returns 200 and correct payload).",
+              "Make TC06 deterministic: Decide API contract for extra fields (strip/ignore vs reject) and convert TC06 into explicit pass/fail assertions instead of \"201 or 400\".",
+              "Add server-error (500) scenarios and consistent error payload checks: Simulate unhandled server exceptions, assert 500 responses, and verify error body format and logging hooks.",
+              "Add Content-Type and Accept header tests: missing/incorrect Content-Type should return 415 or 400 as appropriate; test Accept header behavior.",
+              "Introduce rate-limiting/throttling tests: simulate a burst of requests and assert 429 or configured throttling behavior and acceptable retry semantics.",
+              "Add tests for authorization scopes/roles: exercise tokens with insufficient privileges to ensure 403 vs 401 and meaningful error messages.",
+              "Add stricter performance/SLAs for latency: for TC19 and TC20 define acceptable response-time thresholds and add automated checks under load.",
+              "Add explicit tests for large payload limits that assert exact behavior (max sizes) instead of \"201 or 400\", and include tests for server memory/streaming behavior if applicable.",
+              "Add tests that verify sanitization/encoding of malicious input not only rejects but also prevents downstream propagation (verify stored value is sanitized or stored raw depending on policy)."
+            ],
+            "usage": {
+              "completion_tokens": 2056,
+              "prompt_tokens": 6487,
+              "total_tokens": 8543,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

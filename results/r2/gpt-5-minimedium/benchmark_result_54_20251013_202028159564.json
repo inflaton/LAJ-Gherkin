@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-13T20:20:28.159538",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T20:19:52.168466",
+    "benchmark_end_time": "2025-10-13T20:20:28.159533",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 35.991067,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC16) validate successful deletion of all tags, specific tags, and empty-array behavior.",
+              "Empty Response: TC01, TC04, TC12, TC16 validate handling of empty/no-content responses (204) for various cases.",
+              "Query Parameter Validation: Tests cover valid tagDef lists, invalid tagDef formats, mixed valid/invalid tagDef (TC07, TC13), extra unexpected query parameters (TC11), and very large parameter lists (TC12, TC18).",
+              "Path Parameter Validation: Invalid bundleId format and non-existent bundle cases are covered (TC05, TC06).",
+              "Header Handling: Required header missing is tested (TC08); presence/use of X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment is covered (background + TC03).",
+              "Authorization and Availability: Unauthorized access (TC09) and service unavailable (TC10) are included.",
+              "Concurrency & Performance: Concurrent requests and race condition detection are addressed (TC15) and large-scale timeout behavior is considered (TC18).",
+              "Security / Injection: Header injection/XSS is considered (TC14).",
+              "Integration / Data Consistency: Post-deletion verification via GET is in TC17."
+            ],
+            "gaps": [
+              "Soft-delete semantics: No tests verify whether tags are soft-deleted (logical delete) vs permanently removed, or whether deleted data remains queryable via audit endpoints.",
+              "Server error handling (5xx) beyond 503/504: No explicit tests for 500/internal errors or DB failures and how they are surfaced to clients.",
+              "Idempotency / repeated deletes: No scenario that repeatedly issues DELETE for the same tag(s) to verify idempotency and expected status codes for subsequent calls.",
+              "Valid-but-nonexistent tagDef behavior: Tests do not cover the case where tagDef UUIDs are syntactically valid but refer to tag definitions that do not exist\u2014expected behavior (ignore vs error) isn\u2019t specified or tested.",
+              "Response headers / Content-Type: Acceptance mentions producing application/json but tests do not assert response headers (Content-Type, Cache-Control, ETag) or check consistency for 204 responses.",
+              "Authorization nuance: Test uses 401 for unauthorized user but does not cover 403 (forbidden) or role-based access variations.",
+              "Rate limiting / throttling: Apart from concurrency perf test, there are no tests for rate limiting, throttling behavior or graceful degradation under high request rates.",
+              "Pagination / GET-specific behaviors: Standard GET guidelines (pagination, caching) are not covered in depth. While only indirectly relevant, pagination/cursor behavior for any listing endpoints used in verification is not tested.",
+              "Edge-case header validation: Tests check missing header and injection but do not validate invalid header values (too long, invalid characters) beyond injection scenarios.",
+              "Partial success semantics: No explicit test for mixed results when deleting multiple tagDefs where some succeed and some fail (e.g., due to concurrent modifications)."
+            ],
+            "recommendations": [
+              "Add idempotency tests: Send the same DELETE twice (or more) and assert the second/last calls return appropriate status (204 or other expected behavior) and no errors.",
+              "Test valid-but-nonexistent tagDef UUIDs: Define expected behavior (ignore, 204, or 400/404) and add tests accordingly.",
+              "Add server-failure simulations: Introduce tests that simulate DB failure or internal errors and validate 500 responses and error payloads.",
+              "Clarify & test soft-delete vs hard-delete: If system retains an audit trail, add tests to validate audit logs or soft-delete indicators after deletion.",
+              "Assert response headers: Add assertions for Content-Type, Cache-Control, ETag (where applicable) and confirm behavior for 204 responses aligns with the API contract (acceptance noted application/json).",
+              "Expand authorization coverage: Add tests for 403/role-based access, token-expiration, and scopes to fully cover authorization semantics.",
+              "Add rate-limiting tests: Verify throttling, proper 429 responses, and graceful handling under sustained high request rates in addition to concurrency tests.",
+              "Cover partial-success and concurrent-modification scenarios: Test deleting overlapping tag sets from parallel clients to ensure predictable outcomes and define contract for partial failures.",
+              "Add boundary/header-validation tests: Validate very long header values, non-UTF-8 characters, and strict header sanitization beyond XSS cases.",
+              "If GET/listing endpoints are used for verification, add pagination and caching tests for those endpoints (ETag, Cache-Control) to satisfy the GET-method guidelines and ensure integration checks are robust."
+            ],
+            "usage": {
+              "completion_tokens": 1943,
+              "prompt_tokens": 4976,
+              "total_tokens": 6919,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

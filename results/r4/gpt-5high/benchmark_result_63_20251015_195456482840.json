@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-15T19:54:56.482797",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:53:17.958313",
+    "benchmark_end_time": "2025-10-15T19:54:56.482791",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 98.524478,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT - Valid Request: Immediate pause, scheduled pause via requestedDate, pluginProperty usage, and optional headers verified (TC01\u2013TC05).",
+              "PUT - Non-Existing Resource: 404 for unknown bundleId and empty database covered (TC07, TC20).",
+              "PUT - Concurrency Issues: Only one of concurrent pauses succeeds; others fail appropriately (TC21).",
+              "Input validation: UUID format, requestedDate past/invalid, malformed pluginProperty, and missing required header covered (TC06, TC10, TC17\u2013TC19).",
+              "Authorization: Unauthenticated/unauthorized user returns 401 (TC11).",
+              "Invalid state handling: Already paused and canceled return 400 per story (TC08, TC09).",
+              "Resilience/Server errors: 503 service unavailable and 502 dependency failure covered (TC12, TC25).",
+              "Security hardening: SQL injection and XSS attempts validated (TC13, TC14).",
+              "Data integrity/regression: Only targeted bundle is affected; downstream consistency checked (TC23, TC26).",
+              "Performance/load: Bulk pause response time and stability validated (TC22)."
+            ],
+            "gaps": [
+              "Response headers/body: Story says Produces application/json, but tests do not assert Content-Type headers; 204 responses should have no body and this is not validated.",
+              "Plugin property encoding: collectionFormat is multi; no scenario verifies multiple pluginProperty entries as repeated query params (e.g., pluginProperty=a&pluginProperty=b), duplicates, or empty list behavior.",
+              "Error contract: Tests look for generic error messages but do not assert error schema/fields (e.g., code, message) across 400/404/5xx.",
+              "Authorization granularity: Only 401 tested; no 403 scenario for authenticated user lacking permission.",
+              "Idempotency beyond concurrency: No sequential repeat-call test (e.g., pause then pause again after prior success or while scheduled) to clarify expected outcome.",
+              "Scheduling semantics: No verification that the bundle remains active until requestedDate and transitions to paused at that date (and time zone/date-boundary handling).",
+              "Audit logging completeness: Reason/comment are asserted, but CreatedBy presence in audit logs is not verified.",
+              "Unexpected request body: Endpoint has no body; no test to ensure a non-empty body is rejected or ignored per API contract.",
+              "Header/value boundaries: No tests for max length/charset of X-Killbill-Reason and X-Killbill-Comment, or for header case-insensitivity."
+            ],
+            "recommendations": [
+              "Add checks on 204 responses to assert no body and verify Content-Type/Accept behavior; confirm Produces application/json on error responses.",
+              "Add scenarios to send pluginProperty as repeated query params (multi), including duplicates, URL-encoded keys/values, empty list, and very long values; assert definitive outcome (204 vs 413).",
+              "Define and assert a consistent error response schema (e.g., JSON fields like code/message) for 400/404/5xx and validate it in all negative tests.",
+              "Introduce a 403 Forbidden scenario for an authenticated user without the necessary permission; keep 401 for unauthenticated.",
+              "Add idempotency tests for sequential calls: immediate pause twice; scheduled pause called twice with same/different requestedDate; document and assert the expected status code.",
+              "Expand scheduled pause tests: verify state remains active before requestedDate, flips to paused on requestedDate, and subscriptions follow; include date boundary/time zone cases.",
+              "Verify audit logs include X-Killbill-CreatedBy along with reason/comment and correct timestamps and bundleId.",
+              "Add a test sending an unexpected request body to ensure the API rejects it with 400 or ignores it by contract.",
+              "Add boundary tests for header lengths/characters (Reason/Comment), and confirm header name case-insensitivity per HTTP spec."
+            ],
+            "usage": {
+              "completion_tokens": 6070,
+              "prompt_tokens": 6254,
+              "total_tokens": 12324,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5248,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

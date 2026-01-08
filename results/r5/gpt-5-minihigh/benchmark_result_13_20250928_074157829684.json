@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-09-28T07:41:57.829657",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:40:20.993936",
+    "benchmark_end_time": "2025-09-28T07:41:57.829653",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 96.835717,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid deletion (204) for default and explicit parameter combinations; DB state verification that account is marked closed (TC01, TC02, TC03, TC06, TC19, TC20).",
+              "Comprehensive query-parameter functional coverage for defaults, all-true, all-false, each-flag individually, and many pairwise combinations; extra/unknown query parameter ignored (TC01-TC05, TC13).",
+              "Header handling and validation: required X-Killbill-CreatedBy presence and missing-header behavior (TC09); X-Killbill-Comment sanitization/XSS check (TC16); background ensures headers present for positive tests.",
+              "Authentication/Authorization checks for missing and invalid tokens (401) are present (TC10).",
+              "Path-parameter validation and security: invalid UUID format and SQL-injection attempt handling (TC08, TC15).",
+              "Idempotency and non-existing resource semantics: already-closed and non-existent account return 204 and do not cause errors (TC11, TC12).",
+              "Error handling for server-side failure is included (DB unavailable -> 500) (TC14).",
+              "Performance and scale scenarios: large volumes (1000 subscriptions/invoices) and concurrency across multiple accounts (TC07, TC18).",
+              "Retry/transient-network handling with idempotent retry behavior (TC17).",
+              "Accessibility/documentation and clarity of error messages are tested (TC21)."
+            ],
+            "gaps": [
+              "Invalid query-parameter types and malformed boolean values are not tested (e.g., \"1\", \"yes\", \"TRUE\", or random strings) \u2014 current tests only use valid boolean values or omission.",
+              "Combinatorial coverage is incomplete: no tests exercise 3-of-4 flag combinations or exhaustively cover all 2^4 boolean permutations (only individual flags, pairs, all-true/all-false are present).",
+              "Transactional/partial-failure behavior is missing: no scenarios simulate downstream service failures (subscription or invoice subsystems) that fail mid-operation to verify rollback or compensation semantics.",
+              "Concurrent deletion of the same account (race conditions / locking) is not covered \u2014 TC18 uses unique accounts rather than simultaneous deletes of one account.",
+              "Audit/logging verification is absent: tests do not confirm that X-Killbill-CreatedBy, X-Killbill-Reason, X-Killbill-Comment are recorded in audit trails or closure metadata.",
+              "Response payload structure and headers are not asserted (e.g., Content-Type: application/json for errors, error JSON schema, or that 204 responses have no body and proper headers).",
+              "Behavior when flags are set but there are no target resources (e.g., writeOffUnpaidInvoices=true but no unpaid invoices) is not explicitly tested to ensure graceful no-op behavior.",
+              "Negative tests for invalid or oversized header values and other input-size/DoS vectors are missing (e.g., very long comments).",
+              "Rate limiting / throttling behavior is not tested.",
+              "Partial downstream failures (subscription service down but invoice service available) and their handling/compensation are not covered."
+            ],
+            "recommendations": [
+              "Add tests for malformed or non-boolean query parameter values and verify the API returns the documented validation error (400) or clearly documented coercion behavior.",
+              "Add combinatorial tests for 3-of-4 flag combinations (and targeted additional permutations) or adopt a pairwise + targeted higher-order strategy to cover interactions that affect business logic.",
+              "Introduce transactional integrity tests that simulate failures in dependent services (subscription service, invoice processing) to verify rollback/compensation or clear error reporting and ensure no partial account closure/state corruption.",
+              "Add concurrency tests that issue multiple DELETEs simultaneously for the same account (race-condition scenario) to validate locking, idempotency, and that side-effects are executed exactly once.",
+              "Assert response headers and error payload schema (Content-Type: application/json, consistent error fields like code/message) for 4xx/5xx cases and explicitly assert 204 responses contain no body and expected headers.",
+              "Add tests to verify that X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment are persisted to audit logs/closure metadata and that special characters/length limits are handled/sanitized.",
+              "Add tests for flags set when there is nothing to act on (e.g., writeOff true but no unpaid invoices) to ensure the operation is a no-op and does not produce errors or unexpected audit entries.",
+              "Add negative tests for oversized or malicious header values and run rate-limiting/throttling tests if the API enforces quotas.",
+              "Formalize performance SLAs for the large-volume and concurrency tests (TC07/TC18) and add automated assertions for latency/throughput to detect regressions.",
+              "Add chaos/failure-injection tests where downstream services intermittently fail or time out to verify retry, backoff, and final-consistency behaviour."
+            ],
+            "usage": {
+              "completion_tokens": 8525,
+              "prompt_tokens": 6316,
+              "total_tokens": 14841,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7488,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

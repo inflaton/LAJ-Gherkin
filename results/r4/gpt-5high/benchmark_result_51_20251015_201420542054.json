@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-15T20:14:20.542000",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T20:12:16.560771",
+    "benchmark_end_time": "2025-10-15T20:14:20.541996",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 123.981225,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST/Valid Payload: Success paths with minimal and full inputs, including response 201, valid Bundle JSON, and Location header (TC01, TC02).",
+              "Query parameters: requestedDate, billingPolicy (all valid enum values), and pluginProperty handled in success flows (TC02\u2013TC05, TC18).",
+              "Headers: Required X-Killbill-CreatedBy present; optional X-Killbill-Reason and X-Killbill-Comment exercised (TC01, TC02, TC21, TC26).",
+              "Validation/Invalid payloads: 400s for invalid bundleId format, requestedDate, billingPolicy, missing body, missing required header; input hardening for SQLi/XSS (TC08\u2013TC12, TC15, TC16).",
+              "Not-found handling: 404s for non-existent bundle and/or target account; empty DB and partial population states covered (TC06, TC07, TC22, TC23).",
+              "Server error handling: 500 and 503 paths validated (TC24, TC14).",
+              "Resilience: Retry after transient failure (TC17).",
+              "Performance/concurrency: Normal/peak response time, concurrent requests, and resource utilization (TC27\u2013TC30).",
+              "Regression/business rule: Transfer to same account not allowed (TC25)."
+            ],
+            "gaps": [
+              "Duplicate submission/idempotency: No explicit test for submitting the exact same transfer twice (no network error) to define expected behavior (e.g., 201 then 409 or safe reapply).",
+              "Defaults: No test proving billingPolicy defaults to END_OF_TERM when omitted.",
+              "Defaults: No test for requestedDate omission to confirm effective date behavior (e.g., today/immediate).",
+              "Target accountId validation: Missing 400 test for invalid accountId format (non-UUID/empty/whitespace).",
+              "Content negotiation/headers: No test for missing or incorrect Content-Type (application/json) leading to 415/400; no Accept header behavior.",
+              "Body schema edge: No scenario where request body is present but missing accountId (vs. entirely missing body) to assert a 400.",
+              "pluginProperty encoding: No explicit coverage of collectionFormat=multi semantics (e.g., repeated query keys) and special-character encoding.",
+              "Response schema depth: Scenarios assert a \"valid Bundle object\" but do not validate key fields/schema rigorously (e.g., IDs, account linkage, status, timestamps).",
+              "Authorization/permissions: 401 covered, but no 403 forbidden test for authenticated user lacking permission (if applicable).",
+              "Temporal validation: No boundary tests for requestedDate in past/future and timezone nuances (format=date)."
+            ],
+            "recommendations": [
+              "Add a duplicate submission test: perform the same POST twice without failures; assert defined behavior (e.g., second call returns 409 Conflict or idempotent 200/201 with unchanged state).",
+              "Add defaulting tests: omit billingPolicy and verify default END_OF_TERM is applied; omit requestedDate and verify effective date semantics.",
+              "Add target accountId format validation: non-UUID, empty, and whitespace-only values should return 400 with clear error messages.",
+              "Add content negotiation tests: missing/incorrect Content-Type should return 415 (or 400 per service rules); include Accept header test for application/json.",
+              "Add body-without-accountId test: provide a Bundle body missing accountId to ensure a 400 is returned with a precise validation error.",
+              "Add pluginProperty encoding tests: send repeated pluginProperty query parameters (collectionFormat=multi), URL-encoded special characters, and verify server interprets them correctly.",
+              "Strengthen response schema validation: assert required Bundle fields (ids, accountId changed to target, bundle key, state, timestamps) and verify schema compliance.",
+              "Add permission/role-based test for 403 Forbidden if the platform differentiates between unauthenticated (401) and unauthorized (403) users.",
+              "Extend requestedDate temporal tests: past date, future date, and timezone boundaries; ensure consistent effective date handling and error messaging where applicable."
+            ],
+            "usage": {
+              "completion_tokens": 5862,
+              "prompt_tokens": 7734,
+              "total_tokens": 13596,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4992,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

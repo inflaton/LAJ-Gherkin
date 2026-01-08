@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-13T04:38:38.219770",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:38:18.697470",
+    "benchmark_end_time": "2025-10-13T04:38:38.219766",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 19.522296,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Covered by TC01 (happy path) and repeated in other happy-paths (TC09, TC14, TC22).",
+              "Non-Existing Resource: Covered by TC04 and TC15 (404 when bundle not found).",
+              "Input Validation: Multiple invalid-input scenarios covered: malformed bundleId (TC03), malformed JSON (TC07), missing body (TC06), missing externalKey (TC08), empty externalKey (TC11), extra fields (TC09).",
+              "Duplicate / Conflict: Covered by TC05 (externalKey already used for same account).",
+              "Headers / Required Metadata: Required header validation covered (TC02 for missing X-Killbill-CreatedBy) and optional headers covered (TC14 for X-Killbill-Reason and X-Killbill-Comment).",
+              "Authorization: Authentication/authorization error scenarios are covered (TC12 covers missing/invalid token leading to 401/403).",
+              "Concurrency: Concurrent update behavior covered (TC17).",
+              "Edge cases / limits: Large payloads and long keys covered (TC10, TC16), special characters and whitespace handling covered (TC19, TC20).",
+              "Integration / Dependency failures: Service unavailable scenario covered (TC13).",
+              "Regression / Compatibility: Regression and backward-compatibility scenarios included (TC18, TC22).",
+              "Performance: Response time under normal load and large-payload timing considerations covered (TC23, TC16).",
+              "Operational/Documentation: API documentation accessibility is included (TC24)."
+            ],
+            "gaps": [
+              "Partial Update Semantics: No explicit test asserting that partial updates are rejected vs allowed (e.g., if additional bundle fields are present should they be ignored/rejected). The story implies a full Bundle object with only externalKey relevant; explicit behavior for partial/extra-updates beyond extra fields is not asserted (TC09 touches extra fields but accepts them\u2014this should be explicit).",
+              "Response Body / Content-Type Expectations on Success: The story states \u201cProduces: application/json\u201d and the success response code is 204. There are no assertions that the response body is empty on 204 or that response Content-Type and body shape for error responses conform to application/json. Tests should verify returned Content-Type and response body schema for errors/success (even empty).",
+              "Exact Error Codes & Messages for Some Cases: Several scenarios accept multiple possible status codes (e.g., TC10, TC11, TC16, TC17, TC19, TC20 allow 204 or 400/409). The story lists specific error codes for certain conditions (400 for invalid args, 404 for not found). Tests do not assert exact error codes/messages for all validation failures (e.g., empty externalKey should be asserted to be 400 and include a clear error message).",
+              "Account-scoped uniqueness matrix: Tests cover conflict when another bundle on the same account uses the key (TC05) but there is no explicit test validating that the same externalKey can be reused across different accounts (allowed behavior) or that uniqueness is strictly account-scoped."
+            ],
+            "recommendations": [
+              "Add explicit Partial Update tests: create a scenario that attempts to update other Bundle fields in the same request and assert whether they are ignored or rejected, making the expected behavior explicit.",
+              "Verify response headers and bodies: Add assertions ensuring 204 responses have empty bodies, and that error responses use Content-Type application/json and follow the error schema and include consistent error messages/codes.",
+              "Tighten error-code expectations: Replace ambiguous \u201c204 or 400\u201d expectations with precise expected outcomes for each edge-case where the product has a defined behavior; where behavior is implementation-defined, create tests to lock down desired behavior (e.g., max externalKey length), then enforce it in the spec and tests.",
+              "Add cross-account uniqueness tests: Add a test confirming that duplicate externalKey across different accounts is allowed (or disallowed if intended), to make account-scoped uniqueness explicit.",
+              "Add rate-limiting/resilience tests if required by non-GET guidelines: While rate-limiting is more relevant to GET/POST, if the API enforces throttling globally, add a test for repeated rapid PUTs to verify throttling/429 behavior.",
+              "Add tests for precise authorization scenarios: Expand TC12 into separate tests that assert 401 vs 403 depending on unauthenticated vs unauthorized (insufficient privileges) callers, if API distinguishes them.",
+              "Document and assert schema for error payloads: Create tests that validate the structure of error responses (e.g., fields like code, message, field) so clients can programmatically react to errors."
+            ],
+            "usage": {
+              "completion_tokens": 1360,
+              "prompt_tokens": 6051,
+              "total_tokens": 7411,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 384,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

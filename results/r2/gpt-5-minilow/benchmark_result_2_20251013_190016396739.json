@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-10-13T19:00:16.396710",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:59:46.939276",
+    "benchmark_end_time": "2025-10-13T19:00:16.396706",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 29.45743,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01, TC02, TC03, TC04, TC05, TC18) verify successful creation with single/multiple tags, optional headers, pre-existing tags, and a large payload boundary.",
+              "Invalid Payload / Validation: TC07, TC08, TC09, TC10, TC17, TC23 cover empty body, malformed body, invalid UUID formats, non-existent tag definitions, unexpected fields, and regression for special characters.",
+              "Headers & Required Fields: TC03 and TC11 verify required and optional header handling (CreatedBy required, Reason/Comment optional).",
+              "Path Parameter Validation: TC12, TC13, TC14 validate missing, malformed, and non-existent accountId cases.",
+              "Authentication & Authorization: TC15 checks unauthorized requests (missing/invalid token).",
+              "Error Handling: TC16 simulates dependency/service unavailability (503).",
+              "Duplicate Handling: TC19 verifies deduplication behavior within a request; TC05 checks adding when tags already exist.",
+              "Concurrency & Race Conditions: TC21 covers concurrent requests and asserts no duplicate tags.",
+              "Security / Injection: TC22 checks header injection sanitization behavior.",
+              "Backward Compatibility / Regression: TC24 ensures compatibility with the specified API version."
+            ],
+            "gaps": [
+              "Server Error Spectrum: Only a 503 dependency failure is covered (TC16). There is no explicit coverage for 500 Internal Server Error scenarios (e.g., DB exception producing 500).",
+              "Rate Limiting / Throttling: No tests exercise rate limiting, burst requests, or throttling behavior (distinct from TC21 concurrency behavior).",
+              "Idempotency / Duplicate Submissions across requests: TC19 covers duplicates within one request; there is no explicit test for duplicate submissions of the same request across time (replay/at-least-once delivery).",
+              "Response Headers & Caching: No scenarios validate response headers (Content-Type is indirectly implied) or caching-related headers (ETag, Cache-Control) \u2014 even if not typical for POST, the guidelines mention caching behavior for endpoints that might return resources.",
+              "Detailed Response Schema Validation: While responses are asserted to be arrays of Tag objects, there is no explicit negative test for missing/extra fields within returned Tag objects or schema evolution cases (e.g., unexpected/missing fields in response).",
+              "Rate/Performance Limits: TC20 checks latency for a single request (2s) but there are no load or sustained throughput tests (e.g., how system behaves under sustained high request rate).",
+              "Pagination semantics: TC06 includes query params and asserts they are ignored for this POST; however the standard GET pagination guideline (proper pagination handling for large datasets) is not applicable to POST and thus untested for endpoints that might also be used to fetch tags."
+            ],
+            "recommendations": [
+              "Add a test simulating an internal server error (500) by forcing a DB exception or similar to ensure appropriate 500 handling and error message format.",
+              "Add rate-limiting/throttling tests: burst of requests beyond expected limits to verify 429 or other throttling responses and correct headers (Retry-After) where applicable.",
+              "Add duplicate-request/idempotency tests across time: re-send identical POST multiple times to verify server behavior (create-once vs create-multiple) and consistent responses.",
+              "Validate response schema fields explicitly: tests should assert required fields of returned Tag objects (id, tagDefinitionId, objectType, objectId, createdDate, etc.) and behavior when fields are missing or extra.",
+              "Add load/sustained performance tests beyond the single-request latency (TC20) to validate throughput and stability under stress.",
+              "If the system uses or should use caching/headers for returned resources, add tests to validate Content-Type, Cache-Control and ETag or absence thereof; even for POST responses verify Content-Type and any relevant headers.",
+              "Consider negative concurrency tests that attempt conflicting operations (e.g., simultaneous add+delete) to further validate race conditions and atomicity."
+            ],
+            "usage": {
+              "completion_tokens": 1037,
+              "prompt_tokens": 6410,
+              "total_tokens": 7447,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

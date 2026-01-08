@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-09-28T11:27:25.703490",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T11:26:05.947226",
+    "benchmark_end_time": "2025-09-28T11:27:25.703486",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 79.75626,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST/Valid Payload: Multiple success paths (single/multiple tags, optional headers, pre-existing tags) assert 201, Tag array response, and DB side-effects (TC01\u2013TC05, TC24).",
+              "POST/Invalid Payload: Empty body, non-array, wrong element types, invalid UUIDs, non-existent tag definitions, missing accountId, invalid/missing required header, and non-existent account (TC07\u2013TC14, TC17, TC23).",
+              "POST/Validation: AccountId UUID format and presence; tag UUID format; optional headers accepted; extraneous query params do not affect behavior (TC03, TC06, TC11\u2013TC14, TC22\u2013TC23).",
+              "POST/Duplicate Submission: Dedup inside the same request and under concurrent requests to prevent duplicate tags (TC19, TC21).",
+              "POST/Large Payloads: Boundary test with 100 tag IDs (TC18).",
+              "POST/Server Error Handling: Dependency/service unavailable path returning 503 (TC16).",
+              "Security/Authorization: 401 for missing/invalid auth token (TC15).",
+              "Non-functional: Performance SLA within 2 seconds (TC20).",
+              "Compatibility/Versioning: Explicit coverage for API version 1.0 behavior (TC24).",
+              "Security/Sanitization: Header injection attempt does not echo script content (TC22)."
+            ],
+            "gaps": [
+              "Content negotiation and media types: No tests for missing/wrong Content-Type (e.g., text/plain) -> expect 415; no Accept header handling -> 406; no assertion that response Content-Type is application/json per Produces.",
+              "Error contract: Scenarios only check generic error messages; no validation of standardized error schema/fields or response headers for errors. Also no coverage for 500 Internal Server Error (e.g., DB exception) distinct from 503.",
+              "Atomicity: No scenario where request body mixes valid and invalid tag IDs to verify all-or-nothing behavior (no partial tag creation).",
+              "Idempotency/replay: No test for repeating the exact same POST payload (with and without an Idempotency-Key, if supported) to ensure no duplicate side-effects.",
+              "Authorization/Permissions: No 403 Forbidden scenario for authenticated user lacking permissions, despite Background stating correct permissions.",
+              "Response schema depth: Success cases don\u2019t validate the Tag object against the full #/definitions/Tag (required fields, types, invariants), only that an array is returned.",
+              "Malformed JSON: No scenario with syntactically invalid JSON (e.g., broken JSON) to confirm a 400 with appropriate error.",
+              "Spec alignment: TC05 expects response to include pre-existing tags plus new ones; story says response represents the created tags. This mismatch should be clarified and covered by tests either way."
+            ],
+            "recommendations": [
+              "Add media type and content negotiation tests: wrong/missing Content-Type -> 415; unsupported Accept -> 406; assert response Content-Type=application/json on success and errors.",
+              "Add standardized error response validation: verify error JSON schema (fields like code, message, details), and include a case for 500 Internal Server Error distinct from 503.",
+              "Introduce atomicity test: submit a mix of valid and invalid tag UUIDs; assert 400 and that no tags are created (or define/verify partial success if intended).",
+              "Add idempotency/retry tests: POST the same payload twice (and with Idempotency-Key if available) to ensure no duplicate tags and consistent responses.",
+              "Include a 403 Forbidden scenario where the user is authenticated but lacks the permission to add tags.",
+              "Strengthen success schema checks: validate Tag objects fully against #/definitions/Tag (e.g., id, tagDefinitionId, objectType, objectId, createdDate), not just count or presence.",
+              "Add a syntactically invalid JSON body case (e.g., \"{invalid\") to ensure proper 400 handling and error body.",
+              "Clarify and align response content for TC05 with the story: if only created tags should be returned, add a test asserting that pre-existing tags are not included; if all tags should be returned, update the story and add explicit tests for that contract."
+            ],
+            "usage": {
+              "completion_tokens": 4288,
+              "prompt_tokens": 6410,
+              "total_tokens": 10698,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3392,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

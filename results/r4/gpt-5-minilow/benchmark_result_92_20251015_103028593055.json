@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-15T10:30:28.593025",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:30:14.787669",
+    "benchmark_end_time": "2025-10-15T10:30:28.593020",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 13.805351,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC12, TC18) verify successful deletions, including removing all fields, a subset, single field, many fields, and duplicate IDs.",
+              "Required/Optional Headers: TC05 and TC06 exercise required and optional headers (X-Killbill-CreatedBy, X-Killbill-Reason, X-Killbill-Comment).",
+              "Input Validation: TC07 and TC10 validate invalid invoiceItemId format and malformed customField IDs returning 400.",
+              "Non-Existent Resource: TC08 verifies 404 when invoice item is not found.",
+              "Authentication/Authorization Errors: TC19 covers expired/invalid token returning 401.",
+              "Missing Required Header: TC09 covers behavior when X-Killbill-CreatedBy is missing (expects 400).",
+              "Error and Availability Handling: TC14 covers dependent service/unavailability (503 or appropriate), TC13 covers behavior under heavy load (performance expectation).",
+              "Security/Input Sanitization: TC15 tests injection attempts in customField parameter with expected rejection.",
+              "Edge Cases: TC04 covers deleting when no custom fields exist; TC11 covers extra/unexpected query parameters; TC16 covers long header values; TC17 covers mixed valid/invalid IDs behavior; TC20 is a regression test for header parsing quirks."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No explicit tests for concurrent deletes (DELETE called simultaneously by multiple actors) or deletes conflicting with concurrent updates to custom fields.",
+              "Partial-success semantics for mixed valid/invalid customField IDs: TC17 expects 400 for a mixed list, but the story/API contract doesn't define whether the operation should be atomic or best-effort; explicit tests for partial success vs atomic rollback are missing (including explicit verification of which IDs were deleted when some are valid and some not).",
+              "Behavior when specifying valid UUIDs that are not associated to the given invoice item: No scenario verifies 204 vs 404/400/partial outcome when some requested customField IDs exist in system but not for that invoice item.",
+              "Authorization vs Permission (403): Tests cover 401 (invalid/expired token) but do not cover authorized-but-forbidden scenarios (403) when the token is valid but lacks permission to delete custom fields.",
+              "Server Error Handling (500): There is no explicit test simulating an internal server error (e.g., DB failure) and verifying a 500 response and safe failure mode.",
+              "Idempotency and Repeated Requests: No tests for idempotent behavior when repeating the same DELETE request multiple times (e.g., second call should still return 204 or appropriate status).",
+              "Soft-delete vs hard-delete semantics and audit/logging: No tests verify whether deletion is soft (flagged) or permanent, or that audit trails / deletion metadata are recorded.",
+              "Response headers and content-type: No checks for produced content-type or other relevant headers (even if body empty), nor for caching headers \u2014 though caching is less relevant for DELETE, headers like Retry-After on 503 are untested.",
+              "Rate Limiting / Throttling: No tests for rate limits, throttling or handling many requests in a short burst beyond TC13 (which is load, not rate-limit behavior).",
+              "Input size/limits for query parameter length and number of query params extremes beyond 100+ (e.g., maximum allowed URL length or more stress on query parsing) are not fully explored."
+            ],
+            "recommendations": [
+              "Add concurrency tests: simulate multiple clients issuing deletes and deletes concurrent with updates to ensure no race conditions and define expected outcome (atomic vs last-writer).",
+              "Clarify and test atomicity semantics: add scenarios that assert whether mixed valid/invalid customField ID lists result in full rollback (400) or partial deletion (200/204 + details).",
+              "Test IDs not associated with the invoice item: add a scenario where customField UUIDs are valid globally but not linked to the target invoice item and assert the expected API behavior.",
+              "Include authorization/permission tests for 403 Forbidden responses to cover users with insufficient privileges.",
+              "Simulate server faults to test 500 handling and graceful degradation (e.g., DB failure) and verify error messages and status codes.",
+              "Add idempotency tests: repeat the same DELETE multiple times and assert consistent safe responses (204 or documented behavior).",
+              "Add tests to verify audit/logging side-effects or soft-delete flags if the system is expected to record deletion metadata.",
+              "Add rate-limiting tests: send bursts of requests to verify proper 429 or throttling behavior if applicable.",
+              "Expand input size boundary tests: verify maximum acceptable number of customField IDs, maximum URL length handling, and behavior when headers (CreatedBy/Comment) exceed limits, including negative tests for too-large inputs.",
+              "Add response header checks for important headers on error/success responses (e.g., Content-Type, Retry-After on 503) and verify empty-body semantics explicitly (e.g., no JSON payload returned)."
+            ],
+            "usage": {
+              "completion_tokens": 1310,
+              "prompt_tokens": 5523,
+              "total_tokens": 6833,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

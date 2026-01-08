@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "10_2025-10-14T17:18:40.212887",
+    "jira_id": "10",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/auditLogs - Retrieve audit logs by account id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T17:16:50.086646",
+    "benchmark_end_time": "2025-10-14T17:18:40.212881",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 110.126235,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "10_qe_sup-gpt4.1_agent-gpt4.1_1748916432.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Core acceptance criteria: successful 200 response with application/json array of AuditLog objects (TC01) and 404 for missing account (TC03).",
+              "Empty-response behavior covered (TC02, TC12) \u2014 endpoint returns an empty JSON array rather than an error.",
+              "Authentication negative cases: missing and invalid tokens returning 401 (TC05, TC06).",
+              "Input validation for accountId: malformed UUID, empty accountId and injection-like payloads are tested (TC04, TC10, TC15).",
+              "Content-Type assertion that response produces application/json (TC01).",
+              "Handling of unknown/extra query parameters is tested (TC07).",
+              "System error and timeout handling are included (TC08 - database unavailable; TC11 - timeouts).",
+              "Performance and concurrency scenarios included: large dataset (10,000 items) and 100 concurrent requests (TC09, TC14).",
+              "Regression and backward-compatibility tests included (TC12, TC13)."
+            ],
+            "gaps": [
+              "Pagination: No tests for paginated responses (page/limit parameters, default page size, offsets, Link headers) \u2014 TC09 assumes a single huge payload rather than validating paging behavior.",
+              "Caching behavior: No tests for ETag, Cache-Control, Last-Modified, or If-None-Match/If-Modified-Since producing 304 Not Modified.",
+              "Rate limiting/throttling: No tests to validate 429 responses, Retry-After header, or burst/rate-limit policy; the concurrency test does not assert rate-limit behavior.",
+              "Authorization scopes/permissions (403): No test for an authenticated user with insufficient privileges producing 403 Forbidden (role/permission checks not covered).",
+              "Deep schema validation: Presence of required fields is asserted, but types, formats (UUID/timestamp), nested object structure, and rejection of unexpected properties are not strictly validated.",
+              "Content negotiation: No tests for Accept header behavior (e.g., 406 Not Acceptable) or behavior when non-json Accept is sent.",
+              "Response metadata & headers: Missing tests for pagination Link headers, Content-Length, correlation-id/trace headers, and other operational headers.",
+              "HTTP method restrictions: No tests ensure other verbs (POST/PUT/PATCH/DELETE) return 405 Method Not Allowed.",
+              "Ordering/stability: No tests to assert deterministic ordering of audit logs (e.g., by timestamp) or pagination consistency across calls.",
+              "Unrealistic or brittle performance expectation: TC09 expects 10,000 items in a single response within <2s which is fragile and does not test pagination/streaming patterns."
+            ],
+            "recommendations": [
+              "Add pagination tests: verify page and limit parameters, default page size, last/first/next/prev behavior, Link header presence and correctness, and behavior when total items exceed a page.",
+              "Add caching tests: validate Cache-Control and ETag headers, and test If-None-Match / If-Modified-Since semantics to get 304 Not Modified where appropriate.",
+              "Add rate-limiting tests: simulate bursts to trigger 429, assert Retry-After header and documented throttling behavior; include long-running load tests separate from functional tests.",
+              "Add authorization-scope tests: create tokens with limited privileges and assert 403 Forbidden where appropriate; clarify 401 vs 403 semantics in API spec and test both.",
+              "Strengthen schema validation: use OpenAPI/JSON Schema validation to assert exact property types, required vs optional fields, formats (UUID, timestamps), nested objects, and rejection of unexpected additional properties.",
+              "Add content-negotiation tests: verify responses for various Accept headers and ensure proper 406 or fallback behavior.",
+              "Add response header/metadata tests: check Content-Length, Link (pagination), correlation-id/trace headers, and any API-specific headers required for clients.",
+              "Replace or augment the single large-response performance test with pagination-aware performance tests or move the 10k payload test to a dedicated performance/integration suite and avoid brittle time thresholds in functional tests.",
+              "Add method-not-allowed tests to assert 405 for unsupported HTTP verbs on this endpoint.",
+              "Add ordering and consistency tests: assert audit log ordering (by timestamp or specified sort), and that pagination yields consistent results across repeated queries."
+            ],
+            "usage": {
+              "completion_tokens": 6911,
+              "prompt_tokens": 4166,
+              "total_tokens": 11077,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6016,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

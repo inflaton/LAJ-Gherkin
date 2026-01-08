@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-14T20:06:04.838932",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:04:33.561240",
+    "benchmark_end_time": "2025-10-14T20:06:04.838927",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 91.277687,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid request / success (PUT -> 204) is covered (TC01) and system state verification (host marked in rotation).",
+              "Idempotency / already-in-rotation behavior is covered (TC02).",
+              "Authentication/Authorization negative cases are covered (401 in TC03/TC09, 403 in TC04).",
+              "Service-unavailable handling is covered (503 in TC05).",
+              "Method-not-allowed is covered (405 for GET in TC06).",
+              "Handling of unexpected payloads and extra headers is exercised (TC07, TC08).",
+              "Performance and resilience scenarios are present (timeout/degraded performance in TC10, network retry in TC13).",
+              "Concurrency and race-condition-style test for concurrent PUTs is included (TC14).",
+              "Security-related header injection test is present (TC12).",
+              "Regression verification for previously fixed rotation bug is present (TC11).",
+              "Background preconditions assert service/endpoint availability and admin auth, and many scenarios assert the host state change after success."
+            ],
+            "gaps": [
+              "Content-Type / \"Produces: application/json\" is not validated: no tests assert response Content-Type on success or on error; acceptance criteria contradicts 204 (no content) vs produced media type. Clarification and tests are missing.",
+              "Server-side error handling (e.g., 500 Internal Server Error) is not explicitly tested; no simulation of DB or unexpected server failure to verify >=400 behavior in all error cases.",
+              "Malformed / invalid payloads (e.g., invalid JSON, wrong Content-Type) and very large payloads are not covered; TC07 only checks non-empty payloads but not malformed or large inputs.",
+              "Rate limiting / throttling behavior (429) is not covered. TC14 tests concurrency but does not assert throttling or rate-limit responses.",
+              "Caching / response headers (ETag, Cache-Control) and other HTTP header semantics (Content-Length, Content-Type for error responses) are not tested.",
+              "Method not allowed coverage is limited to GET; other methods (POST, PATCH, DELETE) are not explicitly tested for 405.",
+              "No tests for the case where there is no host available to put back into rotation (the Background assumes at least one host). Expected behavior for \"no-op\" or error is not defined or tested.",
+              "Partial-update / PUT semantics are not explicitly validated (i.e., whether payloads should be accepted, ignored, or rejected is unclear and insufficiently tested).",
+              "Observability/audit logging (that the admin action is logged) is not covered."
+            ],
+            "recommendations": [
+              "Clarify acceptance criteria around \"Produces: application/json\" vs 204. Then add assertions to tests for Content-Type on error responses and confirm 204 responses either omit body and Content-Type or follow the clarified expectation.",
+              "Add a test to simulate server-side failures (e.g., DB error or unhandled exception) and assert an appropriate 5xx/>=400 response and error body format.",
+              "Add negative tests for malformed payloads and very large payloads to verify proper 4xx handling or graceful rejection; include tests for invalid Content-Type and invalid JSON.",
+              "Add explicit rate-limiting tests that flood the endpoint to verify throttling behavior and expected 429 responses, and ensure legitimate requests succeed afterward.",
+              "Extend method-not-allowed tests to other HTTP verbs (POST, PATCH, DELETE) to ensure consistent 405 behavior.",
+              "Add tests for the scenario where no host is available to be put back into rotation; define expected behavior (no-op with 204 or explicit error) and cover it.",
+              "Add finer-grained concurrency tests that assert atomicity/race-condition absence (e.g., concurrent state reads/writes, idempotency across nodes) rather than only bulk success assertions.",
+              "Add tests for caching and header semantics if the endpoint or platform uses caching (ETag, Cache-Control), and validate any required response headers.",
+              "Add audit/observability verification (action logged, audit record created) if required by operations/security policy."
+            ],
+            "usage": {
+              "completion_tokens": 5405,
+              "prompt_tokens": 3274,
+              "total_tokens": 8679,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4544,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

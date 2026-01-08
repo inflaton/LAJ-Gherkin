@@ -1,0 +1,103 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-14T18:19:50.710578",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T18:15:41.880081",
+    "benchmark_end_time": "2025-10-14T18:19:50.710575",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 248.830494,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "Core success paths: required-only success and fully-specified requests are covered (TC01, TC02).",
+              "Payment amount behaviors: partial payment, exact-full payment, and overpayment-clamping are tested (TC02, TC03, TC04).",
+              "Plugin properties: multi-value pluginProperty passing and large-array behavior are covered (TC05, TC24).",
+              "No-op cases: accounts with no unpaid invoices and no invoices return 204 and no payment is processed (TC06, TC07).",
+              "Path param validation: malformed UUID and well-formed-but-non-existent accountId are tested (TC08, TC09).",
+              "Header validation: required createdBy header present/missing/empty and optional reason/comment are checked (TC10, TC16, TC02).",
+              "Payment method handling: valid default fallback and invalid paymentMethodId are covered (TC01, TC11).",
+              "Input validation: negative/zero paymentAmount, malformed targetDate, non-boolean externalPayment, and invalid pluginProperty types are covered (TC12, TC13, TC14, TC15).",
+              "Auth and authorization: missing/invalid authentication tested (TC17).",
+              "Dependency / server errors: payment gateway, plugin system, and DB unavailability are covered (TC18, TC19, TC27).",
+              "Security tests: SQL injection in accountId and XSS attempt in pluginProperty are included (TC20, TC21).",
+              "Retry / duplicate handling: transient network errors and previously fixed duplicate-on-retry bug are tested (TC22, TC28).",
+              "Edge cases: very large paymentAmount and very large pluginProperty arrays are considered (TC23, TC24).",
+              "Unknown/extra query params: behavior with extra parameters is considered (TC25).",
+              "State variation & integration: mixed-account states and plugin integration scenarios are included (TC26, TC27).",
+              "Performance & scalability: normal/peak/stress response-time and resource tests are present (TC30, TC31, TC32).",
+              "Documentation/accessibility: API documentation accessibility check is included (TC33)."
+            ],
+            "gaps": [
+              "Concurrency / idempotency: no explicit test that simulates concurrent POSTs to the same account asserting locking/serialisation and prevention of duplicate payments under race conditions (TC31 is concurrent perf but does not assert idempotency).",
+              "No-default-payment-method flow: missing test for when account has no default payment method and no paymentMethodId is supplied (expected error or alternate flow is not covered).",
+              "Currency and allocation rules: no tests for multi-currency invoices, currency mismatch handling, or exact invoice allocation strategy (eg oldest-first) when applying partial payments.",
+              "Atomicity and partial failures: missing tests for mid-flight failures (plugin/gateway failure after some invoices processed) to verify rollback/no partial settlement.",
+              "Exact response semantics: 204 response body/headers not explicitly asserted (empty body, content-length, content-type) and several error scenarios accept multiple status codes (400 or 401, 400 or 404) instead of asserting a single expected code and response schema.",
+              "Content-Type / Accept handling: no tests for missing/incorrect Content-Type or Accept headers and unsupported media types.",
+              "Header validation beyond presence: no tests for header value constraints (max length, allowed characters, non-ASCII handling) for X-Killbill-CreatedBy/Reason/Comment.",
+              "Idempotency-key and dedup semantics: no tests for an idempotency header or deterministic dedup behavior across retries and concurrent requests.",
+              "Audit/logging/metrics: no tests verifying audit entries, payment records, or metrics emitted for payments.",
+              "Rate limiting / throttling: not covered (relevant per POST guidelines and standard non-functional tests).",
+              "Strictness for unknown params: TC25 allows either ignore or 400; the desired behavior (strict vs tolerant) is not pinned down or enforced by tests."
+            ],
+            "recommendations": [
+              "Add explicit concurrency tests that issue multiple simultaneous POSTs against the same account and assert a single effective payment (no duplicates); include tests for idempotency-key behavior if supported.",
+              "Add a test for accounts that lack a default payment method and where paymentMethodId is omitted; define and assert expected behavior (error, require externalPayment, or other).",
+              "Add currency-related tests: invoices in multiple currencies, payment attempts in a different currency, and expected validation/behavior.",
+              "Add transactional consistency tests that simulate plugin/gateway failures mid-processing and assert rollback or well-defined partial-failure behavior (and verify invoice/payment state remains consistent).",
+              "Tighten and assert exact HTTP status codes and error response schemas for ambiguous scenarios (replace \"400 or 401\" or \"400 or 404\" with a single expected outcome in the story, then test it).",
+              "Assert 204 response semantics explicitly: body is empty and relevant headers (Content-Length, Content-Type) are correct or absent per API contract.",
+              "Add tests for Content-Type/Accept header handling and unsupported media types.",
+              "Add header validation tests for maximum lengths and allowed characters in X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment.",
+              "Expand pluginProperty tests to cover duplicate keys, ordering, very large individual entries, and memory/processing limits beyond count.",
+              "Add rate-limiting/throttling tests and ensure deterministic behavior under high request rates.",
+              "Add audit/logging verification tests to ensure the createdBy/reason/comment are persisted to audit/payment records and that payment records are correct.",
+              "Refine performance tests to include correctness assertions under concurrency (no duplicates), and set concrete SLAs for response-time assertions used in tests.",
+              "Clarify ambiguous acceptance criteria in the Jira story (expected error codes, behavior when default payment method is missing, allocation strategy) and update tests to assert those clarified expectations."
+            ],
+            "usage": {
+              "completion_tokens": 5585,
+              "prompt_tokens": 7048,
+              "total_tokens": 12633,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4352,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

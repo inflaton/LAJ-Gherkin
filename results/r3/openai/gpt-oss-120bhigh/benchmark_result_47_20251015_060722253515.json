@@ -1,0 +1,72 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-15T06:07:22.253483",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T06:07:11.098035",
+    "benchmark_end_time": "2025-10-15T06:07:22.253477",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "openai/gpt-oss-120b",
+      "temperature": 0.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 11.155442,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "Valid Deletion: TC01 verifies successful cache invalidation with HTTP 204 and empty body.",
+              "Non-Existent Resource: TC04 checks 404 response when tenant context does not exist.",
+              "Authorization: TC02 and TC03 validate 401 responses for missing or invalid credentials.",
+              "Concurrency: TC10 exercises multiple concurrent DELETE requests and asserts no race conditions or data corruption.",
+              "Idempotency/Empty Response: TC09 confirms that deleting an already empty cache returns 204 and is idempotent.",
+              "Error Handling: TC05, TC06, TC07, TC08, TC14 cover 500, 503, 400/403, and 504 error scenarios respectively.",
+              "Security: TC08 tests injection attempts in headers and expects proper rejection.",
+              "State Variations: TC13 validates that a partially populated cache is fully cleared.",
+              "Integration: TC12 ensures dependent services observe the cache invalidation.",
+              "Regression: TC11 confirms a previously fixed bug does not reappear.",
+              "Performance: TC10 measures response time under load."
+            ],
+            "gaps": [
+              "Rate Limiting: No scenario tests how the API behaves when a burst of requests exceeds allowed limits.",
+              "Explicit Concurrency Race Condition: While TC10 checks concurrent successful deletions, there is no test where one request deletes while another is reading or attempting another delete, to verify proper handling of race conditions.",
+              "Soft Delete Behavior: Guidelines mention checking for soft\u2011delete semantics, but the current API is expected to perform a hard invalidation; a test confirming that no soft\u2011delete flag is set would close this gap.",
+              "Caching Headers: The DELETE endpoint does not return caching headers, yet guidelines suggest verifying ETag/Cache\u2011Control where applicable; a test confirming their absence (or appropriate values) would improve completeness."
+            ],
+            "recommendations": [
+              "Add a rate\u2011limiting test that sends a rapid series of DELETE requests and asserts the API returns 429 Too Many Requests after the limit is exceeded.",
+              "Create a concurrency race\u2011condition test where one request initiates cache invalidation while another simultaneously attempts to read from the cache, ensuring the read either sees the old cache or a proper error, but never corrupted data.",
+              "Include a verification step that confirms the DELETE operation does not create a soft\u2011deleted record (e.g., by checking audit logs or metadata).",
+              "If the API returns any caching headers, add assertions for their presence and correctness; otherwise, add a test that explicitly asserts they are not present, satisfying the caching\u2011behavior guideline."
+            ],
+            "usage": {
+              "completion_tokens": 1182,
+              "prompt_tokens": 3453,
+              "total_tokens": 4635,
+              "prompt_tokens_details": null
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

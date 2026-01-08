@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-10-15T11:51:46.924805",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:50:45.414673",
+    "benchmark_end_time": "2025-10-15T11:51:46.924801",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 61.510128,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid payload creation (201 + JSON body + Location header) is exercised in TC01, TC02, TC03 and TC20 (integration).",
+              "Required header handling: presence, omission and invalid type for X-Killbill-CreatedBy covered (TC01/03/TC04/TC08).",
+              "Optional headers handling: presence of X-Killbill-Reason and X-Killbill-Comment covered (TC02); omission exercised by TC03 and TC16.",
+              "Request body validation: malformed JSON, missing required fields, empty payload, extra unsupported fields, injection/XSS attempt and large payload boundary covered (TC05, TC06, TC07, TC12, TC15, TC11).",
+              "Duplicate submission behaviour is explored (TC13), allowing tests to detect current system policy.",
+              "Authentication and basic authorization negative case covered (unauthorized -> TC09 returning 401).",
+              "Resilience and error handling scenarios included: database unavailable/service unavailable (TC10 -> 503) and network timeout (TC14 -> 504).",
+              "Performance and concurrency: concurrent creation test exists (TC18).",
+              "Regression and integration verification exist: TC19 (regression field truncation) and TC20 (GET the Location to verify created resource)."
+            ],
+            "gaps": [
+              "Content-Type / Accept handling is not explicitly tested: no tests verify missing/wrong Content-Type (should be 415) or that responses set Content-Type: application/json.",
+              "Field-level validation is sparse: no explicit tests for formats (email, date, currency, numeric ranges), enums, or per-field min/max length constraints.",
+              "Response contract completeness is not asserted: presence/format of server-generated fields (accountId, createdDate, audit fields, tenantId), and exact mapping between request fields and returned Account are not fully verified beyond basic existence checks.",
+              "Internal server error (500) or unhandled exception paths are not simulated; only 503 and 504 are covered.",
+              "Authorization granularity (authenticated but unauthorized -> 403) and role/permission checks are not covered.",
+              "Rate limiting/throttling and 429 behavior are not tested; concurrency TC18 does not assert throttling policies.",
+              "Duplicate handling is ambiguous in TC13 (test accepts 201 or 409) \u2014 policy is not enforced/deterministic in tests.",
+              "Idempotency and retry behavior for repeated submissions is not tested.",
+              "Content negotiation and caching headers (ETag, Cache-Control) for retrieval are not covered (relevant for TC20 GET verification).",
+              "Security / hygiene gaps: CORS, security headers, TLS enforcement and audit header propagation (confirming X-Killbill-CreatedBy recorded) are not tested."
+            ],
+            "recommendations": [
+              "Add tests for Content-Type header handling: missing or wrong Content-Type should return 415 Unsupported Media Type; assert response Content-Type is application/json.",
+              "Add Accept header and content-negotiation tests (e.g., Accept: text/html or missing Accept) and assert appropriate status (or fallback) and response Content-Type.",
+              "Implement field-level validation tests for all important Account fields: invalid/edge-case email, phone, currency, date formats, numeric ranges, allowed enums, and explicit min/max length checks.",
+              "Add assertions for server-generated fields (accountId, createdDate, audit fields) in the response and verify the Location header contains the created accountId and the GET at Location returns the same data (extend TC20 to assert field equality).",
+              "Simulate and assert internal server error behavior (500) for unhandled failures and verify consistent error payloads and logging hooks.",
+              "Define and lock a duplicate-submission policy (create-vs-conflict) and update TC13 to assert deterministic behavior (e.g., expect 409 with a clear error body, or 201 + idempotency key behavior).",
+              "Add rate-limiting / throttling tests: burst of requests to assert 429 and presence of Retry-After header and ensure proper behaviour under load beyond concurrency test (TC18).",
+              "Add authorization matrix tests including 403 Forbidden for authenticated users lacking required permissions and validate audit/logging of X-Killbill headers.",
+              "Expand security tests: verify XSS/SQL injection inputs are sanitized in storage and output, test CORS and relevant security headers, and ensure TLS is enforced where applicable.",
+              "Extend performance tests to sustained load/throughput and stability tests, and add more boundary tests per-field (unicode, very long strings, min-length violations)."
+            ],
+            "usage": {
+              "completion_tokens": 6580,
+              "prompt_tokens": 4821,
+              "total_tokens": 11401,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5632,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

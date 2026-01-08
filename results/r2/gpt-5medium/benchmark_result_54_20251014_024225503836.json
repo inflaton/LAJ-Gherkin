@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-14T02:42:25.503806",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T02:40:45.563755",
+    "benchmark_end_time": "2025-10-14T02:42:25.503801",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 99.940046,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE Valid Deletion: Successful removal paths covered for all tags, specific tags, no tags, empty array, and large sets; all assert 204 with empty body.",
+              "Non-Existent Resource: 404 for a UUID that does not exist is tested.",
+              "Validation of Inputs: bundleId UUID format 400, tagDef UUID format 400, mixed valid/invalid tagDef 400, extra unexpected query param tolerated.",
+              "Headers: Required X-Killbill-CreatedBy enforced (400 when missing); optional Reason/Comment exercised in a success path.",
+              "Concurrency: 100 concurrent DELETEs with expectation of no race conditions.",
+              "Resilience: Service unavailable (503) and potential timeout (504 vs 204) are covered.",
+              "Integration/state verification: Follow-up GET confirms resulting tag associations.",
+              "Security hardening: Malicious header values (XSS/SQLi) rejected with 400/422.",
+              "Authorization: Unauthorized user path covered with 401."
+            ],
+            "gaps": [
+              "Soft delete/audit behavior: No checks that deletion is soft vs hard, or that audit logs are written with CreatedBy/Reason/Comment.",
+              "Optional headers absence: No positive test proving that omitting X-Killbill-Reason and X-Killbill-Comment still yields 204 (Background always sets them).",
+              "Idempotency: No scenario calling DELETE twice to ensure the second call remains safe (e.g., 204 and no side effects).",
+              "Authorization granularity: No 403 Forbidden case for authenticated but unauthorized roles/tenants; only 401 covered.",
+              "Error contract: No assertions on error response schema/fields and Content-Type=application/json for errors; no check that 204 responses omit Content-Type per 204 semantics or align with the story\u2019s \"Produces: application/json\".",
+              "Non-associated tagDefs: No test when tagDef contains UUIDs not currently on the bundle (should be ignored vs error) and expected status code.",
+              "Duplicate tagDef parameters: Behavior when the same tagDef is repeated is not covered.",
+              "Collection format variants: No test for comma-separated tagDef vs repeated multi params and server behavior per collectionFormat=multi.",
+              "Security in query params: No injection/invalid characters tests for tagDef values (only headers tested).",
+              "Server error handling: No 500 Internal Server Error simulation (e.g., DB failure) and corresponding response handling.",
+              "Status code correctness for auth: Clarify whether unauthorized should be 401 vs 403; tests assume 401 for authorization failure.",
+              "Out-of-scope test: Accessibility UI scenario (TC19) is not applicable to this API endpoint and does not contribute to API acceptance."
+            ],
+            "recommendations": [
+              "Add an audit/soft-delete scenario: verify audit logs/history reflect tag removals with CreatedBy/Reason/Comment; clarify whether deletions are hard or soft.",
+              "Add a scenario omitting X-Killbill-Reason and X-Killbill-Comment (while keeping CreatedBy) and expect 204 to validate optionality.",
+              "Add idempotency check: perform DELETE twice on the same bundle/tags; second call should not error and should remain 204.",
+              "Expand authorization coverage with a 403 Forbidden case for authenticated users lacking permissions; keep 401 for unauthenticated.",
+              "Define and assert error response contract: verify JSON structure (e.g., code, message) and Content-Type=application/json on errors; also assert that 204 responses have no body and appropriate headers per API spec.",
+              "Add a test where tagDef includes UUIDs not present on the bundle, expecting 204 and that present ones are removed while non-associated are ignored (or document intended behavior if different).",
+              "Add a test with duplicate tagDef parameters to confirm the operation remains correct and idempotent.",
+              "Validate collectionFormat=multi explicitly and add a negative case for comma-separated tagDef to ensure it is rejected or documented as unsupported.",
+              "Include query-parameter security tests (e.g., tagDef contains injection strings or invalid characters) and expect validation errors.",
+              "Add a scenario simulating a backend failure to exercise 500 handling and error payload.",
+              "Review TC09 expectation: ensure correct use of 401 vs 403 per security model and align tests with the intended contract.",
+              "Remove or relocate TC19 to a UI test suite; it is out of scope for this API acceptance suite."
+            ],
+            "usage": {
+              "completion_tokens": 4256,
+              "prompt_tokens": 4976,
+              "total_tokens": 9232,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3328,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

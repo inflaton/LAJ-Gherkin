@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-10-13T23:52:09.456712",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:51:37.339974",
+    "benchmark_end_time": "2025-10-13T23:52:09.456708",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 32.116734,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Valid Request: Happy-path with subscriptionId and requestedDate (status 200, JSON Product schema, content-type) is covered (TC01).",
+              "Valid Request with parameter variants: Only subscriptionId (current product) covered (TC02) and backward compatibility (TC19).",
+              "Query Parameters: Broad coverage of valid/invalid combinations and unexpected params (TC01, TC02, TC03, TC04, TC06, TC08, TC14, TC16, TC17).",
+              "Empty/Not Found Responses: Non-existent subscription, before-start date, empty DB handled via 404s (TC05, TC11, TC13).",
+              "Error Handling (4xx/5xx): Invalid formats, unauthorized, service down, downstream failure covered (TC06, TC08, TC09, TC10, TC21).",
+              "Boundary/Edge Dates: Boundary change date and future/past dates addressed (TC12, TC13, TC18).",
+              "Schema and Data Consistency: Product object validation and match with catalog definition (TC01, TC22).",
+              "Performance/Load: Concurrent requests and response time under load covered (TC15, TC20)."
+            ],
+            "gaps": [
+              "Ambiguous behavior for omitted parameters: TC03 and TC04 allow multiple outcomes instead of asserting the contract; the story hints at default or error but tests should pin down exact behavior.",
+              "Caching Behavior: No scenarios validating ETag/If-None-Match, Last-Modified/If-Modified-Since, Cache-Control, or 304 Not Modified responses.",
+              "Rate Limiting/Throttling: No tests for 429 responses or retry headers under burst traffic. Load tests exist but do not validate rate-limit semantics.",
+              "Content Negotiation/Headers: No checks for Accept header handling, or that responses always include the required Content-Type and charset beyond TC01.",
+              "Time semantics: No explicit tests for timezone handling, date boundary at midnight, or invalid but well-formed dates (e.g., 2023-02-30), which can affect requestedDate parsing.",
+              "Authorization depth: 401 is covered, but no scenario for 403 (authenticated but not authorized) if RBAC/tenant scoping applies.",
+              "Idempotency/Determinism under concurrency: Load tests check performance, but not that repeated identical requests yield identical responses and no state leakage."
+            ],
+            "recommendations": [
+              "Replace ambiguous outcomes in TC03 and TC04 with concrete expectations based on the API contract. For example: if subscriptionId is required, assert 400 with a clear error when missing; if requestedDate defaults to now, assert 200 with current product.",
+              "Add caching scenarios: (a) GET returns ETag/Last-Modified and appropriate Cache-Control; (b) conditional GET with If-None-Match returns 304; (c) changed product across dates invalidates cache as expected.",
+              "Add rate limiting scenarios: burst N requests within window -> observe 429 Too Many Requests and validate Retry-After headers; ensure normal throughput does not trigger limits.",
+              "Extend header/content negotiation tests: verify Content-Type includes charset; test Accept: application/json and unacceptable Accept to confirm 406 or documented behavior.",
+              "Add timezone and date parsing robustness: requestedDate with explicit timezone (UTC vs tenant TZ), boundary at 00:00:00, leap day (2024-02-29), and invalid calendar date (e.g., 2023-02-30) returning 400.",
+              "Include a 403 authorization scenario if the API enforces tenant/role permissions distinct from authentication.",
+              "Strengthen schema validation: validate full Product schema fields, required vs optional properties, and reject unknown fields in responses if contract demands.",
+              "Clarify TC12 (future date) to a single expected outcome per business rules (either the scheduled future product or 404/not-yet-effective) and assert it.",
+              "Add determinism checks under concurrency: same request repeated concurrently returns identical payloads and headers; no partial failures or inconsistent states.",
+              "Document non-applicability of pagination for this singular-resource endpoint to avoid misplaced expectations in future tests."
+            ],
+            "usage": {
+              "completion_tokens": 1706,
+              "prompt_tokens": 5044,
+              "total_tokens": 6750,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 832,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-15T14:18:37.130867",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T14:18:02.310923",
+    "benchmark_end_time": "2025-10-15T14:18:37.130864",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 34.819941,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE - Valid Deletion: Successful invalidation of all caches and a specific cache (204) is covered (TC01, TC02, TC08, TC09, TC13, TC14).",
+              "DELETE - Non-Existent Resource: Proper 400 handling for non-existing or not-alive cacheName, empty, oversized, special chars, and case-sensitivity is covered (TC03, TC04, TC05, TC10, TC11, TC12, TC15).",
+              "Authorization: Unauthorized/forbidden access returns 401/403 with error messaging (TC06).",
+              "Server Error Handling: Internal error path returns 500 with message (TC07).",
+              "Concurrency: Parallel DELETEs to invalidate all caches with system stability (TC14).",
+              "Empty Response: 204 with empty body verified on successful operations (TC01, TC02, TC08, TC09, TC13, TC14).",
+              "Query Parameters: Handling of absent, valid, invalid, and unsupported parameters (TC01, TC02, TC03, TC05, TC09, TC10, TC11, TC12, TC15)."
+            ],
+            "gaps": [
+              "DELETE - Concurrency (race on same resource): No scenario validating idempotency when a specific cache is invalidated concurrently or already invalidated.",
+              "DELETE - Soft Deletes: No explicit confirmation that behavior is not soft-delete or any state/flag visibility post-invalidation (if applicable).",
+              "Rate Limiting/Throttling: No scenarios validating behavior under request bursts or limits.",
+              "Headers/Content Negotiation: No checks for Content-Type on 204 responses or adherence to advertised produces: application/json; no verification of relevant response headers.",
+              "Observability/Side-effects: No verification that only targeted cache is affected in complex states (e.g., partial failures or mixed outcomes are not observable).",
+              "Security breadth: No role/permission (RBAC) coverage beyond simple auth success/failure (e.g., admin vs non-admin with valid token)."
+            ],
+            "recommendations": [
+              "Add idempotency/race tests: issue DELETE for a specific cache while another request invalidates it; repeat DELETE on already-invalidated cache should still return 204 with no side effects.",
+              "Clarify and test soft-delete expectations: if not applicable, add a note; if applicable, verify state/flags and retrieval via admin diagnostics.",
+              "Introduce rate limiting tests: burst 429 expectations or confirm service behavior under high-frequency calls distinct from general concurrency.",
+              "Validate headers: assert Content-Type presence/absence on 204 per API contract, and any standard headers expected for admin APIs.",
+              "Add RBAC scenarios: valid non-admin token should be rejected (403) while admin succeeds; verify audit/log entries if required by platform standards.",
+              "Add negative resilience case: simulate partial subsystem failure during \u201cinvalidate all\u201d and ensure atomicity or documented behavior (all-or-nothing vs best-effort) is respected."
+            ],
+            "usage": {
+              "completion_tokens": 1340,
+              "prompt_tokens": 3739,
+              "total_tokens": 5079,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

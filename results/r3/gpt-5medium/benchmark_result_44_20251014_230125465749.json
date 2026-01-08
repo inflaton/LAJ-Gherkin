@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-14T23:01:25.465716",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T23:00:09.465337",
+    "benchmark_end_time": "2025-10-14T23:01:25.465711",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 76.000374,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "POST: Valid input flow with required header and default parameters returns 200 and JSON (TC01).",
+              "Pagination/processing window: default limit, explicit offset/limit, partial input, and max-limit edges exercised (TC01, TC02, TC10, TC12, TC13).",
+              "Query parameter validation: invalid ranges and non-integer types handled with proper errors; extra param behavior probed (TC06, TC07, TC11).",
+              "Authorization: missing required header (CreatedBy) and invalid/expired token paths return 4xx (TC05, TC08).",
+              "Headers: required and optional headers handled; auditability asserted; header parsing regression covered (TC03, TC16, TC17).",
+              "Empty processing case: no parked accounts returns 200 with \u201cno invoices generated\u201d indication (TC04).",
+              "Duplicate submission/idempotency: retry after transient failure does not double-generate; concurrent requests generate once per account (TC15, TC18).",
+              "Server error handling: service unavailability (503) path covered (TC09).",
+              "Security negative: injection attempt in headers does not leak sensitive info (TC14).",
+              "Performance: large data volume and concurrent processing scenarios included (TC12, TC18)."
+            ],
+            "gaps": [
+              "POST server error handling is incomplete: no explicit 500 Internal Server Error or database failure simulation.",
+              "Rate limiting/throttling not covered (e.g., 429 Too Many Requests under burst traffic).",
+              "Response contract is not validated: no assertions on JSON schema/fields (e.g., counts processed, offset/limit echoed, run/job identifier).",
+              "Request body handling not defined/tested: behavior when a JSON body is sent or Content-Type is unexpected (e.g., 415 vs ignore).",
+              "Data integrity: no explicit check that non-parked accounts remain unaffected after the operation.",
+              "Boundary conditions: high/overflowing offset (equal to or greater than parked count) not tested; expected 200 with zero processed should be asserted.",
+              "Overlapping windows: no test for two overlapping offset/limit requests ensuring no duplicate invoicing across pages.",
+              "Deterministic handling of unsupported query parameters: TC11 allows 200 or 400; expected behavior should be singular and verified.",
+              "Audit persistence not validated: tests assert \u201cauditable\u201d but do not verify stored audit log entries can be retrieved and match headers.",
+              "Operational headers on errors not checked (e.g., Retry-After on 503)."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate an internal server/database failure and assert a 500 with a safe, standardized error body.",
+              "Introduce rate-limiting tests: burst multiple POSTs to assert 429 behavior (or explicitly confirm it is not enforced).",
+              "Define and validate a response JSON schema: include fields like processedCount, offset, limit, totalEligible, runId/timestamp, and verify their correctness.",
+              "Add tests for requests with a non-empty JSON body and with mismatched Content-Type; assert whether the body is ignored or a 415/400 is returned.",
+              "Add explicit verification that only parked accounts are invoiced (non-parked accounts remain unchanged).",
+              "Create boundary tests for offset >= parkedCount and offset exactly parkedCount - 1 to confirm correct zero/one processing outcomes.",
+              "Add overlapping pagination scenarios (e.g., offset=0,limit=50 followed by offset=25,limit=50) verifying no duplicate invoices across windows.",
+              "Make TC11 deterministic: choose either \u201cignore unknown params and return 200\u201d or \u201creject with 400,\u201d and assert that single behavior.",
+              "Augment auditability tests to fetch and validate persisted audit logs (CreatedBy/Reason/Comment, timestamp) for the operation.",
+              "For 503 scenarios, verify presence or absence of Retry-After header per API contract and document expected behavior."
+            ],
+            "usage": {
+              "completion_tokens": 3900,
+              "prompt_tokens": 5207,
+              "total_tokens": 9107,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3072,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

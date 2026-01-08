@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "99_2025-10-13T06:40:37.159460",
+    "jira_id": "99",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoicePayments/{paymentId}/customFields - Modify custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T06:39:09.889152",
+    "benchmark_end_time": "2025-10-13T06:40:37.159455",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 87.270303,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "99_qe_sup-gpt4.1_agent-gpt4.1_1748922485.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid PUT requests and success semantics: multiple scenarios (TC01, TC02, TC03, TC04, TC17) verify 204 responses and DB persistence/creation/removal behavior.",
+              "Path parameter validation: invalid UUID format (TC05) and non-existent resource -> 404 (TC06) are covered.",
+              "Required and optional header handling: presence and missing X-Killbill-CreatedBy (TC01, TC07) and optional X-Killbill-Reason/X-Killbill-Comment presence (TC02) are tested.",
+              "Request body validation: tests for missing body (TC08), malformed JSON (TC09), and invalid CustomField objects (TC10) cover key negative cases.",
+              "Authorization and security: unauthorized access (TC11) and basic injection attempt (TC13) are included.",
+              "Server error handling: dependency/database failure -> 500 (TC12) is included.",
+              "Concurrency and performance: concurrent requests (TC19) and large payload/large number of fields (TC14, TC20) plus max value length (TC15) address scale and load concerns.",
+              "Edge cases and robustness: extra unexpected properties (TC16), duplicate field-name regression (TC18), and integration read-after-write (TC17) are present."
+            ],
+            "gaps": [
+              "Content-Type / Accept and media negotiation: there are no explicit tests for missing or incorrect Content-Type (e.g., expecting 415) or Accept header handling (e.g., 406); the story states consumes/produces application/json but tests do not assert request/response media behavior.",
+              "Authorization scope and permissions (403): only 401 (missing/invalid token) is covered (TC11); no tests for valid authentication but insufficient permissions (403 Forbidden).",
+              "Idempotency / duplicate submissions: PUT semantics require idempotency checks; no test verifies repeated identical requests produce stable state/no duplicates.",
+              "Atomicity / transactional behavior: no tests confirm whether updates are all-or-nothing when the array contains a mix of valid and invalid CustomField entries.",
+              "Exact schema-level constraints for CustomField: TC10 covers general invalid objects, but there are no focused tests for each required property, value types, allowed name/value lengths, or allowed characters beyond TC15.",
+              "Ambiguous expected outcomes: several scenarios permit multiple outcomes (TC04, TC13, TC16, TC18 state \"204 or 400\" or \"400 or 422\"), which reduces precision and makes automated validation brittle.",
+              "Response header assertions and 204 behavior: tests do not assert that 204 responses have no body, nor do they assert Content-Type or error response JSON schema/structure for error cases.",
+              "ETag/optimistic-locking and conflict handling: concurrency is exercised (TC19) but there are no tests for If-Match/ETag-based conflict detection or versioning.",
+              "Rate limiting and throttling: no tests confirm rate-limiting behavior or server response to many rapid requests (beyond basic concurrency).",
+              "Audit/capture of reason/comment and header validation: tests do not verify that X-Killbill-Reason and X-Killbill-Comment are recorded/audited or validate header length/format constraints."
+            ],
+            "recommendations": [
+              "Add explicit media-type tests: send requests with missing or incorrect Content-Type and with non-JSON Accept headers; assert expected HTTP responses (415/406) and that the API enforces application/json.",
+              "Add 403 tests to verify role/permission enforcement (valid token but insufficient rights).",
+              "Add idempotency tests for PUT: send identical payloads twice and assert second request is a no-op with stable DB state and same status code.",
+              "Add transactional/atomicity tests: submit mixed-validity CustomField arrays to confirm whether the API performs all-or-nothing updates or partial commits; encode the expected policy into acceptance criteria.",
+              "Turn ambiguous scenarios into deterministic tests: decide and document expected behavior for empty array handling (TC04), injection handling (TC13), extra properties (TC16), and duplicate names (TC18), and update the Gherkin to assert a single expected status and DB state.",
+              "Add focused schema validation tests: exhaustively validate required CustomField properties, types, allowed character sets, and length limits (including negative boundary tests).",
+              "Assert response headers and error payload schema: every success and error scenario should validate Content-Type, absence of body on 204, and a consistent JSON error structure (fields such as code, message, field).",
+              "Add ETag/If-Match and conflict tests: validate optimistic locking or documented concurrency mechanism; simulate update conflicts and assert proper 409 or defined behavior.",
+              "Add rate-limiting/throttling tests if the API has limits: verify server response and error code when limits are exceeded.",
+              "Verify audit/logging of header metadata: add tests that check reason/comment/createdBy are persisted in audit trail or change logs and add header validation tests (empty, too-long, invalid chars).",
+              "Add perf thresholds to performance tests: measure and assert acceptable response times and resource usage for large payload and concurrency scenarios; add monitoring of side effects like DB locks or growth."
+            ],
+            "usage": {
+              "completion_tokens": 7168,
+              "prompt_tokens": 5796,
+              "total_tokens": 12964,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

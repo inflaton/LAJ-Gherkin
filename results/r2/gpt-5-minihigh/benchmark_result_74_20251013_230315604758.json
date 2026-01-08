@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "74_2025-10-13T23:03:15.604729",
+    "jira_id": "74",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/plan - Retrieve plan for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:01:49.617772",
+    "benchmark_end_time": "2025-10-13T23:03:15.604725",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 85.986953,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "74_qe_sup-gpt4.1_agent-gpt4.1_1748920805.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Core acceptance criteria: successful retrieval (both parameters, subscription-only, date-only) and standard error cases (malformed params, not found) are implemented (TC01, TC02, TC03, TC05, TC06, TC07).",
+              "Response format and success code: tests assert 200 and that the response body is a valid JSON Plan object for successful cases (TC01-TC04, TC13).",
+              "Query parameter combinations: a wide variety of valid/invalid parameter combinations are tested (TC01-TC08, TC14).",
+              "Authorization and availability: unauthorized access and service-unavailable scenarios are covered (TC09, TC10).",
+              "Edge cases and data integrity: empty DB, overlapping plans, boundary dates, and extra query parameters are explicitly tested (TC11, TC12, TC13, TC14).",
+              "Security and regression: SQL injection, XSS, regression and backward compatibility tests are present (TC17, TC18, TC19, TC20).",
+              "Performance: response time under normal and concurrent load is included (TC15, TC16)."
+            ],
+            "gaps": [
+              "Pagination: no tests for pagination parameters or large-list handling (if applicable). The feature returns a single Plan in the spec, but pagination should be explicitly declared N/A or tested if the endpoint can return lists when subscriptionId is omitted.",
+              "Caching behavior: no tests asserting caching headers (ETag, Cache-Control) or conditional GET behavior (If-None-Match -> 304).",
+              "Rate limiting / throttling: no tests to exercise rate limits and expected 429 responses or Retry-After header.",
+              "Content negotiation & headers: tests do not assert response headers such as Content-Type (application/json), Accept handling, or other API headers (e.g., request-id/correlation-id).",
+              "Authorization granularity: 403 (forbidden) or role-based permission scenarios are not covered; only missing/invalid token (401) is tested.",
+              "Method handling: no tests for unsupported HTTP methods (e.g., POST/PUT/DELETE -> 405 Method Not Allowed).",
+              "Strict schema validation: \"valid JSON Plan object\" is asserted at a high level but there are no explicit JSON Schema/field-level assertions (required fields, types, enums, relationships).",
+              "Ambiguous outcomes in tests: several scenarios allow multiple possible responses (TC03, TC04, TC12 use \"200 or ...\" or \"409 or 500\"), which weakens test precision and acceptance gating.",
+              "Date handling variants: timezone effects, different date formats, leap-day and edge-of-day/time precision are not covered."
+            ],
+            "recommendations": [
+              "Clarify API contract for parameter-omitted cases (subscriptionId omitted, requestedDate omitted, overlapping plans). Update tests to assert a single deterministic expected behavior rather than \"200 or ...\" alternatives.",
+              "Add JSON Schema validation tests for the Plan object (verify required fields, types, enumerations, nested objects) rather than only asserting \"valid JSON\". Integrate these into TC01-TC04/TC13/TC19.",
+              "Add caching tests: assert presence and correctness of ETag and Cache-Control headers, and conditional GET flows (If-None-Match resulting in 304).",
+              "Add rate-limiting tests: issue bursts of requests to validate 429 responses and Retry-After header behavior, and ensure graceful degradation under throttling.",
+              "Add tests for content negotiation and headers: verify Content-Type: application/json, respect for Accept header, and presence/propagation of request-id/correlation-id where applicable.",
+              "Add 403/permission tests if the API supports role-based access control (test insufficient-permission scenarios separately from missing/invalid tokens).",
+              "Add method-safety tests to verify unsupported HTTP methods return 405 Method Not Allowed and include Allow header.",
+              "Make ambiguous error scenarios precise: decide and document whether overlapping plans returns 409 vs 500 and update tests to validate the agreed behavior; similarly define behavior for omitted params (default plan vs error).",
+              "Extend date handling tests: include timezone-aware inputs, alternate date formats, leap-year dates, end-of-day/start-of-day boundaries to ensure deterministic plan selection.",
+              "If the endpoint can return multiple plans (e.g., when subscriptionId is omitted), add pagination tests (limit/offset or page tokens) and large dataset performance tests. If not applicable, mark pagination as N/A in the story specs to avoid confusion.",
+              "Strengthen security testing beyond SQLi/XSS: add input fuzzing, header injection, authentication token tampering, and verify safe error messages (no sensitive leak).",
+              "Include automated regression hooks for TC19/TC20 and add monitoring of API SLOs (latency p95/p99), and stability tests for sustained load to detect interaction between performance and rate limiting."
+            ],
+            "usage": {
+              "completion_tokens": 5497,
+              "prompt_tokens": 4829,
+              "total_tokens": 10326,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4480,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-13T20:09:50.754930",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T20:09:03.321238",
+    "benchmark_end_time": "2025-10-13T20:09:50.754926",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 47.433688,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Success cases for invalidating all caches (TC01, TC08) and a specific cache (TC02) are covered.",
+              "Non-Existent Resource: Attempt to invalidate a non-existing cache is covered (TC03) with expected 400 response.",
+              "Invalid Resource State: Attempt to invalidate a cache that exists but is not alive is covered (TC04).",
+              "Query Parameters: Many query-param edge cases are covered: empty cacheName (TC05), very large value (TC10), special characters (TC11), mixed-case sensitivity (TC12), unsupported extra params (TC09), and previously problematic formats (TC15).",
+              "Authorization: Unauthorized access is covered (TC06) expecting 401/403.",
+              "Server Errors: Internal errors of the cache subsystem are covered (TC07) expecting 500.",
+              "Performance & Concurrency: Performance with large number of caches (TC13) and concurrent invalidation requests (TC14) are included.",
+              "Empty/No-Data Behavior: Invalidate when no caches exist is covered (TC08).",
+              "Response Expectations: Success scenarios specify 204 and empty response bodies where appropriate (TC01, TC02, TC08, TC09, TC13, TC14)."
+            ],
+            "gaps": [
+              "Response Content-Type and Body Schema: Acceptance criteria say \"Produces: application/json\" but tests do not assert Content-Type headers or JSON error response schema for error cases (they only assert presence of an error message).",
+              "Exact Authorization Semantics: TC06 allows 401 or 403 but tests do not assert which should be returned in which condition (missing distinction between unauthenticated vs unauthorized).",
+              "Idempotency / Repeated Deletes: No tests for repeated DELETEs on the same cache (e.g., delete twice should remain safe / idempotent).",
+              "Race Conditions Around Resource State Change: While TC14 covers concurrent deletes, there is no scenario where the cache state changes mid-operation (e.g., another actor deletes or registers a cache between validation and invalidation) to assert correct handling of race conditions.",
+              "Rate Limiting / Throttling: No tests cover rate limiting behaviour or how multiple rapid requests beyond a threshold are handled.",
+              "Malformed or Repeated Query Parameters: No tests for repeated cacheName parameters (e.g., ?cacheName=a&cacheName=b) or malformed query encoding beyond a few special chars.",
+              "Error Response Structure: Tests assert an error message exists but do not validate standardized error payload structure, error codes, or fields (e.g., error id, code, message, details).",
+              "HTTP Method Validation: No negative tests for unsupported HTTP methods to the endpoint (e.g., POST/PUT/PATCH returning 405).",
+              "Soft Delete Semantics / Persistence Effects: No checks around whether invalidation is transient or persisted (if applicable), or whether caches are \"soft-deleted\" versus simply invalidated/cleared."
+            ],
+            "recommendations": [
+              "Assert Response Headers and Content-Type: Add checks that successful and error responses include the correct Content-Type (application/json where applicable) and that 204 responses have no body per HTTP spec.",
+              "Differentiate Auth Failures: Add separate scenarios for unauthenticated (expect 401) and authenticated-but-not-authorized (expect 403) to validate correct auth semantics.",
+              "Idempotency Test: Add a test that deletes the same cache twice and asserts expected idempotent behavior (e.g., first 204, second 204 or 400 depending on API contract).",
+              "Race Condition Tests: Add tests where the cache lifecycle changes concurrently (e.g., another client registers or removes the cache during invalidation) to validate transactional/race handling and ensure deterministic outcomes.",
+              "Rate Limiting / Throttling: Add tests to simulate many rapid requests to verify rate limiting and graceful degradation or expected status codes (429) if applicable.",
+              "Repeated & Malformed Query Params: Add tests for multiple cacheName query params, badly encoded parameters, and other malformed query strings to ensure robust parsing and validation.",
+              "Validate Error Payload Schema: Define and assert a standardized JSON error schema (fields and types) for 4xx/5xx responses so clients can reliably parse errors.",
+              "Unsupported Methods: Add tests asserting 405 Method Not Allowed for POST/PUT/PATCH to this endpoint if that is expected behavior.",
+              "Clarify and Test Produce Semantics: If the API is documented to produce application/json, include tests that verify error responses are JSON and success 204 responses adhere to the HTTP spec (no body)."
+            ],
+            "usage": {
+              "completion_tokens": 1859,
+              "prompt_tokens": 3739,
+              "total_tokens": 5598,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

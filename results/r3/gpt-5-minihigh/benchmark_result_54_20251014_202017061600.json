@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-14T20:20:17.061571",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:18:44.575058",
+    "benchmark_end_time": "2025-10-14T20:20:17.061567",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 92.486509,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Endpoint & method exercised: DELETE /1.0/kb/bundles/{bundleId}/tags covered across success and error flows.",
+              "Valid Deletion: removal of all tags (no tagDef) and selective removal of specified tagDefs are covered (TC01, TC02, TC16).",
+              "BundleId validation: invalid UUID format (400) and non-existent UUID (404) covered (TC05, TC06).",
+              "tagDef validation: invalid tagDef UUID and mixed valid/invalid sets covered (TC07, TC13).",
+              "Header handling: required X-Killbill-CreatedBy missing case and use of X-Killbill-Reason/X-Killbill-Comment covered (TC03, TC08).",
+              "Success semantics: 204 responses and empty body asserted for multiple success cases (TC01-TC04, TC11-TC12, TC16).",
+              "Error flows: unauthorized (401) and service-unavailable (503) scenarios covered (TC09, TC10).",
+              "Concurrency & scale: concurrency (100 concurrent requests) and large-set/timeouts (1000 / 10000 tag scenarios) are present (TC12, TC15, TC18).",
+              "Integration: post-delete verification via GET to confirm remaining tags is present (TC17).",
+              "Security robustness: header injection/XSS handling considered (TC14).",
+              "Robustness to extra params: unexpected query parameter ignored/harmless (TC11)."
+            ],
+            "gaps": [
+              "Soft-delete vs hard-delete semantics and audit/history verification (that CreatedBy, Reason, Comment are recorded) are not asserted.",
+              "Idempotency: repeated DELETE calls (deleting same tags twice) and deleting tags that are already absent are not explicitly tested for expected idempotent behavior.",
+              "Behavior for valid tagDef UUIDs that are not associated with the bundle (and for valid tagDef UUIDs that do not exist globally) is not covered; expected response is unspecified and untested.",
+              "Response headers are not validated: \"Produces: application/json\" is stated in the story but tests do not assert Content-Type or other response headers.",
+              "Server error (5xx) handling beyond 503 is not covered (e.g., simulated DB failure / 500 Internal Server Error).",
+              "Authorization granularity: authenticated-but-forbidden (403) scenarios are not covered; only unauthenticated case (401) is tested.",
+              "Query-parameter collection formats and edge encodings are not covered: multi vs CSV encoding, duplicate tagDef parameters, empty-string tagDef values.",
+              "Rate-limiting / throttling tests (429) are absent beyond a single concurrency scenario; there are no explicit throttling/rate-limit validations.",
+              "Performance tests are high-level (pass/fail) without assertions on latency, throughput or resource thresholds; TC12/TC18 are not quantitative.",
+              "Error response schema/content is not validated for consistency across error cases (exact fields, codes, messages)."
+            ],
+            "recommendations": [
+              "Add idempotency tests: call DELETE twice (and in quick succession) for same tag(s) and assert repeated calls are safe (expected 204 or documented behavior).",
+              "Add tests for deleting a valid UUID tagDef that is not attached to the bundle and for a valid UUID that does not exist globally \u2014 assert and document expected status (204 vs error).",
+              "Assert response headers: check Content-Type is application/json where applicable and confirm behavior for 204 responses (presence/absence of Content-Type), and verify caching-related headers if relevant to subsequent GETs.",
+              "Add server-failure simulations (e.g., DB down) to validate 500 handling and ensure meaningful, documented error messages are returned.",
+              "Add an authenticated-but-forbidden (403) test to exercise RBAC/authorization distinct from unauthenticated (401).",
+              "Test query-parameter collection formats: repeated tagDef parameters (multi), comma-separated lists, duplicate entries, and empty-string tagDef values to ensure consistent parsing.",
+              "Add explicit rate-limiting/throttling tests (many small requests in short time) to validate 429 behavior and ensure graceful degradation.",
+              "Extend performance tests to assert measurable thresholds (max latency, percentiles, resource usage) rather than only success/failure for large payloads or concurrency.",
+              "Add audit/history tests to verify CreatedBy/Reason/Comment are recorded in the audit trail or entity history endpoints after deletion.",
+              "Standardize and assert the error response schema and messages for validation failures (invalid UUIDs, missing headers, injection attempts) so clients receive consistent, testable error payloads."
+            ],
+            "usage": {
+              "completion_tokens": 7114,
+              "prompt_tokens": 4976,
+              "total_tokens": 12090,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6144,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

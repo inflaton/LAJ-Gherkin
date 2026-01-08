@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-10-14T00:03:34.071002",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T00:02:47.313224",
+    "benchmark_end_time": "2025-10-14T00:03:34.070998",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 46.757774,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "PUT > Valid Request: Multiple happy-path scenarios validate 204 responses and successful CBA rebalancing (TC01\u2013TC07).",
+              "PUT > Non-Existing Resource: Invalid/non-existent accountId returns proper client error (TC08, TC09, TC16, TC17).",
+              "PUT > Concurrency Issues: High-concurrency behavior covered; verifies consistent end state (TC18).",
+              "Header handling: Required CreatedBy header present/validated; optional Reason/Comment accepted (TC01\u2013TC03, TC02).",
+              "Header validation (negative): Missing/empty/whitespace/null CreatedBy produce errors (TC10, TC11, TC25, TC26).",
+              "Robustness/negative: Unsupported HTTP method 405 (TC22), unexpected query params tolerated (TC23), extra headers ignored (TC12).",
+              "Resilience: Transient network retry and service unavailability behavior considered (TC13, TC14).",
+              "Security hardening: SQLi in CreatedBy and XSS in Comment covered; no leakage/reflection (TC15, TC24).",
+              "Performance: Basic latency SLAs under normal and peak load (TC20, TC21)."
+            ],
+            "gaps": [
+              "PUT > Partial Update: Not applicable for this endpoint (no request body). Consider explicitly asserting that a body is ignored/rejected to prevent misuse.",
+              "Authorization: No negative tests for missing/invalid auth token leading to 401/403 despite Background assuming valid auth.",
+              "Idempotency: No explicit test that repeated calls yield the same final CBA and consistent 204 response when no changes are needed.",
+              "Outcome verification depth: Steps say \"CBA should be rebalanced\" but do not assert observable state via a GET or audit log; lacks concrete post-conditions (e.g., exact balance, events generated).",
+              "Audit headers effect: No checks that CreatedBy/Reason/Comment are persisted to audit logs/history as Kill Bill typically supports.",
+              "Error contract: 400 error body format/schema not asserted (e.g., standard Kill Bill error code/message structure); also no check that 204 responses have no body and correct Content-Type headers.",
+              "Rate limiting/throttling: No scenarios for 429 or backoff behavior under burst traffic.",
+              "Internationalization/encoding: No tests for unicode or long values in headers (e.g., non-ASCII CreatedBy/Comment) or max length constraints.",
+              "Observability: No checks for correlation/request IDs or server-side logging headers if applicable.",
+              "Security headers: No validation of security-related response headers (e.g., no-cache on 204, or absence of reflective data)."
+            ],
+            "recommendations": [
+              "Add explicit authorization negatives: missing token, expired token, insufficient permissions -> expect 401/403.",
+              "Add idempotency tests: invoke rebalancing twice; verify second call returns 204 and CBA remains unchanged.",
+              "Strengthen post-condition checks: after PUT, perform GETs (e.g., account balance/transactions) or query audit logs to assert exact expected CBA and that rebalancing considered all transactions.",
+              "Validate audit trail: confirm CreatedBy, Reason, and Comment are recorded in audit/history for the rebalancing operation.",
+              "Define and assert the error schema for 400 responses (fields like error, message, code), and verify 204 has no response body and appropriate headers (Content-Type absence or correctness).",
+              "Add negative auth/rate limiting tests including 429 under burst conditions if enforced by the API gateway.",
+              "Extend input validation: test unicode and max-length boundaries for headers; ensure proper rejection/sanitization.",
+              "Optionally add a test ensuring request bodies are not accepted for this PUT (e.g., sending a payload yields 400/415) to prevent misuse.",
+              "Document and assert any observability headers (e.g., X-Request-Id) if standard in your API platform."
+            ],
+            "usage": {
+              "completion_tokens": 1916,
+              "prompt_tokens": 5515,
+              "total_tokens": 7431,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

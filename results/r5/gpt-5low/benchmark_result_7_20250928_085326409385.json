@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-09-28T08:53:26.409358",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T08:52:56.763044",
+    "benchmark_end_time": "2025-09-28T08:53:26.409354",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 29.64631,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "DELETE - Valid Deletion: Multiple successful paths covered (delete all, delete subset via multi query param, no-op when no fields, large sets, duplicates, idempotent repeat delete) with 204 and empty body.",
+              "DELETE - Non-Existent Resource: Deleting on a valid but non-existent account returns 204 (idempotent behavior) is exercised.",
+              "Input validation: Invalid accountId format -> 400; invalid customField UUID -> 400; missing required header -> 400; extra unsupported query params ignored with success; SQLi/XSS attempts rejected.",
+              "Authorization: Unauthorized/forbidden access covered with 401/403.",
+              "Operational errors: Backend failure -> 500; network timeout -> timeout/504 and non-partial completion asserted.",
+              "Observability/side-effects: Follow-up GET to confirm deletion; integration data consistency validated.",
+              "Scalability/perf: Concurrency/load test with 100 parallel DELETEs and response time thresholds.",
+              "Headers: Required X-Killbill-CreatedBy and optional Reason/Comment presence exercised."
+            ],
+            "gaps": [
+              "DELETE - Concurrency: No explicit race condition test where two different actors delete overlapping sets at the same time and assert consistent end state and absence of 409s or lost updates.",
+              "DELETE - Soft Deletes: No scenario to verify whether deletion is soft vs hard (e.g., audit/audit logs, ability to restore, or a deleted flag).",
+              "Validation breadth: No test for valid-but-nonexistent customField UUIDs in the query (i.e., UUID not attached to the account); expected behavior (ignore vs 404 vs 400) not asserted.",
+              "Header behavior: Optional headers (Reason/Comment) are sent but not validated for persistence in audit logs/history.",
+              "Content/headers on 204: No assertion of response headers like Content-Type (story lists produces: application/json) and no-body enforcement for 204.",
+              "Mixed validity set: No scenario with a mix of valid and invalid customField IDs to define error vs partial success behavior.",
+              "Rate limiting/throttling: No test to ensure bulk/many rapid DELETEs are handled per system limits (if applicable)."
+            ],
+            "recommendations": [
+              "Add a race condition test: two users issue overlapping DELETEs (e.g., A+B and B+C) nearly simultaneously; assert final state and lack of inconsistent errors.",
+              "Add a soft-delete verification scenario (if applicable): confirm records are either hard-deleted or flagged as deleted; verify audit trail and potential restoration behavior.",
+              "Add scenarios for valid-but-nonexistent customField IDs in query: define whether they are ignored or cause 400/404; cover mix of valid and invalid IDs.",
+              "Verify audit logging: after sending CreatedBy/Reason/Comment, fetch audit logs to confirm entries recorded correctly.",
+              "Assert protocol details for 204 responses: no response body and appropriate headers (e.g., Content-Type consistent with API contract).",
+              "Include rate limiting/throttling checks under load bursts (beyond sustained 100 concurrent) to ensure correct HTTP statuses and headers (e.g., 429, Retry-After) if applicable."
+            ],
+            "usage": {
+              "completion_tokens": 1443,
+              "prompt_tokens": 5440,
+              "total_tokens": 6883,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

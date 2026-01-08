@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "77_2025-10-15T03:20:27.642598",
+    "jira_id": "77",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/priceList - Retrieve priceList for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T03:17:59.150458",
+    "benchmark_end_time": "2025-10-15T03:20:27.642592",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 148.492134,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "77_qe_sup-gpt4.1_agent-gpt4.1_1748920942.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request: Core happy paths covered (both subscriptionId and requestedDate, only one param, and none), asserting HTTP 200 and application/json PriceList.",
+              "Query Parameters: Strong coverage of combinations and validation (invalid UUID/date formats, extra params ignored, oversized values, malformed/partial values, injection/XSS defenses).",
+              "Authorization: Unauthorized access (401) covered for missing/invalid auth token.",
+              "Empty/No Data: Non-existent subscription (404) and empty database behavior covered.",
+              "Error Handling: Clear responses for 400/404/502/503 and no internal details on malformed/injection inputs.",
+              "Boundary/Business Logic: Date boundary at price list change and large history for a subscription covered.",
+              "Non-functional: Performance under normal/peak load and retry after transient failure; backward compatibility scenario included.",
+              "Content-Type: application/json asserted in success scenarios.",
+              "Pagination: Not applicable to this single-resource endpoint (no list), so not required."
+            ],
+            "gaps": [
+              "Caching Behavior: No verification of ETag/Last-Modified, Cache-Control headers, or conditional GET (If-None-Match/If-Modified-Since -> 304).",
+              "Rate Limiting: No scenarios for burst traffic leading to 429 Too Many Requests and Retry-After header behavior.",
+              "Authorization Depth: No 403 Forbidden scenario for authenticated but unauthorized users/tenants (if applicable); no tenant-scoping checks.",
+              "Ambiguous Spec/Test for missing parameters: TC03/TC04 allow multiple outcomes (200 or default) instead of asserting the expected, deterministic behavior.",
+              "Schema/Contract: No explicit validation against the PriceList schema (#/definitions/PriceList) or deep assertions tying returned priceList to the subscription\u2019s plan on the requested date.",
+              "Date Validation: No tests for well-formed but invalid dates (e.g., 2025-02-30) or extreme values; no timezone/UTC/DST edge checks.",
+              "Lifecycle Constraints: No scenarios for requestedDate before subscription start or after cancellation/expiration.",
+              "Content Negotiation: No tests for Accept header handling (e.g., unsupported media type leading to 406, or JSON returned despite different Accept).",
+              "Duplicate/Whitespace/Encoding: No tests for duplicate query params, leading/trailing spaces, or URL-encoded values.",
+              "Server Error Envelope: No explicit 500 Internal Server Error simulation to verify consistent error format and no leakage (optional but useful)."
+            ],
+            "recommendations": [
+              "Add caching tests: verify Cache-Control and ETag/Last-Modified on 200 responses; perform conditional GET with If-None-Match/If-Modified-Since expecting 304.",
+              "Add rate limiting tests: simulate rapid bursts to elicit 429, validate Retry-After and ensure proper back-off behavior.",
+              "Clarify and codify behavior when parameters are omitted: split TC03/TC04 into precise expectations (e.g., 200 with default price list vs 400) per product decision.",
+              "Introduce schema/contract tests: validate response against #/definitions/PriceList (required fields, types) and assert linkage to the subscription\u2019s plan for the given date using seeded data.",
+              "Expand date validation: include well-formed but invalid dates (e.g., 2025-02-30), min/max date bounds, and timezone/DST boundary checks (define canonical timezone, typically UTC).",
+              "Add lifecycle scenarios: requestedDate before subscription start, during pause, or after cancellation; assert defined outcomes.",
+              "Broaden authorization: add 403 Forbidden and tenant isolation scenarios if the API enforces roles/tenancy.",
+              "Test content negotiation: vary Accept headers (e.g., application/xml) and assert 406 or documented fallback; always assert Content-Type on success and errors.",
+              "Harden query parsing: tests for duplicate parameters, trimming whitespace, and URL-encoded values; define whether to take first, last, or reject duplicates.",
+              "Optionally simulate 500 errors (e.g., DB failure) to verify standard error envelope and absence of stack traces."
+            ],
+            "usage": {
+              "completion_tokens": 7129,
+              "prompt_tokens": 4977,
+              "total_tokens": 12106,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6272,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

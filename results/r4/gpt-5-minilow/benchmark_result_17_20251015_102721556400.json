@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-10-15T10:27:21.556359",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:27:08.619839",
+    "benchmark_end_time": "2025-10-15T10:27:21.556353",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 12.936514,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple happy-path scenarios (TC01, TC02, TC03, TC04, TC05, TC22, TC26) verify successful creation and response shape (201, response body, Location header).",
+              "Invalid Payload / Validation: Malformed JSON, missing required fields, invalid email format, empty body (TC10, TC11, TC12, TC17) are covered.",
+              "Path parameter validation: Invalid accountId format and missing accountId path (TC07, TC08) and non-existent account (TC09) are covered.",
+              "Headers: Required and optional header behaviours are tested (TC05, TC02, TC13).",
+              "Authorization: Unauthorized access is considered (TC14).",
+              "Error & dependency handling: External dependency/unavailability and slow/degraded DB and transient network are included (TC15, TC19, TC25).",
+              "Edge / robustness: Large payload/boundary (TC16), concurrent requests (TC20), duplicate/unexpected fields and query params (TC06, TC18), security inputs (SQLi/XSS - TC23, TC24), and unicode/regression inputs (TC21) are present.",
+              "Integration & consistency: Post-create visibility via GET and downstream propagation are tested (TC26).",
+              "Accessibility / documentation: Error message clarity and documentation guidance are addressed (TC27)."
+            ],
+            "gaps": [
+              "Server error (5xx) general handling: While TC15/TC19 touch service unavailability, there is no explicit test for generic 500 Internal Server Error caused by server-side faults (e.g., DB exception leading to 500) and how the API surfaces diagnostic information.",
+              "Duplicate submission idempotency/duplicate detection: The standard POST guideline asks about duplicate submissions; there is no explicit scenario that sends the same request twice to validate idempotency/duplicate handling (exact duplicate payload / retry semantics beyond transient network recovery).",
+              "Exact contract for extra/unknown fields: TC06 notes \u201c201 or 400 depending on API behavior\u201d but does not assert the exact accepted policy; no test asserts strict schema rejection vs. tolerant behavior and the exact fields that will be ignored or returned.",
+              "Caching / HTTP semantics: No tests check caching-related headers (ETag, Cache-Control) or Location header semantics beyond presence (e.g., GET the Location to validate resource).",
+              "Rate limiting / throttling: No tests exercise rate limits or behavior when many requests arrive in a short burst (distinct from TC20 concurrency which focuses on correctness, not throttling).",
+              "Pagination and large result handling: Although primarily a POST operation, responses return arrays of AccountEmail objects; there are no tests for very large lists or pagination behavior if the API paginates responses.",
+              "Response header semantics & consistency: Presence/format of Location header is asserted but not its correctness in relation to returned object ids, nor are response Content-Type or caching headers asserted.",
+              "Authorization permutations: TC14 exists but lacks coverage of role-based access differences (401 vs 403 scenarios, scopes, or specific user perms)."
+            ],
+            "recommendations": [
+              "Add explicit server-error simulation tests that force 500 responses (e.g., mock DB exceptions) to verify graceful failure messages and logging behavior.",
+              "Add duplicate-submission tests: send identical POST twice (and combination with idempotency keys if supported) to assert whether duplicates are rejected, ignored, or create separate resources.",
+              "Make TC06 precise: add two scenarios asserting schema-tolerant behavior (unknown fields are ignored and still create resource) and schema-strict behavior (unknown fields produce 400), depending on intended API contract. Ensure tests assert which fields are returned.",
+              "Add tests that validate Location header value: parse Location, GET it, and compare returned resource to POST response to ensure consistency.",
+              "Add rate-limiting/throttling tests: burst of requests to observe 429 or other throttling behavior and ensure graceful retry guidance.",
+              "Add tests for large response sets / pagination for the emails list (if API can return many emails) or verify that POST responses remain correct when account has a very large number of emails.",
+              "Assert HTTP semantics: Content-Type correctness, caching headers (ETag/Cache-Control) where applicable, and consistent error payload structure for 4xx/5xx cases.",
+              "Expand authorization tests to include both unauthenticated (401) and authenticated-but-forbidden (403) scenarios and role/scope permutations if the system enforces RBAC."
+            ],
+            "usage": {
+              "completion_tokens": 1132,
+              "prompt_tokens": 6487,
+              "total_tokens": 7619,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

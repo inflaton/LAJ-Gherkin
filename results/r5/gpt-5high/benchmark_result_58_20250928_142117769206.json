@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "58_2025-09-28T14:21:17.769179",
+    "jira_id": "58",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/customFields - Remove custom fields from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T14:19:02.251550",
+    "benchmark_end_time": "2025-09-28T14:21:17.769175",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 135.517625,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "58_qe_sup-gpt4.1_agent-gpt4.1_1748919726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE | Valid Deletion: Thorough coverage of success paths (remove all, single, multiple, none present) returning 204, with post-verification via GET and unaffected bundles.",
+              "DELETE | Non-Existent Resource: 404 for unknown bundle and empty database states.",
+              "DELETE | Concurrency: Simultaneous deletes of the same custom field validated as idempotent with 204.",
+              "Validation and Query Handling: Invalid bundleId/UUID formats, truncated UUIDs, empty customField, unsupported query params (ignored), and multi-valued customField covered.",
+              "Headers and Auth: Required X-Killbill-CreatedBy enforced; optional Reason/Comment supported; 401 for invalid token; 400 for missing required header; header value length boundaries for Comment.",
+              "Resilience/Security/Perf: 503/504 when services are unavailable/degraded; SQL injection attempt in CreatedBy blocked; large-scale delete performance target validated; data consistency validated post-delete."
+            ],
+            "gaps": [
+              "DELETE | Soft Deletes: No scenario to confirm whether deletion is soft vs hard (e.g., audit flags vs physical removal).",
+              "Concurrency breadth: No test for concurrent mixed operations (one deleting all while another deletes a subset) or immediate retry idempotency (same request twice sequentially).",
+              "Mixed customField values: No scenario with a mixture of valid and invalid UUIDs in the same request to define whole-request vs partial-failure behavior.",
+              "Duplicate customField IDs in the same request are not tested (should still succeed and be idempotent).",
+              "Cross-bundle reference: Not tested when a provided customField UUID belongs to a different bundle (should not affect that bundle and should not remove anything from the target bundle).",
+              "Response semantics: No explicit checks that 204 responses have an empty body and appropriate headers; and that error responses return application/json as per spec.",
+              "Authorization depth: 403 (authenticated but not authorized) not covered, if applicable.",
+              "Operational limits: No rate limiting (429) coverage and no explicit 500 Internal Server Error handling for unexpected backend failures.",
+              "Header robustness: No injection/boundary tests for X-Killbill-Reason and X-Killbill-Comment beyond length; no CreatedBy boundary/Unicode tests.",
+              "Protocol correctness: No test sending an unexpected request body or wrong Content-Type to confirm server behavior (ignored vs 415)."
+            ],
+            "recommendations": [
+              "Add a test to determine deletion model: validate soft-delete vs hard-delete behavior, e.g., verify audit markers or presence in an audit/history endpoint.",
+              "Extend concurrency coverage with: (a) delete-all vs delete-subset issued simultaneously; (b) immediate retry of the same delete to assert idempotent 204; (c) simultaneous deletes of different fields where one request completes first.",
+              "Add scenarios for mixed customField inputs: one invalid UUID alongside valid ones (expect 400 vs partial success); combine valid-but-not-on-bundle with valid-on-bundle.",
+              "Add a test with duplicate customField UUIDs in the same request to ensure idempotent behavior and a single effective removal.",
+              "Test cross-bundle UUIDs: include a custom field that belongs to another bundle in the request and verify it is not removed from that other bundle and the target bundle remains consistent.",
+              "Verify response semantics: assert 204 has no body and appropriate headers; assert error responses carry Content-Type application/json and a consistent error schema.",
+              "If applicable, add a 403 authorization scenario (authenticated user lacking permission).",
+              "Add resilience/ops tests for 429 rate limiting and forced 500 Internal Server Error to validate generic failure handling.",
+              "Expand header robustness: injection and boundary tests for Reason/Comment; boundary and Unicode tests for CreatedBy.",
+              "Add a negative protocol test sending an unexpected body or incorrect Content-Type to confirm server behavior (ignore vs 415)."
+            ],
+            "usage": {
+              "completion_tokens": 6325,
+              "prompt_tokens": 6309,
+              "total_tokens": 12634,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5504,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

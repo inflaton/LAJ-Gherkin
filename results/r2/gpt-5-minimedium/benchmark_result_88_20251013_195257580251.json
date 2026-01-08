@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-10-13T19:52:57.580226",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:51:37.815062",
+    "benchmark_end_time": "2025-10-13T19:52:57.580222",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 79.76516,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Path parameter validation: valid and invalid invoiceItemId formats are tested (TC01, TC09).",
+              "Core success behavior: successful removals return 204 and empty body for full removal, selective removal, no-tags case (TC01, TC02, TC04, TC05).",
+              "Query parameter handling: tagDef presence, absence, empty, subset, malformed, very large lists, extra/unexpected query parameters are covered (TC02, TC05, TC06, TC07, TC13, TC14, TC16).",
+              "Required and optional headers: X-Killbill-CreatedBy required and validated; optional X-Killbill-Reason and X-Killbill-Comment exercised (TC01, TC03).",
+              "Error responses: non-existent invoice item -> 404 and invalid invoiceItemId format -> 400 are covered (TC08, TC09).",
+              "Authentication and authorization edge: invalid/expired token -> 401 is covered (TC11); missing X-Killbill-CreatedBy is covered (TC10).",
+              "Robustness/security: XSS/injection attempts and malformed inputs are considered (TC15, TC13).",
+              "Concurrency and performance: high concurrency / race condition considerations are present (TC17).",
+              "Integration and operational scenarios: service unavailable (503) and dependent service (audit logging) unavailability are included (TC12, TC19).",
+              "Regression and accessibility: special-chars-in-comment regression and accessibility of docs/errors are present (TC18, TC20)."
+            ],
+            "gaps": [
+              "Content-Type / response media-type checks are missing: the story says \u201cProduces: application/json\u201d but tests do not assert response Content-Type on success or error.",
+              "Soft-delete semantics are not covered: no test verifies whether tags are soft-deleted vs permanently removed (DB/state verification).",
+              "Permission/authorization (403) is not explicitly tested: there is coverage for invalid token (401) and missing header (400) but no case for authenticated user lacking required permissions resulting in 403.",
+              "Idempotency / repeated DELETE behaviour is not explicitly covered: repeated delete of same tag(s) should be asserted to be safe and consistent (e.g., subsequent DELETEs return 204).",
+              "Duplicate tagDef values and mixed valid/invalid tagDef elements in the same request are not explicitly tested (behavior when some UUIDs are duplicated or some are invalid).",
+              "Server error handling (500) and other unexpected server-side failures are not covered (only 503 is present).",
+              "Response body content on error: tests expect an error message but do not assert specific error structure/fields or Content-Type consistency (e.g., JSON error schema).",
+              "Rate limiting / throttling is not covered: no tests verify behavior under rapid repeated requests or request throttling (aside from performance/concurrency).",
+              "Caching headers (ETag, Cache-Control) are not tested \u2014 may be less relevant for DELETE but the API spec mentions produced content type and clients may rely on headers."
+            ],
+            "recommendations": [
+              "Add explicit assertions for response Content-Type (application/json) on both success and error cases, even when the body is empty, to match \u201cProduces: application/json\u201d.",
+              "Add a soft-delete verification test that inspects persistent state (DB or API GET) after delete to confirm whether tags are marked deleted or permanently removed.",
+              "Add a 403 test for an authenticated user lacking permission to remove tags (covers authorization/ACL behavior).",
+              "Add idempotency tests: call DELETE twice (or more) for the same tagDef and assert stable results (204 and no side effects on subsequent calls).",
+              "Add tests for duplicate and mixed-validity tagDef inputs (e.g., duplicates, some invalid UUIDs in same tagDef list) and assert whether operation is atomic, partial, or rejected with proper error codes and messages.",
+              "Simulate server-side failures to assert 500 Internal Server Error handling and consistent error responses; verify error schema/fields for 4xx/5xx responses.",
+              "Add assertions for error response structure (JSON fields, error codes, messages) and Content-Type so clients can reliably parse errors.",
+              "Introduce rate-limiting / throttling tests (burst requests) to validate server behavior and proper status codes (429 if applicable) and ensure system stability under load beyond functional concurrency tests.",
+              "Enhance concurrency tests to include conflicting simultaneous deletes (e.g., deletion of overlapping tag sets by different users) and assert transactional integrity (no data corruption).",
+              "If applicable, add tests to verify caching-related headers are not misleading for DELETE responses and that clients do not cache DELETE responses (no ETag/Cache-Control that implies cacheability)."
+            ],
+            "usage": {
+              "completion_tokens": 2393,
+              "prompt_tokens": 5394,
+              "total_tokens": 7787,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1408,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

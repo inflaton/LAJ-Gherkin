@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-15T15:02:21.575927",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:00:38.883362",
+    "benchmark_end_time": "2025-10-15T15:02:21.575921",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 102.692559,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "DELETE - Valid Deletion: Successful 204 for deleting all fields, specific fields via multi customField params, and empty response body (TC01, TC02, TC03, TC04, TC06, TC07, TC15, TC19, TC20, TC21, TC23).",
+              "DELETE - Non-Existent Resource: 404 when paymentId not found (TC09).",
+              "Input validation: Invalid paymentId format 400 (TC08); invalid/mixed customField formats 400 (TC13, TC16, TC18); missing required X-Killbill-CreatedBy 400 (TC11); optional headers Reason/Comment accepted (TC03).",
+              "Authorization: 401 for invalid authentication token (TC12).",
+              "Edge cases: Payment with no custom fields returns 204 (TC04); non-existent customField IDs are no-ops with 204 (TC10); unexpected query param tolerated (TC05).",
+              "Resilience/availability: 503 when service unavailable (TC14); performance under load validated (TC19).",
+              "Integration: Audit log dependency exercised for available/unavailable states (TC21, TC22)."
+            ],
+            "gaps": [
+              "DELETE - Concurrency: No tests for race conditions (simultaneous deletes/updates) or behavior if fields are deleted between requests.",
+              "DELETE - Soft deletes: Not verified whether deletion is hard vs soft; no follow-up retrieval/audit checks to prove final state semantics.",
+              "Response headers/contract: No explicit checks for Produces/Content-Type and correctness of a 204 with no body.",
+              "Query parameter edge cases: Not covering duplicate customField IDs, empty values (customField=), whitespace-only, or trimming/case-sensitivity behavior.",
+              "Idempotency/retry: No scenario repeating the same DELETE to ensure consistent 204 and no side effects.",
+              "Authorization breadth: 403 Forbidden (authorized but not permitted) not covered if RBAC applies.",
+              "Server error handling: 500 Internal Server Error path (e.g., DB failure) not tested.",
+              "Ambiguous dependency handling: TC22 allows 204 or 503; expected behavior for audit-log unavailability is not specified or asserted consistently."
+            ],
+            "recommendations": [
+              "Add concurrency/idempotency tests: parallel DELETEs on the same payment/fields and a repeat DELETE; verify final state and consistent 204.",
+              "Verify soft vs hard delete: perform a follow-up GET of custom fields post-delete and, if soft-deleted, assert appropriate flags/audit records.",
+              "Assert response headers/contract: for 204 responses, verify no body and expected headers; confirm consistency with declared Produces.",
+              "Cover query param edge cases: duplicates, empty/blank values, URL-encoded blanks; define whether to ignore (204) or reject (400).",
+              "Include a 403 scenario if RBAC is enforced for deletion operations.",
+              "Simulate internal failures to validate 500 handling and error schema.",
+              "Clarify and fix TC22: define a single expected outcome when the audit log is unavailable (e.g., proceed with deletion and log asynchronously) and assert it."
+            ],
+            "usage": {
+              "completion_tokens": 3936,
+              "prompt_tokens": 6120,
+              "total_tokens": 10056,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3264,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

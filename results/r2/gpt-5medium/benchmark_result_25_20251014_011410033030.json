@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-14T01:14:10.032978",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T01:12:50.224890",
+    "benchmark_end_time": "2025-10-14T01:14:10.032974",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 79.808084,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "POST Method - Valid request flows: Success with only required header (TC01), with all optional params (TC02), with partial/total/greater-than-total amounts (TC02\u2013TC04), and when there is nothing to pay (TC06, TC07, TC29).",
+              "Input validation and invalid payloads: Malformed/non-existent accountId (TC08, TC09), missing/empty required header (TC10, TC16), invalid paymentMethodId (TC11), invalid paymentAmount (TC12), malformed targetDate (TC13), invalid boolean (TC14), invalid pluginProperty type (TC15), extra unknown params handling (TC25).",
+              "Duplicate submission/retry behavior: Transient network errors and post-processing retries without duplicate payments (TC22, TC28).",
+              "Large inputs: Extremely large paymentAmount and large pluginProperty arrays (TC23, TC24).",
+              "Server error handling: Gateway down (TC18), DB down (TC19), plugin system unavailable (TC27).",
+              "Authorization/Authentication: Missing/invalid auth tokens return 401 (TC17).",
+              "Query parameters coverage: Presence/absence and combinations of paymentMethodId, externalPayment, paymentAmount, targetDate, pluginProperty (TC01\u2013TC05, TC25).",
+              "Headers: Required X-Killbill-CreatedBy validated; optional X-Killbill-Reason and X-Killbill-Comment exercised (TC01, TC02, TC10, TC16).",
+              "Security hardening: SQL injection in path and XSS in pluginProperty do not leak or execute (TC20, TC21).",
+              "Performance/operability: Response-time under normal/peak load and resource utilization under stress (TC30\u2013TC32)."
+            ],
+            "gaps": [
+              "Rate limiting/throttling: No scenarios validating 429 behavior or backoff when many rapid requests are made.",
+              "Concurrency on the same resource: No test for two concurrent payment triggers for the same account ensuring no double charge and proper locking/idempotency.",
+              "paymentMethodId semantics: No scenario where externalPayment=false and a non-default valid paymentMethodId is provided to verify that method is used. Also missing case where paymentMethodId does not belong to the account.",
+              "No-default-payment-method path: Missing scenario where account lacks a default payment method and paymentMethodId is not provided (expected error/behavior unspecified).",
+              "Target date semantics and time zones: No coverage for past vs future targetDate, boundary at day changes, or timezone offsets/format variants (e.g., YYYY-MM-DD vs full ISO-8601).",
+              "Monetary precision and currency rules: No tests for decimal precision, rounding, or currency mismatches when paymentAmount has fractional cents.",
+              "Response headers and content: 204 responses typically have no body; tests do not assert absence of body, Content-Type, or other headers (e.g., no-cache) as applicable.",
+              "Idempotency key/header (if supported): Not exercised to guarantee safe retries beyond network-error scenarios.",
+              "Business partitioning/ownership checks: Not verifying that pluginProperty values are properly encoded/escaped and that duplicates or very long entries are handled within documented limits.",
+              "Auditability: No verification that X-Killbill-Reason/Comment are persisted to audit logs/history."
+            ],
+            "recommendations": [
+              "Add rate-limiting tests: burst of requests to the same endpoint/account; assert 429 or documented behavior and retry-after headers.",
+              "Add concurrency tests on the same account: fire two POSTs simultaneously; assert only one payment is created and the other is rejected or becomes a no-op with appropriate status.",
+              "Add a scenario using a valid non-default paymentMethodId with externalPayment=false to assert that the chosen method is used; add a case where the method belongs to a different account to assert 400/404.",
+              "Add a scenario where the account has no default payment method and no paymentMethodId is provided; assert expected error code and message.",
+              "Expand targetDate tests: past date, future date, timezone offsets (e.g., 2025-01-01T00:00:00Z vs 2025-01-01), and invalid but well-formed dates (e.g., 2025-02-30).",
+              "Add monetary precision tests: paymentAmount with high precision decimals, rounding behavior, and boundary values at min/max allowed; verify no over-collection and correct rounding.",
+              "Validate response headers on 204: assert empty body, appropriate Content-Type (or absence), and any required headers per API spec.",
+              "If the API supports idempotency keys, add tests to include an Idempotency-Key header and verify repeated requests with the same key do not duplicate payments.",
+              "Harden pluginProperty tests: very long strings, URL-encoded and UTF-8 characters, duplicate keys, and ensure server enforces documented limits and sanitization without breaking plugins.",
+              "Add audit assertions: after success, query audit logs/history to ensure X-Killbill-Reason and X-Killbill-Comment are captured as expected."
+            ],
+            "usage": {
+              "completion_tokens": 3823,
+              "prompt_tokens": 7048,
+              "total_tokens": 10871,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2752,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

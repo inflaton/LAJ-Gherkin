@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-10-15T10:47:46.128938",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:47:31.398066",
+    "benchmark_end_time": "2025-10-15T10:47:46.128933",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 14.730867,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Payload: Multiple success scenarios (TC01, TC02, TC12, TC13, TC19, TC20, TC21, TC23) cover creation with valid inputs including optional headers and edge-length values.",
+              "Invalid Payload: Several tests for malformed JSON, missing required fields, invalid currency, unsupported extra fields and empty body (TC04, TC05, TC07, TC08, TC09, TC18) exercise input validation.",
+              "Duplicate Submission / Conflict: TC06 checks behavior when planId already exists (conflict handling).",
+              "Authentication: TC10 covers missing authentication (expects 401).",
+              "Optional Headers: TC02 verifies X-Killbill-Reason and X-Killbill-Comment are accepted.",
+              "Large Payloads: TC15 covers very large request payloads and documents expected outcomes.",
+              "Service Availability / Dependent Services: TC11, TC23, TC24 cover catalog/service unavailable and degraded downstream services (503/resilience).",
+              "Concurrency: TC16 (retry after transient network), TC22 (concurrent creations) address concurrency and transient failures.",
+              "Performance: TC17 checks response time threshold.",
+              "Security Validation: TC18 checks XSS/SQL injection patterns are rejected."
+            ],
+            "gaps": [
+              "Response Schema / Content-Type: The story specifies response body is a string (confirmation/URI) and produces application/json; tests check for confirmation string/URI but do not validate Content-Type header or exact response schema/format (e.g., JSON-wrapped string vs plain text).",
+              "Required Headers Validation Depth: Tests check missing X-Killbill-CreatedBy (TC03) but do not test invalid/empty CreatedBy values (e.g., blank string, too long, non-ASCII) or unauthorized but authenticated users (403 vs 401).",
+              "Server Error Handling (500): No explicit tests simulate server-side failures such as DB errors or unhandled exceptions to verify 500 responses and graceful error messages.",
+              "Idempotency / Duplicate Submission Semantics: While duplicate planId (TC06) is covered, there is no test for duplicate requests due to retries (idempotency semantics) beyond TC16 retry after network \u2014 e.g., retry that causes duplicate creation vs safe retry behavior.",
+              "Atomicity / Partial Failure: No tests that verify partial catalog updates are rolled back if dependent steps fail (e.g., created in main catalog but failed to register with dependent services).",
+              "Schema Field Constraints: Story references fields like billingPeriod, amount, productCategory \u2014 tests check invalid currency and missing planId, but do not enumerate invalid billingPeriod values, negative/zero amounts, invalid productCategory, or data-type mismatches (numeric vs string).",
+              "Headers required/optional semantics: Tests assume X-Killbill-Reason and Comment are optional and accepted, but there is no negative test for invalid header values or extremely long header contents.",
+              "Content Negotiation/Consumes: Story requires consumes: application/json; tests do not verify rejection of other content types (e.g., text/plain, application/xml) or behavior when Content-Type header is missing.",
+              "Rate Limiting / Throttling: No tests for rate limits or repeated requests throttling.",
+              "Caching / HTTP Semantics: No tests for caching headers, ETag, Cache-Control (mostly relevant for GET but sometimes for POST responses), or Location header presence for created resource.",
+              "HTTP Method Semantics: TC14 checks GET returns 405 but no tests for other unsupported methods (PUT, PATCH, DELETE) on this endpoint.",
+              "Live Catalog Safety: Story warns \"modifies the live catalog \u2014 use with caution\"; there are no tests or safety checks (e.g., dry-run mode, approval headers or audit log verification) verifying that changes are auditable or easily reversible."
+            ],
+            "recommendations": [
+              "Add response schema checks: validate Content-Type header, exact response body format (plain string vs JSON string), and presence of Location header/URI format for created resources.",
+              "Improve header validations: add tests for invalid/empty/too-large X-Killbill-CreatedBy, and negative tests for invalid X-Killbill-Reason/Comment values and header length limits.",
+              "Add server error simulations: add tests that force / simulate DB failures or unexpected exceptions to ensure API returns 500 with useful diagnostics consistent with error handling guidelines.",
+              "Test idempotency and duplicate-retry semantics: include tests that replay the same request (same payload and headers) after transient failures to assert whether duplicate resources are created or a safe response is returned.",
+              "Expand schema constraint tests: add negative cases for billingPeriod (unsupported values), amount (negative/zero/overflow), productCategory (invalid enum), and wrong data types for fields.",
+              "Content-Type and consumes tests: verify rejection of non-application/json payloads and missing Content-Type header behavior.",
+              "Rate limiting and throttling: add stress tests that exercise endpoint under high request rates to confirm proper throttling or 429 behavior if applicable.",
+              "Add tests for atomicity with dependent services: simulate dependent service failure during creation and assert rollback/compensating actions or consistent state.",
+              "Auditability / safety controls: add tests that verify creation is logged/audited (headers recorded), and, if available, dry-run or preview modes to avoid unintended live-catalog changes.",
+              "HTTP method coverage: add negative tests for other HTTP methods (PUT/DELETE/PATCH) to verify 405/appropriate responses.",
+              "Security: expand injection tests to ensure inputs are sanitized and persisted values cannot be exploited (validate stored values), and include authorization (403) scenarios for insufficient privileges."
+            ],
+            "usage": {
+              "completion_tokens": 1363,
+              "prompt_tokens": 5854,
+              "total_tokens": 7217,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

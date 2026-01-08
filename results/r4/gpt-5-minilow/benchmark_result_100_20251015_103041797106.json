@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-15T10:30:41.797073",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:30:28.593519",
+    "benchmark_end_time": "2025-10-15T10:30:41.797068",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 13.203549,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01..TC07, TC10, TC15, TC20, TC23) validate successful deletion behavior including deleting all fields and deleting specific IDs.",
+              "Query Parameters: Good coverage for query parameter combinations \u2014 absent (delete all), single, multiple, max/min, unexpected extra params, large numbers, and malformed/partial parameters (TC02, TC05, TC06, TC07, TC13, TC15, TC16).",
+              "Header Handling: Tests cover required header X-Killbill-CreatedBy, missing header (TC11), optional headers X-Killbill-Reason and X-Killbill-Comment (TC03), and header validation/XSS attempt (TC17).",
+              "Error Responses: Invalid paymentId format (TC08 -> 400) and non-existent paymentId (TC09 -> 404) are covered as specified in the story. Malformed customField IDs return 400 (TC13, TC16) as required.",
+              "Authentication/Authorization: Unauthorized access with invalid token is tested (TC12 -> 401).",
+              "Integration / Dependent Services: Audit log available/unavailable behavior is considered (TC21, TC22).",
+              "Service Availability / Resilience: Service unavailable (503) and degraded performance scenarios are included (TC14, TC19).",
+              "Security: Injection/XSS attempts tested for customField and header inputs (TC17, TC18).",
+              "Regression and Backward Compatibility: Regression (TC20) and legacy client compatibility (TC23) are present."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No explicit tests for concurrent deletions or race conditions where two requests try to delete the same custom fields simultaneously (DELETE concurrency guideline).",
+              "Soft Delete / Data Persistence Semantics: No checks for soft-delete vs. permanent delete semantics (e.g., is data marked deleted, retained in audit, or removed from DB).",
+              "Audit and Side-effect Failure Modes: While audit-service availability is present, there is no explicit assertion of transactional guarantees (e.g., deletion should roll back if audit log write fails) or explicit test for partial failures across services.",
+              "Rate Limiting / Throttling: No tests for rate limiting or behavior under many rapid requests (standard guidelines mention rate limiting).",
+              "Caching Behavior: No tests for caching headers or behavior (ETag, Cache-Control) \u2014 though less relevant to DELETE, still part of guidelines for API surface.",
+              "Pagination / Large-Result Considerations: Not applicable to DELETE response payloads, but no tests verify handling when underlying dataset is very large beyond count-based removals (some large payload tests exist but no stress tests for backend pagination of dependent resources).",
+              "HTTP Response Content-Type and Error Body Structure: Tests assert presence of error messages but do not validate consistent JSON error schema, error codes inside body, or content-type headers.",
+              "Authorization Scope / RBAC: Only invalid token (401) is tested; no fine-grained authorization / permission-denied (403) scenarios are covered (e.g., user authenticated but lacking permission).",
+              "Input Limits & Validation Edge Cases: There is a lot of coverage for malformed IDs, but not explicit tests for duplicate customField IDs in the same request, or extremely long header values beyond XSS check, or overall URL length limits."
+            ],
+            "recommendations": [
+              "Add concurrency tests: create tests that fire multiple simultaneous DELETE requests (same paymentId and overlapping customField IDs) to detect race conditions and ensure idempotency/consistency.",
+              "Clarify and test soft-delete semantics: add tests that verify whether deleted custom fields are permanently removed or marked deleted, and verify visibility via GETs or DB checks and audit trail entries.",
+              "Transactional behavior with dependent services: add tests ensuring consistent behavior when audit/logging or other downstream services fail \u2014 should the delete succeed without audit, fail entirely, or be retried? Make expected behavior explicit and test both outcomes.",
+              "Rate limiting / load tests: add tests that simulate many rapid requests to verify throttling or protective measures and expected 429/other behavior.",
+              "Standardize error responses: add assertions for response content-type and a consistent error body schema (error code, message, details) in 4xx/5xx scenarios.",
+              "Authorization scope tests: add scenarios for authenticated but unauthorized users (403) to verify RBAC or permission checks beyond token validity.",
+              "Edge-case input validation tests: include duplicate customField IDs in a single request, extremely long header values or customField lists to validate URL/parameter length limits, and tests for maximum acceptable numbers (stress beyond 1000) to confirm limits and graceful degradation.",
+              "Audit log transactional tests: add explicit tests verifying audit entries are created with correct metadata (createdBy, reason, comment) and timestamps, and that those entries reflect whether delete actually occurred.",
+              "Soft regression/performance tests: expand performance checks beyond a single response-time assertion to include sustained load and monitoring for resource exhaustion during large-scale deletes."
+            ],
+            "usage": {
+              "completion_tokens": 1241,
+              "prompt_tokens": 6120,
+              "total_tokens": 7361,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

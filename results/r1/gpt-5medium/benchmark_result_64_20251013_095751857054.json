@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-13T09:57:51.857029",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:56:32.739845",
+    "benchmark_end_time": "2025-10-13T09:57:51.857024",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 79.117179,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Request (PUT): Successful resume with required header and with optional requestedDate/pluginProperty/Reason/Comment (TC01\u2013TC04, TC18).",
+              "Non-Existing Resource (PUT): 404 when bundle does not exist and 400 for invalid UUID format (TC05\u2013TC06).",
+              "Concurrency Issues (PUT): Concurrent requests handled with appropriate responses (TC21).",
+              "State/Business Rules: 400 when bundle not paused or cancelled (TC08\u2013TC09).",
+              "Header Requirements: Missing X-Killbill-CreatedBy yields 400; optional headers handled and recorded (TC04, TC07).",
+              "Query Param Validation: requestedDate future/past; pluginProperty valid/invalid types; extra param handling (TC02, TC11, TC19\u2013TC20).",
+              "Authorization/Authentication: 401/403 for invalid credentials (TC10).",
+              "Error Handling/Resilience: 500 on dependency failure; retry logic succeeds; degraded plugin path (TC14\u2013TC15, TC25).",
+              "Security Hardening: SQL injection and XSS attempts cause no harm (TC16\u2013TC17).",
+              "Performance/Scalability: Normal/peak load behavior validated (TC22).",
+              "Auditability: Reason/comment captured in audit logs (TC04)."
+            ],
+            "gaps": [
+              "PUT Partial Update/Body Handling: No scenario ensuring a request body is rejected or ignored (e.g., 400/415 for unexpected body or Content-Type).",
+              "pluginProperty encoding (collectionFormat=multi): No tests verifying repeated query param form versus comma-separated list and behavior on incorrect encoding.",
+              "requestedDate format/timezone: No tests for invalid date format (non-ISO), timezone handling, or boundary dates (e.g., leap day).",
+              "Response contract for 204: No assertion that success responses have no body and verify headers (Content-Type absent for 204, error responses use application/json).",
+              "Idempotency semantics: No sequential double-invoke test to confirm outcome/status for re-resume (should it remain 204 or return 400/409).",
+              "Authorization breadth: Missing scenario for absent/expired auth token and permission/role-based access checks.",
+              "Status code precision: Concurrency scenario allows 400 or 409; story does not specify 409\u2014needs alignment and a definitive test.",
+              "Audit coverage: No explicit verification that X-Killbill-CreatedBy is persisted in audit logs (only Reason/Comment checked).",
+              "Error payload schema: No validation of error response structure (code, message, type) across 400/404/500."
+            ],
+            "recommendations": [
+              "Add a scenario sending a non-empty JSON body and/or Content-Type: application/json to confirm the API rejects or ignores bodies for this endpoint (expect 400/415) and documents the behavior.",
+              "Add scenarios to validate pluginProperty encoding: repeated pluginProperty=params (multi) accepted; comma-separated rejected or documented behavior; single empty value handling.",
+              "Add scenarios for requestedDate invalid format (e.g., 2025-13-40), timezone offsets (Z, +05:00), and boundary dates (Feb 29 on leap year).",
+              "Assert response contract: for 204, ensure no response body and expected headers; for errors, assert Content-Type: application/json and a stable error schema.",
+              "Add an idempotency test: resume a paused bundle, then call resume again after it is active to verify the exact expected status and no adverse side effects.",
+              "Expand auth tests: missing/expired token, insufficient permissions/roles to ensure correct 401 vs 403 behavior.",
+              "Clarify and codify expected status for duplicate/concurrent attempts (choose 409 or 400) and update TC21 accordingly.",
+              "Extend audit tests to verify X-Killbill-CreatedBy is persisted and retrievable via audit APIs alongside Reason/Comment.",
+              "Add negative/edge input tests: Unicode and control characters in headers; oversize pluginProperty key/value; empty strings for optional headers; invalid UUID variants (uppercase, nil UUID)."
+            ],
+            "usage": {
+              "completion_tokens": 4710,
+              "prompt_tokens": 6265,
+              "total_tokens": 10975,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3840,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

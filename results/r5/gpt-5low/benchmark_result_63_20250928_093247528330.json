@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-09-28T09:32:47.528298",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:31:59.116418",
+    "benchmark_end_time": "2025-09-28T09:32:47.528294",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 48.411876,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT Valid Request: Multiple success paths verify bundle and all active subscriptions are paused (immediate and scheduled via requestedDate).",
+              "PUT Non-Existing Resource: 404 covered for non-existent bundle (including empty DB).",
+              "PUT Concurrency: Concurrent pause requests tested; only one succeeds, others fail appropriately.",
+              "Input validation: Invalid bundleId format (400), invalid states (already paused/canceled -> 400), missing required header X-Killbill-CreatedBy (400), malformed requestedDate (400), past requestedDate (400), malformed pluginProperty (400).",
+              "Optional inputs: requestedDate optional and future scheduling verified; pluginProperty processed (including special characters); optional headers X-Killbill-Reason and X-Killbill-Comment recorded (audit).",
+              "Authorization: Unauthorized user returns 401.",
+              "Resilience/availability: Service unavailable (503) and dependency failure (502) paths covered.",
+              "Security hardening: SQL injection in path and XSS in headers tested; no unintended behavior.",
+              "Robustness/perf: Large pluginProperty array handling, extra unexpected parameters ignored, load/performance scenario, and regression isolation between bundles."
+            ],
+            "gaps": [
+              "Authorization granularity: No 403 Forbidden scenario for authenticated but not permitted users (distinct from 401).",
+              "Server error handling: No explicit 500 Internal Server Error path when backend fails unexpectedly during pause.",
+              "requestedDate edge cases: No tests for same-day/now semantics, timezone handling (UTC vs tenant TZ), or boundary formats (e.g., ISO 8601 with timezone offsets).",
+              "Headers validation depth: No tests for overly long X-Killbill-Reason/Comment, empty-string values, or non-UTF8/encoding errors.",
+              "Response headers: No validation of expected headers on 204 (e.g., absence of body, Content-Length, or application/json \u201cProduces\u201d consistency).",
+              "Idempotency semantics: While double-pause is covered as 400, no scenario asserts explicit idempotency contract (if any) or safe retries behavior.",
+              "Audit/side-effects: Only asserts that reason/comment recorded; no verification that pause event is audited with correct actor, timestamp, and correlating requestedDate.",
+              "PluginProperty edge cases: No tests for duplicate keys, empty array, null entries, or mixed types within the multi-valued query format.",
+              "Observability: No checks for correlation/request IDs or logging when errors occur.",
+              "Non-functional: Accessibility scenario for API docs is out of scope for API behavior and doesn\u2019t add coverage for this endpoint."
+            ],
+            "recommendations": [
+              "Add a 403 Forbidden scenario for authenticated users lacking permission to pause bundles.",
+              "Add a 500 Internal Server Error scenario (e.g., DB exception during state transition) to validate generic error handling.",
+              "Expand requestedDate tests: now/today behavior, timezone offsets (e.g., 2025-01-01T00:00:00Z vs local TZ), and min/max acceptable dates.",
+              "Extend header validation: empty and excessively long X-Killbill-Reason/Comment values, and invalid character encodings.",
+              "Validate response headers on success: ensure 204 returns no body, check Content-Length/Content-Type consistency with \u201cProduces: application/json.\u201d",
+              "Clarify and test idempotency/retry behavior: repeated same request with same requestedDate should have defined outcome (e.g., 204 vs 409/400).",
+              "Strengthen audit assertions: verify audit record contains createdBy, reason, comment, requestedDate, timestamp, and bundleId.",
+              "Broaden pluginProperty tests: empty list, duplicate keys resolution, nulls, and mixed-type rejection while respecting collectionFormat=multi.",
+              "Add observability checks if standard: presence/propagation of request/correlation IDs in responses/logs.",
+              "Remove or reclassify the API documentation accessibility scenario from this feature; keep this in documentation QA, not API behavior tests."
+            ],
+            "usage": {
+              "completion_tokens": 1604,
+              "prompt_tokens": 6254,
+              "total_tokens": 7858,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

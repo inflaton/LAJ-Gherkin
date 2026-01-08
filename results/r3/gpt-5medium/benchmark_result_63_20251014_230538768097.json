@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-10-14T23:05:38.768070",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T23:04:16.403085",
+    "benchmark_end_time": "2025-10-14T23:05:38.768066",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 82.364981,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT - Valid Request: Multiple happy paths (required header only, with requestedDate, with pluginProperty, with optional headers, and all combined) returning 204 and verifying state changes/audit info.",
+              "PUT - Non-Existing Resource: 404 for valid-but-missing bundleId and empty DB cases.",
+              "PUT - Concurrency Issues: Concurrent pause requests where only one succeeds and others fail appropriately.",
+              "Input Validation: Invalid bundleId format (400), already paused/canceled invalid state (400), missing required header (400), past/malformed requestedDate (400), malformed pluginProperty (400).",
+              "Security/Robustness: SQL injection in path handled (400, no side effects), XSS in headers handled (400, no script execution), unexpected extra parameters ignored.",
+              "Large Payload Handling: Very large pluginProperty array handled (204 or 413).",
+              "Authorization: Unauthorized user returns 401.",
+              "Integration/Resilience: Upstream API unavailable (503), dependent plugin down (502), downstream consistency verified post-204.",
+              "Regression/Isolation: Pausing one bundle does not affect others; special characters in pluginProperty processed."
+            ],
+            "gaps": [
+              "Response format: Story specifies Produces: application/json, but tests do not verify Content-Type on error responses or that 204 has no body.",
+              "Query param encoding: pluginProperty uses collectionFormat=multi; no test verifies repeated query parameters (pluginProperty=a&pluginProperty=b) are accepted/processed.",
+              "Idempotency (sequential): No explicit test that a second pause call after a successful 204 returns the expected error (e.g., 400) when not concurrent.",
+              "Authorization granularity: No 403 Forbidden case for an authenticated user lacking permissions (only 401 is covered).",
+              "Audit logging completeness: Tests verify reason/comment persistence but not that CreatedBy is recorded in audit/audit headers.",
+              "Date boundary/format nuances: No tests for timezone/boundary handling (e.g., today vs tenant timezone) or rejecting date-time values when only date is allowed.",
+              "Unexpected request body: API has no body; no test ensures a provided body is rejected or ignored per contract.",
+              "Error payload/schema: Tests check presence of error messages but not schema/fields of error responses (e.g., code, message, context) or localization."
+            ],
+            "recommendations": [
+              "Add scenarios to assert headers and body expectations: 204 has no body; error responses include Content-Type: application/json and conform to a documented error schema.",
+              "Add a scenario sending pluginProperty as repeated query params (pluginProperty=prop1=value1&pluginProperty=prop2=value2) to validate collectionFormat=multi handling.",
+              "Add a sequential idempotency test: pause once (204), then pause again (expect 400 with already paused/invalid state).",
+              "Include a 403 Forbidden scenario with an authenticated user lacking required role/permission.",
+              "Verify audit logging includes X-Killbill-CreatedBy in audit records alongside reason/comment.",
+              "Extend requestedDate tests to cover boundary conditions (today in tenant timezone), and reject ISO date-time inputs when only date is allowed.",
+              "Add a test that sends a non-empty request body and assert the API rejects it with 400/415 or ignores it per spec.",
+              "Validate error payload structure (fields like type, code, message) and stable semantics for client handling."
+            ],
+            "usage": {
+              "completion_tokens": 4052,
+              "prompt_tokens": 6254,
+              "total_tokens": 10306,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3328,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-09-28T08:36:07.631583",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T08:34:38.667866",
+    "benchmark_end_time": "2025-09-28T08:36:07.631579",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 88.963713,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid deletion (remove all tags when tagDef not supplied) and targeted deletion of specific tagDefs (TC01, TC02, TC16).",
+              "HTTP status handling for common outcomes: 204 for success, 400 for invalid inputs, 404 for non-existent bundle, 401 for unauthorized, and 503/504 for service/timeout conditions (TC05, TC06, TC09, TC10, TC18).",
+              "Header handling: required X-Killbill-CreatedBy validated, optional X-Killbill-Reason/X-Killbill-Comment exercised, and header injection/XSS validation included (TC03, TC08, TC14).",
+              "Query-parameter validation: invalid tagDef UUIDs, mixed valid/invalid tag lists, extra unexpected params, and very large lists are tested (TC07, TC11, TC12, TC13).",
+              "Idempotency and empty-state behavior: deleting when bundle has no tags and regression for empty-array tagDef are covered (TC04, TC16).",
+              "Concurrency and performance: concurrent DELETEs and large-scale deletion behavior are exercised (TC15, TC12, TC18).",
+              "Integration verification: post-delete read via GET to confirm tag state is validated (TC17).",
+              "Accessibility consideration for error representation in UI is included (TC19), and service-unavailable behavior is tested (TC10)."
+            ],
+            "gaps": [
+              "Soft-delete vs hard-delete semantics are not verified (no test confirms whether records are flagged as deleted or removed permanently).",
+              "Response headers / API contract details aren't asserted: tests don't validate Content-Type (application/json) on error responses nor verify expected headers for 204 responses.",
+              "Collection-format edge cases for tagDef are not explicitly tested: the suite does not distinguish repeated multi param form vs comma-separated single param, nor assert which formats are accepted or rejected.",
+              "Behavior when a tagDef is a valid UUID but not associated with the bundle is not covered (should removal be treated as success/204 or reported as a partial error?).",
+              "403 Forbidden (authenticated but unauthorized) is not covered \u2014 only 401 is asserted; distinction between 401/403 should be tested.",
+              "Server-side error handling (500) and database-failure/transactional rollback scenarios are not exercised.",
+              "HTTP method errors (405 Method Not Allowed) \u2014 e.g., POST/GET against this DELETE endpoint \u2014 are not covered.",
+              "Rate-limiting / throttling behavior (429) under bursts/spikes is not covered despite concurrency/performance tests being present.",
+              "Audit/logging side effects of the X-Killbill-* headers are not verified (no tests to confirm audit entries or history records).",
+              "Duplicate tagDef parameters and idempotent behavior with repeated identical parameters are not explicitly tested.",
+              "More detailed race condition tests (overlapping deletes with different tag subsets, partial-failure concurrency) are missing."
+            ],
+            "recommendations": [
+              "Add tests to assert the API contract (response headers): verify Content-Type on error responses is application/json and clarify expected headers for 204 responses (no-content semantics vs documented \"produces\").",
+              "Add collection-format tests for tagDef: explicitly test repeated tagDef parameters (multi) and comma-separated values to confirm accepted format and document behavior.",
+              "Add a test where tagDef UUIDs are valid but not associated with the bundle to confirm idempotent behavior (expect 204) or the documented error behavior.",
+              "Add authorization-negative tests for 403 (authenticated but forbidden) in addition to 401, and include token-expired/invalid-token cases.",
+              "Introduce server-error simulation tests (500) and DB-failure scenarios to validate error propagation and transactional rollback semantics.",
+              "Add method-verb tests to verify 405 responses and the Allow header when using unsupported HTTP verbs on the endpoint.",
+              "Introduce rate-limiting/throttling tests (burst of requests beyond expected limits) and assert 429 behavior or graceful degradation.",
+              "Add audit/log verification tests to confirm X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment are persisted to audit/history records where applicable.",
+              "Add tests for duplicate tagDef parameters and for overlapping concurrent deletions (e.g., two concurrent requests removing overlapping tag subsets) to more precisely detect race conditions and data corruption.",
+              "Clarify and codify expected behavior for soft deletes vs hard deletes and add tests to validate whichever behavior is intended (e.g., verify DB flag or absence of record).",
+              "Prioritize gaps: first add API-contract/header checks and collection-format tests (high impact), then 403/401 distinctions and tag-not-associated idempotency checks, followed by server-error and audit/logging tests."
+            ],
+            "usage": {
+              "completion_tokens": 7647,
+              "prompt_tokens": 4976,
+              "total_tokens": 12623,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6656,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-10-14T20:28:11.055365",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T20:26:44.128072",
+    "benchmark_end_time": "2025-10-14T20:28:11.055358",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 86.927286,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Required header X-Killbill-CreatedBy: presence and missing-case tested (TC01, TC03).",
+              "Optional headers X-Killbill-Reason and X-Killbill-Comment: provided-case tested (TC02).",
+              "Valid payload / successful creation: multiple success scenarios covering creation and retrieval of a new plan (TC01, TC02, TC12, TC13, TC19, TC20, TC21, TC23).",
+              "Schema validation & invalid payloads: missing required fields, invalid currency, malformed JSON and empty body covered (TC04, TC05, TC08, TC09).",
+              "Duplicate/Conflict handling: duplicate planId scenario covered (TC06).",
+              "Authentication/authorization negative case: missing auth handled (TC10).",
+              "Service dependency/unavailability: catalog/service down or degraded behavior covered (TC11, TC23, TC24).",
+              "Unsupported HTTP method: 405 behavior covered (TC14).",
+              "Large payloads: large-payload behaviour considered (TC15).",
+              "Security input validation: XSS/SQL injection attempts covered (TC18).",
+              "Concurrency: concurrent creation scenarios included (TC22).",
+              "Retry/resilience: retry after temporary network failure covered (TC16).",
+              "Performance SLA: response time verification present (TC17).",
+              "Response expectations: 201 and confirmation string/URI asserted in many success scenarios (TC01 et al.).",
+              "Boundary tests: maximum and minimum field lengths/values included (TC12, TC13).",
+              "Retrievability: new plan retrieval from catalog verified after creation (TC01)."
+            ],
+            "gaps": [
+              "Content-Type / media-type validation: no tests assert that Content-Type: application/json is required or that incorrect Content-Type yields the expected error (e.g., 415).",
+              "Internal Server Error (500) and DB failure handling: no explicit tests simulating an internal server error or verifying rollback/atomicity on partial failures.",
+              "Concurrent duplicate-planId race condition: concurrency tests use unique planIds; no test where multiple concurrent requests use the same planId to assert deterministic conflict handling (one success + others fail).",
+              "Enum / business-rule validation gaps: invalid productCategory, invalid billingPeriod, and other business-rule violations (e.g., non-supported categories/periods) are not explicitly tested.",
+              "Response headers and content-type verification: tests do not assert response Content-Type, nor check for a Location header (or other headers) when a URI is returned as confirmation.",
+              "Rate limiting / throttling: no tests cover burst requests / rate-limit behavior (e.g., 429).",
+              "Authorization scope / invalid credentials: missing-auth (401) is covered but not invalid/insufficient-permission cases (403).",
+              "Ambiguity about unknown fields: TC07 accepts extra fields but the API contract is not asserted \u2014 it is unclear whether unknown fields should be ignored or rejected.",
+              "Large-payload boundary behavior ambiguous: TC15 allows either 201 or 400 but does not assert server-specific behavior such as 413 Payload Too Large or exact limits.",
+              "Integration atomicity for dependent services: when downstream/dependent services are degraded TC24 permits either 201 or 503 but does not validate catalog state consistency (partial commit vs rollback).",
+              "Header value validation: no tests for invalid/empty X-Killbill-CreatedBy value, or excessively long header values."
+            ],
+            "recommendations": [
+              "Split TC15 into two deterministic tests: one that exercises a large-but-acceptable payload (assert 201) and one that exceeds the server limit and asserts a defined error (413 or configured behavior).",
+              "Add validation tests for business rules/enums: invalid productCategory values, invalid billingPeriod values, negative/zero/too-large amount values, and invalid planId formats.",
+              "Clarify the expected behavior for unknown fields: update TC07 to either verify unknown fields are rejected with 400 or explicitly ignored/stripped and accepted \u2014 align tests to the API contract.",
+              "Assert response headers and media type: add checks for Content-Type: application/json, and for Location (or equivalent) header when the response body/URI is returned.",
+              "Add tests for authorization scope: invalid token -> 401, insufficient privileges -> 403 to cover auth edge cases.",
+              "Add rate-limiting tests (burst requests) and assert 429 or the configured throttling behavior; include them in performance/stress test suites.",
+              "Add tests for header validation: empty X-Killbill-CreatedBy, extremely long values, and invalid characters to ensure proper header validation.",
+              "Add integration tests that mock dependent downstream services to validate atomicity: when a dependent service fails (or is degraded) ensure either full rollback or well-documented partial-commit behavior; assert catalog consistency post-failure.",
+              "Make performance SLA tests (TC17) robust: run in controlled environments or as part of CI performance tests (avoid flaky pass/fail in noisy test environments).",
+              "Document expected error codes consistently (e.g., 400 vs 409/409 for conflicts): align tests with the API contract and update tests to assert the chosen semantics."
+            ],
+            "usage": {
+              "completion_tokens": 7421,
+              "prompt_tokens": 5854,
+              "total_tokens": 13275,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6208,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

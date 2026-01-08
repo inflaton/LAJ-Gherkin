@@ -1,0 +1,80 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-10-14T05:37:50.907112",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T05:35:20.386089",
+    "benchmark_end_time": "2025-10-14T05:37:50.907108",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 150.521019,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Request (PUT): Multiple success scenarios verify HTTP 204 and that the CBA is recalculated for various account states (zero, negative, large positive, multiple transactions) with required and optional headers.",
+              "Non-Existing Resource (PUT): Negative paths cover invalid/non-existent accountId, invalid UUID format, oversize accountId, and empty database, all expecting appropriate 400 errors.",
+              "Concurrency Issues (PUT): High-concurrency scenario validates consistent results and 204 responses under parallel requests.",
+              "Additional robustness: Header validation (required missing/empty/whitespace/null), acceptance of optional headers, handling of unsupported headers and extra query params, method misuse (405), resilience (network retry, 503), and security hardening (SQLi/XSS in headers)."
+            ],
+            "gaps": [
+              "Partial Update (PUT): No scenario sends an unexpected request body; need a test to ensure bodies/partial updates are rejected or ignored per API contract.",
+              "Response headers/body for 204: No assertions that 204 returns no body and appropriate headers; story says Produces: application/json, which should be clarified and validated.",
+              "Authorization negatives: No tests for missing/invalid auth token leading to 401/403.",
+              "Idempotency across sequential calls: No scenario verifies repeated PUT calls are safe and produce stable, unchanged CBA after the first run.",
+              "Audit headers usage: No verification that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs or metadata.",
+              "Path parameter edge cases: No tests for accountId with leading/trailing spaces, case sensitivity, or URL-encoded characters.",
+              "Error response schema: Negative tests check for generic error messages but do not validate a consistent error payload structure (e.g., code, type, message, correlationId)."
+            ],
+            "recommendations": [
+              "Add a test that sends a JSON body with the PUT request; assert the API rejects it (e.g., 400/415) or explicitly ignores it, per spec.",
+              "Add assertions for 204 to confirm no response body, correct Content-Length, and expected Content-Type/headers; clarify the Produces: application/json requirement for a 204 response.",
+              "Introduce authorization negative tests (no token, expired/invalid token) expecting 401/403.",
+              "Add an idempotency test: invoke the rebalancing twice in sequence and verify the second call returns 204 and does not change CBA.",
+              "Verify audit trail: after a successful call, retrieve audit logs/metadata and assert CreatedBy/Reason/Comment are captured correctly.",
+              "Expand path param validation to cover trimming/whitespace, case sensitivity on UUIDs, and URL-encoded values.",
+              "Standardize error schema checks for 400/503 responses (fields like errorCode, message, type, requestId/traceId) and assert they are present and do not leak internals."
+            ],
+            "usage": {
+              "completion_tokens": 6762,
+              "prompt_tokens": 5515,
+              "total_tokens": 12277,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6144,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

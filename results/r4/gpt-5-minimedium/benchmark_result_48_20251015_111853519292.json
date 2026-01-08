@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-15T11:18:53.519261",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:18:31.999235",
+    "benchmark_end_time": "2025-10-15T11:18:53.519255",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 21.52002,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Success path covered (TC01) and idempotent behavior when host already in rotation (TC02).",
+              "Authorization: Unauthorized (TC03) and insufficient-permission (TC04) scenarios are present.",
+              "Method Handling: Wrong HTTP method (GET) is tested and expected 405 is asserted (TC06).",
+              "Service Unavailability / Server Error Handling: Service-down/unreachable scenario covered with 503 (TC05).",
+              "Unexpected Input Tolerance: Non-empty request body and extra headers tested and tolerated (TC07, TC08).",
+              "Concurrency & Race Conditions: Concurrent requests scenario covered (TC14).",
+              "Resilience / Retry: Transient network failure and retry behavior covered (TC13).",
+              "Performance: Degraded performance / timeout behavior considered (TC10).",
+              "Security: Header injection attempt is included (TC12).",
+              "Regression: A regression verification is included (TC11)."
+            ],
+            "gaps": [
+              "Content-Type / Produces header: The story specifies \"Produces: application/json\" but there are no assertions that responses (errors or otherwise) include Content-Type: application/json or validate response MIME type.",
+              "Error body schema and format: Error scenarios (401/403/503/405) assert that an error message exists, but there is no validation of JSON structure, fields, or consistent error schema.",
+              "Explicit 4xx and 5xx coverage: There is no explicit test that forces/validates a 400 Bad Request for invalid input (even if body is N/A) or a 500 Internal Server Error (simulated server-side failure). The guideline expects testing server error handling (e.g., DB failures leading to 500).",
+              "Rate limiting / Throttling: No tests exercise rate limiting or request throttling behaviour.",
+              "Large payloads / Robustness: No tests for very large request payloads or malformed payload encoding (the request body is typically N/A, but robustness tests are still missing).",
+              "Duplicate submission semantics: While idempotency is covered, duplicate-submission handling and any side effects are not explicitly validated beyond TC02/TC14.",
+              "Precise concurrency race detection: TC14 checks concurrent requests complete, but does not assert atomicity under race (e.g., no checks for intermediate inconsistent state or double-transition events).",
+              "Caching behavior: No tests verify caching headers (ETag, Cache-Control) \u2014 although not typical for this PUT endpoint, the standard guidelines include caching checks for endpoints generally.",
+              "Non-existing resource: PUT-specific guideline includes updating non-existing resources; not directly applicable to this endpoint (no resource id), but there is no test or explicit guard for mis-targeted requests or malformed paths.",
+              "Response on 204: Tests assert empty body for 204 but do not assert absence/presence of headers or whether Content-Type should or should not be set for a 204 response."
+            ],
+            "recommendations": [
+              "Add assertions for Content-Type headers: ensure error responses (and any non-empty responses) have Content-Type: application/json; decide and assert expected behavior for 204 responses (whether Content-Type should be present or absent).",
+              "Validate error response schema: introduce JSON schema checks for error responses (fields such as code, message, details) for all 4xx/5xx scenarios (401, 403, 405, 503 and a simulated 500).",
+              "Add server-error (500) test: simulate an internal failure (e.g., DB or dependent service error) and assert HTTP 500 and proper error JSON is returned.",
+              "Add 400 Bad Request test: even if request body is N/A, add a test that triggers a 400 (e.g., malformed headers, invalid content-type) to exercise request validation paths.",
+              "Rate-limiting tests: add tests that send bursts of requests to validate rate limiting behaviour and expected 429 responses or policy behavior.",
+              "Large / malformed payload tests: add tests that POST/PUT with extremely large/invalid payloads to observe handling and that the service does not crash or produce unexpected responses.",
+              "Improve concurrency assertions: extend TC14 to assert there are no intermediate inconsistent states, no duplicate side-effects, and to verify idempotency under race (for example by checking event/log counts or state-change events).",
+              "Add monitoring/audit verification: where possible, assert that admin actions are logged/audited (use test hooks or mock telemetry) so operational management requirements are covered.",
+              "Clarify and test expected behavior for non-resource PUTs: add a test for malformed paths or unexpected URL variations to ensure proper 404/400 handling if applicable.",
+              "Document and automate acceptance of \"Produces: application/json\": reconcile API design (204 with empty body vs requirement to produce JSON) and add a test corresponding to the chosen design.",
+              "If desired, add fuzzing/security tests beyond header injection: test payload/body injection vectors, header size limits, and authentication token edge cases (expired tokens, malformed tokens)."
+            ],
+            "usage": {
+              "completion_tokens": 2266,
+              "prompt_tokens": 3274,
+              "total_tokens": 5540,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

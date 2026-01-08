@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-13T09:01:06.320533",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:00:43.545715",
+    "benchmark_end_time": "2025-10-13T09:01:06.320529",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 22.774814,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE/Valid Deletion: Multiple success paths return 204 and verify account is marked closed and side-effects per defaults and flags (TC01\u2013TC07, TC19\u2013TC20).",
+              "DELETE/Non-Existent Resource: Idempotent handling validated with 204 for already-closed and non-existent accounts (TC11, TC12).",
+              "DELETE/Concurrency: Concurrency exercised via concurrent closures and retry after transient failure; idempotency verified (TC17, TC18).",
+              "DELETE/Soft Deletes: Explicit verification that the account is marked as closed (not hard-deleted) (TC01, TC06).",
+              "Input validation: UUID format and injection attempts return 400; missing required header returns 400; extraneous query params ignored (TC08, TC09, TC13, TC15).",
+              "Authorization: Missing/invalid auth returns 401 (TC10).",
+              "Server error handling: Database unavailable returns 500 (TC14).",
+              "Query parameters: Defaults, all-true/false, individual flags, and pairwise combinations thoroughly exercised with correct effects (TC01\u2013TC05).",
+              "Performance/Scalability: Large data sets and concurrency timing expectations covered (TC07, TC18)."
+            ],
+            "gaps": [
+              "DELETE/Concurrency (same resource): No scenario where two clients delete the same account simultaneously to assert idempotent, race-free behavior and consistent side-effects.",
+              "Query parameter type validation: No test for invalid boolean values (e.g., cancelAllSubscriptions=abc) to ensure 400/validation error per API behavior.",
+              "Response contract: Success 204 with Produces: application/json is stated; tests do not verify absence of body and appropriate headers (e.g., no Content-Type or correct one for 204).",
+              "Audit/headers behavior: Optional X-Killbill-Reason/Comment acceptance is exercised but not validation of recording/sanitization beyond XSS; no assertion that CreatedBy/Reason/Comment are persisted in audit logs.",
+              "Authorization breadth: Only 401 covered; no 403/permissions scenario if RBAC applies (e.g., authenticated but not authorized).",
+              "Idempotent retries with side-effect flags: No explicit verification that retrying the same flagged request does not duplicate side-effects (e.g., duplicate write-offs or adjustments).",
+              "Negative paths for resource state: No test where some side-effects succeed and others fail (partial failure/compensation behavior, e.g., subscriptions service down but invoices up)."
+            ],
+            "recommendations": [
+              "Add a scenario with two concurrent DELETEs on the same account to confirm idempotency and absence of race conditions or duplicated side-effects.",
+              "Introduce tests for invalid query parameter types/values (e.g., cancelAllSubscriptions=abc) and ensure the API returns a clear 400 with validation details.",
+              "Validate the 204 response contract: assert no body is returned and headers are correct/consistent with 204 semantics despite Produces: application/json.",
+              "Extend tests to verify audit logging: assert X-Killbill-CreatedBy/Reason/Comment are persisted and retrievable in audit records; keep XSS sanitization assertion.",
+              "If RBAC exists, add a 403 test for authenticated users lacking permission to close accounts.",
+              "Add retry tests focusing on side-effects: send the same DELETE with identical parameters multiple times and verify no duplicate write-offs, adjustments, or cancellations occur.",
+              "Add a resilience test for partial failures: simulate one dependent service failing (e.g., subscriptions down) while others are up, and assert API behavior (transactional rollback vs. partial success) is as intended."
+            ],
+            "usage": {
+              "completion_tokens": 1668,
+              "prompt_tokens": 6316,
+              "total_tokens": 7984,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "56_2025-10-13T06:45:19.084661",
+    "jira_id": "56",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/customFields - Add custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T06:43:10.376881",
+    "benchmark_end_time": "2025-10-13T06:45:19.084658",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 128.707777,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "56_qe_sup-gpt4.1_agent-gpt4.1_1748919557.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Happy path: successful creation (HTTP 201) with JSON array response and payload/response matching is covered (TC01, TC02, TC03, TC04, TC19, TC13).",
+              "Header requirements: required X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment handled (TC01, TC02, TC07).",
+              "Path/resource validation: invalid bundleId format -> 400 and non-existent bundle -> 404 are covered (TC05, TC06).",
+              "Request body validation: malformed JSON, empty body, missing required fields, unsupported extra fields, and duplicate names within a single request are covered (TC08, TC09, TC10, TC12, TC11).",
+              "Infrastructure and dependency failures: service unavailable and dependent-service failures covered (TC15, TC20); network timeout scenario included (TC16).",
+              "Scale and performance: large-payload handling and high-level concurrency/performance scenarios are present (TC17, TC22).",
+              "Security: SQL injection and XSS attempts are included (TC23, TC24).",
+              "Misc/UX: extra query parameters allowed (TC13) and API documentation accessibility check (TC25)."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency: No test validating behavior when the exact same POST payload is submitted multiple times (duplicate-submission handling or idempotency semantics).",
+              "500 Internal Server Error: No explicit test simulating server-side unhandled exceptions or DB failures returning HTTP 500 and the expected sanitized error response.",
+              "Content-Type handling: Missing tests for absent or incorrect Content-Type (e.g., expect 415 Unsupported Media Type or explicit 400 behavior).",
+              "Partial-commit / transactional semantics: No tests for mixed-valid arrays (some CustomField objects valid, others invalid) to assert whether the operation is atomic or partial and what response is returned.",
+              "Concurrency on same resource: TC22 uses multiple bundleIds; there is no test for concurrent POSTs to the same bundleId to reveal race conditions or duplicate creation conflicts.",
+              "Rate limiting / throttling: No tests verify behavior under high request rate (429 responses, backoff).",
+              "Field-level validation depth: Missing tests for invalid data types, max-length limits, allowed character sets, unicode handling, and explicit boundary conditions for CustomField properties.",
+              "Payload limits exceedance: No explicit test sending payloads over system limits to assert 413 or proper error handling.",
+              "Response headers and metadata: No assertions for response headers (Content-Type, Location) or returned metadata fields (IDs, timestamps, createdBy) in the created CustomField objects.",
+              "Authorization scopes / permissions: Only unauthenticated 401 is tested (TC14); no test for authenticated-but-unauthorized (403) or role-based access control.",
+              "Duplicate vs existing data conflicts: No test for creating a field whose name already exists for the bundle (behavior against existing custom fields is not asserted).",
+              "Ambiguous case-sensitivity expectation: TC21 is present but does not assert a concrete expected behavior; spec needs to define whether field names are case-sensitive and tests aligned accordingly."
+            ],
+            "recommendations": [
+              "Add idempotency/duplicate-submission tests: POST the same payload twice and assert expected behavior (no duplicate entries, 409 conflict, or idempotent response) and consider testing Idempotency-Key if supported.",
+              "Add a 500 simulation test: mock a DB or unhandled exception path to verify an HTTP 500 is returned with a safe error message and no sensitive leak. ",
+              "Add Content-Type tests: send requests with missing or incorrect Content-Type headers and assert 415 or the API-specific error response. ",
+              "Add mixed-array / transactional tests: send arrays containing both valid and invalid CustomField objects and assert atomic vs partial commit behavior per spec; update acceptance criteria to specify expected semantics. ",
+              "Add concurrency tests on the same bundleId: run multiple concurrent POSTs targeting the same bundle and assert no duplicates, correct deduplication, or consistent conflict handling; measure consistency under race conditions. ",
+              "Add rate-limiting tests: flood the endpoint to verify 429 status and proper throttling behavior and backoff headers if applicable. ",
+              "Add comprehensive field-level validation tests: validate types, max/min lengths, allowed characters, unicode and boundary values for each CustomField property; include tests for invalid types (e.g., numeric in name) and overly long strings. ",
+              "Add payload-exceeded tests: attempt to post beyond system limits (number of fields or payload bytes) and assert expected error (413 or documented API error). ",
+              "Assert response headers and metadata: verify Content-Type: application/json, and whether Location or other creation metadata is expected; validate that returned objects include required IDs/timestamps and that created fields match or contain server-generated metadata. ",
+              "Add authorization-scope tests: cover authenticated-but-unauthorized cases returning 403 and verify role/permission enforcement. ",
+              "Clarify and assert case-sensitivity rules: decide expected behavior for field-name casing and add concrete tests for same-name-different-case collisions both within request and against existing bundle fields. ",
+              "Add duplicate-name-vs-existing tests: define expected conflict resolution (reject, update, or ignore) and add tests accordingly. ",
+              "Make tests schema-driven: derive positive and negative test vectors from the CustomField JSON schema (property-level required/optional/asserted types) to automate boundary and mutation testing. "
+            ],
+            "usage": {
+              "completion_tokens": 6978,
+              "prompt_tokens": 6302,
+              "total_tokens": 13280,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

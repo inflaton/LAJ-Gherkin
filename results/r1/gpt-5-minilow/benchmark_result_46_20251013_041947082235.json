@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-13T04:19:47.082211",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:19:30.369772",
+    "benchmark_end_time": "2025-10-13T04:19:47.082207",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 16.712435,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Successful 204 scenario for a valid account (TC01) matches acceptance criteria.",
+              "Non-Existent Resource: 404 scenarios for missing accounts (TC02, TC16, TC18) are present.",
+              "Invalid Path Parameter / Validation: 400 scenarios for malformed/invalid UUIDs (TC03, TC12, TC14, TC15) cover input validation requirements.",
+              "Authentication: 401 scenarios for missing/invalid/expired auth (TC05, TC06) are covered.",
+              "Unsupported HTTP Method: 405 scenario (TC11) checks method-not-allowed behavior.",
+              "Service / Dependency Failures: 503 scenarios for dependent service unavailability and high-load (TC07, TC08) are included.",
+              "Query Parameters: Handling of extra query parameters is tested (TC09).",
+              "Concurrency & Performance: Concurrent DELETEs and response time expectation are covered (TC13).",
+              "Edge & Regression Cases: No-accounts state, transient network recovery, regression/backwards-compatibility are included (TC16, TC17, TC19).",
+              "Security Injection/XSS: Attempts to inject SQL/XSS via accountId are covered (TC14, TC15)."
+            ],
+            "gaps": [
+              "Soft Delete / Data Persistence: No test asserts whether the underlying account data or cache markers reflect a soft-delete vs hard-delete or verifies persistence/state after invalidation beyond cache state.",
+              "Idempotency / Repeated Deletes: No explicit test for repeated DELETEs on the same account (should subsequent deletes return 204 or 404?), i.e., idempotency behavior not asserted.",
+              "Race Conditions for DELETE Concurrency: TC13 checks concurrent performance but does not explicitly validate race conditions where two requests attempt to invalidate/delete the same account concurrently and the resulting state/ordering.",
+              "Authorization Scope / Roles: Tests cover unauthenticated (401) but not forbidden (403) cases where an authenticated user lacks admin role/permissions.",
+              "Response Headers & Content-Type: No assertions about expected response headers (e.g., Content-Type application/json for error responses, caching headers, ETag) despite story noting application/json in successful responses.",
+              "Exact Error Payload Schema: Tests assert presence of error messages but do not validate error payload structure, error codes, fields (e.g., error type, code, message) against a contract.",
+              "Rate Limiting / Throttling: No tests for rate limiting, spike protection, or throttling behavior.",
+              "Large Payload / Path Length Limits: TC10 checks a large accountId but ambiguity remains \u2014 no clear test for server limits or behavior when path length exceeds server limits.",
+              "HTTP 204 Body/Headers Contract: The story states \"Produces: application/json\" yet TC01/others expect empty body for 204 without asserting headers; contract inconsistency is not verified."
+            ],
+            "recommendations": [
+              "Add idempotency tests: send DELETE twice for the same account and assert the second response meets the documented contract (204 or 404) to define expected behavior.",
+              "Add role-based authorization tests: include an authenticated non-admin user to assert 403 Forbidden when lacking admin privileges.",
+              "Add race-condition tests: simulate overlapping DELETEs for the same account and validate final cache state and that the service behaves deterministically (no partial invalidation).",
+              "Assert response headers and error payload schema: add assertions for Content-Type (application/json) on errors, and validate a standard error schema (fields and codes).",
+              "Add soft-delete / persistence checks if applicable: verify whether invalidation affects persisted state, audit logs, or only cache markers; add tests for audit/event emission if required.",
+              "Add rate-limiting/throttling tests: verify behavior under high request rates and expected status codes (e.g., 429) if the platform enforces limits.",
+              "Clarify and test id/length limits: add explicit tests for path length limits and very large accountId values to remove ambiguity in TC10.",
+              "Make TC13 more explicit about race conditions (not only performance): include atomicity and state assertions after concurrent requests.",
+              "Document and test the contract for HTTP 204 responses: explicitly assert whether a 204 must include specific headers (e.g., Content-Type) or must be empty to remove test ambiguity."
+            ],
+            "usage": {
+              "completion_tokens": 1217,
+              "prompt_tokens": 4640,
+              "total_tokens": 5857,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

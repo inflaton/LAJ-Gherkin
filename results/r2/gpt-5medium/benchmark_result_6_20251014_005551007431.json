@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-14T00:55:51.007401",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T00:54:29.555647",
+    "benchmark_end_time": "2025-10-14T00:55:51.007397",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 81.45175,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "PUT - Valid Request: Multiple success scenarios (TC01\u2013TC04, TC16, TC24) verify 204 and persistence updates with varied payloads, sizes, and optional headers.",
+              "PUT - Non-Existing Resource: Handled via TC07 (non-existent account) returning error; aligns with guideline expectation to handle missing resources.",
+              "PUT - Concurrency Issues (partial): TC25 exercises concurrent requests and verifies data consistency at a system level.",
+              "Input Validation per story: TC06 (invalid UUID), TC09\u2013TC11 (missing/malformed body, invalid schema) return 400 as required; TC08 validates required X-Killbill-CreatedBy.",
+              "Robust error handling beyond story: Unauthorized (TC12), 502/503/504 (TC14, TC13, TC19), payload limit 413 (TC26).",
+              "Header handling: Optional headers accepted (TC02), unsupported headers ignored (TC05); integration with audit logs covered (TC27).",
+              "Security hardening: SQLi/XSS validation covered (TC20, TC21).",
+              "Edge cases: Empty array semantics (TC15), extra properties in body (TC17), duplicate field names regression (TC23)."
+            ],
+            "gaps": [
+              "PUT - Partial Update semantics: No clear scenarios verifying whether partial updates are allowed or must be rejected, nor atomicity guarantees when some objects are invalid (TC18 does not assert no-op on failure).",
+              "PUT - Concurrency on the same resource: No tests for simultaneous PUTs to the same account to detect lost updates or define conflict resolution (e.g., last-write-wins vs conditional updates).",
+              "Idempotency: No scenario showing that repeating the same PUT yields the same state and response without side effects.",
+              "Content negotiation and headers: No tests for incorrect/missing Content-Type (415) or unsupported Accept (406); success responses don\u2019t assert headers (e.g., that 204 has no body and appropriate headers).",
+              "Status code contract for non-existent account: Story does not specify, and TC07 expects 400; typically 404 is used. Contract not clarified/validated.",
+              "CustomField schema boundaries: Limited coverage of data types and field constraints; maximum/minimum boundary tests are high-level and not mapped to explicit spec limits.",
+              "Audit metadata persistence: While audit logging is tested (TC27), there is no assertion that X-Killbill-Reason/Comment values are captured/stored as required metadata.",
+              "UUID pattern edge cases: No tests around borderline-valid UUIDs (uppercase, hyphen placement, nil UUID handling distinct from non-existent).",
+              "Produces header: Story states produces application/json, but 204 should not include a body; no verification of response body absence or header correctness."
+            ],
+            "recommendations": [
+              "Define and add scenarios for partial update behavior and atomicity: mixed valid/invalid objects should result in a clear outcome (reject all vs apply valid only) and assert database state accordingly.",
+              "Add same-account concurrency tests: two or more simultaneous PUTs to the same account; verify conflict handling (e.g., ETag/If-Match), or clearly document and test last-write-wins.",
+              "Add idempotency tests: repeat the exact same PUT request and verify identical 204 response and unchanged state; test retry-safety after transient failures.",
+              "Add content negotiation tests: wrong/missing Content-Type -> 415; unsupported Accept -> 406; verify that 204 responses have no body and appropriate headers.",
+              "Clarify and align status codes for non-existent accounts (prefer 404); update TC07 accordingly and add a test asserting the correct error contract.",
+              "Expand CustomField schema boundary tests: explicit min/max lengths per field, allowed character sets, data types, and numeric ranges; include negative cases.",
+              "Verify audit metadata: assert that X-Killbill-Reason and X-Killbill-Comment are persisted in audit logs and retrievable.",
+              "Add UUID pattern edge-case tests: uppercase UUIDs, brace-wrapped values, valid-but-nil UUID vs invalid format to ensure precise validation.",
+              "Revisit empty array semantics (TC15): confirm requirement that it removes all custom fields; if intended, add tests for partial removal vs full replacement semantics and document behavior."
+            ],
+            "usage": {
+              "completion_tokens": 3974,
+              "prompt_tokens": 6919,
+              "total_tokens": 10893,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3072,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

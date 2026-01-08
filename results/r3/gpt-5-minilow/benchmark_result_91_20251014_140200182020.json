@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-14T14:02:00.181990",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T14:00:46.587526",
+    "benchmark_end_time": "2025-10-14T14:02:00.181983",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 73.594457,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01-TC05, TC21, TC22) verify successful updates with valid payloads and required headers and that DB is updated (204).",
+              "Required/Optional Headers: Tests verify required X-Killbill-CreatedBy presence (TC01, TC03) and optional headers X-Killbill-Reason and X-Killbill-Comment (TC02).",
+              "Invalid Path Parameter Format: TC06 covers invalid invoiceItemId format \u2192 400.",
+              "Non-Existing Resource: TC07 and TC24/TC25 cover 404 when invoice item not found or DB state variations.",
+              "Malformed/Empty/Unsupported Body: TC08 (malformed JSON), TC10 (empty body), and TC11 (unsupported fields) validate request body validation and appropriate 4xx responses.",
+              "Authentication/Authorization: TC13 covers missing/invalid authentication (401).",
+              "Payload Size / Large Payloads: TC12 and TC21 cover large/excessive payload behaviour (204/413 and performance with max-size payload).",
+              "Security Validation: TC14 checks for SQL injection/security validation resulting in 4xx/422.",
+              "System Errors and Dependent Services: TC15 (DB unavailable \u2192 500), TC19 (dependent service unavailable \u2192 503), and TC16 (timeout \u2192 504) cover server- and infra-level failures.",
+              "Idempotency & Regression: TC17 verifies repeated requests idempotency; TC18 tests regression (no data loss).",
+              "Performance / Load: TC20 tests parallel updates across many invoice items and response-time expectations."
+            ],
+            "gaps": [
+              "PUT semantics: Partial update behavior is not explicitly tested \u2014 no scenario verifies whether partial payloads are accepted, rejected, or how missing fields are handled for PUT (the guidelines require testing partial updates for PUT).",
+              "Concurrency / Race Conditions: While TC20 and TC17 touch performance and idempotency, explicit concurrency race-condition tests (simultaneous conflicting updates to the same invoice item to detect lost updates or locking issues) are missing.",
+              "Validation of CustomField schema details: Tests assume the CustomField schema is \u201cknown and valid\u201d but there are no explicit tests for individual field constraints (data types, required fields inside CustomField, length limits, allowed characters) beyond unsupported fields and SQL injection.",
+              "Header validation semantics: Tests cover presence/missing required header and optional headers, but not header value validation (e.g., excessively long CreatedBy, invalid characters) or behavior when optional headers are present but empty.",
+              "HTTP response content-type and body expectations on success: The spec says produces application/json, but success responses are 204 (no content). There are no tests verifying response headers (Content-Type) or that no body is returned for 204 responses.",
+              "Rate limiting and throttling: No tests cover API rate limiting (guideline).",
+              "Caching behavior: No tests verify caching-related headers (ETag, Cache-Control) or cache interactions (guideline, mostly for GET but still relevant to API surface expectations).",
+              "Duplicate submissions: No explicit test for duplicate payload semantics other than idempotency \u2014 e.g., whether duplicates create duplicates or are deduplicated; dedup behavior for custom fields is unspecified and untested.",
+              "Detailed error payload validation: Error body content is asserted generically, but tests do not assert standardized error schemas, codes, internationalization, or fields that client relies on (error codes, errorType)."
+            ],
+            "recommendations": [
+              "Add an explicit Partial Update scenario: send a JSON array that omits some fields of the CustomField objects (or includes only a subset) to confirm whether PUT requires full objects or allows partial updates; assert expected behavior (400 or update semantics).",
+              "Add concurrency/race condition tests: simulate concurrent PUTs to the same invoiceItemId with conflicting custom field changes to detect lost updates, optimistic locking failures, or inconsistent final state.",
+              "Add granular CustomField validation tests: verify field-level constraints like types, required fields, string length limits, allowed character sets, invalid enum values, and max array length with explicit expected 4xx codes.",
+              "Add header-value validation tests: include scenarios with excessively long X-Killbill-CreatedBy, empty optional headers, and invalid characters to ensure robust header validation and error messages.",
+              "Verify success response semantics: add assertions that 204 responses contain no body and proper headers (e.g., Content-Type absent or as expected), and that API does not accidentally return a body/content for 204.",
+              "Add rate-limiting/throttling tests: exercise rapid repeated requests to trigger rate limits and assert 429 behaviour or configured limits.",
+              "Add duplicate-submission tests distinct from idempotency: test re-submitting the same payload with different timestamps/IDs to confirm whether duplicates are deduplicated or result in multiple entries when that is relevant to domain.",
+              "Standardize error payload checks: assert error response schema/fields (message, code, details) for 4xx/5xx cases to ensure clients can reliably parse errors.",
+              "Add explicit test for large header and payload boundary conditions: confirm maximum allowed sizes and exact behavior at/over limits (413 vs accepted)."
+            ],
+            "usage": {
+              "completion_tokens": 1215,
+              "prompt_tokens": 6450,
+              "total_tokens": 7665,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

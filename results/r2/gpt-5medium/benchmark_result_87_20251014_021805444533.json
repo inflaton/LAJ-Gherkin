@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-14T02:18:05.444504",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T02:16:23.348065",
+    "benchmark_end_time": "2025-10-14T02:18:05.444500",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 102.096435,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Payload: Successful creation with single and multiple tags returns 201 and JSON array of Tag objects associated to the invoice item (TC01, TC02, TC03, TC04, TC05).",
+              "Optional Headers: X-Killbill-Reason and X-Killbill-Comment handled successfully (TC03).",
+              "Path Parameter Validation: Invalid UUID format returns 400; non-existent invoice item returns 404 (TC07, TC08, TC15).",
+              "Invalid Payload: Malformed JSON, empty array, invalid/duplicate elements, unsupported fields, null/empty entries return appropriate 4xx (TC09, TC10, TC11, TC12, TC24).",
+              "Required Header Validation: Missing X-Killbill-CreatedBy yields 400 (TC06).",
+              "Duplicate Handling: Duplicate tag UUIDs in request and adding an already-existing tag do not create duplicates (TC13, TC20).",
+              "Large Payloads: Very large arrays handled (201 or 413) (TC19).",
+              "Error Handling (non-200): Service unavailable and dependency failure (503), timeout (504), unauthorized (401) are covered (TC16, TC17, TC21, TC25).",
+              "Performance Under Load: Response time threshold under simulated heavy load (TC14).",
+              "State Variations: Existing vs no tags, partially populated DB, max tags reached (TC04, TC05, TC22, TC23)."
+            ],
+            "gaps": [
+              "Server Error Handling: No coverage for 500 Internal Server Error (e.g., database failure) as per POST guidelines.",
+              "Duplicate Submission (idempotency across requests): No scenario posting the same payload twice to ensure no duplicate creation and defined status code for subsequent request.",
+              "Media Type Handling: No tests for missing/wrong Content-Type leading to 415, or Accept header negotiation (406).",
+              "Response Headers: No verification that response Content-Type is application/json as specified by Produces.",
+              "Response Schema Depth: Tag object schema not fully validated against #/definitions/Tag (only partial fields asserted).",
+              "Mixed Validity Input: No case with a mix of valid and invalid tagDefinitionIds to define atomicity (all-or-nothing vs partial creation).",
+              "Authorization Variants: 403 Forbidden (insufficient permissions/role) not covered.",
+              "Wrong Body Type: No test where body is a non-array JSON (e.g., object or string) to validate 400/415 behavior.",
+              "Concurrency/Race: No scenario with simultaneous POSTs adding the same tag to ensure deduplication under race."
+            ],
+            "recommendations": [
+              "Add a scenario to simulate backend/database failure returning 500 with a structured error body.",
+              "Add an idempotency test: POST the same set of tagDefinitionIds twice; assert no duplicate tags are created and specify expected status for the second call.",
+              "Add media type tests: wrong/missing Content-Type should return 415; mismatched Accept should return 406; assert response Content-Type is application/json on success and error.",
+              "Validate full Tag schema in responses (e.g., id, objectType, tagDefinitionId, createdDate) using schema matchers.",
+              "Add a mixed-validity request (e.g., [\"valid-uuid\", \"invalid-uuid\"]) and define expected atomic behavior (prefer failing the whole request with 400).",
+              "Add a 403 Forbidden scenario for authenticated but unauthorized user/role.",
+              "Add tests for wrong body type (string/object instead of array) and wrong element types (numbers/booleans) returning appropriate 4xx.",
+              "Optionally add a concurrency test with two simultaneous POSTs to ensure deduplication and consistent outcomes (e.g., one 201, one 200/204)."
+            ],
+            "usage": {
+              "completion_tokens": 4451,
+              "prompt_tokens": 6738,
+              "total_tokens": 11189,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3648,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

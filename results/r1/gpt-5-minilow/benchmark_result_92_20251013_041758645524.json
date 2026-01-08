@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-13T04:17:58.645501",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:17:43.696924",
+    "benchmark_end_time": "2025-10-13T04:17:58.645497",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 14.948573,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC05, TC06, TC12, TC18) verify successful deletion behavior and 204 responses for valid requests.",
+              "Non-Existent Resource: TC08 covers behavior when the invoiceItemId is a valid UUID but not found (expects 404).",
+              "Invalid Input Validation: TC07 and TC10 validate invalid invoiceItemId format and malformed customField IDs (expect 400).",
+              "Headers Validation: TC05, TC06, TC09 check required and optional headers handling (missing required header returns 400 per TC09).",
+              "Partial / Specific Deletes: TC02 and TC17 cover deletion of a subset of fields and mixed valid/invalid IDs (TC17 expects 400 for mixed invalid IDs).",
+              "Idempotent / Empty State Handling: TC04 covers deleting when no custom fields exist (204 empty body).",
+              "Security / Injection: TC15 addresses injection attempts in query parameter inputs and expects rejection.",
+              "Scalability / Load: TC13 addresses acceptable response time under heavy load.",
+              "Error Handling for Dependencies: TC14 covers dependent service/database unavailability (expects 503 or appropriate error).",
+              "Authentication: TC19 covers expired/invalid tokens (expects 401).",
+              "Edge cases: TC16 checks very long header value handling, TC11 verifies extra unexpected query parameters are tolerated."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No tests exercise concurrent deletions or race conditions (e.g., two actors deleting overlapping sets of custom fields simultaneously) \u2014 important per DELETE guideline (Concurrency).",
+              "Soft Delete / Recovery Semantics: No scenarios verify whether deletion is soft vs. hard, or whether deleted fields can be recovered or remain in audit logs.",
+              "Idempotency Explicitness: While multiple scenarios imply idempotency (TC04, TC18), there is no explicit test verifying repeated DELETE calls on same resource/IDs behave idempotently (e.g., first 204 then subsequent 204) or documenting behavior.",
+              "Audit/Logging/Change Tracking: No tests verify that X-Killbill-Reason/Comment are recorded in audit logs or change history.",
+              "Partial-success semantics for mixed valid/invalid IDs: TC17 expects 400 for mixed IDs but there is no variation that checks whether behaviour could be \"partial success\" (remove valid ones and report invalid) \u2014 acceptance criteria does not define which is correct, so tests should assert expected strategy explicitly.",
+              "Response Content / Headers: No tests asserting response headers (Content-Type absent for 204, caching headers, or other response metadata).",
+              "Rate Limiting / Throttling: No tests for rate limiting or behavior under bursts (distinct from heavy load timing in TC13).",
+              "Pagination / Large List Handling of Query Params: If customField list is very large, there is no test for query length limits or server behavior beyond TC12 (which exercises large N but not limits or truncation behavior).",
+              "Validation/error messages detail: Where tests expect 400/404/401 they do not assert specific error codes or structured error body schema beyond a general message \u2014 no schema or fields are asserted (e.g., error code, field list).",
+              "Header formatting variants for all headers: TC20 covers header parsing regression for formatting, but tests for unusual casing/encoding of optional headers (Reason/Comment) are limited."
+            ],
+            "recommendations": [
+              "Add concurrency tests: simulate concurrent DELETE requests (overlapping and disjoint customField lists) to verify race condition handling and idempotency guarantees.",
+              "Add explicit idempotency test: call the same DELETE twice (or multiple times) and verify consistent responses and no unintended side-effects.",
+              "Add soft-delete and audit verification tests: verify whether deleted custom fields are soft-deleted (e.g., flagged) and that X-Killbill-Reason / X-Killbill-Comment are recorded in audit/change logs.",
+              "Clarify and add tests for partial-success behavior: define expected behavior when some customField IDs do not exist or are invalid (remove valid ones and report invalid vs. fail entire request) and implement tests accordingly.",
+              "Assert response payload schema and headers: even for 204, assert absence/presence of Content-Type and ensure error responses follow a structured schema with predictable fields (code, message, details).",
+              "Add tests for query parameter limits and very large request handling: beyond TC12, include tests for exceeding URL length or parameter count limits and the expected server error (413/400) if applicable.",
+              "Add rate limiting/throttling tests: verify behavior when API rate limits are exceeded (429) or when many requests are sent rapidly.",
+              "Extend header formatting tests: add variations covering unusual encodings, very long X-Killbill-Reason, and whitespace/casing for optional headers, and assert correct parsing and storage.",
+              "Add tests for dependency failure modes and retry behavior: for transient dependency failures, verify appropriate retry/backoff or error codes and that clients receive useful errors."
+            ],
+            "usage": {
+              "completion_tokens": 1246,
+              "prompt_tokens": 5523,
+              "total_tokens": 6769,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-14T19:55:07.546695",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:53:07.274326",
+    "benchmark_end_time": "2025-10-14T19:55:07.546688",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 120.272362,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid payloads: single and multiple tag additions are covered including cases with and without existing tags and optional headers (TC01, TC02, TC04, TC05, TC03).",
+              "Header validation: required X-Killbill-CreatedBy presence tested and optional X-Killbill-Reason and X-Killbill-Comment exercised (TC03, TC06).",
+              "Request body validation: malformed JSON, empty arrays, invalid UUIDs, duplicate entries, null/empty array elements and extra unsupported fields are tested (TC09, TC10, TC11, TC12, TC13, TC24).",
+              "Resource existence and id format: invalid invoice item id format and non-existent invoice item and DB-empty scenarios are tested with expected 400/404 outcomes (TC07, TC08, TC15).",
+              "Authentication and security: unauthorized access, malicious payloads, and dependency or service unavailability are covered (TC16, TC18, TC17, TC21).",
+              "Edge cases and performance: extremely large payloads, simulated heavy load and timeout behavior are included (TC14, TC19, TC25).",
+              "Duplication and regression: duplicate entries in a request and attempts to add already-existing tags are covered to avoid duplicate tag creation (TC13, TC20).",
+              "Response expectations: success status 201 and response body verification focused on presence of Tag objects with tagDefinitionIds matching the request in happy paths (TC01-TC05)."
+            ],
+            "gaps": [
+              "Full Tag object schema validation is missing: tests only assert tagDefinitionId matching and do not validate the full Tag model (IDs, timestamps, createdBy, types, etc.).",
+              "Missing tests for absent request body and unsupported media type handling (Content-Type issues such as 415 Unsupported Media Type).",
+              "Atomicity of batch operations not covered: there is no test that mixes valid and invalid tag IDs in one request to confirm whether the operation is atomic or partially applied.",
+              "Concurrency and race conditions are not tested: no parallel requests to the same invoice item to validate deduplication, race to reach max tags, or other concurrency issues.",
+              "Server 500/internal error conditions are not explicitly simulated (database failures producing 500 Internal Server Error).",
+              "Authorization granularity: no test for 403 Forbidden (insufficient privileges) to distinguish from 401 Unauthorized.",
+              "Rate limiting and throttling behavior is not covered (no tests for many rapid requests or limits).",
+              "Response headers and content negotiation are not asserted (Content-Type of response, Location or audit headers, caching headers if any).",
+              "Boundary/batch-size edge cases are only partially covered: large payload is tested generically but not boundary conditions near configured limits or adding N tags that cause the invoice item to exceed max allowed tags.",
+              "Unsupported request body shapes are not tested (e.g., sending an object instead of an array, a single string, or no body at all)."
+            ],
+            "recommendations": [
+              "Add a test that validates the full Tag object schema returned on success against definitions/Tag (required fields, types, formats, timestamps, and createdBy).",
+              "Add tests for missing request body and incorrect Content-Type header to assert proper 4xx responses (e.g., 415) and clear error messages.",
+              "Add a mixed valid/invalid tag list test to define and assert the API contract for atomic vs partial success behavior; if atomic, expect full rollback and 4xx, else define partial success semantics and document response format.",
+              "Add concurrency tests that POST the same tag(s) concurrently to the same invoice item to detect race conditions, duplication, and to validate idempotency behavior.",
+              "Simulate internal server or database failures to verify 500 Internal Server Error handling and graceful messaging, and include expected retry or fallback behavior if applicable.",
+              "Add authorization scenario tests for 403 Forbidden to cover users with insufficient privileges and distinguish from 401 Unauthorized (TC16 covers 401 but not 403).",
+              "Introduce rate limiting tests that send many rapid requests to verify throttling, expected status codes and headers (Retry-After), and correct behavior under bursts.",
+              "Add boundary tests around max tags and batch size: e.g., existing tags at max-1 then add a request that would exceed the max, test expected 400 and error message; also test near-limit batch sizes (one below, at, and one above limit).",
+              "Test unsupported request body shapes (object instead of array, single string, missing body) and content negotiation (Accept header), asserting proper validation errors and error codes.",
+              "Assert response headers on success and error (Content-Type: application/json, any Location or audit headers, and timestamps) to ensure the API contract is complete.",
+              "If the API supports or should support idempotency keys or request deduplication across retries, add tests for repeated identical requests and document expected behavior."
+            ],
+            "usage": {
+              "completion_tokens": 8129,
+              "prompt_tokens": 6738,
+              "total_tokens": 14867,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

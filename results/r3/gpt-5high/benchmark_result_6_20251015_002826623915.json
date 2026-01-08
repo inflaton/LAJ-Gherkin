@@ -1,0 +1,80 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-15T00:28:26.623885",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T00:25:59.508937",
+    "benchmark_end_time": "2025-10-15T00:28:26.623881",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 147.114944,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT: Valid Request - multiple success scenarios verify 204 and that custom fields are updated/created/removed as expected (with and without optional headers, varying payload sizes).",
+              "PUT: Non-Existing Resource - update on unknown account handled with 400 per story; invalid UUID format also yields 400.",
+              "Request validation - required X-Killbill-CreatedBy enforced; missing body and malformed JSON return 400; invalid CustomField schema rejected.",
+              "Security/robustness - unauthorized requests return 401; large payload near limit -> 204/413; SQLi/XSS payloads rejected; service and timeout failures surfaced as 502/503/504; retry of transient errors succeeds.",
+              "Integration/regression - audit log and external reporting verified; duplicate field names rejected; backward compatibility path covered.",
+              "Performance - concurrent requests across multiple accounts maintain data consistency."
+            ],
+            "gaps": [
+              "PUT: Partial update semantics not specified/tested\u2014does payload replace all fields or merge? Add scenarios to assert allowed behavior and rejection if partial updates are not supported.",
+              "PUT: Concurrency on the same account not covered\u2014race between two updates to the same resource; expect clear last-write-wins policy or 409 with versioning/If-Match.",
+              "PUT idempotency not verified\u2014repeat the same request should leave state unchanged and consistently return 204.",
+              "Atomicity on validation failure not asserted\u2014when mixed valid/invalid objects cause 400, verify no partial updates occurred (all-or-nothing).",
+              "Response headers/content not asserted\u2014no checks for Content-Type on error responses or that 204 has no body despite Produces: application/json.",
+              "Error payload contract not validated\u2014tests check messages but not a structured error schema (code, message, details) for 4xx/5xx."
+            ],
+            "recommendations": [
+              "Add scenarios to lock down update semantics: full replacement vs merge. Include cases where only a subset of fields is sent; assert whether unspecified existing fields remain or are removed.",
+              "Introduce race-condition tests on the same account (two concurrent PUTs with conflicting changes). If supported, leverage optimistic locking via ETag/If-Match and expect 409 on conflict; otherwise verify deterministic last-write-wins.",
+              "Add an idempotency test: send the identical payload twice and confirm state and response are unchanged (204 both times).",
+              "Enhance TC18 to assert atomicity: after a 400 for mixed valid/invalid items, fetch the account and confirm no custom fields were modified.",
+              "Assert response metadata: for 4xx/5xx validate Content-Type: application/json and error schema; for 204 ensure no response body.",
+              "Optionally add boundary tests for header values (max length/character set for X-Killbill-Reason/Comment) and precise payload limits to complement TC26."
+            ],
+            "usage": {
+              "completion_tokens": 6756,
+              "prompt_tokens": 6919,
+              "total_tokens": 13675,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6144,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

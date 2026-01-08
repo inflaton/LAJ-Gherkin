@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-14T22:06:38.714211",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T22:05:25.914871",
+    "benchmark_end_time": "2025-10-14T22:06:38.714207",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 72.799336,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE: Valid operation returns 204 and actually invalidates caches (TC01, TC09, TC17, TC19).",
+              "DELETE: Non-existent resource returns 404 (TC02, TC16, TC18).",
+              "Input validation: malformed/invalid UUID returns 400; missing path segment yields 404 (TC03, TC04, TC10, TC12, TC14, TC15).",
+              "Authorization: 401 for unauthenticated or expired/invalid token (TC05, TC06).",
+              "Method constraints: 405 for unsupported method; extra query params tolerated (TC11, TC09).",
+              "Resilience: 503 when dependent cache service unavailable or system degraded (TC07, TC08).",
+              "Concurrency/performance: concurrent DELETEs across accounts with timing expectation (TC13)."
+            ],
+            "gaps": [
+              "DELETE concurrency/idempotency for the same account: parallel DELETEs and repeated calls should consistently succeed and be side-effect safe.",
+              "Authorization: 403 behavior for authenticated users lacking admin role not covered.",
+              "Response contract: headers/content negotiation not asserted (e.g., errors should have Content-Type application/json per Produces; 204 must have no body).",
+              "Error payload schema not validated (e.g., standardized fields like code, message, type).",
+              "405 response should include an Allow header; not verified.",
+              "Side-effects verification limited to the happy path: no checks that 400/404 leave caches untouched; no post-invalidation verification beyond a single scenario.",
+              "Ambiguity in TC07 outcome (204 or 503) makes the test non-deterministic."
+            ],
+            "recommendations": [
+              "Add scenarios for idempotency and race conditions on the same account: two concurrent DELETEs and repeated DELETEs should both return 204 and leave system consistent.",
+              "Add a scenario for authenticated non-admin user receiving 403 Forbidden.",
+              "Assert response headers: for error responses verify Content-Type: application/json and a consistent schema; for 204 verify empty body and appropriate absence of Content-Type.",
+              "Define and validate a standard error schema (e.g., {errorType, errorCode, message, requestId}) across 400/404/503.",
+              "Verify 405 includes an Allow header advertising DELETE.",
+              "Strengthen side-effect checks: before/after behavior on a cacheable read to confirm eviction; ensure 400/404 do not alter caches.",
+              "Split TC07 into separate, deterministic scenarios (one for successful 204 under load, one for 503 when capacity is exceeded) with clear setup and assertions."
+            ],
+            "usage": {
+              "completion_tokens": 3757,
+              "prompt_tokens": 4640,
+              "total_tokens": 8397,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3200,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

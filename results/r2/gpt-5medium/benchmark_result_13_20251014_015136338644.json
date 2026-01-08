@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-14T01:51:36.338615",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T01:50:18.947151",
+    "benchmark_end_time": "2025-10-14T01:51:36.338610",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 94,
+    "average_generation_time_seconds": 77.391459,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 94,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 94,
+            "covered": [
+              "DELETE - Valid Deletion: Multiple success scenarios return 204 and verify account is marked closed (soft delete).",
+              "DELETE - Soft Deletes: Explicitly verifies the account is marked as closed in DB rather than hard-deleted.",
+              "DELETE - Non-Existent Resource: Confirms idempotent 204 for non-existent and already-closed accounts.",
+              "DELETE - Concurrency/Idempotency: Covers retries after transient failures and concurrent closures across different accounts; verifies idempotency.",
+              "Path Param Validation: Invalid UUID format and SQL injection payloads return 400 with appropriate messaging.",
+              "Query Parameters: Comprehensive coverage of defaults, each flag individually, all-true/all-false, and pairwise combinations; extra/unsupported parameter is ignored.",
+              "Headers: Required X-Killbill-CreatedBy positive path and missing-header 400 error covered; optional headers exercised (including XSS sanitization in comment).",
+              "Authorization: Missing/invalid auth returns 401.",
+              "Server Error Handling: Simulated DB outage returns 500.",
+              "Scalability/Performance: Large volumes of subscriptions/invoices and concurrent requests covered.",
+              "Regression/Backward compatibility: Specific regression around unpaid invoices and scenario with only required headers."
+            ],
+            "gaps": [
+              "DELETE - Concurrency (same resource): No scenario where two clients attempt to close the same account at the same time to verify true race-condition handling and idempotency under overlap.",
+              "Response headers and body semantics: 'Produces: application/json' is not asserted; 204 responses should have no body, and Content-Type expectations for 204 vs error responses aren't verified.",
+              "Query parameter robustness: No tests for invalid boolean values (e.g., cancelAllSubscriptions=abc/1/TRUE case), mixed-case, or duplicated parameters; expected behavior (400 vs ignore) is unspecified.",
+              "Header value validation: No tests for empty/whitespace-only X-Killbill-CreatedBy, overly long values, non-ASCII, or boundary lengths for Reason/Comment; behavior not verified.",
+              "Authorization 403: No scenario for authenticated user without sufficient permissions (if applicable to the API).",
+              "Rate limiting/throttling: Under burst traffic, behavior not tested (if applicable).",
+              "Error response schema: Error body structure (fields, codes, trace IDs) not validated beyond presence of a message."
+            ],
+            "recommendations": [
+              "Add a scenario where two clients simultaneously DELETE the same account and assert both receive 204, no duplicate side effects, and consistent final state; include interleaving with subscription/invoice side effects to detect race issues.",
+              "Assert response headers/bodies: verify 204 has no body, and check Content-Type. If 'Produces: application/json' applies to error responses, assert Content-Type and error schema for 400/401/500.",
+              "Introduce invalid/malformed query param tests (e.g., writeOffUnpaidInvoices=abc/1/TRUE, repeated parameters) and define expected handling (reject with 400 vs ignore).",
+              "Expand header validation: tests for empty/blank X-Killbill-CreatedBy (expect 400), long values, non-ASCII, and boundary lengths for Reason/Comment; verify sanitization and storage where applicable.",
+              "Add a 403 Forbidden test for an authenticated user lacking required role/permission, if the service enforces authorization beyond authentication.",
+              "If applicable, add burst tests to observe rate limiting or throttling responses/headers.",
+              "Validate error response schema for 400/401/500 (fields like code, message, type, requestId/correlationId) to ensure consistency and debuggability."
+            ],
+            "usage": {
+              "completion_tokens": 3582,
+              "prompt_tokens": 6316,
+              "total_tokens": 9898,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2816,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

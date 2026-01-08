@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-13T18:40:13.748068",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:39:35.165954",
+    "benchmark_end_time": "2025-10-13T18:40:13.748063",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 38.582109,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC05, TC06, TC12, TC18) verify successful deletion behavior and that specified/all custom fields are removed.",
+              "Empty Response: Scenarios assert 204 responses and empty bodies for successful deletions (TC01, TC02, TC03, TC04, TC05, TC06).",
+              "Query Parameters: Various combinations are tested: no customField (remove all) (TC01, TC03, TC04), specific list of IDs (TC02), large lists (TC12), malformed values (TC10), duplicates (TC18), extra unexpected params (TC11), and partial valid/invalid mixes (TC17).",
+              "Headers: Required and optional header handling is exercised: required header present (TC06), optional headers present (TC05), missing required header negative case (TC09), and header parsing regression (TC20).",
+              "Input Validation: Invalid invoiceItemId format (TC07) and non-existent resource (TC08) are tested with expected error codes (400 and 404 respectively).",
+              "Authorization/Error Handling: Expired/invalid token case is included (TC19) to check unauthorized access behavior.",
+              "Operational/Non-functional: Heavy load (TC13) and dependent service unavailable (TC14) are present to validate performance/resilience and service-failure responses.",
+              "Security: Injection attempt in customField parameter is tested (TC15).",
+              "Boundary/Length: Very long X-Killbill-Comment header (TC16) checks boundary behavior for a header field."
+            ],
+            "gaps": [
+              "Produces / Content-Type verification: The story says \"Produces: application/json\" but no scenario verifies response Content-Type headers for success or error responses (e.g., 204 with correct Content-Type header or error responses returning application/json).",
+              "Idempotency / Repeated Deletion: No explicit test that repeated identical DELETE requests are handled idempotently (e.g., second delete on same resource returns 204 or appropriate status).",
+              "Partial-success semantics for customField list: Not covered \u2014 behaviour when some requested customField IDs do not exist on the invoice item but others do (should succeed for existing IDs, or fail) is not clarified/tested beyond TC17 which treats mixed valid/invalid as whole failure; the API contract for partial success vs. full failure is not validated.",
+              "Removal of IDs that exist but belong to other invoice items: No test ensures customField IDs associated with other invoice items are rejected/ignored (authorization/ownership validation).",
+              "Concurrency / Race Conditions: Standard DELETE guideline for concurrency is missing \u2014 e.g., concurrent deletes, delete while another actor modifies custom fields, or delete-after-delete race conditions are not tested.",
+              "Soft Delete vs Hard Delete: No test verifies whether deletion is soft (flagged) vs hard (physically removed), or checks resource visibility after delete via subsequent GET.",
+              "Header validation beyond presence/length: There is no test for invalid header values (e.g., empty X-Killbill-CreatedBy, overly long CreatedBy, unusual character sets) or limits for X-Killbill-Reason.",
+              "Response body for error details: Although some error scenarios check for error messages (TC07, TC08, TC09, TC10, TC17, TC14, TC19), there is no uniform verification that error responses conform to the expected JSON error schema/fields.",
+              "Rate limiting and throttling: Not covered \u2014 no tests for handling many requests in short time beyond TC13 (which is about load, not throttling).",
+              "Logging/audit verification: The story requires CreatedBy and optional Reason/Comment headers \u2014 tests do not verify that the delete action is logged/audited (e.g., an audit API or DB entry)."
+            ],
+            "recommendations": [
+              "Add assertions for response headers including Content-Type and any expected caching or no-cache semantics for 204 and error responses to satisfy \"Produces: application/json\".",
+              "Add idempotency tests: send the same DELETE twice (or after the resource has been deleted) and assert consistent/expected behavior (204 or appropriate error) to ensure idempotency guarantees.",
+              "Clarify and test partial-success semantics for customField lists: add tests for the case where some customField IDs exist on the invoice item and some do not, and assert whether the API should perform partial deletion or return an error. Implement tests accordingly once the contract is clarified.",
+              "Add ownership/containment tests: attempt to delete customField IDs that exist but are attached to a different invoice item to ensure correct validation and error codes.",
+              "Add concurrency tests: simulate concurrent delete requests and concurrent modifications to custom fields to detect race conditions and check for proper locking/transactional behavior.",
+              "Add soft-delete verification: after deletion, call the appropriate GET/list API (or query DB) to assert whether records are physically removed or marked deleted, and cover the expected behavior.",
+              "Expand header validation tests: include empty/too-long X-Killbill-CreatedBy and X-Killbill-Reason values, invalid character sets, and assert the API handles them per spec (400 or truncation rules).",
+              "Standardize error schema checks: for all error scenarios assert the error JSON schema (fields like code, message, type) to ensure consistent error responses.",
+              "Add rate-limiting/throttling tests distinct from load tests: verify responses and status codes when request rates exceed configured thresholds.",
+              "Add audit/log verification: test that deletion operations produce expected audit entries (if the system provides an audit API or DB table), especially since CreatedBy/Reason/Comment headers are required/meaningful."
+            ],
+            "usage": {
+              "completion_tokens": 1509,
+              "prompt_tokens": 5523,
+              "total_tokens": 7032,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

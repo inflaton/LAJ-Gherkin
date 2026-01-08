@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "57_2025-09-28T09:00:39.989939",
+    "jira_id": "57",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/customFields - Modify custom fields to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T08:59:36.114218",
+    "benchmark_end_time": "2025-09-28T09:00:39.989935",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 63.875717,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "57_qe_sup-gpt4.1_agent-gpt4.1_1748919636.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT Valid Request: Multiple success paths with required and optional headers, valid JSON array, and state variations (no fields, existing fields, partial matching) returning 204 (TC01, TC02, TC22, TC23, TC24).",
+              "Required header validation: X-Killbill-CreatedBy is enforced; missing header returns 400 (TC06).",
+              "Path parameter validation: Invalid bundleId format results in 400; non-existent bundle returns 404 (TC04, TC05).",
+              "Request body validation: Malformed JSON and missing body return 400; extra unsupported fields flagged 400 (TC07, TC08, TC09).",
+              "Edge cases: Empty array to remove all fields; max count and max value length; empty value and special characters handled (TC03, TC13, TC14, TC15, TC19).",
+              "Authorization: 401 unauthorized covered (TC10).",
+              "Server error handling: 500 and 503 scenarios covered; transient failure recovery with retry (TC11, TC20, TC21).",
+              "Load/concurrency: Concurrent requests scenario included and performance timing under normal and peak load (TC17, TC18)."
+            ],
+            "gaps": [
+              "PUT semantics for partial update: Story does not specify whether PUT replaces the full set or supports upsert/partial behavior; tests assume partial updates (TC24) but no negative case to assert rejection if partial is not allowed.",
+              "Idempotency: No scenario verifying that repeating the same PUT with identical payload is idempotent and yields the same state and response.",
+              "CustomField schema validation depth: No tests for invalid field names/keys, data types, or missing required attributes of CustomField per definitions/contract.",
+              "Header validation breadth: No tests for invalid/oversized X-Killbill-Reason/Comment values, or presence/format constraints; no Content-Type/Accept header validation (e.g., wrong Content-Type returns 415).",
+              "Response headers and body contract: For 204, no assertion that response body is empty; no verification of response Content-Type/encoding consistency with \"Produces: application/json\".",
+              "UUID strictness: Only an obviously invalid id is tested; no boundary/uppercase/lowercase/variant UUID pattern checks.",
+              "Concurrency correctness: Concurrent updates lack conflict/version control validation (e.g., last-write-wins vs. ETag/If-Match); no test for concurrent updates by different users producing deterministic results.",
+              "Rate limiting/throttling: No scenarios to validate behavior when request rate limits are exceeded.",
+              "Security input validation breadth: SQL injection covered, but no tests for script injection (XSS in comments/reason), excessively large values/payload size limits, or unicode/emoji handling.",
+              "Auditability: No checks that audit metadata (CreatedBy/Reason/Comment) is persisted and retrievable in subsequent GETs/logs."
+            ],
+            "recommendations": [
+              "Clarify and test PUT semantics: Add two scenarios\u2014one where payload omits some existing fields to confirm full replacement (missing fields are removed), and one negative case if partial updates should be rejected. If partial upsert is intended, explicitly assert merge rules and conflict resolution.",
+              "Add idempotency test: Send the same PUT payload twice and verify 204 both times and no duplicate/side effects in stored custom fields.",
+              "Strengthen CustomField schema tests: Include invalid data type, missing required attributes, invalid name/key, duplicate keys within the array, and value type/format constraints per the CustomField definition.",
+              "Expand header tests: Validate wrong/missing Content-Type (expect 415), unacceptable Accept header (406), oversized or invalid characters in X-Killbill-Reason/Comment, and boundary lengths.",
+              "Assert response contract: For 204 ensure empty body and appropriate headers; for 4xx/5xx assert error schema (code/message) and Content-Type.",
+              "Enhance UUID tests: Include upper/lower case, hyphen placement, version/variant checks, and boundary cases to strictly enforce the uuid pattern.",
+              "Add true concurrency control tests: Simulate two different users updating overlapping fields nearly simultaneously; verify deterministic outcome or precondition failure if ETag/If-Match is supported.",
+              "Non-functional: Add rate limiting/throttling scenarios and very large payload tests to validate server limits and error codes (e.g., 429, 413).",
+              "Broaden security tests: Include script tags in values/comments, unicode/emoji, and extremely long strings; verify proper validation/escaping and error handling.",
+              "Audit verification: After a successful PUT, perform a GET of audit logs/fields to ensure CreatedBy/Reason/Comment are recorded as expected."
+            ],
+            "usage": {
+              "completion_tokens": 1691,
+              "prompt_tokens": 6139,
+              "total_tokens": 7830,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

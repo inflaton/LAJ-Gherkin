@@ -1,0 +1,80 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "18_2025-09-28T12:02:25.001620",
+    "jira_id": "18",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/pagination - List accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T12:00:55.294005",
+    "benchmark_end_time": "2025-09-28T12:02:25.001617",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 89.707612,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "18_qe_sup-gpt4.1_agent-gpt4.1_1748917007.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request: Extensive success-path coverage, including defaults (no params), combinations of offset/limit, audit levels (NONE/DEFAULT, FULL, MINIMAL), and balance/CBA flags (alone and combined).",
+              "Empty Response: Covered via no accounts and offset beyond available data returning empty arrays.",
+              "Pagination: Broad coverage of limits/offsets, boundary cases (offset+limit edges), large datasets, zero offset, limit > total, concurrent pagination without leakage, and performance thresholds.",
+              "Query Parameters: Wide matrix of valid and invalid inputs (negative/zero/too large integers, malformed types, unsupported/extra params ignored, enum validation for audit, boolean interplay).",
+              "Authorization: 401s validated for missing and invalid credentials.",
+              "Robustness/Errors: Network timeout, service down (503), dependency failures, method not allowed (405), excessively long query string (414/400), and security hardening (SQLi/XSS) all exercised."
+            ],
+            "gaps": [
+              "Rate Limiting: No scenarios validating throttling behavior (e.g., 429 Too Many Requests, Retry-After headers) under burst traffic.",
+              "Caching Behavior: No checks for caching headers (ETag/Last-Modified, Cache-Control) or conditional GETs (If-None-Match/If-Modified-Since leading to 304).",
+              "Content Negotiation/Headers: 'Produces: application/json' is stated in the story, but there are no assertions for Content-Type=application/json (and charset) or Accept handling.",
+              "Contract/Schema Validation: Tests assert presence/absence of selected fields but do not validate the full Account schema against #/definitions/Account.",
+              "Deterministic Ordering Across Pages: Tests assume positions like \"starting from the 51st account\" but don\u2019t assert a defined, stable sort order or validate end-to-end traversal across multiple pages without gaps/duplicates.",
+              "Authorization Depth: Only 401 covered; no scenario for authenticated user lacking permissions (403) if applicable to the API."
+            ],
+            "recommendations": [
+              "Add a burst test to validate rate limiting: issue many GETs in a short window; assert 429 responses (when limits are exceeded) and presence/semantics of Retry-After headers.",
+              "Add caching tests: assert ETag and Cache-Control headers on 200 responses; perform conditional GET with If-None-Match/If-Modified-Since to expect 304 and empty body; verify caching directives are correct.",
+              "Add header assertions on success and error responses: Content-Type=application/json (and charset), and optionally Accept negotiation (return 406 if unsupported, if the API enforces it).",
+              "Introduce a contract test that validates each Account object against the official #/definitions/Account schema (all required fields/types, unknown fields absent unless flags are set).",
+              "Define and test ordering: specify the canonical sort (e.g., createdDate asc or accountId asc). Verify page 1..N iteration covers the dataset exactly once with no duplicates/misses and results are stable across requests.",
+              "If applicable, add a 403 Forbidden scenario for an authenticated user lacking required roles/scopes to distinguish from 401."
+            ],
+            "usage": {
+              "completion_tokens": 3496,
+              "prompt_tokens": 7354,
+              "total_tokens": 10850,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2816,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-10-13T19:11:20.607870",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:10:57.114874",
+    "benchmark_end_time": "2025-10-13T19:11:20.607866",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 23.492992,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01, TC02, TC12, TC13, TC19, TC20, TC21, TC23) validate successful creation with valid SimplePlan payloads.",
+              "Invalid Payload / Validation: Scenarios cover missing required fields (TC04), malformed JSON (TC09), invalid field values (TC05), XSS/SQL injection patterns (TC18), and extra unsupported fields (TC07).",
+              "Authentication/Authorization: TC10 verifies behavior when authentication is missing (HTTP 401).",
+              "Required Headers: TC01/TC02/TC03 exercise presence and absence of the required X-Killbill-CreatedBy header; optional headers X-Killbill-Reason and X-Killbill-Comment are covered (TC02).",
+              "Duplicate Submission / Conflict: TC06 covers planId conflict handling and expects HTTP 400.",
+              "Large Payloads and Limits: TC15 addresses very large payloads and documents acceptable outcomes (201 or 400).",
+              "Service/Integration Error Handling: TC11 covers catalog service unavailable (HTTP 503); TC23/TC24 cover integration with dependent services, including degraded dependent services.",
+              "Concurrency: TC22 covers concurrent POSTs with unique planIds.",
+              "Performance: TC17 measures response-time expectations for plan creation.",
+              "Empty Body: TC08 covers an empty request body scenario (HTTP 400)."
+            ],
+            "gaps": [
+              "Content-Type Enforcement: The story's request section specifies consumes: application/json. There are no explicit scenarios verifying Content-Type header present/absent or incorrect values (e.g., missing or wrong Content-Type leading to 415/400).",
+              "Server-side 5xx / Internal Errors: While TC11 covers 503 (service unavailable), there is no explicit test simulating unexpected server/database failure that results in HTTP 500 and verifying proper error handling/logging/response shape.",
+              "Idempotency / Duplicate Submission Semantics: TC06 covers conflict when planId already exists, but there is no test for repeated identical POST submissions in quick succession to verify idempotency semantics vs. duplicate detection (e.g., retry after timeout producing single resource).",
+              "Transactional Safety / Partial Failure Rollback: The story warns this modifies the live catalog; there are no tests that verify rollback/atomicity when downstream dependent services fail during plan creation (e.g., created in primary but failed to propagate).",
+              "Schema Strictness for Extra Fields: TC07 assumes extra fields are accepted (expects 201). The story's schema refers to SimplePlan object but does not explicitly state tolerance for unknown fields; a test to assert explicit behavior (accept vs reject) against the formal schema is missing.",
+              "HTTP Status Variance Clarification: Some scenarios (e.g., TC15, TC24) allow either 201 or error codes depending on system limits/resilience \u2014 tests should assert a specific expected behavior for a given system configuration rather than accepting multiple outcomes.",
+              "Content Validation Depth: Currency validity is tested (TC05) but other field-specific validation (billingPeriod enumerations, numeric ranges for amount, currency precision, productCategory allowed values) are not exhaustively tested.",
+              "Response Body Type and Schema: While tests assert a confirmation string/URI is present, there is no strict validation of the response body type/format (e.g., exact string vs. JSON containing URI) or response headers (Location header) \u2014 the acceptance criteria mention response body is a string but no test asserts Content-Type or exact shape.",
+              "Rate Limiting / Throttling: No tests for rate limiting or handling of many requests in short time (guideline).",
+              "Security Headers / Input Sanitization Beyond XSS: Tests cover XSS/SQL injection input patterns (TC18) but do not validate output encoding, header sanitization, or other security headers."
+            ],
+            "recommendations": [
+              "Add explicit tests for Content-Type handling: include scenarios where Content-Type is missing or incorrect and expect 415 Unsupported Media Type or 400 as appropriate.",
+              "Add a test simulating an unexpected server/database error to ensure HTTP 500 handling and proper error message structure.",
+              "Add idempotency/duplicate-retry tests that POST the same payload multiple times (including retry after network timeout) to verify single-resource creation or deterministic conflict behavior.",
+              "Add transactional/integration-failure tests that simulate downstream propagation failure after local creation to verify rollback or compensating actions (or document expected behavior and test accordingly).",
+              "Clarify and assert schema strictness for extra fields: add test(s) that expect either rejection (400) or acceptance (201) according to the API contract and update tests to match the contract.",
+              "Tighten tests that currently accept multiple possible outcomes (TC15/TC24): pick and assert the expected behavior for CI environments or parameterize tests per system limits.",
+              "Expand validation tests to cover billingPeriod enumeration, numeric ranges and precision for amount, allowed productCategory values, and currency-format edge cases.",
+              "Add response-body and header assertions: verify Content-Type of responses, Location header or URI format in the body, and exact response body type (string vs structured JSON) per the API spec.",
+              "Add rate-limiting tests to exercise behavior under high request rates and verify correct HTTP status and Retry-After headers where applicable.",
+              "Expand security-related tests to include output encoding checks, header injection attempts, and verification of common security headers (e.g., X-Content-Type-Options, CSP where applicable)."
+            ],
+            "usage": {
+              "completion_tokens": 1398,
+              "prompt_tokens": 5854,
+              "total_tokens": 7252,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

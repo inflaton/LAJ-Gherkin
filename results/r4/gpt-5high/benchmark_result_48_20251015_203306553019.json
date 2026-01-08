@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-15T20:33:06.552985",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T20:31:13.675248",
+    "benchmark_end_time": "2025-10-15T20:33:06.552981",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 112.877733,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "PUT Method - Valid Request: Success path returns 204 No Content and flips/maintains host state to in-rotation; idempotency covered when host already in rotation (TC01, TC02).",
+              "Authorization: Unauthorized (401) and forbidden (403) paths validated, including missing auth headers (TC03, TC04, TC09).",
+              "Method Constraints: Invalid method returns 405 (TC06).",
+              "Concurrency Issues: Concurrent PUTs complete without race conditions; state remains correct (TC14).",
+              "Resilience/Reliability: Transient network interruption with retry succeeds (TC13).",
+              "Performance: Response-time SLA under load validated (TC10).",
+              "Error Handling: Service unavailability returns 503 (TC05).",
+              "Robustness to extraneous input: Unexpected body and extra headers do not break behavior; operation remains successful (TC07, TC08).",
+              "Security Hardening: Header injection attempt does not compromise system; safe handling verified (TC12).",
+              "Response Semantics: 204 responses confirmed to have empty body (TC01, TC02, TC07, TC08)."
+            ],
+            "gaps": [
+              "Content negotiation/headers: The story notes \"Produces: application/json\", but tests do not assert Content-Type on error responses, nor Accept handling; behavior for 204 regarding Content-Type is unverified.",
+              "Server error path (500): No scenario simulating an internal failure (e.g., state manager/db error) to validate 500 responses and error payload.",
+              "Bad request/validation: No test for malformed requests or invalid headers leading to 400, nor for unsupported media type (415) or not acceptable (406) when Accept/Content-Type are incorrect.",
+              "405 compliance headers: No assertion that the Allow header is present and correct on 405 responses; HEAD/OPTIONS handling not exercised.",
+              "Idempotency over repeated sequential calls: Beyond the \"already in rotation\" case, no scenario proves that multiple sequential identical PUTs remain side-effect free and consistently return 204.",
+              "Contract clarity for unexpected payload: Tests accept a non-empty body with 204, but there is no explicit contract check that payloads are ignored vs rejected; this could mask unintended partial-update behavior."
+            ],
+            "recommendations": [
+              "Add content-negotiation checks: when Accept=application/json and an error occurs, assert Content-Type: application/json and a JSON error body; when Accept is unsupported, expect 406. For 204 success, assert empty body and appropriate header behavior (e.g., no Content-Type or consistent API policy).",
+              "Simulate internal server failure (e.g., throw from host rotation service) and assert 500 with a structured JSON error payload and correlation id if applicable.",
+              "Add validation negatives: malformed Authorization header, invalid header formats, and unsupported Content-Type with a body should yield 400/415 as per API contract.",
+              "Verify 405 responses include an Allow header listing permitted methods (e.g., PUT, OPTIONS) and optionally add HEAD/OPTIONS method tests.",
+              "Add an explicit idempotency scenario issuing several sequential PUTs and asserting 204 each time with no additional side effects.",
+              "Clarify contract for unexpected payloads and encode it in tests: either continue to ignore extra body (documented) or require strict empty body and return 400 on payload presence."
+            ],
+            "usage": {
+              "completion_tokens": 6538,
+              "prompt_tokens": 3274,
+              "total_tokens": 9812,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

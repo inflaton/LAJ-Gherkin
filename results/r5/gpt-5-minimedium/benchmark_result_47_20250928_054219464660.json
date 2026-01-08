@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-09-28T05:42:19.464626",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:41:47.303192",
+    "benchmark_end_time": "2025-09-28T05:42:19.464620",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 32.161428,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Successful tenant-level invalidation and idempotence are covered (TC01, TC09, TC11, TC13).",
+              "Authorization: Missing and invalid authentication are tested (TC02, TC03) and valid admin auth is assumed in Background.",
+              "Non-Existent Resource: Handling of a non-existent tenant context is tested (TC04 => 404).",
+              "Error Handling: Major server and service error conditions are covered (TC05 => 500, TC06 => 503, TC14 => 504).",
+              "Malformed Input & Security: Bad request / unsupported parameters and header-injection scenarios are covered (TC07, TC08).",
+              "Concurrency / Performance: Concurrency and under-load behavior is addressed (TC10), including idempotency under concurrent requests.",
+              "Integration: Effects on dependent services are covered (TC12).",
+              "State Variations: Partially populated and already-empty cache edge cases are covered (TC13, TC09)."
+            ],
+            "gaps": [
+              "Response Content-Type / Produces header: Acceptance explicitly states \"Produces: application/json\" but no scenario asserts the Content-Type or response media type (including for 204 or error responses).",
+              "Authorization scope / permission levels: No test for authenticated users lacking admin privileges (403 Forbidden). Background assumes admin; scenarios do not assert behavior when token is valid but not an admin.",
+              "Missing tenant context vs non-existent tenant: There is a test for a non-existent tenant (404) but not for a missing tenant header/token that establishes tenant context (e.g., absent X-Tenant header or missing tenant-scoped token).",
+              "Error payload schema: Error scenarios assert presence of an error message but do not validate JSON structure, error codes, fields (timestamp, code, message) or consistent error media type.",
+              "Rate limiting / throttling: No tests exercise request throttling, burst requests beyond acceptable limits, or verify rate-limiting responses (e.g., 429).",
+              "Extreme load / stress testing: TC10 covers \"normal operational load\" and concurrency, but there is no stress test for high-volume or sustained load that might reveal resource exhaustion or degraded semantics.",
+              "Invalid tenant identifier formats: No tests for malformed tenant IDs (bad UUIDs, excessively long strings) which might produce 400 rather than 404.",
+              "Retry and backoff semantics for transient failures: No tests for retry logic or how the client/endpoint should behave on transient errors (503/504) \u2014 e.g., idempotent retry behavior and side effects verification.",
+              "Observability / auditing: No tests that verify audit logs, metrics, or events are emitted on tenant cache invalidation (useful for admin operations)."
+            ],
+            "recommendations": [
+              "Assert response media type: Add assertions that successful and error responses include Content-Type: application/json (and define behavior for 204 responses \u2014 whether Content-Type is present).",
+              "Add a 403 test: Create a scenario where a valid token lacks admin privileges to confirm 403 Forbidden and correct error payload.",
+              "Test missing tenant context: Add a scenario where tenant context header/token is absent to confirm the correct error (400 or 404 depending on API contract) and that the endpoint does not operate across tenants inadvertently.",
+              "Validate error payload schema: For each error scenario (4xx/5xx) validate the error response JSON schema (fields like code, message, details) and media type.",
+              "Rate limiting and throttling: Add tests to simulate bursts of requests and verify 429 responses or proper queuing/backoff behavior and that cache invalidation remains consistent.",
+              "Stress test: Add long-running/stress tests to simulate large sustained invalidation requests and observe resource usage, timeouts, and correctness under pressure.",
+              "Malformed tenant identifiers: Add tests for invalid tenant id formats to verify 400 vs 404 semantics and robust input validation.",
+              "Retry/backoff behavior: Add tests that simulate transient service errors (e.g., intermittent 503) and verify idempotent retry behavior and no double-invalidations or race conditions.",
+              "Audit/observability checks: Add tests that verify an audit event or metric is emitted on successful/failed invalidation, if required by product policy.",
+              "Tighten security tests: Expand security scenarios to include header tampering, token replay, and scope/role validation, not only injections."
+            ],
+            "usage": {
+              "completion_tokens": 2005,
+              "prompt_tokens": 3389,
+              "total_tokens": 5394,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-15T13:44:10.436828",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:43:22.639616",
+    "benchmark_end_time": "2025-10-15T13:44:10.436820",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 47.797204,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST - Valid Payload: Multiple success scenarios with required-only and all optional parameters (default method, specified paymentMethodId, externalPayment, paymentAmount, targetDate, pluginProperty).",
+              "POST - Invalid Payload: Extensive negative tests for malformed UUIDs, missing/empty required header, invalid data types and ranges (paymentAmount zero/negative, invalid boolean/date, invalid pluginProperty).",
+              "POST - Duplicate Submission: Retry and duplicate-protection scenarios cover idempotent handling on network errors (no duplicate payments).",
+              "POST - Large Payloads: Edge cases for extremely large paymentAmount and large pluginProperty arrays.",
+              "POST - Validation: Broad coverage of input validation for path, query, and headers; includes business behaviors for partial, equal, and greater-than outstanding amounts and accounts with no invoices/unpaid invoices.",
+              "POST - Server Error Handling: Simulated gateway down (502/503), database down (500), and plugin system unavailable (502/503).",
+              "Authorization: Unauthorized access scenario (401) covered.",
+              "Security Hardening: SQL injection attempt in path and XSS attempt in pluginProperty verified to avoid sensitive disclosure/exec.",
+              "Operational/Non-functional: Performance under normal/peak load and resource utilization under stress are included."
+            ],
+            "gaps": [
+              "Response contract on 204: Story indicates produces application/json, but 204 should have no body; tests do not assert absence of body or appropriate headers for 204.",
+              "Error response schema: Tests assert presence of an error message but don\u2019t validate JSON schema/fields (e.g., code, message, type) for 4xx/5xx as per API standards.",
+              "Content negotiation/headers: No scenarios for incorrect or missing Content-Type/Accept headers (e.g., 415 Unsupported Media Type, 406 Not Acceptable), given endpoint consumes application/json (even with no body).",
+              "Method semantics: No test for incorrect HTTP method usage (e.g., PUT/GET/DELETE returning 405).",
+              "Authorization breadth: 403 Forbidden (authenticated but not authorized) is not covered if the API differentiates between authN and authZ.",
+              "Business rule nuances: Not covered: paymentMethodId that does not belong to the account; precedence rules when externalPayment=true with a gateway-backed paymentMethod; allocation order of partial payments across multiple invoices.",
+              "Boundary/format details: No tests for targetDate timezone/UTC normalization and past/future date handling; no validation for pluginProperty encoding with collectionFormat=multi (repeated query params, URL encoding).",
+              "Rate limiting/throttling: No tests for 429 Too Many Requests under bursty conditions (if applicable at API gateway level).",
+              "Observability/audit: No verification that X-Killbill-Reason/Comment are persisted/propagated to audit logs or have length constraints.",
+              "Idempotency key/header: If supported by the platform (e.g., request idempotency header), not tested for safe retries beyond network-error flows."
+            ],
+            "recommendations": [
+              "Add a check that 204 responses have no body and that Content-Type headers are appropriate; if the API declares application/json, ensure consistency or update docs.",
+              "Validate standardized error response schema for 4xx/5xx (fields like errorType, code, message) and content-type application/json.",
+              "Include tests for 415 Unsupported Media Type and 406 Not Acceptable when Content-Type/Accept are incorrect or missing.",
+              "Add a scenario validating 405 Method Not Allowed for unsupported methods on the endpoint.",
+              "Add a 403 Forbidden scenario for authenticated users lacking permissions, if applicable.",
+              "Introduce tests where paymentMethodId is valid UUID but not linked to the account; expect 400/404 per contract.",
+              "Clarify and test rules for externalPayment combined with paymentMethodId (e.g., gateway bypass vs validation), and verify no gateway call occurs for external payments.",
+              "Add scenarios to verify the allocation strategy of partial payments across multiple invoices (e.g., oldest-first) and that totals reconcile correctly.",
+              "Expand targetDate tests for timezone parsing, past vs future dates, and normalization to service clock.",
+              "Test pluginProperty with collectionFormat=multi using repeated query parameters and URL-encoded values; include very long values and boundary counts.",
+              "If applicable, add rate-limiting tests to expect 429 under bursts and verify Retry-After headers.",
+              "Verify audit propagation: assert X-Killbill-Reason and X-Killbill-Comment persistence and enforce max length/character set constraints.",
+              "If the platform supports idempotency keys, add tests demonstrating safe retries with the idempotency header yielding a single payment and consistent 2xx/4xx responses."
+            ],
+            "usage": {
+              "completion_tokens": 1629,
+              "prompt_tokens": 7048,
+              "total_tokens": 8677,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 640,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

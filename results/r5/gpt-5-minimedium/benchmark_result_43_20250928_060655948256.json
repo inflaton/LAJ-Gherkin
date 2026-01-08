@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-09-28T06:06:55.948226",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T06:06:11.419465",
+    "benchmark_end_time": "2025-09-28T06:06:55.948222",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 44.528757,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid PUT request -> success path (TC01, TC02) with HTTP 204 and DB verification.",
+              "Required header validation (X-Killbill-CreatedBy) and missing header -> 400 (TC03).",
+              "Optional headers handling (X-Killbill-Reason, X-Killbill-Comment) and combinations (TC02, TC24).",
+              "Path parameter format validation for paymentId and paymentTransactionId -> 400 (TC04, TC05).",
+              "Non-existent resource handling -> 404 for missing payment or transaction (TC06, TC07, TC12).",
+              "Request body validation: missing body, malformed JSON, and inconsistent/invalid state data -> 400 (TC09, TC10, TC08).",
+              "Partial/required-only payloads accepted (TC23) and extra/unsupported fields ignored (TC13, TC25).",
+              "Boundary value checks for max/min lengths and numeric values (TC14, TC15).",
+              "Concurrency and race conditions testing for simultaneous updates (TC17).",
+              "Timeouts and degraded backend behavior (TC16, TC22) and expected gateway/service errors.",
+              "Authentication negative test -> 401 when credentials missing/invalid (TC11).",
+              "Security tests for SQL injection and XSS in inputs (TC18, TC19).",
+              "Performance/stress tests (bulk/high-load) and regression scenario coverage (TC20, TC21).",
+              "Header value robustness (whitespace/case variations) (TC26).",
+              "Mismatched IDs case covered (TC27).",
+              "Accessibility of docs for the endpoint (TC28)."
+            ],
+            "gaps": [
+              "403 Forbidden / insufficient privileges: no scenario covers an authenticated user without admin privileges receiving 403 (only 401 is present).",
+              "Server-side error handling (5xx): there are no explicit tests that simulate database failures or internal errors producing 500 Internal Server Error and verifying graceful handling/auditing.",
+              "Idempotency / duplicate submission behavior for PUT: no test verifies repeated identical PUT requests are safe/idempotent or how duplicates are handled.",
+              "Transactional atomicity and side-effects: no tests verify atomicity when updating transaction + payment state (partial failures, rollbacks, or effects on related subsystems like ledger/invoice).",
+              "Explicit schema/type-level validation for AdminPayment beyond state transitions (e.g., field types, date formats, numeric ranges, required vs optional at field-level) is not exhaustively covered.",
+              "Behavior expectation for partial updates: the guideline for PUT suggests rejecting partial updates unless allowed. Tests assume partial/required-only updates succeed but do not assert the API contract if partial updates should be rejected \u2014 ambiguity remains.",
+              "Rate limiting / throttling: high-load test exists, but no tests verify rate-limiting responses (e.g., 429) or throttling behavior.",
+              "Id/ownership mismatch semantics: while TC27 covers mismatched IDs, it doesn\u2019t assert which of 400 vs 404 is correct per API contract \u2014 test should assert the exact expected status code and error code/message.",
+              "Response headers / auditing headers on responses (e.g., request IDs, timestamps) are not checked.",
+              "Schema conformance of response error payloads (error codes, structured error body) is not asserted in negative tests."
+            ],
+            "recommendations": [
+              "Add tests for insufficient privilege scenarios (authenticated but not admin) and assert 403 Forbidden with a clear error message.",
+              "Implement tests that simulate backend failures (DB connection loss, exception) to verify 500 error handling, retries, and that no partial state is committed (atomicity).",
+              "Add idempotency/duplicate-submission tests: send identical PUT requests multiple times and verify safe idempotent behavior and consistent DB state.",
+              "Introduce explicit schema/type validation tests for AdminPayment payload fields: types, required fields, date formats, numeric ranges, and enum values beyond state fields.",
+              "Clarify and add tests for the expected behavior on partial updates: create tests both for rejecting partial payloads (if PUT must be full) and accepting them (if allowed) and assert API contract accordingly.",
+              "Add rate-limiting / throttling tests that verify 429 responses or the system\u2019s configured behavior under very high request rates (distinct from pure performance tests).",
+              "Add tests to verify transactional integrity and side-effects: ensure that related subsystems (ledger, invoice, audit logs) are updated correctly or rolled back on failure.",
+              "Assert exact error payload structure and content in negative tests (400/404/401/403/500) to ensure consistent API contract for clients.",
+              "Add tests asserting relevant response headers (e.g., request-id, audit/timestamp headers) are present and correctly populated where applicable.",
+              "Where behavior is environment-dependent (timeouts, degraded dependencies), add deterministic integration tests using mocks/fault-injection to assert retry/fallback behavior and data consistency."
+            ],
+            "usage": {
+              "completion_tokens": 2561,
+              "prompt_tokens": 6337,
+              "total_tokens": 8898,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1536,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

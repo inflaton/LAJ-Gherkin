@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "86_2025-10-13T09:11:26.787332",
+    "jira_id": "86",
+    "jira_title": "Implement/Test API: GET /1.0/kb/invoiceItems/{invoiceItemId}/tags - Retrieve invoice item tags",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:10:56.309999",
+    "benchmark_end_time": "2025-10-13T09:11:26.787328",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 30.477329,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "86_qe_sup-gpt4.1_agent-gpt4.1_1748921548.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01, TC02, TC03, TC04, TC06) verify 200 responses and correct data, including audit levels and includedDeleted.",
+              "Empty Response: TC05 validates behavior when no tags exist (empty array, 200).",
+              "Query Parameters: Broad combinations and validation covered (valid combos, missing required accountId TC11, invalid UUIDs TC07/TC08, invalid enum/boolean TC13/TC14, extra param ignored TC15).",
+              "Error Handling: 400 for invalid inputs (TC07, TC08, TC11, TC13, TC14), 404 for not found (TC09, TC10, TC26, TC27), 503 for backend unavailability (TC18).",
+              "Authorization: TC12 covers missing/invalid token resulting in 401.",
+              "Schema Validation: TC01 checks Tag objects conform to #/definitions/Tag; audit payload presence validated in TC03/TC04.",
+              "Security Negatives: SQLi/XSS inputs do not leak/execute (TC19, TC20).",
+              "Performance/Load: Normal and peak load responsiveness validated (TC21, TC22).",
+              "Integration/Audit Side-effects: Audit logging integration paths considered (TC24, TC25)."
+            ],
+            "gaps": [
+              "Produces/Headers: No explicit assertion that Content-Type is application/json and correct Accept negotiation; no checks for response charset.",
+              "Default Parameter Behavior: No scenario asserting default audit=NONE response shape (no audit info).",
+              "Business Consistency: No test where invoice item exists but does not belong to provided accountId (mismatch should error deterministically).",
+              "includedDeleted Default: No explicit test that deleted tags are excluded when includedDeleted is omitted or false, especially when only deleted tags exist.",
+              "Rate Limiting/Throttling: No scenario validating 429 or headers when client exceeds allowed request rate.",
+              "Caching Behavior: No checks for ETag/Last-Modified or Cache-Control headers and conditional GET handling (If-None-Match/If-Modified-Since).",
+              "Pagination: Not tested; if the endpoint can return many tags, behavior for large result sets or server-imposed limits is unverified.",
+              "Authorization Depth: 403 Forbidden (authenticated but not authorized) not covered if applicable to tenancy/permissions.",
+              "Response Contract Depth: Audit details schema (for FULL/MINIMAL) not validated against a formal structure; only presence is checked.",
+              "UUID Edge Cases: Min/max length UUID scenarios (TC16/TC17) are not meaningful for fixed-format UUIDs; better to validate exact RFC4122 format and case-insensitivity instead."
+            ],
+            "recommendations": [
+              "Add a scenario to assert response headers: Content-Type: application/json; charset, and that server honors Accept: application/json. Optionally assert no unexpected headers are missing.",
+              "Cover default audit behavior: when audit is omitted (or audit=NONE), assert that audit fields are absent or empty per contract.",
+              "Add test for account-object ownership mismatch: invoice item exists but belongs to a different accountId -> expect 404 or 400 per spec; make expected behavior explicit.",
+              "Add scenario proving includedDeleted defaults to false: when only deleted tags exist and includedDeleted is omitted, response is empty; when includedDeleted=true, deleted tags appear.",
+              "Introduce rate limiting tests: burst requests leading to 429 Too Many Requests, with Retry-After header, and verify well-behaved clients remain unaffected.",
+              "Introduce caching tests: first GET returns ETag; subsequent GET with If-None-Match returns 304; verify Cache-Control max-age and/or no-store as per API policy.",
+              "Clarify pagination applicability. If supported, add tests for limit/offset or server paging (links, next token). If not supported, document as N/A for this endpoint.",
+              "Add authorization/tenancy tests: authenticated but lacking permission or wrong tenant header returns 403; verify no data leakage.",
+              "Validate audit payload schema rigorously: define expected structure (createdBy, createdDate, reasonCode, comments, history entries) for FULL vs MINIMAL and assert types and presence.",
+              "Replace TC16/TC17 with strict UUID format tests: enforce canonical 36-char UUID with hyphens, case normalization, and reject uppercase/lowercase if policy requires; add tests for surrounding whitespace and URL-encoded values."
+            ],
+            "usage": {
+              "completion_tokens": 1697,
+              "prompt_tokens": 6114,
+              "total_tokens": 7811,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

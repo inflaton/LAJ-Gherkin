@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "25_2025-10-14T22:19:46.162830",
+    "jira_id": "25",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/invoicePayments - Trigger a payment for all unpaid invoices",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T22:18:23.025486",
+    "benchmark_end_time": "2025-10-14T22:19:46.162826",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 83.13734,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "25_qe_sup-gpt4.1_agent-gpt4.1_1748917596.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST - Valid Payload: Multiple successful scenarios (TC01, TC02, TC03, TC04, TC06, TC07, TC29) verify 204 responses and correct business effects (default payment method, partial/full payments, no-ops when no invoices).",
+              "POST - Invalid Payload: Broad validation coverage including malformed UUIDs, invalid types and ranges, and missing/empty required headers (TC08\u2013TC16).",
+              "POST - Duplicate Submission/Idempotency: Retries after network errors and regression for duplicate payments are handled without double-charging (TC22, TC28).",
+              "POST - Large Payloads: Extremely large paymentAmount and large pluginProperty arrays are exercised (TC23, TC24).",
+              "POST - Validation: Extensive input validation for UUID format, numeric ranges, date format, boolean types, array typing, and unknown query params (TC08, TC11\u2013TC15, TC25).",
+              "Server Error Handling: Simulated dependency and infrastructure failures return appropriate 5xx codes (payment gateway, DB, plugin system) (TC18, TC19, TC27).",
+              "Authorization: Unauthorized access returns 401 (TC17).",
+              "Security Hardening: SQL injection and XSS attempts do not leak sensitive info or execute scripts (TC20, TC21).",
+              "Integration Behavior: Plugin properties are passed through; plugin failure behavior covered (TC02, TC05, TC27).",
+              "Performance/Scalability: Response times and resource utilization validated under normal/peak/stress (TC30\u2013TC32).",
+              "State Variations: Mixed account invoice states covered, including no unpaid and no invoices (TC06, TC07, TC26)."
+            ],
+            "gaps": [
+              "Rate Limiting/Throttling: No scenarios for 429 responses, Retry-After headers, or backoff behavior.",
+              "Response Headers/Content Negotiation: Success path does not assert Produces application/json or absence of body for 204; no tests for Accept/Content-Type handling or 415 on invalid content types.",
+              "Error Schema: Negative cases assert only presence of an error message, not a structured error schema (e.g., code, message, type, requestId).",
+              "Concurrency/Race Conditions on Same Account: No test to ensure two concurrent payment triggers for the same account do not double-charge or conflict (beyond retry).",
+              "Payment Method Ownership/State: No scenario where a well-formed, existing paymentMethodId is not associated with the account or is inactive/blocked.",
+              "Target Date Semantics/Time Zones: Only format validation is tested; no behavioral checks across time zones or boundary dates affecting invoice selection/ordering.",
+              "Header Constraints: No tests for oversized or non-ASCII values in X-Killbill-Reason/Comment, or sanitization/length limits.",
+              "Observability Headers: No checks for correlation/request IDs or server-provided diagnostic headers in error responses.",
+              "HTTP Method Robustness: No 405 Method Not Allowed test for unsupported methods on this endpoint."
+            ],
+            "recommendations": [
+              "Add rate-limiting tests: burst of rapid POSTs leading to 429 with Retry-After, and verify client backoff compliance.",
+              "Assert response headers: on 204 ensure no body and Content-Type behavior; on errors assert application/json and a documented error schema (code, message, type, requestId).",
+              "Define and validate an error response contract; update negative tests to assert full schema and do not leak stack traces.",
+              "Introduce concurrency tests: two or more simultaneous POSTs for the same account; verify single payment execution and proper locking/idempotency.",
+              "Add scenarios for paymentMethodId that exists but is not linked to the account or is inactive/blocked; expect 400/404 as per spec.",
+              "Target date behavior: tests that verify effect of targetDate across time zones/day boundaries and correct invoice selection logic.",
+              "Header robustness: tests for very long and non-ASCII X-Killbill-Reason/Comment values, and sanitization/length limit enforcement.",
+              "Add observability checks: presence of correlation/request IDs in responses, especially for 5xx/4xx to aid troubleshooting.",
+              "Include a 405 Method Not Allowed test for unsupported methods (e.g., GET/PUT on this path) to ensure proper method guarding."
+            ],
+            "usage": {
+              "completion_tokens": 4050,
+              "prompt_tokens": 7048,
+              "total_tokens": 11098,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3136,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

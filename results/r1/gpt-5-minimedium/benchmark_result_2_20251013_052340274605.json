@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-10-13T05:23:40.274579",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:23:08.788956",
+    "benchmark_end_time": "2025-10-13T05:23:40.274574",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 31.485618,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01, TC02, TC04, TC05, TC18) verify successful creation with single, multiple and large payloads, and produce 201 responses.",
+              "Response Body / Schema: Several scenarios assert that the response is a JSON array of Tag objects and that tags are persisted in the DB (TC01, TC02, TC05, TC18).",
+              "Required Headers: Required header X-Killbill-CreatedBy is tested (presence and missing-case TC11).",
+              "Optional Headers: Optional headers X-Killbill-Reason and X-Killbill-Comment presence is tested (TC03).",
+              "Invalid Payloads: Empty array, non-array body, malformed elements, unexpected extra parameters, and invalid UUID formats are covered (TC07, TC08, TC09, TC17).",
+              "Non-existent Resources: Non-existent tag definition and non-existent account scenarios are present (TC10, TC14).",
+              "Account ID Validation: Missing and malformed accountId path cases are covered (TC12, TC13).",
+              "Authorization: Missing authentication token is tested (TC15).",
+              "Server/Dependency Failure: Service-unavailable scenario (dependency failure) tested (TC16, expecting 503).",
+              "Duplicate Handling and Idempotency-related: Duplicate IDs in request and pre-existing tags are exercised (TC05, TC19), including expectation to not duplicate in DB.",
+              "Concurrency and Performance: Concurrency (TC21) and a simple response time/performance requirement (TC20) are included.",
+              "Security / Sanitization: Header injection attempt is covered (TC22).",
+              "Regression / Edge Cases: Special-character ID regression and backward-compatibility with API version are covered (TC23, TC24).",
+              "Query Params Ignored: A scenario verifies pagination/sort/filter query params on POST are ignored (TC06)."
+            ],
+            "gaps": [
+              "Atomicity / Partial Failure: No scenario exercises a mixed request containing both valid and invalid tag IDs in the same payload (e.g., one valid UUID and one non-existent UUID) to verify whether operation is atomic or partially applied.",
+              "500 Internal Server Error / DB failure: While a 503 service-unavailable scenario exists, there is no explicit test for 500 Internal Server Error or simulated database exception and the API's mapping to 500 responses.",
+              "Authorization granularity: Lack of tests for insufficient permissions (403) or invalid/expired tokens (distinct from missing token 401). TC15 covers missing token only.",
+              "Content-Type / Media Type Handling: No tests for missing/incorrect Content-Type header (e.g., text/plain or application/xml) to ensure proper 415/400 handling.",
+              "Response headers and content-type enforcement: No explicit checks that response Content-Type is application/json or that expected headers (e.g., no-cache or other headers) are present/absent.",
+              "Schema validation depth: Response Tag object structure is asserted in broad terms but there are no detailed schema validations for Tag fields (e.g., id, tagDefinitionId, createdBy, createdDate).",
+              "Duplicate submission semantics: Replay/duplicate POST behavior beyond duplicate IDs in a single body (e.g., same request retried due to network) is not explicitly tested for idempotency/duplicate submissions handling.",
+              "Rate limiting / throttling: No tests to validate behavior under high request rates / rate limiting (relevant to POST in guidelines).",
+              "Boundary & limit checks beyond happy large-case: Only one large case (100 items) is present; no negative test for exceeding a system limit or testing max size, and no overall payload size/content-length tests.",
+              "Error message content and localization: Tests assert presence of error indication but do not validate specific error codes or message bodies structure/fields beyond existence."
+            ],
+            "recommendations": [
+              "Add a mixed-validity payload test (e.g., one valid tag UUID and one non-existent/invalid UUID) to confirm whether the API rejects the whole request (atomic) or partially applies changes; assert DB state after such a request.",
+              "Introduce a test that simulates an internal server error (500) such as DB exception and verify appropriate 500 response and error body.",
+              "Add authorization-permissions tests: a) authenticated but unauthorized user => expect 403, b) expired/invalid token => expect 401 with appropriate message.",
+              "Test Content-Type handling: POST with missing Content-Type or wrong Content-Type (e.g., text/plain) should yield 415 or 400; add tests for this.",
+              "Validate response headers and Content-Type explicitly (assert Content-Type: application/json and any audit headers expected).",
+              "Extend response schema checks: assert Tag object fields and types (id, tagDefinitionId, createdBy, createdDate) rather than only \"array of Tag objects\".",
+              "Add idempotency / duplicate-submission tests: resend the same POST and verify behavior and DB duplicates are not created unexpectedly.",
+              "Add rate-limiting / throttling tests for POST to validate server behavior under high request rates (relevant for production readiness).",
+              "Add boundary-exceeding tests: attempt more than 100 tag IDs or very large payloads to validate server rejects/handles them gracefully and check limits enforced by API.",
+              "Add tests that verify clear, structured error responses (error codes, errorType, message) for invalid inputs to improve client usability and automated checks."
+            ],
+            "usage": {
+              "completion_tokens": 2282,
+              "prompt_tokens": 6410,
+              "total_tokens": 8692,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

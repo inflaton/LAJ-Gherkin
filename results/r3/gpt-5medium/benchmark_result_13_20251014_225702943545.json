@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-14T22:57:02.943516",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T22:55:47.592493",
+    "benchmark_end_time": "2025-10-14T22:57:02.943511",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 75.351018,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Valid Deletion: Multiple success scenarios return 204 and mark the account as closed; side-effects controlled by query flags (defaults, single, pairwise, and all-true cases).",
+              "Non-Existent/Already Closed: Idempotent behavior verified with 204 for non-existent and already-closed accounts.",
+              "Soft Deletes: Tests assert the account is marked closed (not hard-deleted) and repeated calls have no further effect.",
+              "Query Parameters: Thorough coverage of defaults and combinations for cancelAllSubscriptions, writeOffUnpaidInvoices, itemAdjustUnpaidInvoices, removeFutureNotifications.",
+              "Input Validation: UUID pattern invalid returns 400; SQL injection in accountId rejected; unsupported query param ignored; missing required header (X-Killbill-CreatedBy) returns 400.",
+              "Authorization: Unauthenticated requests return 401 (both missing and invalid tokens).",
+              "Error Handling: Simulated DB outage returns 500 with error message.",
+              "Idempotency/Resilience: Retry after transient network failure remains idempotent; repeated DELETEs do not duplicate side-effects.",
+              "Performance/Scalability: Large volume processing and concurrent deletions across multiple accounts covered.",
+              "Security: XSS attempt in comment header sanitized/ignored."
+            ],
+            "gaps": [
+              "Concurrency (same resource): No test for two concurrent DELETEs on the same account or a race where another actor deletes mid-operation; expected consistent 204 and single set of side-effects.",
+              "Response headers and body semantics: No checks that 204 responses have no body and appropriate headers; no verification of declared produces=application/json for error responses.",
+              "Invalid query param values: No tests for non-boolean values (e.g., cancelAllSubscriptions=foo/1), mixed case booleans, or duplicate query parameters and their precedence/validation (expect 400 or defined behavior).",
+              "Header edge cases: No tests for X-Killbill-CreatedBy empty/whitespace-only/overly long/non-ASCII; optional headers Reason/Comment length and header-injection variants.",
+              "Authorization (forbidden): No 403 scenario for authenticated but unauthorized roles (if RBAC applies).",
+              "Partial failure/transactionality: No scenarios where one side-effect (e.g., subscriptions cancel) succeeds but another (invoice write-off) fails; expected rollback/compensation and final status not defined/verified.",
+              "Post-closure behavior: No tests verifying that a closed account cannot perform subsequent actions (e.g., creating subscriptions), confirming effective soft-delete enforcement.",
+              "Rate limiting/throttling: No coverage if the API enforces request limits."
+            ],
+            "recommendations": [
+              "Add race-condition tests with concurrent DELETEs on the same account; verify only one closure occurs, side-effects are not duplicated, and responses are consistently 204.",
+              "Validate response semantics: assert 204 has no body; verify Content-Type on error responses and that produces=application/json is honored.",
+              "Expand input validation: test invalid boolean values, mixed case, and duplicate query parameters; define and assert expected 400 or precedence rules.",
+              "Strengthen header validation: test required header empty/whitespace/non-ASCII/oversized; add tests for optional headers Reason/Comment size limits and header-injection patterns.",
+              "Include a 403 forbidden scenario if role-based authorization exists.",
+              "Test transactional integrity: simulate dependent-service partial failures (subscriptions/invoices/notifications) and assert rollback or compensating actions with deterministic status codes.",
+              "Verify post-closure restrictions by attempting operations that require an active account and expecting appropriate errors.",
+              "If applicable, add rate-limiting/throttling scenarios (burst deletes) and expected responses/headers."
+            ],
+            "usage": {
+              "completion_tokens": 3721,
+              "prompt_tokens": 6316,
+              "total_tokens": 10037,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2944,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

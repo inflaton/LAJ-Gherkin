@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "43_2025-10-15T21:09:01.237993",
+    "jira_id": "43",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/payments/{paymentId}/transactions/{paymentTransactionId} - Update existing paymentTransaction and associated payment state",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T21:06:53.534540",
+    "benchmark_end_time": "2025-10-15T21:09:01.237989",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 127.703449,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "43_qe_sup-gpt4.1_agent-gpt4.1_1748918726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "PUT Valid Request: Multiple success paths verify correct update and DB persistence with valid payload and headers (e.g., 204 responses and state updated).",
+              "Partial Update: Scenario using only required fields demonstrates acceptance of partial payloads; boundary values tested (max/min).",
+              "Non-Existing Resource: Proper 404 handling when payment/transaction does not exist and when DB is empty; mismatched IDs handled.",
+              "Concurrency Issues: Concurrent updates on the same transaction tested for consistency and absence of corruption.",
+              "Input Validation: Invalid UUIDs, missing body, malformed JSON, and inconsistent/invalid state data lead to appropriate 400 errors.",
+              "Headers: Required header enforcement (X-Killbill-CreatedBy) and optional headers (Reason/Comment) combinations and robustness (whitespace/case) are covered.",
+              "Security: SQL injection and XSS payloads are handled safely without backend execution or downstream exposure.",
+              "Resilience/Performance: Backend timeouts/degraded dependency handling and high-load performance are exercised.",
+              "Extra Input Handling: Unsupported body fields and query parameters are ignored without failing the update."
+            ],
+            "gaps": [
+              "Authorization: No test for 403 Forbidden when the caller is authenticated but lacks admin privileges/permissions.",
+              "Idempotency: No scenario verifying that repeating the same PUT with identical payload leaves state unchanged and returns a consistent status.",
+              "Media Type Enforcement: No tests for missing/incorrect Content-Type (415) or unacceptable Accept headers (406).",
+              "Required-field Validation: No explicit tests for omitting required AdminPayment fields or using invalid enum values for state/status.",
+              "No Side Effects on Error: Error-path scenarios do not assert that payment/transaction state remains unchanged after 4xx/5xx responses.",
+              "Auditability: No verification that CreatedBy/Reason/Comment are persisted in audit/audit-log/history records.",
+              "Header Value Semantics: No test that blank/whitespace-only X-Killbill-CreatedBy is rejected.",
+              "Server Error Handling: No simulation of internal errors (e.g., DB failure) to validate 500 behavior and rollback.",
+              "Response Semantics: No assertion that 204 responses contain no body and appropriate headers (e.g., omitting Content-Type on 204).",
+              "Partial-update Semantics: Unspecified fields are not verified to remain unchanged vs. being nulled/defaulted when only a subset is sent."
+            ],
+            "recommendations": [
+              "Add a 403 Forbidden scenario using valid credentials without admin privileges to confirm authorization enforcement.",
+              "Add an idempotency test: send the same valid PUT twice; verify the second call returns 204 and no additional change in state/audit version.",
+              "Add media-type tests: missing Content-Type or Content-Type != application/json should return 415; unsupported Accept should return 406.",
+              "Expand validation: omit each required AdminPayment field in turn; use invalid enum values for currentPaymentStateName/transactionStatus; include out-of-range numeric values to ensure 400.",
+              "Augment negative tests to assert no database changes occur on error responses (400/401/404/415/500).",
+              "Verify audit persistence: CreatedBy/Reason/Comment should appear in audit/history for the payment/transaction after a successful update.",
+              "Add a test that blank or whitespace-only X-Killbill-CreatedBy is rejected with 400.",
+              "Simulate server-side failure (e.g., DB write error) to confirm 500 behavior and full rollback with clear error messaging.",
+              "Clarify and test partial-update semantics: unspecified fields remain unchanged; explicit nulls are rejected with 400 if not allowed.",
+              "Optionally assert that 204 responses contain no body and do not include Content-Type, aligning with HTTP semantics and the API contract."
+            ],
+            "usage": {
+              "completion_tokens": 7189,
+              "prompt_tokens": 6337,
+              "total_tokens": 13526,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

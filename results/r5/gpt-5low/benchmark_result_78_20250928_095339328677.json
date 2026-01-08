@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-09-28T09:53:39.328644",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:53:04.791003",
+    "benchmark_end_time": "2025-09-28T09:53:39.328639",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 34.537636,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "POST Valid Payload: Multiple success paths returning 201 with confirmation string/URI; plan retrievability verified.",
+              "POST Invalid Payload: Missing required body fields, malformed JSON, empty body, invalid currency; appropriate 400 responses.",
+              "Header Validation: Required X-Killbill-CreatedBy present and missing cases covered; optional headers Reason/Comment covered.",
+              "Conflict Handling: Duplicate planId conflicts return 400 as specified by the story.",
+              "Boundary/Validation: Max-length strings and minimum numeric values tested; security validation (XSS/SQL injection) covered.",
+              "Large Payload: Very large request payload behavior considered (201 or 400 depending on limits).",
+              "AuthN Negative: Missing authentication returns 401.",
+              "Service Unavailability: Catalog/downstream unavailability returns 503; degraded dependencies scenario considered.",
+              "Concurrency: Concurrent POSTs with unique planIds succeed (201).",
+              "Resilience: Temporary network failure with retry scenario covered.",
+              "Method Safety: Unsupported HTTP method (GET) returns 405."
+            ],
+            "gaps": [
+              "Duplicate Submission/Idempotency: No scenario for retrying the exact same request payload causing potential duplicate creation vs idempotent behavior (e.g., 201 once then 409/200 on retry).",
+              "Server Error Handling (500): No simulation of internal server errors (e.g., database failure) returning 500 with meaningful error body.",
+              "Validation Depth: No tests for invalid billingPeriod or productCategory enums, negative/over-precision amounts, unsupported currency case sensitivity, or whitespace-only X-Killbill-CreatedBy.",
+              "Content-Type/Accept Handling: No tests for missing or incorrect Content-Type (e.g., text/plain) leading to 415, or Accept header negotiation and response Content-Type verification.",
+              "Response Headers: No verification of Location or Content-Type headers on 201, nor correlation/audit headers if applicable.",
+              "Authorization 403: No scenario for authenticated but unauthorized user (insufficient permissions) receiving 403.",
+              "Rate Limiting/Throttling: No tests for 429 or server behavior under burst POST traffic.",
+              "Idempotent Retry Outcome: Network retry test does not assert that only one plan is created (no duplicate side effects).",
+              "Schema Strictness: Scenario allowing extra/unsupported fields assumes permissive behavior; missing negative case if API should reject unknown fields (schema validation strict mode).",
+              "Catalog Version Semantics: No explicit check that the plan is added only to the current catalog version without altering previous versions."
+            ],
+            "recommendations": [
+              "Add an idempotency/duplicate submission test: submit the same SimplePlan twice (with and without an idempotency key if supported) and assert second call returns non-creation status (e.g., 409/200) and only one plan exists.",
+              "Introduce a server failure simulation (e.g., force DB error) and assert a 500 response with a structured error payload.",
+              "Expand validation scenarios: invalid billingPeriod/productCategory enums, negative amount, too many decimal places, lowercase/invalid currency, and whitespace/empty X-Killbill-CreatedBy.",
+              "Add media type tests: wrong/missing Content-Type -> 415; verify response Content-Type on 201; test Accept negotiation if applicable.",
+              "Verify response headers on success: Location (if provided), Content-Type, and any standard audit/correlation headers.",
+              "Add authorization test for 403 Forbidden with a user lacking permissions.",
+              "Include rate limiting tests: burst of POST requests leading to 429 or documented throttling behavior.",
+              "Enhance the network retry scenario to assert idempotency: after retry, confirm exactly one plan exists.",
+              "Decide schema strictness and test accordingly: if unknown fields should be rejected, expect 400; if allowed, document behavior explicitly.",
+              "Add a scenario confirming the plan appears in the current catalog version only and does not modify prior versions."
+            ],
+            "usage": {
+              "completion_tokens": 1972,
+              "prompt_tokens": 5854,
+              "total_tokens": 7826,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

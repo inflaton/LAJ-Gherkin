@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "98_2025-10-14T00:24:42.254453",
+    "jira_id": "98",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/customFields - Add custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T00:23:52.130107",
+    "benchmark_end_time": "2025-10-14T00:24:42.254449",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 50.124342,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "98_qe_sup-gpt4.1_agent-gpt4.1_1748922413.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST - Valid Payload: Happy-path creation with 201 and response array (TC01, TC02, TC03, TC04, TC05).",
+              "POST - Invalid Payload: Malformed JSON (400) and missing required properties (400) are covered (TC08, TC16).",
+              "POST - Large Payload: Handled via 201 or 413, with expectations for both outcomes (TC15).",
+              "POST - Validation: paymentId UUID format validation (400), required header X-Killbill-CreatedBy, optional headers behavior, unsupported query params and extra body fields (TC02, TC06, TC09, TC10, TC17).",
+              "Error Scenarios per story: 400 for invalid paymentId/malformed body; 404 when payment not found (TC08, TC10, TC11).",
+              "Authorization: 401 for missing/invalid auth token (TC12).",
+              "Resilience/Server-side failure: Dependent service down returns 503 (TC13).",
+              "Security/robustness inputs: Injection/XSS handling and unicode handling (TC14, TC21).",
+              "Persistence/integration: Verify created fields retrievable via GET and reflected downstream (TC24, TC25).",
+              "Performance and concurrency: Normal/peak load SLAs and concurrent POSTs without data loss (TC19, TC22, TC23)."
+            ],
+            "gaps": [
+              "POST - Duplicate Submission: No scenario covers resubmitting the same payload (e.g., retries) and expected idempotency or deduplication behavior (409/200/201).",
+              "POST - Server Error Handling (500): Only 503 is covered; no test for unexpected internal errors returning 500 and error schema.",
+              "Response headers/content negotiation: No explicit check that response Content-Type is application/json as per produces, or handling of Accept header (406).",
+              "Deterministic outcomes: Tests allow multiple possible results (201 or 400) for empty arrays and extra fields; should assert the single expected behavior per API spec.",
+              "Auditing/traceability: No verification that X-Killbill-Reason and X-Killbill-Comment are persisted/audited in metadata/history.",
+              "Business validation details: No explicit checks for objectType correctness (e.g., INVOICE_PAYMENT), allowed/maximum lengths for fieldName/fieldValue, or character set constraints beyond unicode/injection.",
+              "Authorization granularity: 403 Forbidden (authorized but not permitted) is not covered when tokens are valid but lack permissions.",
+              "Idempotency/duplicate field names across repeated calls: Regression test touches duplicate field names in one request, but not behavior when the same field is posted again in subsequent requests (e.g., update vs. reject vs. create duplicate).",
+              "Rate limiting/throttling: Not covered under high-frequency POSTs beyond general performance; expected 429 behavior if applicable.",
+              "Error response schema: No assertions that error responses include standardized fields (e.g., code, message, requestId) for 400/404/401/503."
+            ],
+            "recommendations": [
+              "Add a duplicate submission scenario: resend the identical payload and assert expected behavior (idempotency key if supported, 200/201/409, and resultant state).",
+              "Add 500 Internal Server Error simulation (e.g., forced exception) and verify status code and error payload contract.",
+              "Assert response headers: check Content-Type: application/json and optionally Location (if applicable), and include an Accept header test (406 for unsupported).",
+              "Make outcomes deterministic: split TC06/TC07 into separate cases that assert the single behavior defined by the API spec and update the spec if ambiguous.",
+              "Verify auditing: after sending X-Killbill-Reason and X-Killbill-Comment, retrieve audit logs/metadata to confirm they were recorded.",
+              "Expand validation tests: enforce objectType in response, fieldName/fieldValue length limits, allowed characters, and rejection/sanitization policies with precise expectations and status codes.",
+              "Add a 403 Forbidden scenario for authenticated users lacking permissions.",
+              "Test posting the same custom field(s) in subsequent calls to define behavior (overwrite, reject with 409, or create duplicate) and assert final state.",
+              "If applicable, add rate limiting tests to validate 429 responses under burst traffic.",
+              "Standardize error schema checks across 400/401/404/413/503 to ensure consistent fields (code, message, type, requestId)."
+            ],
+            "usage": {
+              "completion_tokens": 2095,
+              "prompt_tokens": 6845,
+              "total_tokens": 8940,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

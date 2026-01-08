@@ -1,0 +1,99 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-09-28T04:54:40.254144",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:54:19.796437",
+    "benchmark_end_time": "2025-09-28T04:54:40.254121",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 20.457684,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request: Multiple successful resume scenarios (TC01\u2013TC04, TC18) cover standard/optional headers and query params producing expected 204 responses.",
+              "Non-Existing Resource: TC05 asserts 404 when bundle not found.",
+              "Invalid Identifier: TC06 verifies invalid UUID format returns 400.",
+              "Required Header Validation: TC07 checks behavior when X-Killbill-CreatedBy is missing.",
+              "Invalid State Handling: TC08 and TC09 cover attempts to resume bundles in non-paused states (active, cancelled) returning 400 with error messages.",
+              "Authorization: TC10 covers unauthorized access returning 401/403.",
+              "Query Parameter Validation: TC02, TC19, TC20 cover requestedDate valid future scheduling, wrong pluginProperty format, and past dates as errors.",
+              "Optional/Extra Parameters: TC11 checks extra query params are ignored or tolerated.",
+              "Boundary / Limits: TC12 and TC13 address maximum header lengths and very large numbers of pluginProperty values.",
+              "Concurrency: TC21 addresses concurrent resume requests and expected responses for first/subsequent requests.",
+              "Error & Resilience: TC14 and TC25 cover dependency failure and plugin service degradation (500/504 behaviors).",
+              "Retry Semantics: TC15 covers retry after transient network failure.",
+              "Security: TC16 and TC17 include SQL injection and XSS attempts in inputs and expected safe handling.",
+              "Audit/Reasoning: TC04 checks reason/comment headers are accepted and recorded (audit-log expectation).",
+              "Performance: TC22 includes a high-level performance under load scenario.",
+              "Regression & Backward Compatibility: TC23 and TC24 include regressions and legacy client header acceptance."
+            ],
+            "gaps": [
+              "PUT Method \u2014 Partial Update: There is no explicit test asserting that partial updates are rejected or accepted when no body exists (clarify behavior for an endpoint with no request body).",
+              "Idempotency / Repeatability: Apart from concurrency (TC21) there is no explicit idempotency test asserting repeated identical requests result in safe/no-op behavior (e.g., retrying the same successful request).",
+              "RequestedDate Format Validation: Tests cover future and past dates but do not validate malformed date formats (e.g., invalid date strings).",
+              "Header Value Validation: No tests for invalid or empty X-Killbill-CreatedBy (empty string, only whitespace) beyond missing header (TC07 and TC26 partially touch whitespace/case but not empty-only).",
+              "Response Headers / Content-Type: Although API docs say produces application/json, most successful responses are 204 (no body). There are no assertions about response headers (Content-Type, or presence/absence of bodies on errors) or any required audit headers.",
+              "Audit Persistence Verification: TC04 expects reason/comment recorded in audit log, but there is no explicit readback/verification step showing the audit record was persisted and contains expected values.",
+              "Rate Limiting / Throttling: Standard guideline tests for rate limiting are missing (beyond load/perf TC22).",
+              "Caching Behavior: No tests examine caching headers or ETag/Cache-Control (likely low relevance for PUT but part of guidelines).",
+              "Pagination: Not applicable to this endpoint, but guideline mentions pagination for GET \u2014 absent (acceptable but noted).",
+              "Schema/Contract for Error Responses: Tests assert status codes and generic error messages but do not validate error response schema/fields (error codes, error types, trace ids).",
+              "Large Header/Parameter Combined Limits: TC12 and TC13 test single-axis limits but there is no test for combined large headers + large pluginProperty payloads to verify total request size limits."
+            ],
+            "recommendations": [
+              "Add an idempotency/repeatability test: send the same resume request twice (sequentially) and assert the second is a safe no-op or returns an appropriate status (204 or 409/400 depending on spec).",
+              "Add malformed requestedDate tests: send non-date strings and borderline formats (e.g., \"2025-02-30\", \"not-a-date\") and assert 400 with clear validation messages.",
+              "Add header validation tests: test empty X-Killbill-CreatedBy (empty string) and whitespace-only values to assert which are accepted vs rejected beyond TC26.",
+              "Explicitly verify audit persistence: after TC04-like requests, read the audit logs or bundle metadata and assert reason/comment appear correctly and are attributed to X-Killbill-CreatedBy.",
+              "Validate error response schema: for 4xx/5xx responses assert presence and format of error fields (errorCode/message/stackTrace/traceId) according to API contract.",
+              "Add idempotency/concurrency variation tests: beyond race (TC21), include sequential duplicate requests and longer-running resume operations to assert locking/transaction behavior and consistent results.",
+              "Test combined large payloads and header sizes: create a test combining max-length headers with many pluginProperty entries to ensure server enforces total request size limits gracefully.",
+              "Add rate-limiting tests: hammer the endpoint from a single client to verify throttling behavior and expected error codes (429) or backoff headers if applicable.",
+              "Add malformed pluginProperty formats: more negative tests for badly-formed key=value pairs, extremely long keys, or non-UTF8 sequences to assert robust validation and sanitization.",
+              "Assert response headers on success/error: even where body is empty, assert presence/absence of specific headers (e.g., Content-Type on errors) and any auditing/tracing headers the system should return."
+            ],
+            "usage": {
+              "completion_tokens": 1473,
+              "prompt_tokens": 6265,
+              "total_tokens": 7738,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

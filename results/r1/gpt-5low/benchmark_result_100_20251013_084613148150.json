@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-13T08:46:13.148097",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:45:52.736169",
+    "benchmark_end_time": "2025-10-13T08:46:13.148093",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 20.411924,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Deletion: Successful deletion of all custom fields and specific subsets with 204 responses (TC01, TC02, TC03, TC04, TC06, TC07, TC15, TC20).",
+              "Optional vs required headers: Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment exercised (TC03, TC11).",
+              "Non-Existent Resource: 404 when payment does not exist (TC09).",
+              "Validation: Invalid paymentId format (400), malformed/invalid customField IDs (400), partial invalid inputs rejected (400) (TC08, TC13, TC16, TC18).",
+              "Behavior when customField not provided: Deletes all fields as per spec (TC01, TC03).",
+              "Behavior for non-existent customField IDs: No-op with 204 (TC10).",
+              "Security/abuse checks: Unauthorized (401), XSS in header, SQLi-like query value handled (TC12, TC17, TC18).",
+              "Resilience: Service unavailable (503) covered; load/performance scenario validates acceptable response time (TC14, TC19).",
+              "Integration side-effects: Audit log dependency scenarios addressed (TC21, TC22).",
+              "Query parameter handling: Multi-value parameters and unexpected extra query parameter tolerated (TC02, TC05).",
+              "Empty response body for 204 validated consistently."
+            ],
+            "gaps": [
+              "Concurrency: No scenarios for race conditions (e.g., concurrent deletes or delete while another actor modifies fields).",
+              "Soft Deletes: No validation whether deletion is soft vs hard, or verification through retrieval/audit that data is marked/deleted as intended.",
+              "Idempotency: No test that repeating the same DELETE yields consistent 204/no-op behavior after first deletion.",
+              "Response headers: No checks for Content-Type on 204 (should likely be absent) or other headers; story states produces application/json but 204 typically has no body.",
+              "Mixed existence (valid UUIDs where some exist and some do not): No scenario to confirm behavior (e.g., remove existing ones and ignore missing vs error).",
+              "Duplicate customField IDs in query: No scenario to confirm duplicates are handled gracefully (de-duplicated, still 204).",
+              "Boundary/robustness for headers: No tests for empty/whitespace CreatedBy, overly long Reason/Comment, or non-ASCII values.",
+              "Rate limiting/throttling: No coverage of burst DELETE requests handling (if applicable).",
+              "Server error handling: No explicit 5xx due to backend/database failure beyond generic service unavailable.",
+              "Authorization granularity: 403 (forbidden) vs 401 (unauthorized) not differentiated (if RBAC applies)."
+            ],
+            "recommendations": [
+              "Add concurrency tests: two simultaneous DELETEs on same payment; DELETE during concurrent update/add of custom fields; verify final state and appropriate status codes.",
+              "Clarify and test deletion semantics: Verify post-DELETE state via a GET of custom fields (or domain-appropriate check) to confirm hard vs soft deletion; add scenario asserting audit/history if soft delete is intended.",
+              "Add idempotency test: Perform DELETE twice (first removes, second should return 204 with no change).",
+              "Validate response headers for 204: Assert no Content-Type/Content-Length inconsistencies; align with spec that claims application/json on 204 or adjust expectations.",
+              "Add mixed valid/non-existent UUIDs scenario: Expectation typically is 204 removing existing and ignoring non-existent; codify per API contract.",
+              "Add duplicate customField IDs scenario to ensure request is handled deterministically (no error, still 204).",
+              "Extend header robustness: Tests for empty/blank CreatedBy (expect 400), excessively long Reason/Comment (boundary limits), and Unicode values.",
+              "Consider rate limiting tests if enforced by platform: multiple rapid DELETE requests and expected 429 behavior.",
+              "Introduce explicit 500/502 test by simulating database or dependency failure distinct from general service unavailability; verify error payload shape.",
+              "If authorization policies exist, add a 403 forbidden scenario for authenticated user lacking permission to delete custom fields."
+            ],
+            "usage": {
+              "completion_tokens": 1846,
+              "prompt_tokens": 6120,
+              "total_tokens": 7966,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

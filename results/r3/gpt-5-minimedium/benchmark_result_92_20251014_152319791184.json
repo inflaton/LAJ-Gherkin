@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-14T15:23:19.791155",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:20:50.214685",
+    "benchmark_end_time": "2025-10-14T15:23:19.791150",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 149.576465,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Success cases for removing all custom fields (no customField param) and removing specific customField IDs (TC01, TC02) are present.",
+              "Optional vs required headers: Tests cover required X-Killbill-CreatedBy, optional X-Killbill-Reason and X-Killbill-Comment and combinations (TC05, TC06, TC16, TC20).",
+              "Path parameter validation: Invalid format and not-found invoiceItemId scenarios are covered (TC07, TC08).",
+              "Query parameter validation: Well-formed, malformed, duplicated, large lists, extra params, and injection attempts are covered (TC02, TC10, TC11, TC12, TC15, TC17, TC18).",
+              "Empty state handling: Removing when there are no custom fields is covered (TC04).",
+              "Edge functional variations: Single-field removal and subset removal are covered (TC03, TC02).",
+              "Error cases required by story: 400 for invalid invoiceItemId and 404 for missing invoice item are explicitly present (TC07, TC08).",
+              "Authentication/Authorization: Expired/invalid token and missing required header are tested (TC19, TC09).",
+              "Operational/resilience scenarios: Heavy load and dependent-service-unavailable are present (TC13, TC14).",
+              "Regression and parsing quirks: Header-formatting regression is included (TC20)."
+            ],
+            "gaps": [
+              "Soft-delete vs hard-delete semantics: No test verifies whether custom fields are soft-deleted (flagged) vs permanently removed, or whether they remain in audit/history.",
+              "Idempotency of DELETE: No explicit scenario that re-runs the same DELETE to verify idempotency (subsequent 204 or 404 expectations are not defined).",
+              "Partial-success semantics: The behavior when some requested customField IDs are valid and exist on the invoice item while others are valid UUIDs but do not belong to that invoice item is not covered (does API remove valid ones, ignore, or fail?).",
+              "Atomicity/transactionality under mixed inputs: Related to above, no test asserts whether removal is all-or-nothing when provided a mix of valid/invalid/foreign IDs beyond TC17 which assumes a 400 for mixed invalids.",
+              "Concurrency race conditions specific to DELETE semantics: No test simulates two clients attempting to remove / modify the same custom fields simultaneously (e.g., delete by another user between validation and delete).",
+              "Header edge-cases: Missing/blank X-Killbill-CreatedBy values, unusual encodings, and non-ASCII characters for reason/comment are not explicitly tested beyond long comment and whitespace/casing regression.",
+              "Error response payload and headers: Tests do not assert content-type, error JSON schema/body contents (structure of error messages) or that success responses include expected headers (story says produces application/json but tests only check empty body).",
+              "Authorization nuances: Tests include expired token and missing header but do not test forbidden (403) vs unauthorized (401) semantics or role-based access, if applicable.",
+              "Rate limiting and throttling: No tests for rate limiting, burst behavior, or retry semantics.",
+              "Logging/audit verification: No tests to verify that X-Killbill-* headers are recorded/audited in downstream logs or audit trails."
+            ],
+            "recommendations": [
+              "Add idempotency tests: send the same DELETE twice and assert the second call behaves as defined by API (typically still 204 or 404 depending on contract).",
+              "Add tests for partial-success/atomicity: craft scenarios where some customField IDs are valid and belong to the invoice item, others are valid UUIDs but belong to different resources, and assert whether API fails the whole request or removes only the matching ones. Clarify expected behavior in API contract and add tests accordingly.",
+              "Add concurrency tests: simulate two concurrent deletes/updates to the same invoice item custom fields to verify race conditions and correct error codes or retry behavior.",
+              "Add soft-delete verification: if system supports soft deletes, add tests that check the DB/audit table for deleted flag and that subsequent reads behave accordingly; otherwise document hard-delete expectation and add tests to confirm permanent removal from persistence.",
+              "Validate error payloads and headers: For 4xx/5xx responses assert Content-Type and error JSON shape/message content to ensure clients can parse errors reliably.",
+              "Expand header edge-case coverage: test empty/whitespace X-Killbill-CreatedBy, extremely long Reason header, non-ASCII characters, and invalid encodings to ensure robust header parsing and validation.",
+              "Add authorization role/permission tests: cover 401 vs 403 expectations and any role-based access controls if applicable.",
+              "Add rate-limiting/throttling tests: simulate bursts and assert 429 or configured behavior under heavy request rates.",
+              "Add tests for requests with customField IDs that are syntactically valid UUIDs but not present on the invoice item (expect behavior defined and tested).",
+              "Add audit/logging checks where feasible: assert that X-Killbill-CreatedBy/Reason/Comment are logged or stored in audit trails as required by policy."
+            ],
+            "usage": {
+              "completion_tokens": 2297,
+              "prompt_tokens": 5523,
+              "total_tokens": 7820,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

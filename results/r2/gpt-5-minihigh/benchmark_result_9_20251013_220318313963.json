@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "9_2025-10-13T22:03:18.313934",
+    "jira_id": "9",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/block - Block an account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:00:45.842908",
+    "benchmark_end_time": "2025-10-13T22:03:18.313930",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 152.471022,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "9_qe_sup-gpt4.1_agent-gpt4.1_1748916388.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid payloads and success paths: Multiple scenarios (TC01-TC05, TC16-TC17) exercise successful creation and assert 201 with response JSON array of BlockingState objects.",
+              "Headers handling: Required header X-Killbill-CreatedBy presence and absence tested (positive scenarios and TC08 negative case); optional headers (X-Killbill-Reason, X-Killbill-Comment) tested in TC02.",
+              "Query parameters: requestedDate and pluginProperty combinations covered (TC02, TC03, TC04, TC15, TC18) including empty pluginProperty array edge case.",
+              "Response content checks: Several scenarios assert response body contains created BlockingState(s) and verify effective dates and plugin properties (TC01-TC05, TC20).",
+              "Error responses for common client errors: 400 for malformed/invalid payloads (TC09, TC10, TC14, TC07), 404 for account-not-found (TC06), and 401 for missing auth (TC11).",
+              "Server/integration error handling: Database unavailable and plugin-service-unavailable cases simulated (TC12, TC22) with appropriate 503 expectations.",
+              "Security: SQL injection and malicious-payload tests included (TC13, TC14).",
+              "Edge cases and limits: Empty pluginProperty, maximum/minimum field sizes, extra query params, and large payload handling are covered (TC15, TC16, TC17, TC18, TC20).",
+              "Plugin integration and regression/back-compat: Plugin-triggering behavior and plugin output verification (TC21), regression duplicate-entry check (TC23), and backward-compatibility with older clients (TC24) are present.",
+              "Performance and resilience: High-concurrency and sustained-load performance scenarios present (TC25, TC26) plus long-running downstream delay handling (TC19)."
+            ],
+            "gaps": [
+              "Blocking parts of an account (e.g., subscription- or bundle-level BlockingState or targeting non-account entities) are not explicitly tested \u2014 tests assume account-level only.",
+              "Schema-level validation of the BlockingState object is missing: no tests for missing required fields, invalid enum values, or incorrect data types inside the BlockingState payload (beyond malformed JSON).",
+              "No negative tests for invalid requestedDate formats or semantics (invalid date string, timezone offsets, dates in the far past/future) \u2014 expected 400 or date-handling behavior not verified.",
+              "Content-Type / Accept handling is not tested: missing/incorrect Content-Type (expect 415) and response Content-Type header assertions (application/json) are absent.",
+              "Idempotency / duplicate-submission behavior is not explicitly tested (sending the exact same POST twice to verify duplicate prevention or expected handling). TC23 addresses a regression for duplicate DB entries but not explicit repeated requests.",
+              "Concurrency race conditions targeting the same account (simultaneous POSTs for the same account) are not covered \u2014 this can produce duplicates or inconsistent state even if different-account concurrency is tested (TC25).",
+              "Generic server-side 500 Internal Server Error handling and its client-visible error payload are not simulated (tests use 503 for service unavailable but not 500).",
+              "Authorization scope checks are incomplete: tests include 401 (no auth) but do not cover authenticated-but-forbidden (403) scenarios or role-based permission failures.",
+              "PluginProperty format validation (malformed pluginProperty values, non-array usage, or repeated multi-format variations) and the API behaviour on malformed plugin properties are not covered.",
+              "Rate-limiting / throttling behavior and 429 responses under burst load are not tested (performance tests exist but not rate-limit handling).",
+              "Response headers like Location (resource URI on creation), caching headers (ETag/Cache-Control) and content negotiation are not verified.",
+              "Business-rule conflicts and semantic errors (e.g., overlapping blocking states, conflict responses such as 409) are not present."
+            ],
+            "recommendations": [
+              "Add tests that create BlockingState entries targeting non-account entities (subscriptions, bundles, individual components) to validate \"parts of the account\" behavior and the BlockingState schema fields that indicate target type and id.",
+              "Add schema-validation tests for BlockingState: omit required fields, send invalid enum values or wrong data types and assert 400 with helpful validation messages.",
+              "Add tests for requestedDate validation: malformed date strings, timezone offsets, past/future boundary cases, and assert correct effective-date semantics or 400 errors.",
+              "Test Content-Type handling: send requests without Content-Type or with wrong Content-Type to expect 415; assert response Content-Type is application/json.",
+              "Implement explicit duplicate-submission tests: send the identical POST twice (and potentially with retry headers) and assert either idempotent behavior or well-defined duplicate handling and no duplicate DB rows.",
+              "Add concurrency tests that send multiple simultaneous POSTs for the same account to reveal race conditions and verify atomicity/locking prevents duplicates or conflicting states.",
+              "Simulate generic 500 internal errors (and other server error variants) from downstream components and assert consistent client-facing error format and handling.",
+              "Add authorization role/permission tests producing 403 Forbidden for authenticated users lacking sufficient rights, and verify error messages do not leak sensitive info.",
+              "Cover pluginProperty negative cases: malformed entries, different collection formats (single vs multi), and plugin-side errors other than 503; assert correct propagation of plugin errors or graceful degradation.",
+              "Introduce rate-limiting/throttling tests (burst traffic) and validate expected 429 or other protective responses and meaningful retry headers if applicable.",
+              "Assert response headers on success (Content-Type, optional Location, caching headers if applicable) and ensure API contract for headers is met.",
+              "Add business-rule / conflict tests (e.g., attempting to create overlapping blocking states where forbidden) and define expected status codes (409 or application-specific errors) and messages."
+            ],
+            "usage": {
+              "completion_tokens": 8449,
+              "prompt_tokens": 7115,
+              "total_tokens": 15564,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7232,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

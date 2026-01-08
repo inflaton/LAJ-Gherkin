@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-13T19:21:51.544468",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T19:21:09.678586",
+    "benchmark_end_time": "2025-10-13T19:21:51.544464",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 41.865878,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01-TC05, TC21, TC22) verify 204 on valid payloads and different initial states (no prior custom fields, existing custom fields).",
+              "Required/Optional Headers: Tests cover required X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment (TC01-TC03, TC02).",
+              "Path parameter validation: Invalid UUID format and non-existent resource are covered (TC06 -> 400, TC07 -> 404).",
+              "Request body validation: Malformed JSON, empty body, unsupported extra fields, and nearing-max-size payload are covered (TC08, TC10, TC11, TC12).",
+              "Authentication/Authorization negative: Invalid or missing auth token is covered (TC13 -> 401).",
+              "Server / infrastructure errors: Database unavailable, internal server error and gateway timeout are covered (TC15 -> 500, TC16 -> 504).",
+              "Security input validation: Injection attack attempt is considered (TC14 -> 400/422).",
+              "Idempotency and regression: Repeated requests idempotency and regression test for data loss are present (TC17, TC18).",
+              "Integration & performance: Dependent service unavailability and performance for parallel/large requests are included (TC19, TC20, TC21).",
+              "State variations: Tests for empty DB and partially populated DB are included (TC24, TC25)."
+            ],
+            "gaps": [
+              "Partial Update semantics: No explicit tests verify whether partial payloads (e.g., missing fields in CustomField objects) are accepted or rejected; PUT semantics for \"replace vs. merge\" are not asserted.",
+              "Concurrency/race conditions: There is no test simulating concurrent updates to the same invoice item to detect lost updates/race conditions (TC20 uses parallel requests across different items, not same item).",
+              "Detailed CustomField schema validation: No tests exercise invalid data types or missing required fields inside CustomField objects (beyond generic \"unsupported fields\" and malformed JSON).",
+              "Authorization scope/permissions (403): Tests cover authentication (401) but not authorization/insufficient-permission responses (403).",
+              "Duplicate submissions & duplicate entries in payload: No explicit test for duplicate CustomField entries in the same payload or retries causing duplicate rows/entries.",
+              "Transactional behavior / partial write rollback: No test asserts that on failure the system rolls back (no partial persistence) for multi-item payloads or multi-field payloads.",
+              "Content-Type and headers validation: No tests assert missing/invalid Content-Type, very long header values, or invalid header formats.",
+              "Response side effects assertions: Limited assertions about side effects such as audit log entries, response headers, or explicit resource state beyond \"updated in DB\".",
+              "Boundary/value length tests: No explicit tests for maximum string lengths or limits for individual CustomField properties (ids, names, values)."
+            ],
+            "recommendations": [
+              "Add explicit Partial-Update tests that assert whether PUT replaces all custom fields or merges them; include tests sending partial CustomField objects and assert expected final state.",
+              "Add concurrency tests that perform simultaneous PUTs to the same invoiceItemId to detect race conditions and verify locking/optimistic concurrency behavior.",
+              "Introduce schema-level validation tests for CustomField objects: invalid data types, missing required properties (e.g., missing key/name), invalid field formats, and assert 400/422 responses.",
+              "Add authorization tests (403) for users authenticated but without permission to modify the invoice item.",
+              "Add tests for duplicate entries in payload and duplicate submissions to verify idempotency and deduplication behavior.",
+              "Create transactional tests that attempt multi-field updates where one field causes validation failure and then verify no partial writes exist (rollback).",
+              "Add tests for Content-Type header missing/incorrect (e.g., text/plain) and header validation (too-long X-Killbill-Comment/Reason), asserting correct error responses.",
+              "Expand integration checks to assert expected side effects (e.g., audit log entries created when service available) and the handling when side effects fail without affecting main update semantics.",
+              "Add boundary tests for per-field length and number of custom fields to exercise maximum/minimum limits.",
+              "Clarify ambiguous scenarios (TC12/TC23) by splitting into deterministic tests that assert exact expected behavior for system configurations (e.g., explicitly test both configured-from-system behaviors or mock configuration)."
+            ],
+            "usage": {
+              "completion_tokens": 2085,
+              "prompt_tokens": 6450,
+              "total_tokens": 8535,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

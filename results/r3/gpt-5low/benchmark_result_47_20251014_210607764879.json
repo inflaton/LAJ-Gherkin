@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-14T21:06:07.764837",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:05:36.990098",
+    "benchmark_end_time": "2025-10-14T21:06:07.764832",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 30.774734,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE Method - Valid Deletion: Success path returns 204 with empty body; cache is invalidated and effects observable (TC01, TC09, TC11, TC13).",
+              "DELETE Method - Non-Existent Resource: Proper 404 when tenant context does not exist (TC04).",
+              "DELETE Method - Concurrency: Concurrent DELETEs under load return 204 without race conditions; performance expectations asserted (TC10).",
+              "Error Handling (story requirement >=400 on failure): 400 malformed/extra params (TC07); 401 unauthenticated/invalid creds (TC02, TC03); 403 possible from security filter (TC08); 404 tenant not found (TC04); 500 internal error (TC05); 503 service unavailable (TC06); 504 timeout (TC14).",
+              "Idempotency: Repeated deletions/cache already empty still return 204 and remain safe (TC09).",
+              "Behavioral outcome: Subsequent requests and dependent services reflect invalidation (TC01, TC12)."
+            ],
+            "gaps": [
+              "Response headers: The story notes Produces: application/json, but tests do not verify Content-Type for 204 responses or error responses. For 204, Content-Type may be omitted; this mismatch should be clarified and tested.",
+              "Authorization vs Authentication: Tests cover 401 for missing/invalid creds but lack a scenario for authenticated user lacking admin/tenant-level permission returning 403.",
+              "Multi-tenant isolation: No scenario ensuring a DELETE in one tenant does not affect caches for another tenant.",
+              "Method semantics: No 405 Method Not Allowed test for unsupported methods on this endpoint (optional but common hardening check).",
+              "Observability/audit: No check that an administrative cache invalidation is logged/audited as required by ops/compliance (if applicable).",
+              "Error body schema: While error status codes are checked, there is no assertion on a consistent error schema (code, message, correlation id).",
+              "Timeout/retry behavior: 504 covered, but no scenario for client retry safety/idempotency across retries at transport level (e.g., network timeouts) beyond cache-empty case.",
+              "Security headers: No assertions for standard security headers on responses (e.g., no body for 204, but errors should include headers)."
+            ],
+            "recommendations": [
+              "Add header assertions: For 204, assert no body and either no Content-Type or a consistent header policy; for errors, assert Content-Type: application/json and validate error schema.",
+              "Add authorization test: Authenticated non-admin or wrong tenant permissions should return 403 with proper error.",
+              "Add multi-tenant isolation test: Perform DELETE in tenant A and verify tenant B caches remain intact.",
+              "Add 405 test: Sending GET/POST/PUT/PATCH to this path returns 405 with Allow header listing DELETE.",
+              "Validate error schema: Assert presence of error fields (e.g., type/code/message/requestId) across 4xx/5xx responses.",
+              "Add retry safety scenario: Simulate client-side timeout and immediate retry; assert idempotent 204 and consistent state.",
+              "If compliance requires, add audit/logging verification: Ensure an admin action is recorded with tenant id, timestamp, and actor."
+            ],
+            "usage": {
+              "completion_tokens": 1399,
+              "prompt_tokens": 3389,
+              "total_tokens": 4788,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

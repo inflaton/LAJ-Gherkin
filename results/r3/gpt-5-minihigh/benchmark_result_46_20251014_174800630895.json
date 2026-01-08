@@ -1,0 +1,99 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-14T17:48:00.630862",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T17:45:39.423964",
+    "benchmark_end_time": "2025-10-14T17:48:00.630856",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 141.206892,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Success (204) for a valid accountId is tested (TC01).",
+              "Invalid accountId format (400) is tested in multiple scenarios (TC03, TC12, TC14, TC15).",
+              "Non-existent account handling (404) is tested (TC02, TC16, TC18).",
+              "Authentication failures (401) for missing and expired tokens are tested (TC05, TC06).",
+              "Unsupported HTTP method handling (405) is tested (TC11).",
+              "Dependent service failure and service-unavailable (503) is covered (TC07, TC08).",
+              "Extra query parameters handling is tested to ensure endpoint ignores/accepts them (TC09).",
+              "Edge states like empty DB and partially populated DB are covered (TC16, TC18).",
+              "Security checks for SQL injection and XSS in path are present (TC14, TC15).",
+              "Concurrent DELETE requests and a performance target are included (TC13).",
+              "Transient network failure and retry behavior is covered (TC17).",
+              "Regression/backward-compatibility and previously fixed invalid-UUID patterns are included (TC12, TC19).",
+              "Large/maximum-length accountId edge case is considered (TC10)."
+            ],
+            "gaps": [
+              "Authorization level: No test for authenticated non-admin users (403 Forbidden) to ensure admin-only access is enforced.",
+              "Response headers: No assertions for Content-Type or the \"Produces: application/json\" contract and no checks for caching headers (Cache-Control, ETag) or other relevant headers.",
+              "Idempotency / repeated DELETE semantics: No explicit test for repeated DELETE on same account (what the second call should return).",
+              "Soft-delete semantics: No tests to cover whether account soft-deletes affect cache invalidation behavior or whether caches can be invalidated for soft-deleted accounts.",
+              "Concurrency race conditions: Missing tests where the account is deleted or modified concurrently by another actor during invalidation.",
+              "Error response schema: Tests check existence of error messages but do not validate JSON error structure (fields, error codes, machine-readable fields).",
+              "Rate limiting / throttling: No tests for rate limits or protection against request storms (429 handling).",
+              "Asynchronous / eventual consistency: If cache invalidation is asynchronous, there are no checks for eventual consistency or polling logic to confirm caches are actually invalidated over time.",
+              "Verification of actual cache state: Tests state \"caches should be invalidated\" but lack concrete integration steps to verify cache entries were removed (e.g., cache lookups before/after).",
+              "Allowed methods and CORS/preflight: Only GET was tested as unsupported method; HEAD/OPTIONS and CORS preflight behavior are not covered.",
+              "Boundary/encoding edge cases: While some malformed inputs are covered, there are no systematic boundary tests for maximum path length, non-hyphen UUID forms, whitespace/padding, percent-encoding variants beyond a single SQLi pattern, or Unicode input.",
+              "Operational observability: No tests for audit/log entries or metrics generation for an admin cache invalidation operation."
+            ],
+            "recommendations": [
+              "Add a test for an authenticated non-admin user attempting the DELETE and assert 403 Forbidden to enforce admin-only access control.",
+              "Assert response headers for both success and error responses: check Content-Type (application/json where applicable), and relevant caching headers or absence thereof for 204 responses.",
+              "Add idempotency tests: call DELETE twice and assert the system behavior (specify expected behavior in story and add test accordingly).",
+              "Add tests for soft-deleted accounts vs permanently deleted accounts to confirm cache invalidation behavior across account lifecycle states.",
+              "Create concurrency race tests that simulate another client deleting or modifying the account during invalidation to validate race handling and expected response.",
+              "Validate error response JSON schema: ensure error payloads contain standardized fields (code, message, details) and assert those fields and HTTP code mappings.",
+              "Introduce rate-limiting tests that send bursts of DELETE requests to verify 429 or backpressure behavior and safe failure modes.",
+              "If invalidation is asynchronous, add eventual-consistency checks: seed cache, call DELETE, poll dependent endpoints or cache store until invalidation is observed (with timeouts).",
+              "Implement concrete integration checks for cache state: before DELETE populate cache key(s), after DELETE assert those keys are removed or subsequent reads result in cache misses.",
+              "Add tests for HEAD, OPTIONS, and CORS preflight to verify allowed methods and correct preflight responses.",
+              "Add systematic boundary and encoding tests for path parameter: very long strings, 32-char hex without hyphens, leading/trailing whitespace, percent-encoded payloads, and Unicode to ensure robust validation.",
+              "Add an audit/logging test to verify an admin action generates the appropriate audit record or metric (useful for compliance and troubleshooting)."
+            ],
+            "usage": {
+              "completion_tokens": 5301,
+              "prompt_tokens": 4640,
+              "total_tokens": 9941,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4288,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "40_2025-09-28T09:27:37.223915",
+    "jira_id": "40",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{childAccountId}/transferCredit - Move a given child credit to the parent level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:27:06.267676",
+    "benchmark_end_time": "2025-09-28T09:27:37.223911",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 30.956235,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "40_qe_sup-gpt4.1_agent-gpt4.1_1748918568.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT: Valid Request \u2014 TC01 validates 204 response and state change (child decreases, parent increases).",
+              "Headers: Required X-Killbill-CreatedBy present (TC01) and missing required header returns 400 (TC06).",
+              "Headers: Optional X-Killbill-Reason and X-Killbill-Comment handled and auditable (TC02).",
+              "Validation Errors: Child has no credit returns 400 (TC03).",
+              "Validation Errors: Malformed childAccountId returns 400 (TC07).",
+              "Non-Existing Resource: Child not found returns 404 (TC04).",
+              "Non-Existing Resource: Parent not found returns 404 (TC05, TC12).",
+              "Concurrency: Multiple concurrent transfers \u2014 only one succeeds, others fail due to insufficient credit (TC14).",
+              "Idempotency/Double-submit guard: Second immediate transfer fails with 400 (TC16).",
+              "Security: Unauthorized/Forbidden access yields 401/403 (TC10).",
+              "Resilience: Service unavailable/network error scenario covered (TC09).",
+              "Robustness: Extra unsupported headers ignored (TC08).",
+              "Input Hardening: Malicious/invalid header values rejected (TC11, TC15).",
+              "Non-functional: Basic performance response time under load (TC13)."
+            ],
+            "gaps": [
+              "Spec fidelity: The story states Produces: application/json, but no tests assert response headers (Content-Type) for 204 or error responses.",
+              "Request body behavior: Story says Request Body: N/A; no tests ensure a supplied body is rejected or ignored consistently.",
+              "Parent-child relationship validity: No test for a child account that is not actually linked to the specified parent hierarchy (e.g., child is standalone or parent-child link disabled) resulting in validation error.",
+              "Auditing negative paths: No verification that Reason/Comment are omitted or sanitized on failures; only success audit is asserted.",
+              "Accept/Content-Type negotiation: No tests for missing/invalid Accept headers or 415 Unsupported Media Type when an inappropriate Content-Type is sent.",
+              "Rate limiting/throttling: No behavior covered for burst PUT requests beyond functional concurrency (e.g., HTTP 429).",
+              "Observability: No checks for idempotency keys or duplicate request detection beyond credit depletion logic.",
+              "Error model consistency: No assertions that 400/404 error payloads follow the API's standard error schema (code, message, details)."
+            ],
+            "recommendations": [
+              "Add a scenario that validates response headers: for 204 verify no body and appropriate headers; for 4xx verify Content-Type: application/json and error schema.",
+              "Add a negative test sending a non-empty JSON body to ensure server rejects with 400 or ignores it per contract; document expected behavior.",
+              "Add a scenario where the account is not a child (or child-parent link is inactive/mismatched) and expect 400 validation error.",
+              "Extend audit tests to failures: verify Reason/Comment are handled/sanitized or excluded in audit logs when the operation fails.",
+              "Add content negotiation tests: missing Accept header, invalid Accept, and inappropriate Content-Type leading to 406/415 as applicable.",
+              "If applicable, add rate limiting tests for high-frequency PUTs returning 429 and proper Retry-After headers.",
+              "Assert standard error response schema fields (e.g., errorType/code/message) for 400/404/422 to ensure consistent error modeling.",
+              "Document and test idempotency behavior explicitly (e.g., with Idempotency-Key header if supported) beyond balance-side effects, ensuring duplicates don't cause partial/inconsistent transfers."
+            ],
+            "usage": {
+              "completion_tokens": 1476,
+              "prompt_tokens": 4953,
+              "total_tokens": 6429,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

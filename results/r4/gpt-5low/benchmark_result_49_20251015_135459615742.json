@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-15T13:54:59.615715",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:54:13.398188",
+    "benchmark_end_time": "2025-10-15T13:54:59.615711",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 46.217523,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "DELETE: Valid deletion is verified (204, empty body, host marked out of rotation) in TC01 and reinforced with state verification in TC12.",
+              "DELETE: Concurrency behavior is exercised (first 204, subsequent 409/204) in TC11.",
+              "DELETE: Non-existent/invalid state handling covered via host already out of rotation (409) in TC04 and no hosts available (409) in TC14.",
+              "Error handling breadth: 400 for bad body (TC09), 401 for missing/invalid auth (TC02/TC03), 405 wrong method (TC07), 500 internal error (TC06), 503 service down (TC05).",
+              "Input handling: Request body not allowed (TC09) and extra query params ignored without breaking behavior (TC08).",
+              "Performance: Basic latency expectations under normal and concurrent load (TC10, TC11).",
+              "Security hardening: Malicious headers scenario (TC13)."
+            ],
+            "gaps": [
+              "DELETE guideline - Soft delete semantics: No explicit verification of soft-deletion behavior beyond marking the host out of rotation (e.g., ability to revert/restore the host back into rotation, audit trail).",
+              "Idempotency (sequential): No scenario repeats the same DELETE sequentially by the same admin to assert deterministic outcomes (e.g., first 204, subsequent 409 or defined behavior) without concurrency factors.",
+              "Response headers and content negotiation: Story notes Produces: application/json but tests do not assert response headers (Content-Type on 204, error responses Content-Type, absence of body on 204, Accept header variations).",
+              "Authorization depth: No RBAC/permission check for authenticated but non-admin users (expect 403 Forbidden).",
+              "Error payload schema: Tests only check for presence of an error message; they do not validate error response structure (e.g., code, message, correlation id) or consistent error contract across 4xx/5xx.",
+              "Observability/operational aspects: Not validating that the change is reflected in health/rotation listing endpoints or admin/audit logs beyond a single status query in TC12.",
+              "Resilience/retry safety: No test around safe retries/timeouts and ensuring no partial/inconsistent state if the client times out but server completes."
+            ],
+            "recommendations": [
+              "Add a soft-delete/operational reversal scenario: after DELETE, call the corresponding API to bring the host back into rotation and verify state and audit/log entries if applicable.",
+              "Add an explicit idempotency test: issue DELETE twice sequentially by the same admin; assert first returns 204 and subsequent returns the specified code (409 or 204) and that state remains correct.",
+              "Assert headers and content negotiation: verify Content-Type on error responses, no body on 204, and behavior with various Accept headers; if Produces: application/json is required, ensure consistent headers.",
+              "Add RBAC test for authenticated non-admin user to return 403 Forbidden.",
+              "Validate error schema: assert standardized fields (e.g., error type/code, message, requestId) for 400/401/403/409/500/503 responses.",
+              "Strengthen observability checks: after state change, verify via a read/health endpoint that rotation status is updated system-wide and logged; include correlation id propagation if available.",
+              "Add resilience tests: simulate client timeout and immediate retry, confirm final state and idempotent behavior, and verify no duplicate side effects."
+            ],
+            "usage": {
+              "completion_tokens": 1826,
+              "prompt_tokens": 3433,
+              "total_tokens": 5259,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

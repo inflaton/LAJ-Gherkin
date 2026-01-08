@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "3_2025-10-15T12:47:30.124655",
+    "jira_id": "3",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/tags - Remove tags from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T12:46:22.715044",
+    "benchmark_end_time": "2025-10-15T12:47:30.124651",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 67.409607,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "3_qe_sup-gpt4.1_agent-gpt4.1_1748915976.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid deletion flows: single, multiple, remove-all (no tagDef), empty-array and large-bulk removals are covered (TC01, TC02, TC03, TC20, TC13).",
+              "Query parameter validation: valid tagDef(s), malformed/invalid tagDef, extra/unexpected query params, and mixed valid/invalid cases are exercised (TC02, TC08, TC11, TC14, TC18).",
+              "Path parameter validation: valid accountId, invalid format, and non-existent account scenarios are tested (TC01, TC06, TC07).",
+              "Header handling: required X-Killbill-CreatedBy presence and absence, plus optional X-Killbill-Reason and X-Killbill-Comment presence/omission are covered (TC04, TC09, TC19).",
+              "Authorization/authentication: unauthorized access is tested (TC15).",
+              "Business rule enforcement: special case for AUTO_PAY_OFF requiring a default payment method is tested (TC10).",
+              "Error handling and resilience: service-unavailable/5xx and transient network recovery are included (TC12, TC16).",
+              "Concurrency/performance: concurrent DELETE requests under load are exercised at a high level (TC17).",
+              "Idempotency: deleting when account has no tags (no-op) is tested (TC05), covering basic idempotent behavior."
+            ],
+            "gaps": [
+              "Soft-delete vs hard-delete semantics are not verified: tests assert \"tag removed\" but do not check whether records are soft-marked (deleted flag) or permanently removed.",
+              "Atomicity/transactionality for multi-tag operations is not explicitly validated: TC18 checks mixed valid/invalid inputs but does not assert that no partial deletions occurred (no DB-state rollback check).",
+              "Fine-grained concurrency/race conditions on the same account/tag are not covered: TC17 targets concurrent requests across accounts but not simultaneous deletes of the same tag on the same account to verify locking/consistency.",
+              "Audit/logging verification is missing: no tests assert that X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment are recorded in audit trails or change history.",
+              "Response headers are not validated: Content-Type, Cache-Control/ETag (where applicable), and explicit \"Produces: application/json\" on error responses are not asserted.",
+              "Rate limiting/throttling and 429 handling are not tested (burst requests, client-side backoff behavior).",
+              "Maximum URL length / query string limits and server behavior for extremely large numbers of query params (URL truncation / 414) are not explicitly tested \u2014 TC13 covers large payloads functionally but not transport/URL-limit edge cases.",
+              "Distinct 401 vs 403 authorization semantics are not separated: TC15 allows either 401 or 403 but there are no explicit tests for authenticated-but-unauthorized (403) vs unauthenticated (401).",
+              "Duplicate tagDef query parameters and ordering/idempotent handling of duplicate values are not tested (e.g., tagDef=uuid&tagDef=uuid).",
+              "No explicit tests for partial success semantics where API might be expected to partially delete and report which tag deletions failed; current suite assumes all-or-nothing but does not verify API contract on partial failure handling.",
+              "Security and input-sanitization edge cases (very long header values, special characters in headers/query params) are not covered."
+            ],
+            "recommendations": [
+              "Add tests that assert whether tag removals are implemented as soft deletes or hard deletes (check deleted flags or absence in tag table) and validate expected retention behavior.",
+              "Add atomicity tests for multi-tag removal: send a mixed valid/invalid tagDef set, assert 4xx response and explicitly verify no tags were removed in the DB (transaction rollback check).",
+              "Add concurrency tests that target the same account and same tag being removed simultaneously (e.g., two concurrent DELETEs for the same tagDef) to reveal race conditions or locking issues.",
+              "Add audit/logging verification tests to ensure X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment are persisted in the audit/change-log with correct values and timestamps.",
+              "Assert response headers for both success and error cases where applicable: Content-Type on errors, and verify absence/presence of caching headers as per API contract.",
+              "Introduce rate-limiting/throttling tests: send bursts of DELETE requests and verify 429 behavior or other configured throttling responses and client backoff expectations.",
+              "Explicitly test URL/query-string limits and server behavior for extremely long lists of tagDef parameters (check 414/400 vs graceful handling) and document practical limits.",
+              "Split authentication/authorization tests into two cases: unauthenticated (expect 401) and authenticated-but-unauthorized (expect 403) to validate correct status codes and messages.",
+              "Test duplicate tagDef parameter handling and ensure API handles duplicates deterministically (no double-deletion, idempotent outcome).",
+              "Clarify expected partial-success behavior in the API contract; add tests for partial success if supported, or assert full rollback if atomic. Add DB-state checks after these tests.",
+              "Add input-sanitization and header-validation tests: very long X-Killbill-Comment/Reason, special characters, and invalid encodings to validate robust input handling and error messages."
+            ],
+            "usage": {
+              "completion_tokens": 6826,
+              "prompt_tokens": 5684,
+              "total_tokens": 12510,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5696,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

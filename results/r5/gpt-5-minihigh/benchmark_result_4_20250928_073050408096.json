@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "4_2025-09-28T07:30:50.408066",
+    "jira_id": "4",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/customFields - Retrieve account custom fields",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:29:10.363892",
+    "benchmark_end_time": "2025-09-28T07:30:50.408063",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 100.044171,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "4_qe_sup-gpt4.1_agent-gpt4.1_1748916029.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid requests and audit parameter handling: Default and explicit audit behavior is covered (TC01: default audit=NONE; TC02: audit=FULL; TC03: audit=MINIMAL; TC19 regression for audit=NONE).",
+              "Empty responses: Behavior when there are no custom fields and when an account is non-existent is covered (TC04, TC05).",
+              "Invalid input validation and sanitization of path parameter: Invalid UUID format and injection/XSS attempts are tested (TC06 invalid format -> 400; TC13 SQL injection; TC14 XSS).",
+              "Query parameter validation and unsupported params: Invalid audit value handled (TC07) and unsupported query parameters ignored (TC10).",
+              "Authentication handling: Missing and invalid tokens are tested and expected to return 401 (TC08, TC09).",
+              "Service and integration failures: Service unavailable and downstream DB failure scenarios are covered (TC11 -> 503; TC18 -> 500).",
+              "Performance and scale scenarios: Large result set performance is tested (TC12: 10,000 fields within 2s) and concurrent access consistency is tested (TC17: 100 concurrent requests).",
+              "Network and timeout handling: Network high latency / gateway timeout behavior covered (TC15).",
+              "Backward compatibility and accessibility: Legacy client compatibility (TC16) and well-formed JSON/accessibility parsing (TC20) are included.",
+              "Response format verification: Several scenarios assert the response is a JSON array of CustomField objects (TC01, TC20), addressing the API produce/application/json requirement implicitly."
+            ],
+            "gaps": [
+              "Pagination: No tests exercise paging semantics (limit/offset or page parameters), cursoring, or Link/next headers. TC12 tests a large single response but does not verify pagination behavior.",
+              "Caching behavior: No scenarios validate caching headers or conditional requests (ETag, Cache-Control, Last-Modified, If-None-Match, 304 Not Modified).",
+              "Rate limiting and throttling: There are no tests asserting 429 behavior or Retry-After header when clients exceed request quotas; the concurrency test assumes all requests succeed which may conflict with real rate limiting.",
+              "Authorization scopes / permissions (403): Tests cover authentication failures (401) but do not cover authenticated-but-unauthorized cases resulting in 403 or RBAC enforcement.",
+              "Schema-level validation: Tests assert \"array of CustomField objects\" or compatibility but do not validate required properties, types, formats, or full conformance to /definitions/CustomField.",
+              "Content negotiation and response headers: No explicit assertions for Content-Type, Accept header handling, pagination headers (Link), or other protocol-level headers.",
+              "Ambiguity in non-existent account behavior: The Jira story does not explicitly define expected behavior for non-existent accountId; tests assume a 200 with empty array which should be confirmed with product requirements.",
+              "Limited security coverage: Injection tests focus on path parameter only; query parameter and header injection, and abuse detection (suspicious patterns leading to throttling or blocking) are not covered.",
+              "Edge cases for custom field content: No tests for extreme per-field values (very large keys/values, unicode edge cases, binary-like content) or for validation of maximum allowed counts beyond the single large test."
+            ],
+            "recommendations": [
+              "Add pagination tests: create datasets larger than typical page sizes and verify page/limit/offset or cursor behavior, Link/next headers, total counts, and that the API does not return unbounded payloads by default.",
+              "Add caching and conditional request tests: assert presence of ETag and Cache-Control headers; test If-None-Match / If-Modified-Since to ensure 304 responses where appropriate and verify cacheability of responses for different audit levels.",
+              "Add rate-limiting tests: simulate bursts of requests to validate 429 responses, Retry-After header behavior, and graceful degradation under load. Ensure concurrency tests account for documented rate limits.",
+              "Add authorization scope tests: include scenarios with valid tokens but insufficient permissions and expect 403; test role-based access control if applicable.",
+              "Add strict schema validation tests: validate each CustomField object against /definitions/CustomField (required fields, types, formats) and include negative tests for missing/wrong-typed fields.",
+              "Assert response headers and content negotiation: explicitly check Content-Type is application/json, test behavior when different Accept headers are supplied, and verify protocol-level headers (Link, Cache-Control) where relevant.",
+              "Clarify non-existent account behavior in the Jira story: confirm expected result (200 with empty array vs 404) and update tests to match the agreed requirement.",
+              "Expand security tests: add injection/validation checks for query parameters and headers, and tests for abuse patterns that should be throttled or blocked by WAF or application logic.",
+              "Add edge-case content tests: very long keys and values, extreme unicode strings, and tests for maximum field counts and behavior beyond that limit.",
+              "Make concurrency tests tolerant to documented rate-limiting: either assert a mix of 200 and documented 429 responses or coordinate with infrastructure to disable throttling for stability tests; document expected behaviour in test assertions."
+            ],
+            "usage": {
+              "completion_tokens": 7159,
+              "prompt_tokens": 4401,
+              "total_tokens": 11560,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6080,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

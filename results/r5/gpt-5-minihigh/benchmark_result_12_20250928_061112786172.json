@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "12_2025-09-28T06:11:12.786116",
+    "jira_id": "12",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId} - Update account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T06:09:47.141437",
+    "benchmark_end_time": "2025-09-28T06:11:12.786111",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 85.644674,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "12_qe_sup-gpt4.1_agent-gpt4.1_1748916603.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Happy path (minimal & full): TC01 and TC02 verify successful updates with 204 responses for minimal and full payloads (including optional headers).",
+              "treatNullAsReset behavior: TC03 and TC04 cover treatNullAsReset=true (reset fields) and false/omitted (preserve fields).",
+              "Header validation: TC05 asserts missing required X-Killbill-CreatedBy produces an error; TC02 covers optional X-Killbill-Reason and X-Killbill-Comment presence. ",
+              "Path parameter validation: TC06 tests invalid accountId format (non-UUID).",
+              "Payload validation and formats: TC07, TC21 cover invalid account data and unexpected input formats (wrong types); TC11 covers empty request body.",
+              "Non-existent resource & auth: TC08 checks update of non-existent account (error path as defined in tests), TC09 covers missing/invalid authentication (401).",
+              "Error & resilience cases: TC12 simulates server/db failure -> 500; TC13 and TC14 cover large payload and slow network/timeout behavior.",
+              "Partial update semantics & field-level behaviors: TC19 (partial input), TC15 (regression for email-only updates), TC20 (min/max allowed values) are present.",
+              "Extra/unexpected inputs: TC10 and TC22 test extra unsupported fields and extra query parameters handling.",
+              "Concurrency & integration: TC17 covers concurrent updates; TC16 checks propagation to dependent services.",
+              "Security: TC18 validates handling/sanitization of injection attempts."
+            ],
+            "gaps": [
+              "Content-Type / media-type validation is missing: no scenario verifies missing or incorrect Content-Type (e.g., expecting 415 Unsupported Media Type) or strictly enforces application/json.",
+              "Response contract and error payload schema are not asserted: tests do not validate error response JSON structure, error codes payload, or Content-Type on error responses. Also the spec says \"Produces: application/json\" but success is 204 (no body) \u2014 this contradiction is not tested/clarified.",
+              "Immutable / read-only fields are not tested: there is no scenario attempting to update immutable fields (e.g., accountId, createdDate) to ensure they are rejected or ignored.",
+              "Idempotency / duplicate submission behavior is not covered: no tests verify that repeating the same PUT is idempotent or how duplicates are handled.",
+              "Optimistic concurrency / conflict resolution missing: TC17 checks concurrent updates at a high level but there are no tests asserting conflict responses (e.g., 409), version/ETag/If-Match semantics, or deterministic resolution strategy.",
+              "Audit/logging of X-Killbill headers is not verified: optional/required audit headers are sent in tests but their recording in audit trail / DB / logs is not asserted.",
+              "Field-level validation coverage is high-level only: specific Account-field rules (email regex, currency codes, timezone validity, enum constraints) are not enumerated/tested individually.",
+              "Payload size limit enforcement (413) and strict server limits are not asserted: TC13 tests large payloads but does not check the server reaction when limits are exceeded.",
+              "Rate limiting and throttling (429) are not tested; if API enforces limits this is a gap."
+            ],
+            "recommendations": [
+              "Add a test for missing/incorrect Content-Type (e.g., no Content-Type or text/plain) and assert proper status (415 or 400 per contract) and error response Content-Type/schema.",
+              "Clarify API contract about \"Produces: application/json\" vs 204 and add assertions for response headers on success and on error responses (Content-Type, content structure).",
+              "Add tests attempting to modify immutable/read-only fields (accountId, createdDate) and verify they are rejected or ignored and the DB remains unchanged.",
+              "Add idempotency tests: repeat the same PUT twice and verify the second request returns the same status and does not create duplicate side effects; document idempotency guarantee.",
+              "If optimistic concurrency is supported, add tests for ETag/If-Match behavior and stale-update scenarios that produce 409 Conflict; if not supported, document expected behavior and add tests that assert it.",
+              "Add explicit audit verification tests: after an update, verify audit records or DB audit columns reflect X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment values.",
+              "Expand field-level validation tests: create focused scenarios for email format, phone/currency/timezone validation, required-vs-optional fields, string length boundaries and numeric ranges.",
+              "Add a test to assert behavior for payloads exceeding server limits (expect 413 Payload Too Large) and verify server handles these gracefully.",
+              "Add rate-limiting tests if the service enforces throttling: simulate burst requests and assert 429 responses and Retry-After headers.",
+              "Improve concurrency tests to assert deterministic final state and to cover conflict handling (lost update detection, transactional rollback behavior) rather than only \"graceful handling\".",
+              "Align TC08 expected status code for non-existent account with API contract (400 vs 404). If API should return 404, add that explicit test and update expectations.",
+              "Where integration tests (TC16) exist, add assertions for eventual consistency / timing (how long until dependent service reflects change) and retry behavior."
+            ],
+            "usage": {
+              "completion_tokens": 6933,
+              "prompt_tokens": 5451,
+              "total_tokens": 12384,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

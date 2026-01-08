@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "90_2025-10-14T21:53:34.732860",
+    "jira_id": "90",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Add custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:52:09.151713",
+    "benchmark_end_time": "2025-10-14T21:53:34.732856",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 85.581143,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "90_qe_sup-gpt4.1_agent-gpt4.1_1748921815.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "POST/Valid Payload: Success paths with required and optional headers; single, multiple, and empty-array payloads (TC01\u2013TC04, TC10).",
+              "POST/Invalid Payload: Malformed or missing body; unknown fields; invalid UUID; missing required header (TC06\u2013TC09, TC11).",
+              "POST/Validation: Field length/special characters/injection validation scenarios (TC19\u2013TC21) and required header enforcement (TC07).",
+              "Story AC: 404 when invoice item not found (TC05, TC22, TC23); 400 on invalid id or malformed body (TC06, TC08, TC09); 201 on success with JSON array (TC01\u2013TC04).",
+              "POST/Large Payloads: Maximum payload and potential 413 handling (TC14).",
+              "Authorization: Unauthorized/forbidden access covered (TC12).",
+              "Server Error Handling (partial): Service unavailable covered via 503 (TC13).",
+              "Concurrency and Idempotency (partial): Concurrent POSTs to same invoice item (TC16) and retry on transient network failure without duplication (TC25).",
+              "Performance/Non-functional: Response time under normal and degraded conditions (TC15, TC24).",
+              "Integration/Persistence: Verify created fields are retrievable (TC18)."
+            ],
+            "gaps": [
+              "Server Error Handling: No explicit test for 500 Internal Server Error (e.g., database failure) and no 504 Gateway Timeout scenario.",
+              "Duplicate Submission: No deterministic test for submitting the exact same POST twice under normal conditions (without network failure) and asserting deduplication or documented behavior; no use of an idempotency key if supported.",
+              "Content Negotiation and Headers: Missing tests for incorrect or missing Content-Type (expect 415 Unsupported Media Type) and Accept handling; no assertions that response Content-Type is application/json as per Produces.",
+              "Array Atomicity: No scenario where the array mixes valid and invalid CustomField objects to assert all-or-nothing vs partial success and the exact status code/response shape.",
+              "Response Schema: Success responses are not validated against the full CustomField schema (e.g., required fields, objectId/objectType correctness, server-generated fields, timestamps).",
+              "Error Payload Shape: Tests don\u2019t assert the standard error response structure (fields like code, message, type) for 400/404/401/403/503.",
+              "Authorization Specificity: TC12 expects 401 or 403; expected behavior should be concrete and separately tested for unauthenticated vs unauthorized.",
+              "Header Value Constraints: No boundary tests for X-Killbill-CreatedBy/Reason/Comment (empty string, whitespace-only, max length, invalid characters).",
+              "UUID Validation Depth: Only a generic invalid format is tested; edge formats (uppercase hex, surrounding braces, too long/short, hyphen variations) are not covered.",
+              "Ambiguity in TC10/TC11/TC16/TC17: Expected outcomes are left open (201 or 400/413; reject/deduplicate/allow; conflict handling). Tests should assert a single, agreed result per API contract.",
+              "Rate limiting for POST bursts is not covered if applicable to this API."
+            ],
+            "recommendations": [
+              "Add server-error scenarios: simulate DB outage to assert 500, and a 504 Gateway Timeout path if applicable.",
+              "Introduce explicit duplicate-submission tests: send the same payload twice (with and without any supported idempotency key) and assert the documented behavior (no duplicates vs deterministic error).",
+              "Add content negotiation tests: missing/wrong Content-Type should yield 415; verify response Content-Type is application/json; optionally test Accept negotiation if supported.",
+              "Define and test array atomicity: craft a payload mixing valid and invalid CustomField objects; assert whether the operation is transactional (fail all with 400) or partially successful, and validate the exact response format.",
+              "Strengthen schema assertions: validate success response against #/definitions/CustomField including required fields, server-generated attributes, and that objectId/objectType match the target invoice item; validate error payload schema for all error cases.",
+              "Split auth scenarios: one test for unauthenticated (expect 401) and one for authenticated-but-unauthorized (expect 403) with concrete expectations.",
+              "Add header boundary tests: empty/missing/oversized/invalid-character values for X-Killbill-CreatedBy, and length/charset for Reason/Comment.",
+              "Expand UUID validation: test edge-case UUID formats (uppercase, missing hyphens, extra chars) to ensure strict regex enforcement.",
+              "Resolve ambiguous tests (TC10, TC11, TC16, TC17): align with API contract and assert a single expected status/behavior for empty arrays, extra fields, concurrency conflicts, and duplicate names.",
+              "If applicable, add POST rate-limiting tests to verify 429 behavior under bursts."
+            ],
+            "usage": {
+              "completion_tokens": 4554,
+              "prompt_tokens": 6336,
+              "total_tokens": 10890,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3520,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

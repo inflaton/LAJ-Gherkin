@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "95_2025-10-15T11:20:57.207402",
+    "jira_id": "95",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/tags - Add tags to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:20:31.231598",
+    "benchmark_end_time": "2025-10-15T11:20:57.207398",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 25.9758,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "95_qe_sup-gpt4.1_agent-gpt4.1_1748922214.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: Multiple success scenarios (TC01, TC02, TC03) verify 201 responses and returned Tag objects for valid inputs.",
+              "Required & Optional Headers: Tests cover required X-Killbill-CreatedBy (positive and missing TC07) and optional X-Killbill-Reason/X-Killbill-Comment (TC02).",
+              "Invalid Payloads / Validation: Malformed JSON (TC08), invalid tag UUID format (TC09), unexpected fields (TC10), and partial/null elements (TC17) are exercised.",
+              "Path parameter validation: Invalid paymentId format (TC06) and non-existent payment (TC05/TC18) are covered, returning 400/404 as appropriate.",
+              "Duplicate handling & idempotency: Duplicate UUIDs in request (TC11) and posting tags that already exist on the payment (TC19) are covered.",
+              "Concurrency / Performance: Concurrency (TC20), heavy load (TC12), and very large payload/boundary (TC14) scenarios are included.",
+              "Error handling for dependencies: Service unavailability is covered (TC13) to validate 503 behavior.",
+              "Security: Unauthorized user (TC15) and malicious payload/XSS attempt (TC16) are included."
+            ],
+            "gaps": [
+              "Non-existent tag definition (well-formed UUID that does not map to any tag definition): There is no explicit scenario that posts a syntactically valid tagDefinitionId that does not exist in the system and asserts the expected behavior (e.g., 404 or domain-specific error).",
+              "Content-Type / Accept headers and content negotiation: Tests do not assert that the request includes Content-Type: application/json, nor that the response Content-Type is application/json (schema/content-type checks).",
+              "Atomicity / Partial-failure semantics: No tests cover behavior when an array contains a mix of valid and non-existent/invalid tag definitions \u2014 is the operation all-or-nothing or partial? This transactional behavior is untested.",
+              "Server error (500) paths: There is no explicit test simulating an internal server / database failure that yields a 500 and checks graceful handling/logging.",
+              "Schema validation of response Tag objects: Although TC01/TC02 assert Tag objects are returned, there is no explicit schema-level validation (field types, required fields, date formats, etc.) across error and success cases.",
+              "Precise authorization semantics: TC15 allows 401 or 403 but there are no tests distinguishing authentication vs. authorization failure modes or testing token expiration / invalid token formats.",
+              "Rate limiting / throttling and retry behavior: While load/performance tests exist, there are no tests to validate API rate limiting, backoff behavior, or limits being enforced and reported.",
+              "Behavior for duplicate submissions across concurrent requests: Concurrency test exists (TC20) but lacks explicit verification of transaction isolation / race-condition outcomes in the DB (e.g., unique constraint errors vs. deduplication logic).",
+              "Content-length / very large payload resource limits: TC14 checks a \"maximum allowed number\" but the exact server limit, response for exceeding limits (413), and streaming behavior are not covered."
+            ],
+            "recommendations": [
+              "Add a test that posts a syntactically valid tagDefinitionId UUID that does not exist and assert the expected API behavior (404 or domain error payload).",
+              "Add Content-Type/Accept header tests: missing or incorrect Content-Type (expect 400), and assert response Content-Type and JSON schema for success and error responses.",
+              "Add transactional/partial-failure tests: send mixed arrays (valid + non-existent tag IDs) to confirm whether the API is atomic and assert expected results and rollback behavior.",
+              "Simulate server/internal failures (e.g., DB down) to assert 500 responses and graceful error payload (Server Error Handling from POST guidelines).",
+              "Add explicit response schema validation tests for Tag objects (required fields, types, paymentId/tagDefinitionId UUID formats, metadata shape).",
+              "Expand authorization tests to distinguish 401 (unauthenticated) from 403 (unauthorized) and include expired/invalid token cases.",
+              "Add rate-limiting tests that fire bursts of requests to assert 429 or configured throttling behaviors and include recommended retry/backoff expectations.",
+              "Strengthen concurrency tests to assert final DB state (no duplicate records) and verify how race conditions are resolved under contention (unique constraints vs application-level dedup).",
+              "Include tests for exceeding payload size limits (expecting 413 Payload Too Large or defined behavior) and document acceptable maximums and response times for performance test cases."
+            ],
+            "usage": {
+              "completion_tokens": 2371,
+              "prompt_tokens": 6214,
+              "total_tokens": 8585,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1408,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

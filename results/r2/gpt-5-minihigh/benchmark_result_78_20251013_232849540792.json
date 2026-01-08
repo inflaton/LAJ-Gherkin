@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-10-13T23:28:49.540763",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:27:22.600590",
+    "benchmark_end_time": "2025-10-13T23:28:49.540759",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 86.940169,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Happy path and successful creation (TC01, TC02, TC12, TC13, TC19, TC20, TC21) \u2014 verifies HTTP 201, confirmation body/URI and that new plans can be retrieved for valid payloads and optional headers.",
+              "Input validation and malformed payloads (TC04, TC05, TC08, TC09) \u2014 missing required fields, invalid currency, empty body and malformed JSON produce 400 responses.",
+              "Required header validation (TC03) \u2014 missing X-Killbill-CreatedBy validated and rejected.",
+              "Duplicate/conflict handling (TC06) \u2014 creating a plan with an existing planId produces an error (conflict/400 per spec).",
+              "Tolerance of extra/unsupported fields (TC07) \u2014 test covers permissive behavior when unknown fields are present in the payload.",
+              "Large payload handling (TC15) \u2014 tests for very large request bodies and expected accept/reject behavior depending on system limits.",
+              "Concurrency for unique IDs (TC22) \u2014 concurrent requests with unique planIds succeed, covering basic race-condition scenarios for unique insertions.",
+              "Service resilience and integration (TC11, TC16, TC23, TC24) \u2014 covers catalog unavailability (503), temporary network failures with retry logic, and dependent-service integration/degradation cases.",
+              "Security input validation (TC18) \u2014 XSS/SQL injection patterns in inputs are tested and expected to be rejected.",
+              "Authentication and HTTP semantics (TC10, TC14) \u2014 missing authentication returns 401 and unsupported methods return 405.",
+              "Performance non-functional check (TC17) \u2014 response time SLA for creation is asserted (within 2 seconds)."
+            ],
+            "gaps": [
+              "No explicit test for 500 Internal Server Error (server-side failures such as DB errors) \u2014 guidelines expect server error handling tests (500).",
+              "No tests for Content-Type handling (missing/incorrect Content-Type should return 415 Unsupported Media Type).",
+              "No assertions verifying response Content-Type and exact response schema/format (the story states response is a string produced as application/json).",
+              "No tests verifying the plan was added to the current catalog version (versioning/where the plan is applied is not checked).",
+              "No idempotency/retry duplicate-creation checks (e.g., first request succeeds but client retries because of timeout \u2014 ensure duplicate not created).",
+              "No tests for concurrent conflicting writes for the same planId (race conditions when two requests with identical planId arrive simultaneously).",
+              "Limited field-level validation coverage: numeric/data-type validation (amount as non-numeric), invalid billingPeriod enum values, and invalid productCategory are not explicitly covered.",
+              "Authorization edge-cases missing: invalid/expired credentials and insufficient privileges (403) are not covered \u2014 only \"missing auth\" (401) is present.",
+              "No rate limiting or throttling tests (e.g., behavior for many requests in short time, expected 429).",
+              "Some scenarios are ambiguous/deterministic-ness gaps (e.g., TC07 accepts extra fields and TC15 allows either 201 or 400) \u2014 the spec/tests should assert deterministic behavior.",
+              "No transactional/partial-failure tests that check rollback/consistency when dependent services fail after catalog modification (avoid partial propagation)."
+            ],
+            "recommendations": [
+              "Add a server-error simulation test (mock DB or service failure) asserting an appropriate 500 response and error payload to cover server error handling.",
+              "Add tests for Content-Type handling: missing or wrong Content-Type should return 415; valid requests must include Content-Type: application/json.",
+              "Assert response headers and format: add checks that response Content-Type is application/json and that the response body conforms to the documented string schema (and, if applicable, contains a URI).",
+              "Add tests that explicitly verify catalog versioning semantics: check the current catalog version before and after creation, and assert the plan is present in the intended version (or that versioning behavior matches the spec).",
+              "Add idempotency/retry tests: simulate the created-but-unconfirmed case (server created resource but client timed out) and verify retries do not create duplicates (or document required idempotency behavior and test it).",
+              "Add concurrent-conflict tests for same planId: fire simultaneous requests that use the same planId and assert only one succeeds (others return conflict/400/409 as per spec).",
+              "Expand validation tests to cover wrong data types (amount as string), out-of-range/negative amounts, invalid billingPeriod values and invalid productCategory values; assert specific validation error messages.",
+              "Add auth-edge tests: invalid/expired credentials and insufficient privileges (403) to distinguish authentication vs authorization failures.",
+              "Add rate-limiting tests to validate throttling behavior (expected 429 or documented behavior) and to detect any rate-limit related regressions.",
+              "Clarify the spec for permissive vs strict payload schemas (unknown fields), and make TC07 deterministic accordingly; likewise define size limits and make TC15 deterministic (assert expected code based on documented limits).",
+              "Add integration/transactionality tests that simulate dependent-service failure after catalog modification and assert either rollback or documented compensation behavior to avoid partial/inconsistent state."
+            ],
+            "usage": {
+              "completion_tokens": 7099,
+              "prompt_tokens": 5854,
+              "total_tokens": 12953,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6016,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

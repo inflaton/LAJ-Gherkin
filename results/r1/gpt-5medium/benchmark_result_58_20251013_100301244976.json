@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "58_2025-10-13T10:03:01.244943",
+    "jira_id": "58",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/customFields - Remove custom fields from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:01:36.074484",
+    "benchmark_end_time": "2025-10-13T10:03:01.244937",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 85.170453,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "58_qe_sup-gpt4.1_agent-gpt4.1_1748919726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Method - Valid Deletion: Multiple success scenarios validate deleting all, single, and multiple custom fields with 204 responses (TC01\u2013TC05, TC10\u2013TC11, TC15, TC18, TC20\u2013TC21).",
+              "DELETE Method - Non-Existent Resource: 404 when bundle does not exist or DB is empty (TC07, TC23).",
+              "DELETE Method - Concurrency: Simultaneous deletes for the same field handled gracefully (TC16).",
+              "Authorization: 401 for invalid/expired token (TC13). Missing required header yields 400 (TC08).",
+              "Query Parameters: Covers absence of customField (delete all), single/multiple values, invalid UUID, empty value, and unsupported extra parameter handling (TC01\u2013TC03, TC09, TC11, TC19).",
+              "Input Validation: Invalid bundleId formats (including truncated UUID) return 400 (TC06, TC22).",
+              "Optional Headers: Reason/Comment optional and accepted (TC04).",
+              "Resilience: Service unavailable and dependent service degraded yield 503/504 as appropriate (TC12, TC24).",
+              "Data Consistency: Verifies remaining custom fields and DB consistency after deletion (TC01\u2013TC03, TC25).",
+              "Performance: Large-volume deletion completes within SLA (TC15)."
+            ],
+            "gaps": [
+              "DELETE Method - Soft Deletes: No verification whether deletion is soft vs hard (e.g., audit/deleted flags) or ability to recover.",
+              "Idempotency: No explicit test that repeating the exact DELETE request after success still returns 204 and leaves state unchanged.",
+              "Authorization: No 403 Forbidden scenario for authenticated user without permission/role.",
+              "Mixed valid/invalid customField list: Behavior when the list contains a mix of existing and non-existing/invalid IDs is not defined or tested (all-or-nothing vs partial).",
+              "Server Error Handling: No 500 Internal Server Error simulation (e.g., DB exception) and corresponding error contract validation.",
+              "Response Semantics: No assertion that 204 responses have an empty body and appropriate headers; no check that error responses return application/json as per \"Produces\".",
+              "Security: No injection/invalid characters tests for query parameter customField or optional headers (Reason/Comment).",
+              "Rate Limiting/Throttling: No scenarios validating behavior under burst DELETE requests.",
+              "Duplicate customField IDs: No test for de-duplication or repeated customField parameters in the same request.",
+              "Audit Trail Persistence: No verification that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs/history."
+            ],
+            "recommendations": [
+              "Add a scenario to confirm deletion type: verify persistence layer/audit flags to determine soft vs hard delete and audit records.",
+              "Add an idempotency scenario: perform DELETE twice (once deleting specific IDs and once deleting all) and expect 204 both times with no additional changes.",
+              "Introduce a 403 Forbidden test where a valid token lacks required permissions/RBAC to delete custom fields.",
+              "Define and test behavior for mixed customField lists (existing + non-existing/invalid). Prefer clear all-or-nothing semantics with a 400 if any ID is invalid, and document it.",
+              "Simulate a backend failure (e.g., DB exception) to validate 500 handling and error response schema.",
+              "Assert response bodies/headers: ensure 204 has no body; ensure error responses have Content-Type: application/json and structured error payload.",
+              "Expand security tests: attempt injection or malicious input in customField values and in X-Killbill-Reason/Comment, ensuring robust validation and safe handling.",
+              "Add rate limiting tests (e.g., many DELETEs rapidly) to verify correct throttling behavior or headers (429 if applicable).",
+              "Test duplicate customField parameters in one request to confirm de-duplication and idempotent result.",
+              "Validate that X-Killbill-CreatedBy/Reason/Comment are persisted to audit logs and can be retrieved via audit endpoints or DB inspection."
+            ],
+            "usage": {
+              "completion_tokens": 4249,
+              "prompt_tokens": 6309,
+              "total_tokens": 10558,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3392,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

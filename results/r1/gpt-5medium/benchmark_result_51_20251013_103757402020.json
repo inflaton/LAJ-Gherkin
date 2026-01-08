@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-13T10:37:57.401991",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:36:22.999411",
+    "benchmark_end_time": "2025-10-13T10:37:57.401986",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 94.402575,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "POST: Valid payloads are well covered (successful transfers with minimal fields, with all optional params, and across billingPolicy variants).",
+              "POST: Invalid payloads covered (missing body/header, invalid UUID/date/enum, malicious inputs like SQLi/XSS).",
+              "POST: Large payloads covered (large pluginProperty arrays, max-length headers).",
+              "POST: Validation broadly covered (UUID formats for bundleId, date format, enum validation, required header enforcement).",
+              "POST: Server error handling covered (500 internal error, 503 dependency unavailable, plus 404 for missing bundle/account).",
+              "Authorization: 401 unauthorized access case covered.",
+              "Query parameters: requestedDate, billingPolicy, and pluginProperty (including empty array) exercised in combination.",
+              "Success semantics: 201 response, JSON Bundle body, and Location header asserted."
+            ],
+            "gaps": [
+              "POST: Duplicate submission/idempotency not tested (e.g., re-posting same transfer or using an idempotency key; expected no duplicate action or 409).",
+              "Default behavior not verified: billingPolicy default (END_OF_TERM) when omitted isn't asserted; no check that default policy effects are applied.",
+              "Target accountId validation gaps: no test for invalid UUID format, empty/null, or wrong data type in body leading to 400.",
+              "Content negotiation: no tests for missing/incorrect Content-Type (e.g., 415) or unacceptable Accept header (e.g., 406).",
+              "Response headers: no explicit check that Content-Type is application/json on success/error; no follow-up GET to verify the Location URL resolves to the transferred bundle.",
+              "requestedDate edge cases: past/future dates, timezone handling, and out-of-range/invalid calendar dates not exercised beyond generic invalid format.",
+              "Authorization depth: 403 forbidden (authenticated but not authorized) not covered.",
+              "Plugin property encoding detail: collectionFormat=multi (repeated query keys) vs comma-separated encoding not explicitly validated.",
+              "Boundary negatives for optional headers: exceeding maximum allowed length for X-Killbill-Reason/Comment not tested (should fail)."
+            ],
+            "recommendations": [
+              "Add an idempotency/duplicate submission scenario: repeat the same POST (with and without an idempotency key) and assert no duplicate transfer or a 409 Conflict.",
+              "Add a test to verify default billingPolicy is applied as END_OF_TERM when omitted, and validate resulting behavior and fields.",
+              "Add target accountId validation scenarios: bad UUID format, empty/null, wrong type -> expect 400 with clear error.",
+              "Add content negotiation scenarios: missing Content-Type or non-JSON body -> 415; incompatible Accept header -> 406.",
+              "Assert response headers: Content-Type: application/json on 201/4xx/5xx; validate Location is absolute and that GET on it returns the transferred bundle.",
+              "Extend requestedDate coverage: past date, future date, timezone (UTC vs local), and invalid but well-formed dates (e.g., 2025-02-30) -> appropriate outcomes.",
+              "Add a 403 forbidden scenario to differentiate between unauthenticated (401) and unauthorized (403) clients if the API enforces roles/permissions.",
+              "Explicitly test pluginProperty encoding as repeated query parameters (collectionFormat=multi) and ensure the server parses them into an array.",
+              "Add negative boundary test for X-Killbill-Reason/Comment exceeding maximum allowed length -> expect 400 validation error."
+            ],
+            "usage": {
+              "completion_tokens": 4513,
+              "prompt_tokens": 7734,
+              "total_tokens": 12247,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3776,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

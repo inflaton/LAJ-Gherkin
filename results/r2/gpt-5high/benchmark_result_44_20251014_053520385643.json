@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-14T05:35:20.385615",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T05:33:03.749778",
+    "benchmark_end_time": "2025-10-14T05:35:20.385611",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 136.635833,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Request (POST): Multiple happy-path scenarios with default and explicit offset/limit, including partial input (offset only) and max-limit edges (TC01, TC02, TC10, TC12, TC13, TC16, TC17).",
+              "Validation: Robust coverage of invalid query params (negative, zero, non-integer) and unexpected params; required vs optional headers; header parsing regression (TC05, TC06, TC07, TC11, TC16).",
+              "Authorization: Missing required header and invalid/expired token cases return appropriate 4xx (TC05, TC08).",
+              "Pagination: Defaulting and explicit paging behavior, including limits and offsets, are exercised; default limit of 100 verified (TC01, TC02, TC10, TC13).",
+              "Empty/No-Op Case: No parked accounts yields 200 with no invoices generated (TC04).",
+              "Server/Resilience: Service dependency down (503), transient network retry with idempotency, and concurrent requests without duplicate invoicing (TC09, TC15, TC18).",
+              "Security Hardening: Header injection attempt does not leak sensitive info (TC14).",
+              "Performance/Scalability: Large data set processing, response time thresholds, and concurrent load within acceptable limits (TC12, TC18).",
+              "Auditability: Optional headers (Reason, Comment) recorded for audit, and header parsing regression covered (TC03, TC16).",
+              "Backward Compatibility: Older clients omitting optional headers still succeed (TC17)."
+            ],
+            "gaps": [
+              "Server Error Handling: No explicit 500 Internal Server Error simulation (e.g., DB failure) or standardized error body validation.",
+              "Rate Limiting/Throttling: No scenario for 429 Too Many Requests with Retry-After headers.",
+              "Response Schema: No validation of the JSON response structure/fields (e.g., processed_count, total_parked_count, page_info, job_id) including the no-op case.",
+              "Pagination Edge Cases: Missing tests for limit-only (with default offset), and for offsets beyond total parked accounts returning zero processed without error.",
+              "Multi-page Sequencing: No scenario verifying sequential page processing across multiple calls (e.g., offset 0/limit N then offset N/limit N) with stable ordering and no overlaps/gaps.",
+              "Scope of Impact: No explicit assertion that non-parked accounts remain unaffected by the operation.",
+              "Header Value Validation: No tests for empty/whitespace X-Killbill-CreatedBy, oversized Reason/Comment, or injection attempts in optional headers.",
+              "Content-Type Handling: Since the spec lists consumes application/json with no body, missing/wrong Content-Type (415) or unexpected body handling is not covered.",
+              "Deterministic Expectations: Several scenarios allow multiple outcomes (e.g., 200 or 400/403). Expected status codes should be unambiguous per spec.",
+              "Max Limit Contract: The actual maximum allowed limit is unspecified; tests use 1000/10000 without asserting behavior when exceeding documented caps (e.g., clamp vs 400)."
+            ],
+            "recommendations": [
+              "Add a 500 Internal Server Error simulation (e.g., forced DB failure) and assert standardized error schema.",
+              "Introduce a rate limiting test that triggers 429 with Retry-After and verifies backoff behavior.",
+              "Define and validate the JSON response schema (success and error), including fields like processed_count, total_parked_count, and any job or request identifiers.",
+              "Add limit-only scenario (e.g., limit=50) and an offset-beyond-range scenario that results in zero processed without error.",
+              "Create a multi-call pagination test: process accounts in consecutive pages (offset/limit) and verify stable ordering, no duplicates, and full coverage.",
+              "Add a test to assert non-parked accounts are never invoiced during the operation.",
+              "Strengthen header validation: empty/whitespace CreatedBy should fail; test very long Reason/Comment and injection attempts in optional headers.",
+              "Test Content-Type behavior: wrong or missing Content-Type (415) vs ignored body; clarify spec if body must be empty.",
+              "Make status expectations deterministic (avoid \"200 or 400/403\"); align each scenario with the API contract.",
+              "Document and test the maximum allowed limit: verify exceeding it returns a clear error or is capped with explicit response indication.",
+              "Add an explicit duplicate successful submission test (same offset/limit invoked twice) to confirm idempotent behavior or well-defined semantics (e.g., processed_count=0 on second run)."
+            ],
+            "usage": {
+              "completion_tokens": 6852,
+              "prompt_tokens": 5207,
+              "total_tokens": 12059,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5888,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-10-15T13:59:44.247939",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:58:56.466315",
+    "benchmark_end_time": "2025-10-15T13:59:44.247935",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 47.78162,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE/Valid Deletion: Multiple success paths returning 204 with and without tagDef, single and multiple tagDef values (TC01\u2013TC04, TC15).",
+              "DELETE/Non-Existent Resource: 404 for non-existent paymentId (TC07).",
+              "DELETE/Concurrency: Concurrent deletion behavior covered, ensuring correct final state (TC16).",
+              "Request validation: Invalid paymentId format -> 400 (TC06); missing required X-Killbill-CreatedBy -> 400 (TC08); invalid tagDef (non-UUID) -> 400 (TC09); tagDef not present is a no-op 204 (TC10); extra unexpected query parameter tolerated (TC14).",
+              "Headers: Required CreatedBy enforced; optional Reason and Comment accepted (TC04).",
+              "Query parameters: collectionFormat=multi exercised with multiple tagDef entries (TC03, TC15).",
+              "Error handling: 401 unauthorized (TC11), 503 service unavailable (TC12), 504 timeout (TC22).",
+              "Security/robustness: Injection attempt in tagDef rejected (TC13).",
+              "Audit and consistency: Audit log integration verified (TC20) and subsequent GET reflects updated state (TC21).",
+              "Non-functional: Performance under load (TC17) and regression guard (TC18)."
+            ],
+            "gaps": [
+              "DELETE/Soft Deletes: No scenario to confirm whether deletions are soft vs. hard (e.g., historical/audit state vs. active state).",
+              "Idempotency: While no-op cases are covered (no tags; tag not present), no explicit repeat-DELETE on same target to confirm consistent 204 and no side effects.",
+              "Authorization granularity: 403 Forbidden for authenticated but unauthorized user/role is not covered.",
+              "Rate limiting/throttling: No scenarios validating 429 responses or headers under burst traffic.",
+              "Response headers: For 204 responses, no checks for headers like Content-Type (often omitted), or error payload structure/content-type for 4xx/5xx cases.",
+              "Validation breadth for tagDef: No test for mixed-valid-and-invalid tagDef values in the same request and expected behavior (reject all vs. partial).",
+              "UUID pattern edge cases: No tests for uppercase UUIDs, hyphenless UUIDs, or extra whitespace handling per pattern expectations.",
+              "Multi-tenancy/tenant headers (if applicable in this API): Not addressed.",
+              "Backward compatibility (TC19) is vague: does not define how an older client differs (e.g., header differences or version negotiation) or expected tolerance."
+            ],
+            "recommendations": [
+              "Add a scenario to verify soft vs hard deletion behavior: confirm active tags removed while audit/history entries remain (or explicitly confirm permanent removal) and document expected behavior.",
+              "Add explicit idempotency scenarios: perform the same DELETE twice (with/without tagDef) and assert 204 and unchanged state on subsequent calls.",
+              "Add a 403 Forbidden scenario for an authenticated user lacking permission to remove tags, distinct from 401.",
+              "Introduce rate limiting tests: rapid burst of DELETEs leading to 429 with appropriate Retry-After headers and ensure normal behavior resumes after backoff.",
+              "Validate response headers: ensure 204 responses have no body and appropriate headers; ensure error responses include consistent Content-Type and error schema.",
+              "Test mixed tagDef validation: include a request with multiple tagDef values where some are invalid/not-present; define and assert the API\u2019s contract (fail-fast 400 vs partial success 204).",
+              "Expand UUID validation edge cases and trimming: test uppercase UUIDs, surrounding whitespace, and hyphenless forms per the documented pattern.",
+              "Clarify and formalize TC19: specify concrete backward-compat cases (e.g., missing optional headers, different Accept values) and expected behavior.",
+              "Optionally add a method-safety scenario: verify DELETE is not cached by intermediaries and responses include Cache-Control headers discouraging caching (if applicable)."
+            ],
+            "usage": {
+              "completion_tokens": 1738,
+              "prompt_tokens": 5560,
+              "total_tokens": 7298,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

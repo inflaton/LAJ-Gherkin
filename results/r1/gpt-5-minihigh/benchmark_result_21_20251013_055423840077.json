@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "21_2025-10-13T05:54:23.840041",
+    "jira_id": "21",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/timeline - Retrieve account timeline",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:53:12.937104",
+    "benchmark_end_time": "2025-10-13T05:54:23.840037",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 83,
+    "average_generation_time_seconds": 70.902933,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 83,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "21_qe_sup-gpt4.1_agent-gpt4.1_1748917310.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 83,
+            "covered": [
+              "Core acceptance criteria: successful 200 responses and AccountTimeline payload checks are covered (TC01, TC02, TC03, TC04, TC05, TC06, TC21, TC22). Default audit=NONE is explicitly asserted (TC01).",
+              "Path parameter validation and error conditions: malformed UUID -> 400 (TC08), non-existent but well-formed UUID -> 404 (TC09). Edge-length checks for UUIDs included (TC18, TC19).",
+              "Query parameter coverage: multiple valid combinations and validation are covered (parallel=true, audit=FULL/MINIMAL/NONE), unsupported param behavior, casing/backwards compatibility, and explicit invalid-value tests (TC02\u2013TC05, TC16, TC23, TC27, TC28).",
+              "Authentication & basic authorization checks: missing and invalid tokens -> 401 covered (TC10, TC11).",
+              "Service and dependency failures: API unavailable -> 503 (TC12) and database failure -> 500 (TC13) covered.",
+              "Security tests: SQL injection and XSS attempts in accountId are covered (TC14, TC15) with assertions about not leaking sensitive info.",
+              "Performance, scalability and resilience: large dataset handling (TC07), concurrent requests (TC20), timeouts and long-running operations (TC25), and retry/recovery from transient network error (TC26) are present.",
+              "Regression and backward-compatibility tests: known-bug regressions for invoices with audit=FULL and parallel behavior are present (TC21, TC22).",
+              "Empty/edge responses: accounts with no bundles/invoices/payments and empty timeline arrays are covered (TC06, TC17).",
+              "Contract-level assertions exist in many scenarios (tests assert \"valid AccountTimeline JSON object\"), giving good high-level structural checks across scenarios."
+            ],
+            "gaps": [
+              "Pagination: No tests that validate pagination semantics (page/limit/offset), or that the API behaves correctly when timeline size exceeds reasonable limits; TC07 exercises large payloads but does not test paging or streamed responses.",
+              "Caching & conditional GET: No tests verify Cache-Control, ETag, Last-Modified, If-None-Match/If-Modified-Since or 304 Not Modified behavior (acceptance criteria notes \"Produces: application/json\" but not caching headers).",
+              "Rate limiting / throttling: No tests exercise rate limits (429 responses, Retry-After header, graceful degradation under bursts).",
+              "Authorization granularity (403): Tests cover 401 (missing/invalid token) but not scenarios where a valid token lacks required permissions and should return 403.",
+              "Content negotiation / headers: No explicit assertions for Content-Type: application/json or behavior when Accept header is missing/unsupported.",
+              "Strict schema/contract validation: \"valid AccountTimeline JSON object\" is asserted loosely, but there are no dedicated JSON Schema/contract tests checking required fields, exact types, audit sub-structures, or additionalFields handling.",
+              "Deterministic verification of parallel=true: TC02/TC05 suggest using logs/perf but there are no deterministic assertions (timestamps, spans, or instrumentation) to prove parallel fetching and absence of race conditions.",
+              "Ambiguity in unsupported-query-param behavior: TC16 expects the unsupported parameter to be ignored; the API specification should make this explicit and tests should assert the intended behavior deterministically.",
+              "Combined-invalid-params precedence: No tests for when multiple query parameters are invalid simultaneously (which error is returned and its message).",
+              "Caching/stale-data recovery: No tests for stale-if-error or cache revalidation strategies if used by API."
+            ],
+            "recommendations": [
+              "Add explicit pagination tests (if API supports it): request page/limit combinations, validate item counts, total counts, ordering stability, and behavior when requesting out-of-range pages. If the API does not support pagination, document that and add stress tests for very large timelines to ensure resource limits are respected.",
+              "Add caching/conditional-GET tests: assert Cache-Control and ETag/Last-Modified headers, perform If-None-Match/If-Modified-Since requests and expect 304 where appropriate, and verify server-side caching behavior does not leak private data.",
+              "Add rate-limiting tests: simulate bursts of requests to observe 429 responses and Retry-After headers and verify graceful handling and meaningful error messages.",
+              "Add authorization-granularity tests: use valid tokens with insufficient privileges to ensure 403 responses and no exposure of timeline data.",
+              "Add explicit header/Content-Type tests and Accept negotiation: assert Content-Type: application/json on success, and verify behavior when Accept is missing or set to non-supported media types.",
+              "Introduce strict JSON Schema/contract validation tests for AccountTimeline (required fields, types, arrays for bundles/invoices/payments, audit object variations) and fail builds on schema regressions.",
+              "Make parallel=true verification deterministic: instrument the service (traces, timestamps, span ids) or add test-only hooks to assert parallel fetches and that no timeline parts are lost when parallel=true.",
+              "Clarify and codify behavior for unsupported or mixed invalid query parameters (ignore vs reject) and add tests that assert the chosen behavior explicitly; include combined-invalid-params precedence tests.",
+              "Add tests to ensure error responses do not leak stack traces or sensitive DB details (cover both 4xx and 5xx bodies) and validate standard error shape for clients.",
+              "Add CI/automation tests for long-running/timeouts and define concrete performance thresholds (e.g., TC07 and TC20 thresholds) so CI can fail on regressions; add rate-limit/concurrency tests to CI or a performance pipeline."
+            ],
+            "usage": {
+              "completion_tokens": 6684,
+              "prompt_tokens": 5683,
+              "total_tokens": 12367,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5504,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

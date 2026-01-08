@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-09-28T15:07:32.163389",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T15:03:44.670453",
+    "benchmark_end_time": "2025-09-28T15:07:32.163384",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 227.492931,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Request: Success paths with default and explicit offset/limit return 200 and application/json (TC01, TC02, TC13).",
+              "Empty Response: Case with no parked accounts returns 200 with indication that no invoices were generated (TC04).",
+              "Pagination: Defaults and explicit paging are exercised, including default limit=100, offset behavior, partial input (only offset), and large/upper-end limits (TC01, TC02, TC10, TC12, TC13).",
+              "Query Parameters: Validation of invalid ranges and types, as well as handling of unexpected parameters (TC06, TC07, TC11).",
+              "Headers: Required (X-Killbill-CreatedBy) and optional headers (Reason, Comment) covered, including auditing and parsing regressions (TC03, TC05, TC16, TC17).",
+              "Authorization: Unauthorized/expired token scenarios return 401/403 (TC08).",
+              "Security: Malicious header payload sanitized without leaking sensitive info (TC14).",
+              "Server Error Handling: Service or dependency unavailability handled with 503 (TC09).",
+              "Duplicate Submission/Idempotency: Retries after transient failure and concurrent requests do not double-invoice (TC15, TC18).",
+              "Performance: Large data volumes and concurrency with acceptable response time/resource utilization (TC12, TC18)."
+            ],
+            "gaps": [
+              "Authorization (RBAC): No scenario where a valid, authenticated but non-admin principal attempts the operation (expect 403).",
+              "Server Error Handling: No simulation of 500 Internal Server Error (e.g., database failure) with structured error response.",
+              "Rate Limiting/Throttling: No tests for burst traffic leading to 429 Too Many Requests and presence of Retry-After header.",
+              "Pagination boundary: Behavior when offset >= number of parked accounts (should process none and return 200) not covered.",
+              "Sequential pagination windows: No test to ensure running overlapping or back-to-back windows does not reprocess accounts and covers all parked accounts exactly once.",
+              "Partial input variant: Only limit provided (without offset, expect default offset=0) not tested.",
+              "Max limit enforcement: Tests assume success with very large limits (e.g., 10,000) but do not verify that values above the maximum are rejected with 400.",
+              "Non-parked accounts unaffected: No explicit assertion that non-parked accounts are never invoiced during the operation.",
+              "Request body handling: Endpoint is body-less; no test for sending an unexpected JSON body or wrong Content-Type (expect ignore or 400/415).",
+              "Response body schema: No strict validation of success/error JSON structure (e.g., processedCount, failedCount, window, requestId) across scenarios.",
+              "Header value validation: No tests for empty/whitespace or excessively long X-Killbill-CreatedBy values.",
+              "Content negotiation: No test for unsupported Accept header (e.g., application/xml) leading to 406 or graceful JSON fallback.",
+              "Numeric edge extremes: No tests for very large int64 boundary values for offset/limit and overflow handling."
+            ],
+            "recommendations": [
+              "Add RBAC test with a valid but non-admin user; expect 403 and a clear authorization error.",
+              "Simulate internal failures (e.g., DB outage) to assert 500 responses with consistent error payload and correlation ID.",
+              "Introduce rate limiting tests: burst requests leading to 429, verify Retry-After and that later retries succeed.",
+              "Add pagination boundary test where offset is beyond total parked accounts; assert 200 with processedCount=0.",
+              "Create sequential window tests (e.g., offset=0,limit=100 then offset=100,limit=100) verifying no gaps or duplicates across windows.",
+              "Add scenario for only limit provided (no offset) to confirm default offset=0 behavior.",
+              "Define and enforce a documented maximum limit; add boundary tests at max and above-max (e.g., limit=1000 ok, limit=1001 -> 400).",
+              "Add assertions ensuring only parked accounts are invoiced and non-parked accounts remain untouched.",
+              "Test unexpected request body and incorrect Content-Type handling (ignore vs 400/415) to document behavior.",
+              "Validate response schema for success and errors (fields like processedCount, failedCount, accountsWindow, errors[], requestId), including content on TC04/TC11/TC12.",
+              "Add header validation tests for empty/whitespace and overly long X-Killbill-CreatedBy; ensure proper 400 and safe error messages.",
+              "Test Accept header negotiation (unsupported types -> 406 or documented fallback to JSON).",
+              "Add numeric boundary tests using very large int64 values for offset/limit to ensure correct validation and no overflow."
+            ],
+            "usage": {
+              "completion_tokens": 8299,
+              "prompt_tokens": 5207,
+              "total_tokens": 13506,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7296,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

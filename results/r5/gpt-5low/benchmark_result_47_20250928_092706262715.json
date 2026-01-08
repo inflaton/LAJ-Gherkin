@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-09-28T09:27:06.262683",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:26:26.816569",
+    "benchmark_end_time": "2025-09-28T09:27:06.262678",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 39.446109,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE/Valid Deletion: Happy path returns 204 with empty body and cache invalidated (TC01); idempotent when cache already empty (TC09).",
+              "DELETE/Non-Existent Resource: 404 for non-existent tenant context (TC04).",
+              "DELETE/Concurrency: Concurrent deletes for the same tenant under load return 204 without races (TC10).",
+              "Error Handling: 400 for malformed/extra parameters (TC07), 401 for missing/invalid auth (TC02, TC03), 500 internal error (TC05), 503 service unavailable (TC06), 504 timeout (TC14).",
+              "Security Negative: Header injection handled (400/403) (TC08).",
+              "State Variations: Partially populated cache invalidated (TC13); regression scenario verifies actual invalidation (TC11).",
+              "Integration Effect: Downstream services reflect invalidation, avoiding stale data (TC12)."
+            ],
+            "gaps": [
+              "Tenant Isolation: No test to ensure invalidation affects only the current tenant and does not impact other tenants.",
+              "Authorization/RBAC: Missing scenario for authenticated user lacking admin privileges returning 403 Forbidden.",
+              "Contract/Header Validation: Success path does not assert response headers (e.g., Content-Type/Produces: application/json) and may need to assert absence/presence given 204.",
+              "Missing Tenant Context: No scenario for requests without tenant headers/context (should yield 400/401 depending on spec).",
+              "Observability/Idempotency Proof: No explicit verification that repeated DELETE calls do not reintroduce errors across multiple sequential attempts beyond TC09.",
+              "Retry/Resilience: No scenarios covering client retry behavior/backoff for 503/504 to ensure safe idempotent retries.",
+              "Cross-Tenant Concurrency: No scenario for concurrent DELETEs across different tenants ensuring isolation and no cross-tenant effects.",
+              "Method Constraints: No negative test for unsupported methods on the endpoint (e.g., GET/POST -> 405) if enforced by API gateway."
+            ],
+            "recommendations": [
+              "Add a scenario validating multi-tenant isolation: invalidate cache for tenant A and verify tenant B cache remains intact.",
+              "Add RBAC scenario: authenticated non-admin attempts DELETE -> expect 403 Forbidden with appropriate error body.",
+              "Augment success path to validate headers: confirm either no Content-Type for 204 or expected headers per API contract; also verify no response body is returned.",
+              "Add scenario for missing tenant context header/token -> expect 400 Bad Request or 401 Unauthorized per spec.",
+              "Add sequential idempotency scenario: issue multiple DELETEs in a row and confirm consistent 204 and no side effects.",
+              "Introduce resilience tests: simulate 503/504 and verify client-safe retry semantics (idempotent operation, no partial invalidation).",
+              "Add cross-tenant concurrency scenario: concurrent DELETEs for tenants A and B do not interfere.",
+              "If applicable, add method constraint test to ensure non-DELETE methods return 405 Method Not Allowed with Allow header."
+            ],
+            "usage": {
+              "completion_tokens": 1673,
+              "prompt_tokens": 3389,
+              "total_tokens": 5062,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

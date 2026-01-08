@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-09-28T09:29:04.250168",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:28:32.289710",
+    "benchmark_end_time": "2025-09-28T09:29:04.250164",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 31.960454,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Deletion: Multiple success paths return 204 and verify account soft-close state and side effects (TC01\u2013TC07, TC11, TC17\u2013TC20).",
+              "Non-Existent/Idempotent: Closing non-existent or already-closed accounts returns 204 with no changes (TC11, TC12).",
+              "Input Validation: UUID pattern invalid -> 400; SQL injection -> 400; missing required header -> 400 (TC08, TC09, TC15).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional headers tolerated (TC01, TC09, TC16, TC20).",
+              "Query Parameters: Defaults validated; all-true/all-false; single and pairwise combinations covered; unsupported params ignored (TC01\u2013TC05, TC13).",
+              "Server Error Handling: Simulated DB outage -> 500 (TC14).",
+              "Security: XSS sanitized in headers; SQL injection rejected; unauthorized access -> 401 (TC10, TC15, TC16).",
+              "Performance/Scalability: Large data set and concurrency scenarios validate acceptable response time (TC07, TC18).",
+              "Idempotency/Retries: Retries after transient failure return 204 with no duplicate effects (TC17).",
+              "Soft Deletes: Explicitly verifies account is marked closed (not hard-deleted) (TC01, TC06)."
+            ],
+            "gaps": [
+              "Concurrency (same resource): No race test where two clients delete the same account simultaneously and validate consistent idempotent outcomes and audit/log integrity.",
+              "Type validation for query params: No scenario for malformed boolean values (e.g., cancelAllSubscriptions=maybe) or repeated/contradictory params resulting in 400.",
+              "Response semantics for 204: No assertion that the 204 response has an empty body and appropriate headers (e.g., no Content-Type/Content-Length expectations).",
+              "Optional headers coverage: No positive test explicitly exercising X-Killbill-Reason with normal content and verifying it is persisted/audited as metadata.",
+              "Authorization breadth: 403 Forbidden (authenticated but not authorized) is not covered if applicable to this API.",
+              "Audit/observability: No checks that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs or events.",
+              "Limits/rate behavior: No validation of rate limiting/throttling under bursts for DELETE if platform enforces it."
+            ],
+            "recommendations": [
+              "Add a race-condition scenario: fire two concurrent DELETEs for the same account; assert both return 204, only one state transition occurs, and audit entries are correct and non-duplicated.",
+              "Add negative type-validation tests for query parameters (e.g., cancelAllSubscriptions=maybe, writeOffUnpaidInvoices=1, removeFutureNotifications=null) and expect 400 with clear error messages.",
+              "Explicitly assert 204 response structure: empty body and relevant headers (e.g., absence of Content-Type, Content-Length=0 or omitted) per API standards.",
+              "Add a positive test using X-Killbill-Reason with a safe string and verify it is accepted and recorded in audit metadata.",
+              "If authorization is role-based, add a 403 scenario for an authenticated user lacking permission to close accounts.",
+              "Include an audit verification step in success tests to ensure CreatedBy/Reason/Comment are persisted and retrievable from audit logs.",
+              "If applicable to the platform, add burst tests to validate DELETE rate limiting or verify that no rate limiting applies and responses remain 204."
+            ],
+            "usage": {
+              "completion_tokens": 1779,
+              "prompt_tokens": 6316,
+              "total_tokens": 8095,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

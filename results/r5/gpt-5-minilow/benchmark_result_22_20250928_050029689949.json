@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-09-28T05:00:29.689862",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:00:15.268161",
+    "benchmark_end_time": "2025-09-28T05:00:29.689850",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 14.421689,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid PUT request: Multiple scenarios (TC01-TC03, TC06, TC07, TC19) verify successful rebalancing and 204 response for valid accounts and header combinations.",
+              "Header validation: Required header X-Killbill-CreatedBy presence, emptiness, null, whitespace, and optional headers (X-Killbill-Reason, X-Killbill-Comment) are tested (TC02, TC03, TC10-TC11, TC15, TC24-TC26).",
+              "Invalid account handling: Non-existent account and invalid accountId format cases are covered (TC08, TC09, TC16, TC17).",
+              "Edge/boundary CBA states: Zero, negative, large positive, multiple transactions and previously buggy states are covered (TC04, TC05, TC06, TC07, TC19).",
+              "HTTP method and contract errors: Unsupported HTTP method and wrong-method behavior tested (TC22).",
+              "Robustness & resilience: Network/transient errors and service-unavailable scenarios included (TC13, TC14).",
+              "Concurrency and performance: High concurrency and performance under normal/peak load included (TC18, TC20, TC21).",
+              "Security inputs: Malicious header payloads and XSS attempts are considered (TC15, TC24)."
+            ],
+            "gaps": [
+              "Authorization (401/403): There are no scenarios validating unauthenticated/unauthorized requests and expected 401/403 behavior; the Background assumes a valid auth token but tests do not cover missing/invalid tokens.",
+              "Input validation for header formats/lengths beyond accountId: While some header edge cases exist, there is limited explicit coverage for very long header values or invalid characters for Reason/Comment beyond SQL/XSS examples.",
+              "Response body contract for errors: Tests check status codes for errors but lack explicit assertions on error response structure/fields (e.g., error codes/messages JSON schema).",
+              "Partial update / payload semantics: Standard PUT guidance about payloads/partial updates is not applicable (no body) but there is no explicit test for rejecting a body if supplied (e.g., unexpected request body handling).",
+              "Rate limiting and throttling: No tests for rate limiting, burst behavior or server-side throttling where applicable.",
+              "Caching and headers: No tests verify caching-related headers (ETag, Cache-Control) \u2014 though less relevant for a mutating PUT, API contract may still require certain headers in responses.",
+              "Idempotency and duplicate requests: While concurrency and retries are present, there are no explicit tests about idempotency of repeated identical requests and side-effect duplication (e.g., whether multiple identical PUTs cause duplicate adjustments).",
+              "Database failure / 500-level errors: No explicit server error simulation for internal failures (database down, unexpected exceptions) to validate 500 responses and graceful error handling."
+            ],
+            "recommendations": [
+              "Add authorization negative tests: scenarios for missing/expired/invalid auth token that expect 401 or 403, and ensure headers aren't accepted without proper auth.",
+              "Add error response contract checks: assert the structure and fields of error responses (JSON keys, error codes/messages) for 400/503/500 cases to prevent leaking internal details.",
+              "Test idempotency and duplicate behavior: add tests that send repeated identical PUTs (sequential and concurrent) and validate that CBA adjustments aren't applied multiple times or document expected behavior.",
+              "Simulate server failures: add tests that simulate DB or downstream failures to verify 500 responses and that no partial/incorrect state is persisted.",
+              "Add tests for unexpected request body handling: send a non-empty body with the PUT and verify whether the API rejects it or ignores it per spec (and assert status code and response).",
+              "Include rate-limiting/load-shedding tests: generate bursts of requests to validate throttling and appropriate 429/other responses or graceful degradation.",
+              "Expand header validation coverage: include very long header values (length/boundary), invalid encodings, and additional malformed header cases to ensure robust validation and no injection/overflow.",
+              "Add explicit idempotency under retry semantics: combine retry tests with side-effect assertions to ensure retry policy does not cause double-application of rebalances."
+            ],
+            "usage": {
+              "completion_tokens": 1025,
+              "prompt_tokens": 5515,
+              "total_tokens": 6540,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

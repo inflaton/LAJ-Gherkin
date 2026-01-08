@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "36_2025-10-14T23:26:32.839908",
+    "jira_id": "36",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/allTags - Retrieve account tags",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T23:25:14.893476",
+    "benchmark_end_time": "2025-10-14T23:26:32.839904",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 77.946428,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "36_qe_sup-gpt4.1_agent-gpt4.1_1748918344.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "Valid Request: 200 response with JSON array of Tag objects; Tag schema asserted (TC01).",
+              "Default behaviors: excluded deleted tags and audit=NONE by default (TC01).",
+              "Query Parameters (valid): objectType filtering (INVOICE, PAYMENT), includedDeleted, audit=FULL/MINIMAL/NONE, and combined usage (TC02, TC03, TC04, TC05, TC06, TC20, TC21).",
+              "Empty Response: account with no tags returns empty array (TC07).",
+              "Path param validation: malformed UUID -> 400; non-existent/soft-deleted/not in DB -> 404 (TC08, TC09, TC25, TC26).",
+              "Unsupported/invalid query inputs: unknown param ignored (TC13); invalid audit value -> 400 (TC22).",
+              "Authorization: 401 when token missing/invalid (TC10).",
+              "Error handling/Resilience: 503 downstream unavailable (TC11); 504 timeout (TC15).",
+              "Security hardening: SQL injection in accountId rejected without info leakage (TC12).",
+              "Performance/Load: large dataset returns within threshold and includes all tags (TC14); concurrency returns consistent 200s (TC23).",
+              "Integration consistency: after POST/DELETE operations, GET reflects changes including deleted with includedDeleted=true (TC18, TC19).",
+              "Backward compatibility: no-parameter behavior equals defaults (TC17).",
+              "Produces/Headers: Content-Type application/json asserted (TC27)."
+            ],
+            "gaps": [
+              "Pagination: No explicit verification of pagination semantics or explicit absence (e.g., Link headers, page params) with large datasets.",
+              "Caching behavior: No tests for ETag/Last-Modified/Cache-Control headers or 304 via If-None-Match/If-Modified-Since.",
+              "Rate limiting/throttling: No scenarios asserting 429 Too Many Requests or related headers (Retry-After, rate-limit headers).",
+              "Authorization 403: No test for authenticated but unauthorized user (forbidden).",
+              "Query parameter negatives incomplete: no invalid objectType enum value or case sensitivity tests; no invalid type for includedDeleted (e.g., includedDeleted=foo).",
+              "Audit level detail: scenarios do not assert exact audit fields present/absent per NONE/MINIMAL/FULL; only high-level statements.",
+              "Deleted tag metadata: tests include deleted tags but do not validate correct flags/fields indicating deletion state.",
+              "Error payload schema: tests look for messages but not the standardized error structure (e.g., code, message, type).",
+              "Content negotiation: no test for Accept header handling (e.g., 406 Not Acceptable) or charset in Content-Type.",
+              "Observability in TC24: expectation to \u201clog a warning\u201d is not verifiable in test assertions (no log/metric/diagnostic header checks)."
+            ],
+            "recommendations": [
+              "Add pagination-focused tests: assert absence of pagination (no Link/X-Total-Count) if not supported, or validate page/size parameters and boundaries if supported. Use large dataset to confirm deterministic behavior.",
+              "Add caching tests: capture ETag/Last-Modified on first call; send If-None-Match/If-Modified-Since to expect 304; verify Cache-Control/ETag presence and correctness.",
+              "Introduce rate-limiting scenarios: burst requests to trigger 429, validate Retry-After and any rate-limit headers; ensure normal throughput is unaffected.",
+              "Add 403 Forbidden test: valid auth but lacking permission/role should yield 403 with proper error body.",
+              "Expand negative parameter tests: objectType=INVALID -> 400; objectType case variations; includedDeleted with non-boolean values -> 400; repeated parameters precedence.",
+              "Strengthen audit assertions: explicitly validate which audit fields are present for FULL vs MINIMAL and absent for NONE per Tag schema.",
+              "Validate deleted tag markers: assert deleted flag/timestamps/user for includedDeleted=true, and confirm absence when includedDeleted=false.",
+              "Standardize error response checks: verify error schema fields (e.g., code, message, category) for 400/404/401/503/504 across scenarios.",
+              "Test content negotiation: request with unacceptable Accept header to expect 406, and verify charset in Content-Type when applicable.",
+              "Make TC24 testable: add assertions on deterministic API behavior (e.g., last-write-wins rule, conflict resolution) and verify logs via observable proxies or diagnostic headers/metrics."
+            ],
+            "usage": {
+              "completion_tokens": 3895,
+              "prompt_tokens": 6025,
+              "total_tokens": 9920,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2944,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

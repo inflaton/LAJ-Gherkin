@@ -1,0 +1,100 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-09-28T15:28:33.130458",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T15:25:12.805789",
+    "benchmark_end_time": "2025-09-28T15:28:33.130454",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 200.324665,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST Valid Payload: Single and multiple tag additions return 201 and persist tags (TC01, TC02, TC03, TC04, TC05, TC18, TC19, TC24).",
+              "Header handling: Required X-Killbill-CreatedBy present and enforced; optional X-Killbill-Reason and X-Killbill-Comment accepted (TC03, TC11).",
+              "Path validation: Missing/invalid/non-existent accountId handled with 400 (TC12, TC13, TC14).",
+              "Invalid Payload: Empty array, non-array body, malformed UUIDs, unexpected object types \u2192 400 (TC07, TC08, TC09, TC17, TC23).",
+              "Authorization: 401 when authentication token is missing/invalid (TC15).",
+              "Large payload boundary: 100 UUIDs accepted and returned (TC18).",
+              "Duplicate submission handling: Duplicated IDs in a single request are de-duplicated; concurrency avoids duplicate tags (TC19, TC21).",
+              "Server error handling: Dependency outage returns 503 (TC16).",
+              "Extraneous query parameters are ignored (TC06).",
+              "Non-functional checks: Basic latency constraint and regression/security signals (TC20, TC22)."
+            ],
+            "gaps": [
+              "Response headers: No explicit assertion that Content-Type is application/json as per Produces.",
+              "Response schema: No field-level validation of Tag object structure against #/definitions/Tag.",
+              "Server error 500 Internal Server Error not covered (only 503 tested).",
+              "403 Forbidden (insufficient permissions/RBAC) not covered.",
+              "Rate limiting/throttling behavior (429) not covered.",
+              "Unsupported media type: No test for missing/wrong Content-Type header (415).",
+              "Missing request body (no payload) vs empty array not tested.",
+              "Atomicity for mixed valid/invalid tag IDs in one request not specified or tested.",
+              "Repeat identical POST (idempotency/duplicate submission across requests) not tested.",
+              "Created vs existing tags in response: TC05 expects all tags; spec says response represents created tags \u2014 potential mismatch.",
+              "Ambiguous expectation in injection test (TC22) allows 400 or 201; expected outcome should be deterministic.",
+              "Validation of header values (empty/whitespace/overlong CreatedBy, Reason, Comment) not covered.",
+              "Accept header/content negotiation (e.g., Accept: application/xml \u2192 406) not covered.",
+              "Auditability: No verification that Reason/Comment are recorded/audited where applicable."
+            ],
+            "recommendations": [
+              "Assert response headers on success and error: Content-Type application/json and charset; add explicit checks for Produces.",
+              "Validate Tag object schema fully (required keys, types, UUID formats) using a schema matcher.",
+              "Add a test to simulate a generic server failure and expect 500 to satisfy Server Error Handling guideline.",
+              "Add a 403 scenario for authenticated user lacking tag-write permission.",
+              "Add rate limiting tests (bursts of POSTs) and assert 429 or configured behavior.",
+              "Add tests for Content-Type handling: missing header, wrong media type (text/plain) \u2192 415.",
+              "Differentiate empty array vs missing body: verify missing body yields 400 with clear error.",
+              "Add mixed-validity request test (e.g., [\"valid-uuid\",\"bad-uuid\"]) and assert atomic behavior (no tags created) with 400.",
+              "Add an idempotency/duplicate submission test: repeat the same POST and confirm outcome (no duplicate tags; clarify expected status such as 200/201/204 or 409).",
+              "Align TC05 with the specification: verify response contains only the newly created tags, or update the spec if the API should return all current tags.",
+              "Make TC22 deterministic: define that unsafe header values are rejected (400) or sanitized; assert no reflection.",
+              "Add header value validation tests: empty/whitespace-only or excessively long CreatedBy/Reason/Comment should be rejected or truncated per limits.",
+              "Add content negotiation tests: unsupported Accept header returns 406, supported returns JSON.",
+              "If available, verify Reason/Comment are stored in audit logs or returned in audit metadata."
+            ],
+            "usage": {
+              "completion_tokens": 7736,
+              "prompt_tokens": 6410,
+              "total_tokens": 14146,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6848,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

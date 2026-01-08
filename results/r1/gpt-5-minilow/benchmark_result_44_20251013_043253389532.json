@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-13T04:32:53.389508",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:32:30.515636",
+    "benchmark_end_time": "2025-10-13T04:32:53.389505",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 22.873869,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid Request: Multiple success scenarios (default params, explicit offset/limit, optional headers, only offset) exercise normal successful operation and parameter combinations.",
+              "Empty Response: Scenario TC04 covers the case when there are no parked accounts and verifies response indicating no invoices generated.",
+              "Query Parameters / Validation: Scenarios TC02, TC06, TC07, TC10, TC11, TC13 cover valid and invalid offset/limit values, non-integer values, max limits, unexpected extra params and partial input.",
+              "Authorization / Required Header: TC05 and TC08 exercise missing required header and invalid/expired auth token cases.",
+              "Error Handling: TC09 covers backend/service unavailability (503); TC06/TC07 cover parameter validation errors (400).",
+              "Auditing / Headers: TC03 and TC16 validate optional headers (reason/comment) and header parsing/recording for auditability and regression testing.",
+              "Edge / Scalability: TC12, TC10 and TC18 cover large volumes, very large limit and concurrent requests/duplicate-generation prevention concerns.",
+              "Security: TC14 includes header injection attempt and checks for information leakage and proper rejection. ",
+              "Resilience / Retry: TC15 addresses retry behavior and idempotency concerns for transient failures."
+            ],
+            "gaps": [
+              "Pagination semantics and correctness: While offset/limit parameter values are tested, there is no explicit test that verifies stable, ordered pagination semantics (ordering, deterministic selection across pages) or that combining offset+limit across multiple calls processes distinct non-overlapping sets reliably.",
+              "Duplicate submission handling and idempotency: Although TC15 touches retries and TC18 touches concurrency, there is no explicit test for duplicate submissions from clients (replay of identical requests) to ensure invoices are not created twice in all failure/partial success modes.",
+              "Rate Limiting / Throttling: No scenarios verify rate limiting, throttling behavior or proper 429 responses when the API is hit repeatedly in a short window.",
+              "Caching / HTTP Headers: No scenarios check caching or response headers like ETag, Cache-Control, or other HTTP cache behavior (even if not expected for admin POSTs, the guideline asks to validate caching behavior).",
+              "Detailed server error semantics: TC09 covers service unavailability, but there are no tests that exercise internal server errors (500) such as DB constraint failures, timeouts, or partial failure with detailed rollback behavior.",
+              "Request payload validation / malformed payloads: Story indicates no request body is required, but guidelines for POST include payload validation; there are no tests for malformed content-type headers or unexpected request bodies affecting behavior.",
+              "Authorization granularity/roles: Tests cover missing/invalid auth token and admin happy path but do not cover role-based authorization differences (e.g., non-admin authenticated user getting 403 vs admin 200).",
+              "Monitoring/observability side-effects: No tests validate that the operation produces expected audit logs, metrics, or notifications beyond \u201cauditable\u201d header recording (e.g., metrics increment, job queue entries).",
+              "Performance SLA: TC12 asserts acceptable response time but does not define measurable thresholds or measure throughput/latency under different loads (no concrete SLA/assertion).",
+              "Documentation accessibility: TC19 checks API docs accessibility, but there is no test asserting correctness of parameter examples, error code mappings, or that docs are up-to-date with actual behaviour."
+            ],
+            "recommendations": [
+              "Add deterministic pagination tests: create a known ordered set of parked accounts, call the API with successive offset/limit pages and assert no overlaps/missing accounts and stable ordering.",
+              "Add explicit duplicate-submission and idempotency tests: send identical requests twice (including after partial failures) and assert invoices are generated only once; include tests for client retries with unique idempotency keys if supported.",
+              "Add rate-limiting tests: hammer the endpoint to verify throttling behavior and that appropriate 429 or other limiting responses and Retry-After headers are returned or documented.",
+              "Add 500/internal error tests: simulate DB constraint failures, timeouts, or mid-operation exceptions to verify consistent error codes, transaction rollback, and no partial double-generation.",
+              "Add tests for unexpected request bodies/content-types: send JSON, empty body, text/plain or large bodies to ensure the endpoint ignores or rejects bodies as intended and handles content-type header validation.",
+              "Add role-based authorization tests: verify a non-admin authenticated user receives 403 and only admin users can perform this operation; test token scopes if applicable.",
+              "Add explicit observability assertions: verify audit log entries, metrics increments, job queue entries or database change records are created as part of the operation for traceability.",
+              "Make performance tests measurable: specify and assert concrete latency/throughput thresholds for large-volume and concurrent scenarios, and include load tests that measure resource usage and completion time.",
+              "Expand documentation tests: assert API docs list required headers, query params, example requests and error codes consistent with actual behavior; include automated doc-to-spec checks if possible.",
+              "Clarify expected behavior for unexpected query parameters: replace the ambiguous TC11 \u201c200 or 400\u201d with a firm contract (preferably ignore unknown params or return 4xx) and add tests accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 1211,
+              "prompt_tokens": 5207,
+              "total_tokens": 6418,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

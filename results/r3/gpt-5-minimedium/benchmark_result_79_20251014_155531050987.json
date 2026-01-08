@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "79_2025-10-14T15:55:31.050954",
+    "jira_id": "79",
+    "jira_title": "Implement/Test API: GET /1.0/kb/credits/{creditId} - Retrieve a credit by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:54:41.065657",
+    "benchmark_end_time": "2025-10-14T15:55:31.050949",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 65,
+    "average_generation_time_seconds": 49.985292,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 65,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "79_qe_sup-gpt4.1_agent-gpt4.1_1748921053.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 65,
+            "covered": [
+              "Valid Request: TC01 and TC02 validate successful retrieval for both CREDIT_ADJ and CBA_ADJ types and check status 200, Content-Type, and id/type matching.",
+              "Empty / Not Found responses: TC03, TC04 and TC18 cover cases where no matching credit exists and expect 404 with an error message.",
+              "Input validation: TC05, TC14, TC16, TC17 cover invalid UUID formats, truncated/whitespace cases and syntactic boundary conditions returning 400/404 as appropriate.",
+              "Authorization (basic): TC06 and TC07 cover missing and expired/invalid token cases (401).",
+              "Query parameter handling: TC08 verifies extra/unexpected query parameters are ignored and do not break the endpoint.",
+              "Error handling for downstream failure: TC10 covers database unavailability and expects 503.",
+              "Type-filtering: TC11 ensures that InvoiceItem entries that are not CREDIT_ADJ or CBA_ADJ are treated as not-found (404).",
+              "Security: TC12 and TC13 test for SQL injection and XSS attempts in the creditId path parameter.",
+              "Performance & concurrency: TC09 and TC19 address acceptable response time under load and a concurrent-request scenario.",
+              "Regression and backward compatibility: TC15 and TC20 provide regression and backward-compatibility checks."
+            ],
+            "gaps": [
+              "Pagination: No scenarios test pagination or large-result-set behavior (limit/offset, page tokens) \u2014 important if the endpoint ever lists/filter returns multiple items.",
+              "Caching behavior / conditional requests: No tests for caching headers (ETag, Cache-Control, Last-Modified) or conditional GETs (If-None-Match/If-Modified-Since => 304).",
+              "Rate limiting / throttling semantics: No tests for rate limits / server behavior under intensive request bursts that may produce 429 responses or backoff behavior.",
+              "Authorization nuances: Tests cover 401 but not 403/role-based access control or scopes (forbidden vs unauthorized differences).",
+              "Response schema field-level validation: Tests assert that the response is a valid InvoiceItem object but do not enumerate/validate required fields, types, formats (dates, amounts, currency, invoiceId, timestamps, etc.).",
+              "Content negotiation: No tests for Accept header variations (e.g., unsupported media types yielding 406) or explicit checks for consistent Content-Type for different Accept values.",
+              "Header validation: Beyond Content-Type, headers like Cache-Control, ETag, Retry-After (on 503/429), and standard security headers are not validated.",
+              "Rate-limit / 429 expectations: Concurrent/performance tests expect 200 for all; they do not assert or handle the case where the system enforces rate limiting and returns 429.",
+              "Edge-case data volume tests: No tests for very large payloads in responses (very large InvoiceItem lists or very large field values), or response streaming behavior.",
+              "Negative tests for malformed requests beyond UUID path param (e.g., malformed URL encoding, invalid characters) are limited to a few security cases."
+            ],
+            "recommendations": [
+              "Add pagination tests: create/seed many InvoiceItem credits and verify limit/offset or page token parameters when listing (if applicable), and behavior when page > last page.",
+              "Add caching / conditional GET tests: verify ETag and Cache-Control headers are present, and that If-None-Match / If-Modified-Since produce 304 when appropriate and 200 otherwise.",
+              "Add rate-limiting / throttling tests: hammer the endpoint to observe 429 behavior (or confirm absence) and check Retry-After headers where applicable.",
+              "Expand authorization tests: include 403 (forbidden) scenarios if there are role/scope restrictions and test token with insufficient privileges.",
+              "Tighten response schema validation: assert all required InvoiceItem fields, their types and formats (e.g., id UUID format, amounts numeric, dates ISO-8601), not just id and type.",
+              "Add content-negotiation tests: requests with different Accept headers (e.g., application/xml, */*) and ensure correct content-type negotiation or 406 responses.",
+              "Validate response headers: add assertions for Cache-Control, ETag, Last-Modified, Retry-After (for 503/429), and common security headers (e.g., X-Content-Type-Options).",
+              "Clarify and test rate limiting expectations in performance/concurrency tests: define acceptable behavior (e.g., graceful degradation vs 429) and assert it.",
+              "Add tests for very large response payloads/field sizes to detect memory/time issues.",
+              "Include URL-encoding and path-edge cases: percent-encoded IDs, extremely long path segments, and unusual but legal characters to ensure robust parsing."
+            ],
+            "usage": {
+              "completion_tokens": 2272,
+              "prompt_tokens": 4626,
+              "total_tokens": 6898,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

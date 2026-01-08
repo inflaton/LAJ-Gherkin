@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-15T19:44:34.935071",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T19:42:31.849087",
+    "benchmark_end_time": "2025-10-15T19:44:34.935068",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 123.085981,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE: Valid Deletion verified with 204 responses and account marked closed (soft delete) across defaults, single flags, pairwise, and all-true combinations (TC01\u2013TC05, TC06).",
+              "DELETE: Non-Existent Resource handled idempotently (204) for already-closed and unknown accounts (TC11, TC12).",
+              "DELETE: Soft delete behavior checked by asserting \"marked as closed\" and idempotent re-calls (TC01, TC11).",
+              "Concurrency/Resilience: Concurrent closures across different accounts and retry after transient failure demonstrate idempotency and resilience (TC17, TC18).",
+              "Input validation and security: UUID format error (400), SQL injection in path (400), and XSS in optional header sanitized (TC08, TC15, TC16).",
+              "Required header validation: Missing X-Killbill-CreatedBy returns 400 (TC09).",
+              "Authorization: Unauthenticated requests return 401 (TC10).",
+              "Server error handling: Database unavailable returns 500 with error body (TC14).",
+              "Query parameter behavior: Defaults honored; each flag independently; pairwise and combined true; unsupported parameter ignored (TC01\u2013TC05, TC13).",
+              "Performance/Scalability: Large-volume processing and concurrent requests within acceptable response time (TC07, TC18)."
+            ],
+            "gaps": [
+              "DELETE Concurrency on the same resource: No scenario with two clients deleting the same account at the same time to expose race conditions or duplicate side effects.",
+              "Query parameter type validation: No tests for non-boolean values, mixed-case booleans, numeric equivalents, or duplicated parameters; expected behavior (400 vs coercion) not defined.",
+              "Path parameter format edges: Tests use placeholders (e.g., \"valid-uuid-1\") instead of real RFC4122 UUIDs; no boundary tests (uppercase/lowercase hex, canonical hyphenation, URL-encoded ID).",
+              "Response semantics/headers: No assertions that 204 responses have no body, or that error responses include Content-Type: application/json; story's \"Produces: application/json\" not validated.",
+              "Authorization granularity: No 403 test for authenticated but unauthorized user/role (only 401 covered), if RBAC applies.",
+              "Soft delete verification end-to-end: No follow-up GET or operation attempts to confirm the account remains present but inactive and new operations (e.g., create subscription) are blocked.",
+              "Auditability of optional headers: No checks that X-Killbill-Reason/Comment are persisted in audit trails or account history."
+            ],
+            "recommendations": [
+              "Add a same-account concurrency test: fire two DELETE requests simultaneously for one account; assert both return 204, only one set of side effects occurs (e.g., single subscription cancel/write-off), and no errors.",
+              "Use real UUIDs in all happy/negative paths (e.g., d290f1ee-6c54-4b01-90e6-d701748f0851); add cases for uppercase/lowercase, canonical hyphens, URL-encoded IDs, and trim/whitespace handling.",
+              "Add negative query-param type tests: writeOffUnpaidInvoices=foo, removeFutureNotifications=1, TRUE/False mixed-case, and duplicated params; specify expected outcome (reject with 400 or ignore).",
+              "Assert response semantics: verify 204 has no body; error responses include Content-Type: application/json and a consistent error schema/message.",
+              "Include a 403 scenario for authenticated but unauthorized user if the API enforces roles/permissions.",
+              "Verify soft-delete globally: after closure, GET account shows status \"closed\" and attempts to create subscriptions/invoices or modify the account are rejected.",
+              "Validate audit propagation: ensure X-Killbill-Reason and X-Killbill-Comment are recorded in audit logs/history with the closure event."
+            ],
+            "usage": {
+              "completion_tokens": 7232,
+              "prompt_tokens": 6316,
+              "total_tokens": 13548,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

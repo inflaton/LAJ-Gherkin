@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "5_2025-10-13T14:16:45.826806",
+    "jira_id": "5",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/customFields - Add custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T14:13:20.309306",
+    "benchmark_end_time": "2025-10-13T14:16:45.826801",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 205.517495,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "5_qe_sup-gpt4.1_agent-gpt4.1_1748916088.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple success scenarios (TC01-05, TC13-14, TC21, TC29) verify 201 Created and JSON array response; optional headers handled and association to the account confirmed.",
+              "Invalid Payload: Extensive negative cases (TC06-12, TC15, TC26-28) cover malformed/empty body, invalid accountId format, missing required header, unsupported fields, duplicates, wrong data types, and missing required fields.",
+              "Large Payloads: Boundary and overflow tested (TC14, TC15).",
+              "Validation: Header and path parameter validation included; security inputs (SQLi/XSS) rejected (TC18, TC19); null handling considered (TC30).",
+              "Server Error Handling (partial): Service unavailable simulated (TC17); transient failures with retry covered (TC20).",
+              "Authorization: Unauthorized request returns 401 (TC16).",
+              "Performance/Concurrency: Normal and peak load scenarios and data integrity checks present (TC21, TC22)."
+            ],
+            "gaps": [
+              "Duplicate Submission/Idempotency: No scenario covering repeated identical POSTs and ensuring no duplicate custom fields are created (e.g., via idempotency key or deduplication).",
+              "Server Error Handling (500): No explicit simulation/assertion of 500 Internal Server Error (e.g., database failure) and corresponding error body.",
+              "Content Negotiation/Headers: No tests for missing/incorrect Content-Type leading to 415 Unsupported Media Type; no assertion that successful responses include Content-Type: application/json.",
+              "Response Schema Rigor: Positive tests assert \"matching the request\" but do not validate full CustomField schema as defined in #/definitions/CustomField (including server-generated fields if any).",
+              "Ambiguous Expectations: Some scenarios allow multiple outcomes (TC25: \"201 or appropriate error\", TC30: \"201 or 400\"), which weakens pass/fail criteria.",
+              "Required Header Value Constraints: No tests for invalid X-Killbill-CreatedBy values (empty/whitespace-only/overly long).",
+              "Status Code Clarity: Non-existent account behavior (TC10) expects 400; if API contracts use 404 for missing resources or 413 for too large payloads, tests should reflect that.",
+              "Spec Alignment: TC05 expects response to include previously existing custom fields, but the story states the response represents the created fields only; needs clarification.",
+              "Race Conditions on Create: Concurrency test (TC22) checks performance but not idempotency or duplicate creation when concurrent requests carry identical payloads."
+            ],
+            "recommendations": [
+              "Add an idempotency/duplicate-submission test: send the same request twice (including support for X-Killbill-Idempotency-Key if available) and assert no duplicate custom fields are created; define expected status (201 then 200/409).",
+              "Add a server failure test that forces a 500 Internal Server Error (e.g., DB outage), and validate error structure and retry/rollback behavior.",
+              "Add Content-Type handling tests: missing Content-Type and incorrect Content-Type should return 415; also assert response header Content-Type: application/json on success.",
+              "Tighten response validation by asserting the response conforms to #/definitions/CustomField (field names, types, required properties, and any server-generated fields).",
+              "Make outcomes deterministic: replace TC25 and TC30 with explicit expected codes and behaviors per API contract.",
+              "Expand header validation: test X-Killbill-CreatedBy empty/too-long/invalid characters and ensure proper 4xx responses.",
+              "Clarify and align status codes for non-existent account and payload-too-large with the API spec (e.g., 404, 413) and update tests accordingly.",
+              "Clarify the expected response content for TC05 per the story (created fields only vs. all fields) and adjust the test.",
+              "Augment concurrency testing to verify no duplicates are created under parallel identical requests and that the operation is atomic."
+            ],
+            "usage": {
+              "completion_tokens": 8333,
+              "prompt_tokens": 6650,
+              "total_tokens": 14983,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7488,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "67_2025-10-15T10:45:29.159488",
+    "jira_id": "67",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/xml - Retrieve the full catalog as XML",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:45:18.637161",
+    "benchmark_end_time": "2025-10-15T10:45:29.159483",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 10.522322,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "67_qe_sup-gpt4.1_agent-gpt4.1_1748920336.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01-TC04, TC15, TC17) exercise successful retrieval for latest catalog, by requestedDate, by accountId, combinations, empty catalog and very large catalogs.",
+              "Query Parameters: Comprehensive positive and negative parameter coverage (valid requestedDate/accountId, both together, invalid formats, unsupported extra parameters) in TC02-TC04, TC06-TC09, TC16.",
+              "Empty Response / No Data: TC05 and TC15 cover no-catalog and empty-catalog cases.",
+              "Authorization / Access Control: TC10 and TC11 cover missing auth and insufficient permissions (401/403).",
+              "Error Handling: Error scenarios for not-found/no-version (TC05, TC06), invalid input (TC07, TC08), malicious input (TC13), service unavailable (TC12), timeout (TC22), and regression/malformed XML (TC19) are present.",
+              "Performance & Concurrency: TC17, TC18, and TC21 cover large payload timing, concurrent requests and peak-load performance SLAs.",
+              "Resilience / Recovery: TC14 covers retry after transient network failure.",
+              "Compatibility & Schema: TC19 and TC20 target XML well-formedness and backward compatibility for clients."
+            ],
+            "gaps": [
+              "Pagination: No scenarios validate pagination or partial retrieval behavior (headers, parameters) for very large result sets \u2014 guideline explicitly calls out pagination for GETs.",
+              "Caching Behavior & Response Headers: No tests assert cache-related headers (ETag, Last-Modified, Cache-Control) or conditional GET behavior. This is important for a GET endpoint serving potentially large XML.",
+              "Rate Limiting / Throttling: Although concurrency and load tests exist, there are no explicit tests for rate limiting responses (e.g., 429) or throttling behavior.",
+              "Response Headers & Content Negotiation Details: Content-Type is checked, but other headers (Content-Length, charset, Content-Disposition for downloads) and negotiation are not verified.",
+              "Exact HTTP Status Semantics: Some error scenarios allow both 400 or 404 (TC05/TC06). The story expects >=400 on error but not explicit mapping of exact codes; tests should assert the precise expected code for each condition to prevent ambiguity.",
+              "Schema Validation: While well-formed XML is covered, there are no explicit tests validating the XML against a canonical XSD/schema to ensure structure and required fields are present.",
+              "Pagination-related Performance: Although large-catalog performance is tested, there are no tests for streaming/partial responses or memory/resource usage during very large responses.",
+              "Rate-limiter under auth permutations: No coverage for how rate-limiting interacts with authenticated vs unauthenticated requests."
+            ],
+            "recommendations": [
+              "Add pagination tests: Even if the API doesn\u2019t currently expose paging, add tests to confirm behavior when results are large (e.g., confirm either full return or explicit paging params are rejected) and validate any paging headers/parameters if introduced.",
+              "Add caching/conditional GET tests: Verify ETag and Last-Modified headers, conditional GET behavior (If-None-Match / If-Modified-Since) and that 304 is returned appropriately.",
+              "Add rate limiting tests: Simulate a burst of requests to verify 429 responses and proper Retry-After headers, and test behavior for authenticated vs unauthenticated callers.",
+              "Tighten status-code assertions: Replace \u201c404 or 400\u201d ambiguity with precise expected codes per error condition, or add separate scenarios asserting each supported behavior and rationale (client validation vs not-found).",
+              "Add schema validation tests: Validate response XML against the canonical catalog XSD to ensure required elements/attributes are present and typed correctly (not only well-formedness).",
+              "Verify response headers and content negotiation: Add assertions for Content-Length, charset, Content-Disposition where applicable, and behavior if Accept header is not text/xml.",
+              "Add resource/streaming/performance tests for very large catalogs: Measure memory/CPU and include streaming/time-to-first-byte checks; also validate server behavior under sustained high request rates to detect degradation or 5xx spikes.",
+              "Add rate-limiter \u00d7 permission interplay: Test rate-limit behavior for valid tokens, missing tokens, and tokens lacking permissions to ensure consistent throttling semantics."
+            ],
+            "usage": {
+              "completion_tokens": 1024,
+              "prompt_tokens": 4724,
+              "total_tokens": 5748,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

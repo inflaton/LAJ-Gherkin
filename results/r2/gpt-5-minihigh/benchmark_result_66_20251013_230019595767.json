@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-13T23:00:19.595738",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:58:57.150194",
+    "benchmark_end_time": "2025-10-13T23:00:19.595734",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 70,
+    "average_generation_time_seconds": 82.44554,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 70,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 70,
+            "covered": [
+              "Valid request (happy path) covered: TC01 and TC14 verify successful rename (204) and externalKey update.",
+              "Request body validation: missing body (TC06), malformed JSON (TC07), missing externalKey (TC08), and extra fields (TC09) are covered.",
+              "Header validation: required X-Killbill-CreatedBy presence tested (TC02) and optional X-Killbill-Reason/X-Killbill-Comment handled (TC14).",
+              "Path parameter validation and non-existent resource: malformed bundleId (TC03) and not-found behavior (TC04, TC15) are tested.",
+              "ExternalKey uniqueness conflict within same account: TC05 covers duplicate-key conflict handling.",
+              "Authentication/authorization negative path: missing/invalid token tested (TC12).",
+              "Edge cases for externalKey: empty (TC11), extremely long (TC10), special characters (TC19), and leading/trailing spaces (TC20) are included.",
+              "Concurrency/race conditions: concurrent update scenario included (TC17).",
+              "Dependency/service failures: DB/service unavailable scenario tested (TC13).",
+              "Performance/scale-ish checks: large payload (TC16) and response time expectation (TC23) are present.",
+              "Regression/back-compat and environment/headers: TC18, TC22 and unexpected-header tolerance (TC21) are included."
+            ],
+            "gaps": [
+              "Partial-update semantics not asserted \u2014 there is no explicit test verifying that only externalKey is changed and that other bundle fields remain unchanged, or that partial PUT payloads are rejected if required.",
+              "Response content-type and response body assertions are missing \u2014 the story states \"produces: application/json\" but tests do not validate response Content-Type for 204 or error responses, nor do they assert response body presence/absence for 204.",
+              "Error response schema and consistency are not verified \u2014 tests often check status codes and loose error messages but do not validate a consistent error JSON structure (fields, codes, localization).",
+              "Cross-account uniqueness not tested \u2014 no test ensures that an externalKey used in a different account is allowed (or disallowed) per business rules.",
+              "Content-Type enforcement is missing \u2014 there is no negative test for non-application/json requests (e.g., text/plain or missing Content-Type) to validate 415/400 behavior.",
+              "Idempotency / duplicate submission behavior is not covered (re-sending the same request and server handling is not tested).",
+              "Server error / exception paths (500) are not explicitly covered; only 503 is present.",
+              "Rate limiting, throttling and caching behaviors (ETag, Cache-Control) are not covered by any scenario.",
+              "Final-state verification after concurrency tests is limited \u2014 TC17 expects mixed outcomes but does not assert deterministic final persisted state or specific conflict status codes (e.g., 409).",
+              "Content negotiation (Accept header) is not tested."
+            ],
+            "recommendations": [
+              "Add a test that verifies only externalKey is updated and all other bundle properties remain unchanged (or that the API rejects partial payloads) to cover PUT semantics precisely.",
+              "Assert response headers and body for both success and error cases: check Content-Type (application/json), verify 204 has the expected body/empty body behavior, and validate a canonical error JSON schema (code/message/errors).",
+              "Add cross-account tests: attempt renames using an externalKey present in a different account and assert the correct allowed/disallowed behavior per business rules.",
+              "Add tests for Content-Type enforcement (send non-application/json and missing Content-Type) and expect the documented error (415 or 400).",
+              "Add idempotency/duplicate-submission tests (repeat same request) to ensure the API handles retries consistently.",
+              "Introduce tests for server 500/internal exceptions (fault injection) to verify graceful error handling and logging",
+              "Add rate-limiting/throttling scenarios (rapid repeated requests) and caching-related checks (ETag, Cache-Control) if API gateway or server is expected to provide those behaviors.",
+              "Strengthen concurrency tests to assert deterministic final state: e.g., run concurrent renames and then GET the bundle to confirm which externalKey persisted and that proper conflict codes (409) are returned where applicable.",
+              "Add precise validation tests for allowed character sets and exact maximum length (assert acceptance or specific validation error), instead of \u201c204 or 400\u201d uncertainty.",
+              "Differentiate auth errors: add tests for invalid token (expect 401) vs valid token lacking permission (expect 403) to cover authorization semantics."
+            ],
+            "usage": {
+              "completion_tokens": 6266,
+              "prompt_tokens": 6051,
+              "total_tokens": 12317,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5312,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

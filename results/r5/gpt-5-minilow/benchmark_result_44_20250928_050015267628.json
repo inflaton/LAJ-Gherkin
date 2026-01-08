@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-09-28T05:00:15.267601",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:59:50.286908",
+    "benchmark_end_time": "2025-09-28T05:00:15.267597",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 24.980689,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request (POST semantics): Multiple success scenarios (default params, explicit offset/limit, optional headers) validate normal operation and response code 200 + application/json.",
+              "Pagination / Query parameters: offset/limit behavior is tested (defaults, explicit values, only-offset case), including non-integer and invalid numeric validations.",
+              "Authorization / Required headers: Presence and absence of required X-Killbill-CreatedBy header tested; invalid/expired token scenario covered (401/403).",
+              "Error handling: Server/unavailable dependency case (503) and invalid parameter cases (400) are included.",
+              "Limits and large-volume handling: Edge cases for large limits (1000, 10000) and large dataset scenarios are present.",
+              "Auditability / headers parsing: Tests include optional headers (Reason, Comment), auditing, header parsing regression, and a security test for injection in headers.",
+              "Concurrency and duplicate prevention: Concurrent-request performance and retry/transient failure scenarios include expectations that invoices are generated exactly once and retries do not create duplicates.",
+              "Empty response handling: Scenario where no parked accounts exist verifies empty-result behavior."
+            ],
+            "gaps": [
+              "POST-specific payload tests: The standard POST guideline expects tests for valid/invalid request payloads (malformed JSON, missing fields). This endpoint takes no body, but there is no explicit test asserting behavior if a client sends a body (malformed or large) \u2014 e.g., server should ignore or return 415/400.",
+              "Rate limiting / throttling: No tests verify behavior under repeated rapid requests from the same client (rate limiting or throttling responses).",
+              "Duplicate submission semantics (idempotency) under retries: While retries and concurrency are addressed, there is no explicit test that verifies idempotency semantics for duplicate identical requests submitted sequentially (beyond 'not generated multiple times' in concurrency).",
+              "Detailed server error classes: Only 503 is included; other server-failure responses (500, 502) or DB transaction failures and their error payload formats are not covered.",
+              "Response body contract: Tests assert application/json and high-level outcomes, but there are no assertions about the specific response schema/content (e.g., list of processed account IDs, counts, error details per account).",
+              "Rate/caching headers: No tests for HTTP caching or headers (Cache-Control, ETag) \u2014 even if not applicable, an explicit assertion or documentation test would be useful.",
+              "Rate-limiting & abuse: No tests for protection against accidental or malicious extremely large limits not constrained by the server (negative test for very large limit rejection vs. server-side cap).",
+              "Monitoring/metrics and operational thresholds: Performance tests reference 'acceptable operational thresholds' but do not define or assert concrete thresholds (latency, CPU/memory) or monitoring metrics."
+            ],
+            "recommendations": [
+              "Add a test for requests that include a request body (both valid JSON and malformed JSON) to assert the API either ignores the body or returns a clear error (415/400) per API contract.",
+              "Introduce rate-limiting/throttling tests: send repeated rapid requests from the same client to verify 429 behavior or other throttling mechanisms and ensure the system degrades gracefully.",
+              "Add explicit idempotency/duplicate-submission tests: submit the same request twice sequentially and assert the second attempt does not create duplicate invoices and returns an appropriate response (e.g., 200 with no-op result or 409 depending on contract).",
+              "Expand server-error coverage: simulate database errors, 500 Internal Server Error, and upstream 502/504 to verify consistent error responses and safe failure modes.",
+              "Validate response schema/content: add assertions for response payload fields (e.g., processedCount, processedAccounts array, skippedAccounts, errors) so clients can rely on stable contract.",
+              "Test server-side caps for limit parameter: add negative tests where limit exceeds allowed maximum (if service enforces a max) to verify predictable behavior (clamping vs. rejection).",
+              "Define and assert performance thresholds in performance tests: include concrete latency and resource-usage targets and automated checks for them.",
+              "Add tests for logging/audit entries and monitoring hooks: verify that operations are recorded in audit logs with provided CreatedBy/Reason/Comment and that metrics are emitted for bulk operations."
+            ],
+            "usage": {
+              "completion_tokens": 1221,
+              "prompt_tokens": 5207,
+              "total_tokens": 6428,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "12_2025-10-13T08:41:27.102485",
+    "jira_id": "12",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId} - Update account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:41:02.931478",
+    "benchmark_end_time": "2025-10-13T08:41:27.102480",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 24.171002,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "12_qe_sup-gpt4.1_agent-gpt4.1_1748916603.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT > Valid Request: Multiple positive scenarios validate 204 and correct persistence of updates (TC01, TC02, TC15, TC19, TC20).",
+              "PUT > Partial Update: Confirmed as allowed; tests cover subset updates, null handling, and treatNullAsReset semantics for true/false/omitted (TC03, TC04, TC19).",
+              "PUT > Non-Existing Resource: Attempt to update a non-existent account returns an error (TC08).",
+              "PUT > Concurrency Issues: Concurrent updates to the same account and final consistency are exercised (TC17).",
+              "Story-specific validations: Required header enforced (TC05), invalid account data -> 400 (TC07, TC21), invalid UUID format -> 400 (TC06), empty body -> 400 (TC11).",
+              "Ancillary quality areas: Authorization (401) (TC09), server error handling (500) (TC12), large payload/performance (TC13), latency/timeout behavior (TC14), security input hardening (TC18), handling of extra fields and extra query params (TC10, TC22), integration propagation check (TC16)."
+            ],
+            "gaps": [
+              "PUT idempotency: No scenario repeats the exact same PUT request to confirm idempotent behavior and stable 204/no unintended changes.",
+              "Deterministic handling of unsupported fields: TC10 allows ambiguous outcome (\"204 or ignore\"); expected behavior should be explicit and asserted (e.g., ignore with 204, or reject with 400).",
+              "Malformed query parameter: No test for treatNullAsReset with invalid values (e.g., treatNullAsReset=foo) and resulting 400/validation message.",
+              "Read-only/non-updatable fields: No scenario asserting that updates to immutable fields (e.g., accountId, createdDate) are rejected with a clear error.",
+              "Content negotiation: No test for missing/incorrect Content-Type (e.g., text/plain) leading to 415 Unsupported Media Type; no Accept header handling (406) if applicable.",
+              "Error semantics for non-existent resource: TC08 expects 400; if API contract expects 404 for missing account, add/adjust test to assert correct status.",
+              "Header validation depth: Optional headers (Reason, Comment) not validated for length/format/encoding; also no test for header sanitization.",
+              "Auditability/observability: No explicit verification that audit metadata (from X-Killbill-CreatedBy/Reason/Comment) is recorded as expected.",
+              "Business rules: No scenarios for cross-field rules or mutually exclusive fields within Account schema (e.g., validating country/state combinations, email format already partly covered but not full schema rules)."
+            ],
+            "recommendations": [
+              "Add an idempotency test: send the same valid PUT twice; assert second call returns 204 and no additional side effects/audit duplication if applicable.",
+              "Make unsupported field handling deterministic: update TC10 to assert the exact expected behavior (ignore with 204 and not persisted, or 400 with clear message).",
+              "Add a malformed query param test: treatNullAsReset=foo should return 400 with a validation error pointing to the query parameter.",
+              "Introduce read-only field test: attempt to update immutable fields and assert a 400 with field-specific validation errors.",
+              "Add content negotiation tests: missing Content-Type or wrong media type -> 415; optionally test Accept header leading to 406 if the endpoint cannot produce the requested type.",
+              "Clarify and align missing-account status code: add a scenario for 404 if that is the intended contract; otherwise document 400 explicitly in the story.",
+              "Extend header validation: test max length and character set for X-Killbill-Reason and X-Killbill-Comment and ensure sanitization/no injection in headers.",
+              "Add an audit verification step: after successful update, assert an audit record exists with CreatedBy/Reason/Comment and correct timestamp.",
+              "Expand business-rule validation: add scenarios for invalid combinations and boundary rules specific to Account schema (e.g., locale/currency pairing, email regex beyond simple format, numeric range edge-cases with precise error messages)."
+            ],
+            "usage": {
+              "completion_tokens": 1963,
+              "prompt_tokens": 5451,
+              "total_tokens": 7414,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1088,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-13T08:55:53.952452",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:55:35.804303",
+    "benchmark_end_time": "2025-10-13T08:55:53.952448",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 18.148145,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE/Valid Deletion: Success path returns 204 and leaves no body (TC01, TC08).",
+              "DELETE/Non-Existent Resource: Handling when host is already out of rotation or none available (409) (TC04, TC14).",
+              "DELETE/Concurrency: Concurrent requests handled; first 204, subsequent 409/204 as appropriate, with timing checks (TC11).",
+              "Error Handling: 401 for no/invalid auth (TC02, TC03), 500 internal error (TC06), 503 service down (TC05), 405 wrong method (TC07), 400 invalid body (TC09).",
+              "Security Hardening: Malicious headers/body attempts are rejected with appropriate errors (TC09, TC13).",
+              "Operational Verification: State change asserted and verified via status query (TC01, TC12).",
+              "Request Strictness: Extra query parameters are tolerated without altering behavior (TC08)."
+            ],
+            "gaps": [
+              "DELETE/Soft Deletes: No explicit verification that the operation is reversible/non-destructive beyond flagging; no scenario to restore host into rotation to prove soft-change semantics.",
+              "Authorization Depth: No test for 403 Forbidden when authenticated but not authorized (non-admin credentials).",
+              "Content Negotiation/Headers: Acceptance criteria states Produces: application/json; tests do not assert Content-Type=application/json on error responses or absence thereof for 204.",
+              "Idempotency Semantics: Repeat DELETE behavior is asserted as 409 once out of rotation, but no explicit test clarifying intended idempotency contract (e.g., repeat call remains 204 vs 409 per spec).",
+              "Observability: No checks for standard operational headers or correlation IDs in error responses (useful for admin APIs), if required by platform standards."
+            ],
+            "recommendations": [
+              "Add a scenario to confirm soft-delete behavior end-to-end: after taking host out of rotation, use the corresponding API to put it back in rotation and verify restoration, proving non-destructive semantics.",
+              "Add a scenario where a valid non-admin token is used and assert 403 Forbidden with a JSON error payload.",
+              "Assert response headers: for error paths (400/401/403/409/500/503), verify Content-Type=application/json and well-formed JSON error structure; for 204, verify no body and optionally absence of Content-Type.",
+              "Clarify and test idempotency: send DELETE twice in succession and assert the intended response code consistently (204 if idempotent, or 409 if business rule dictates), documenting rationale.",
+              "If your API standards require it, add checks for X-Request-Id/trace headers in responses to support operational troubleshooting."
+            ],
+            "usage": {
+              "completion_tokens": 1480,
+              "prompt_tokens": 3433,
+              "total_tokens": 4913,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

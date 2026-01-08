@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-13T06:19:39.237158",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T06:18:16.599202",
+    "benchmark_end_time": "2025-10-13T06:19:39.237153",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 82.637951,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Success path: TC01 validates 204 and empty body for a valid accountId.",
+              "Invalid accountId format: TC03 and TC12 validate malformed UUIDs return 400.",
+              "Non-existent account handling: TC02, TC16, and TC18 cover 404 responses for missing accounts and partial DB states.",
+              "Authentication negatives: TC05 and TC06 verify 401 for missing/expired credentials.",
+              "Service degradation & dependent service failures: TC07 and TC08 exercise 503 and degraded behavior.",
+              "Unsupported methods: TC11 verifies 405 for GET against the DELETE endpoint.",
+              "Path and query edge-cases: TC04 (missing accountId), TC09 (extra query params), and TC10 (very large accountId) are present.",
+              "Security checks: TC14 and TC15 cover SQL injection and XSS attempts via accountId.",
+              "Concurrency / performance: TC13 covers concurrent DELETE requests across accounts and includes a response-time target.",
+              "Resilience / retry: TC17 covers transient network failure and retry success.",
+              "Regression/back-compat: TC19 (and TC12) explicitly target regression scenarios."
+            ],
+            "gaps": [
+              "Content-Type and response headers: Acceptance criteria states \"Produces: application/json\" but no tests assert Content-Type or other response headers for success (204) or error responses.",
+              "Authorization / role-based access control: No test for an authenticated non-admin (expected 403) or permission checks; only unauthenticated (401) cases are covered.",
+              "Idempotence and soft-delete semantics: No explicit tests that repeated DELETEs are idempotent or whether caches are soft-deleted vs purged.",
+              "Concurrency on the same resource: TC13 uses concurrent deletes across different accounts but does not test simultaneous DELETEs on the same account (race condition / locking).",
+              "Error response schema and consistency: Tests check for an error message but do not validate JSON error schema/fields (code, type, message) or Content-Type for error bodies.",
+              "Rate limiting / throttling: No tests simulate bursts / rate limiting to check 429 or throttling behavior.",
+              "Audit/logging side effects: No tests verify audit logs, admin action records, or telemetry for cache invalidation.",
+              "UUID boundary/normalization cases: While malformed inputs and injections are covered, there are no tests for valid but edge-case RFC-compliant UUID formats or normalization differences."
+            ],
+            "recommendations": [
+              "Add assertions for response headers: explicitly verify Content-Type: application/json for error responses and confirm expected headers (and absence of body) for 204 responses per the acceptance criteria.",
+              "Add RBAC tests: verify a correctly authenticated non-admin user receives 403 (or clarify expected behavior) to validate role-based authorization.",
+              "Add idempotence tests: issue DELETE twice against the same accountId and assert behavior is consistent with the API contract (document whether second call should be 204 or 404).",
+              "Add concurrency tests targeting the same accountId: run simultaneous DELETEs for the same account to surface race conditions and locking problems.",
+              "Add error payload schema validation: assert structured JSON error responses (fields like code, message, type) and their Content-Type for 400/404/401/503 cases.",
+              "Add rate-limiting / throttling tests: simulate burst traffic to confirm correct handling (429 or configured behavior) and ensure graceful degradation.",
+              "Add cache-state verification: after invalidation, verify cached entries are removed or marked as invalid (via cache API or by exercising endpoints that rely on cached data) to clarify soft-delete vs purge behavior.",
+              "Add UUID edge-case tests: cover RFC-compliant but uncommon UUID representations and normalization to ensure consistent acceptance/rejection.",
+              "If audit/logging is required, add tests that validate an audit record is created with admin identity and timestamp when caches are invalidated."
+            ],
+            "usage": {
+              "completion_tokens": 4457,
+              "prompt_tokens": 4640,
+              "total_tokens": 9097,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3648,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

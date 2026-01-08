@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-10-13T07:46:31.203328",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T07:44:22.805881",
+    "benchmark_end_time": "2025-10-13T07:46:31.203324",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 128.397443,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid PUT behavior: multiple successful scenarios assert 204 and state change (TC01, TC03, TC04, TC14, TC15, TC24).",
+              "Query parameters: payAllUnpaidInvoices behavior tested (default omitted, true, and no-unpaid-invoices case) (TC01, TC02, TC05).",
+              "pluginProperty handling: single/multiple, empty and maximum-entry cases covered (TC03, TC24, TC15).",
+              "Path parameter validation: invalid-format (400) and non-existent (404) cases covered for both accountId and paymentMethodId (TC06, TC07, TC08, TC09, TC10, TC16, TC23).",
+              "Headers: required X-Killbill-CreatedBy missing covered (TC11); optional X-Killbill-Reason and X-Killbill-Comment and audit logging for success covered (TC04).",
+              "Authentication/Authorization: unauthorized access scenario covered (TC12).",
+              "Service availability and downstream timeout handling: service unavailable and timeout scenarios covered (TC13, TC18).",
+              "Security: header injection test present to validate input sanitization (TC19).",
+              "Concurrency and race conditions: concurrent requests and final consistency tested (TC22).",
+              "Performance / scale: large number of unpaid invoices scenario and response-time expectation present (TC17).",
+              "Regression coverage: previously fixed bugs included (clearing old default and no-payment-method cases) (TC20, TC21)."
+            ],
+            "gaps": [
+              "Server error (5xx) handling is not explicitly tested (e.g., forced DB failure resulting in 500 and how payload/error body is surfaced).",
+              "Idempotency / duplicate submission behavior is not covered (re-sending same PUT and ensuring no duplicate side-effects or double payment attempts).",
+              "Invalid query param types and validation: e.g., payAllUnpaidInvoices=notABool (type checking) is not tested; explicit payAllUnpaidInvoices=false also not explicitly asserted. ",
+              "Partial payment failures when payAllUnpaidInvoices=true are not covered (some invoice payments fail \u2014 expected atomicity/compensation behavior is unspecified and untested).",
+              "Response headers and content-type checks are missing (asserting produces: application/json for error responses and correct handling of 204 empty responses).",
+              "Behavior when a request body is supplied (endpoint declares N/A) is not tested \u2014 should be rejected or ignored per spec. ",
+              "PluginProperty value validation edge-cases are not covered: non-string values, excessively long strings, invalid characters. ",
+              "Rate limiting / throttling behavior is not tested (429 or graceful degradation under high request rates).",
+              "Audit logging for failure cases and for large-scale operations is not validated (only success audit checked).",
+              "Explicit SLA measurements are mentioned in TC17/TC22 but there are no concrete threshold assertions or automated timing checks in the suite."
+            ],
+            "recommendations": [
+              "Add a test that simulates a 500/internal server error (e.g., DB failure or thrown exception) and assert a well-formed 500 response body and logging/alerts as appropriate.",
+              "Add idempotency / duplicate-submission tests: repeat the same PUT (same accountId/paymentMethodId and query args) and verify no duplicate side-effects or duplicate payments and that the endpoint remains idempotent.",
+              "Add validation tests for query parameters: explicit payAllUnpaidInvoices=false, and invalid values (e.g., payAllUnpaidInvoices=abc) asserting 400 and clear error messages.",
+              "Add tests for partial-payment failure scenarios when payAllUnpaidInvoices=true (simulate plugin failing for subset of invoices) and assert the final state (default set or rolled back) and that failures are surfaced in a clear error/partial-success reporting model.",
+              "Assert response headers/content-type for both success (204) and error cases (application/json), and confirm that 204 responses do not return unexpected payloads.",
+              "Add a test that sends an unexpected request body to the PUT endpoint and assert behavior per specification (ignored vs rejected with 4xx), and ensure the API documents the behavior.",
+              "Extend pluginProperty tests to validate types and length limits (non-string entries, very long strings, invalid characters) to ensure validation is robust.",
+              "Introduce rate-limiting tests (burst of requests) to assert correct throttling behavior (429 or defined strategy) and graceful degradation.",
+              "Add audit-log verification for failed operations and for bulk/large operations (TC17) to ensure observability for operators.",
+              "Make TC17 and TC22 into measurable performance tests with concrete thresholds (e.g., p95 response time < X ms) and automate timing assertions; include load tests for concurrency scenarios."
+            ],
+            "usage": {
+              "completion_tokens": 7718,
+              "prompt_tokens": 6898,
+              "total_tokens": 14616,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6720,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

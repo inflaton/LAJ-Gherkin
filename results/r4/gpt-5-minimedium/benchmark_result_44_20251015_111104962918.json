@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-15T11:11:04.962836",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:10:43.395207",
+    "benchmark_end_time": "2025-10-15T11:11:04.962825",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 21.567618,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Request / Successful operation: Multiple scenarios (TC01, TC02, TC03, TC10, TC13, TC16, TC17) validate successful POST behavior with default and explicit query parameters and headers.",
+              "Empty Response: TC04 covers the empty-data case where no parked accounts exist and ensures a 200 with \u201cno invoices generated\u201d behavior.",
+              "Pagination & Query Parameters: TC01, TC02, TC10, TC11, TC12, TC13 exercise offset/limit, defaulting, explicit pagination ranges, large limits and extra/unsupported query parameters.",
+              "Parameter Validation: TC06 and TC07 validate negative, zero, and non-integer values for offset/limit and expect 400 errors.",
+              "Authorization & Required Header: TC05 and TC08 cover missing X-Killbill-CreatedBy and invalid/expired auth tokens (400/401 and 401/403 scenarios respectively).",
+              "Optional Headers & Auditing: TC03 and TC16 verify optional headers (X-Killbill-Reason, X-Killbill-Comment) are accepted and recorded for auditability.",
+              "Server / Dependency Errors: TC09 covers service unavailability (503) behavior.",
+              "Concurrency / Performance: TC12 and TC18 address very large volumes and concurrent requests, including the expectation of acceptable response times and single invoice generation per account under concurrency.",
+              "Retry / Duplicate Submission: TC15 addresses transient network failure and retry semantics, aiming to prevent duplicate invoice generation.",
+              "Security / Injection: TC14 tests header injection attempts and checks for non-leaky error messages and rejection of malicious payloads.",
+              "Accessibility & Documentation: TC19 covers API docs accessibility and clarity for required fields and usage notes."
+            ],
+            "gaps": [
+              "Rate Limiting / Throttling: No dedicated scenarios testing rate limits, burst traffic handling, or throttling responses (429), despite concurrency/performance tests.",
+              "Caching Behavior & Response Headers: No tests verify caching headers (ETag, Cache-Control) or other HTTP headers that might be required/expected from the API.",
+              "Strict Response Schema & Body Content: Tests assert 200 and JSON but do not validate response body schema, field-level contents (e.g., counts, per-account results, error payload shape), or machine-parseable contract (e.g., error.code, error.message).",
+              "Idempotency / Duplicate Submission Handling (explicit): TC15 touches retries but there is no explicit test asserting idempotency or how duplicate POSTs are detected/handled (e.g., idempotency-key behavior or deduplication logic).",
+              "Header Value Validation: There are no tests for malformed but present X-Killbill-CreatedBy (e.g., empty string, overly long values, invalid character sets), nor tests for max length or format constraints of optional headers.",
+              "Boundary / Out-of-Range Pagination: No test for offset beyond dataset size (e.g., offset >> total), or limit values just above/below documented maximums to verify exact boundary behavior.",
+              "Transactional Consistency & Rollback: No tests to confirm partial failures don\u2019t leave partial invoice generation (e.g., failure mid-batch should rollback or mark progress consistently).",
+              "Detailed HTTP Status Codes & Error Types: Many scenarios accept broad ranges (e.g., 400 or 401); there are no tests to assert exact status codes and standardized error codes/messages for different failure modes."
+            ],
+            "recommendations": [
+              "Add explicit rate-limiting tests: simulate bursts and verify 429 responses and Retry-After headers, and document expected throttling policy.",
+              "Add caching/header tests: verify presence/absence of Cache-Control, ETag, and other relevant headers where applicable, or assert they are intentionally absent for admin actions.",
+              "Introduce strict response schema tests: validate JSON structure, fields (e.g., totalProcessed, processedAccountIds, failures with reasons), and error payload shape for consumers and contract tests.",
+              "Add explicit idempotency/duplicate-submission tests: simulate consecutive identical POSTs and assert invoices are not duplicated; if idempotency-key is supported, test its semantics.",
+              "Extend header validation tests: test empty, overly long, and invalid-character header values for X-Killbill-CreatedBy/Reason/Comment and assert appropriate 4xx responses and safe error messages.",
+              "Boundary pagination tests: add cases for offset beyond total, limit = default-1/default+1, and documented maximum+1 to assert exact boundary handling and error behavior.",
+              "Transactional/partial-failure tests: simulate mid-batch errors (e.g., DB error on Nth account) to verify whether processing rolls back or records partial progress and surfaces failures cleanly.",
+              "Tighten expected status codes and error assertions: where behavior is well-defined, assert exact status codes and specific error codes/messages rather than ranges, to prevent ambiguity in implementation and regression tests.",
+              "Add monitoring/assertions for side effects and logs: check audit logs, DB flags, or other persistent records to ensure the operation is properly recorded (especially for admin-sensitive actions)."
+            ],
+            "usage": {
+              "completion_tokens": 2270,
+              "prompt_tokens": 5207,
+              "total_tokens": 7477,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

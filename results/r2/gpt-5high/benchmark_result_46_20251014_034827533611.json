@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "46_2025-10-14T03:48:27.533580",
+    "jira_id": "46",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/accounts/{accountId} - Invalidates Caches per account level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T03:45:51.597846",
+    "benchmark_end_time": "2025-10-14T03:48:27.533576",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 155.93573,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "46_qe_sup-gpt4.1_agent-gpt4.1_1748918878.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "DELETE Method - Valid Deletion: 204 with empty body and cache invalidation verified (TC01, TC09, TC17, TC19).",
+              "DELETE Method - Non-Existent Resource: 404 when account is missing or DB empty (TC02, TC16, TC18).",
+              "Input Validation of Path Parameter: 400 on malformed UUID/invalid patterns and attack payloads (TC03, TC10, TC12, TC14, TC15).",
+              "Authentication: 401 for missing or expired/invalid credentials (TC05, TC06).",
+              "Resilience/Dependency Failures: 503 when cache service is unavailable or system is degraded, plus successful retry after transient network failure (TC07, TC08, TC17).",
+              "Unsupported Method Handling: 405 for a non-DELETE method (GET) (TC11).",
+              "Query Parameters: Extra parameters are tolerated/ignored without breaking the operation (TC09).",
+              "Performance/Concurrency Under Load: Concurrent DELETEs across accounts succeed and meet latency expectations (TC13)."
+            ],
+            "gaps": [
+              "DELETE Concurrency/Idempotency on the same account not covered: no scenarios for simultaneous or repeated DELETEs on the same account to prove idempotency and absence of race conditions.",
+              "Headers/content negotiation not validated: no checks for Content-Type on error responses or Accept handling; story notes \"Produces: application/json\". No check for Retry-After on 503.",
+              "Authorization/roles: no scenario for an authenticated non-admin user (403 Forbidden).",
+              "Server error handling: no simulation of internal failures (e.g., DB/cache provider exception) to validate 500 responses.",
+              "Unsupported methods coverage incomplete: only GET tested; POST/PUT/PATCH/HEAD/OPTIONS not verified to return 405.",
+              "DELETE with unexpected request body not tested (should be ignored or rejected per API policy).",
+              "Ambiguous expectation in TC07 (\"204 or 503\") makes the test non-deterministic under the given preconditions.",
+              "Error response schema not validated (e.g., standard fields like code/message to ensure consistent API errors)."
+            ],
+            "recommendations": [
+              "Add idempotency and race-condition tests on the same account: run DELETE twice sequentially and concurrently for the same account; both should return 204 and leave caches in a consistent state.",
+              "Add a role-based access test: authenticated but non-admin requester should receive 403 Forbidden.",
+              "Add a server-failure scenario to assert 500 Internal Server Error and validate standardized error payload.",
+              "Validate headers: ensure 204 responses have an empty body; ensure 4xx/5xx responses include Content-Type: application/json; verify Retry-After header on 503 if emitted.",
+              "Extend unsupported-method tests to POST, PUT, PATCH, HEAD, and OPTIONS returning 405.",
+              "Add a scenario sending a DELETE with a request body to confirm it is ignored or rejected (400/415) per API policy.",
+              "Split TC07 into two separate, deterministic scenarios: one for high-load yet successful 204, another for service-unavailable 503.",
+              "Validate error response schema across 400/401/404/405/503 (e.g., fields \"error\", \"message\", \"code\").",
+              "Optional: if applicable to admin endpoints, add a rate-limiting/429 scenario for bursts of DELETEs."
+            ],
+            "usage": {
+              "completion_tokens": 7952,
+              "prompt_tokens": 4640,
+              "total_tokens": 12592,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7232,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

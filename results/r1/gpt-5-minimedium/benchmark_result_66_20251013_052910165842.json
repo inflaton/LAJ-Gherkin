@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-13T05:29:10.165817",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:28:34.951311",
+    "benchmark_end_time": "2025-10-13T05:29:10.165814",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 35.214503,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Happy path (TC01) verifies success (204) and DB persistence of externalKey.",
+              "Required Header Validation: TC02 verifies missing X-Killbill-CreatedBy leads to 400.",
+              "Path Param Validation: TC03 checks malformed bundleId format; TC04 and TC15 verify non-existent bundle handling (404).",
+              "Request Body Validation: TC06 (missing body), TC07 (malformed JSON), TC08 (missing externalKey) cover common body errors producing 4xx.",
+              "Uniqueness Constraint: TC05 covers conflict when externalKey already used for the same account.",
+              "Optional Headers: TC14 verifies X-Killbill-Reason and X-Killbill-Comment are handled in a happy path.",
+              "Edge Cases & Input Validation: TC09 (extra fields), TC10 (very long key), TC11 (empty key), TC19 (special characters), TC20 (leading/trailing spaces) explore input validation limits.",
+              "Authentication/Authorization: TC12 covers missing/invalid auth returning 401/403.",
+              "Service/Error Handling: TC13 covers dependency/unavailable service (503).",
+              "Concurrency: TC17 addresses concurrent update behavior/race conditions.",
+              "Performance/Non\u2011functional: TC16 and TC23 include payload and response-time checks.",
+              "Regression & Compatibility: TC18 (regression), TC22 (legacy clients) are included.",
+              "Misc: TC21 checks tolerance for unexpected headers; TC24 covers API documentation accessibility."
+            ],
+            "gaps": [
+              "Account scoping for uniqueness: No explicit test that the same externalKey is allowed across different accounts (uniqueness is per-account in the story).",
+              "Content-Type/Accept handling: No scenarios verify missing or incorrect Content-Type or Accept headers and their resulting status codes.",
+              "Produced Content-Type & Response Body on errors/success: Tests assert status codes but do not consistently assert Content-Type header or the exact JSON error schema (story states produces application/json).",
+              "Full Bundle Schema: The story references a Bundle object; tests assume only externalKey is relevant. There is no test for validating the full Bundle schema if the API expects other required fields or rejects extra/unknown fields beyond the extra-field happy path.",
+              "Idempotency / Repeat Requests: No test for repeated identical rename requests (idempotency) or duplicate submissions.",
+              "Exact Error Codes and Messages: Several scenarios accept multiple possible codes (e.g., TC10/T19/T20 allow 204 or 400). The story specifies 400 for invalid arguments; tests do not assert exact error messages or error code mapping consistently.",
+              "Cross-field validation: No tests for interactions between headers and body (e.g., CreatedBy required and its value format), or for audit logging/metadata persistence tied to headers.",
+              "Rate Limiting / Throttling: No tests for rate limiting behavior.",
+              "Pagination / Caching: Not applicable to this endpoint but caching/ETag behavior is not covered (if relevant).",
+              "Database constraint & rollback semantics: No tests verify transactional behavior (partial failures rollback), or that failed rename leaves bundle unchanged."
+            ],
+            "recommendations": [
+              "Add tests that verify externalKey uniqueness is scoped per account: try renaming to a key used in a different account and expect success.",
+              "Add tests for Content-Type and Accept handling: missing Content-Type, wrong Content-Type, missing Accept, and assert returned Content-Type (story says produces application/json) and error schema.",
+              "Create assertions for the error response JSON schema and exact messages/codes for 400/404/503 to avoid ambiguity in diagnoses and automation.",
+              "Add idempotency/duplicate submission tests: repeated same request should be safe (or explicitly defined) and observed behaviour should be asserted.",
+              "Add tests to validate the full Bundle schema if the API expects more fields (or assert that only externalKey is required and other fields are ignored).",
+              "Add tests to verify transactional behavior: e.g., simulate dependent-service failure after validation to confirm no partial state change.",
+              "Add a test for verifying that X-Killbill-CreatedBy value format is validated (if any) and that audit metadata is recorded appropriately.",
+              "Add rate-limiting/throttling tests if the API is subject to rate limits.",
+              "Tighten ambiguous tests: replace OR-style assertions (204 or 400) with explicit expected behavior after implementation is finalized, so CI can enforce precise behavior.",
+              "Add a test to verify same-key rename in different account contexts (positive) and same-account conflict (already covered) to ensure correct scoping."
+            ],
+            "usage": {
+              "completion_tokens": 2239,
+              "prompt_tokens": 6051,
+              "total_tokens": 8290,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

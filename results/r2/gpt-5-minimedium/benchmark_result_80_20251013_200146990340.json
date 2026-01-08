@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-10-13T20:01:46.990288",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T20:01:07.402168",
+    "benchmark_end_time": "2025-10-13T20:01:46.990279",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 39.588111,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01, TC02, TC03, TC07, TC26, TC27, TC31) validate creation of single and multiple credits, invoice-specific credits, CBA creation, and basic state transitions.",
+              "Query Parameters: autoCommit and pluginProperty are exercised (TC04, TC05) including success paths and interaction with plugin system (TC28, TC29).",
+              "Headers: Required header handling and optional headers are tested (TC01, TC06, TC10).",
+              "Success Responses: 201 creation success, JSON array response and Location header verification are covered (TC01, TC02, TC03).",
+              "Invalid/Malformed Payloads: Malformed JSON and missing required fields are tested (TC11, TC12).",
+              "Account/Invoice Not Found: 404 handling for missing account or invoice is explicitly covered (TC08, TC09).",
+              "Validation: Currency and accountId format validations are addressed (TC14, TC15).",
+              "Amount semantics: Positive vs negative amount behavior is considered (TC13) though it notes system-dependent behavior.",
+              "Security: SQL injection and XSS attempts are tested (TC19, TC20).",
+              "Edge Cases and Limits: Empty body, unexpected extra fields, maximum credits and very large payloads, timeout and payload-too-large responses are included (TC21, TC22, TC23, TC24, TC25).",
+              "Resilience & Integration: Plugin unavailable/error scenarios and expected responses are covered (TC28, TC29).",
+              "Idempotency / Duplicate Submission: Retry/duplicate submission behavior is addressed (TC30).",
+              "Performance / Load: Response time and resource utilization under normal/peak/stress are included (TC32, TC33, TC34).",
+              "Backward compatibility & Regression: Tests for older clients (TC31) and a regression scenario (TC30) are present."
+            ],
+            "gaps": [
+              "Default autoCommit behavior when omitted: There is a test for autoCommit=true (TC04) and a backward compatibility case without autoCommit (TC31), but no explicit assertion that autoCommit defaults to false and that no commit occurs when omitted.",
+              "Response schema strictness: No explicit tests that validate the full InvoiceItem response schema/types against the definition (field presence, data types, lengths, and precise enums like itemType).",
+              "Content negotiation / Headers: No explicit tests verifying Content-Type/Accept handling (application/json) or response Content-Type header and encoding.",
+              "HTTP 500 / Server error handling: Simulated server-side failures (e.g., database outage producing 500) are not present \u2014 only service-unavailable/plugin-unavailable 503/504 and malformed inputs are tested.",
+              "401 Unauthorized (authentication) handling: Tests cover missing required header as 400 (TC10) and insufficient permissions as 403 (TC18), but an explicit 401 flow for unauthenticated requests (e.g., missing/invalid auth token) is not present.",
+              "Rate limiting / throttling: No tests to verify behavior when many requests arrive in a short time or when request quotas are exceeded.",
+              "Caching and headers like ETag / Cache-Control: No scenarios inspect caching behavior or caching-related headers for POST responses (if applicable).",
+              "Concurrency / race conditions at DB level: Apart from idempotency on retry (TC30), there are no explicit tests for concurrent requests creating conflicting credits or race conditions causing duplicate/incorrect balances.",
+              "Precise Location header format and resource discovery: Tests check for presence of Location (TC01) but do not validate its format or that GET to that Location returns the created resource.",
+              "Idempotency mechanism specifics: TC30 checks duplicate credits on retry but does not exercise explicit idempotency keys or API-level idempotency mechanisms (if supported).",
+              "Validation of pluginProperty type and boundary cases: There is a test for invalid pluginProperty type (TC16) and success (TC05), but more boundary/format permutations (e.g., very large lists, empty strings) are not enumerated."
+            ],
+            "recommendations": [
+              "Add an explicit test that omits autoCommit and asserts the system treats it as false: verify that the created credit is not auto-committed (or that the invoice is not committed) unless autoCommit=true.",
+              "Introduce strict schema validation tests: assert required/optional fields, types, enum values (e.g., itemType must be CREDIT_ADJ or CBA_ADJ), numeric formats, and that response fields match request values where applicable.",
+              "Add Content-Type / Accept tests: send requests with and without appropriate Content-Type headers and assert 415/400/expected behavior; verify response Content-Type is application/json.",
+              "Simulate server-side failures (500): add tests that force DB errors or internal exceptions to confirm 500 responses and graceful error messages.",
+              "Add authentication-negative tests to cover 401 Unauthorized (e.g., missing/invalid auth credentials) distinct from 403 permission errors.",
+              "Implement rate-limiting and throttling tests: send bursts of requests to verify 429 or other configured behavior and ensure graceful degradation.",
+              "Add caching-related checks if applicable: validate Cache-Control/ETag where relevant and assert POST does not inappropriately cache responses.",
+              "Add concurrency/race-condition tests: fire concurrent POSTs targeting same invoice/account to validate DB transactional integrity and to ensure no double-application of credits.",
+              "Enhance Location header tests: validate the URL format in Location, perform GET against it and assert resource parity with creation response.",
+              "Add idempotency-key tests if the API or platform supports idempotency: assert behavior when the same idempotency key is used for retries.",
+              "Expand pluginProperty boundary tests: include empty arrays, very large arrays, and invalid elements to ensure robust validation and error reporting."
+            ],
+            "usage": {
+              "completion_tokens": 2112,
+              "prompt_tokens": 8287,
+              "total_tokens": 10399,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

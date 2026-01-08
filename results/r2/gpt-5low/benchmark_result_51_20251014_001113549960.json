@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-14T00:11:13.549933",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T00:10:22.641806",
+    "benchmark_end_time": "2025-10-14T00:11:13.549929",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 50.908123,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST - Valid Payload: Multiple happy-path scenarios validate 201 with correct Location header and Bundle in new account (TC01, TC02).",
+              "POST - Validation: Broad input validation on path/body/query/header params including UUID format for bundleId, requestedDate format, billingPolicy enum, required headers/body (TC08-TC12).",
+              "POST - Large Payloads: pluginProperty large array and payload handling with 201 or 413 expectations (TC20).",
+              "POST - Server Error Handling: Simulated 500 and 503 from dependencies/inconsistent data (TC14, TC24).",
+              "Authorization: Unauthorized token returns 401 (TC13).",
+              "Query Parameters: requestedDate, billingPolicy, pluginProperty combinations including valid/invalid and empty array (TC02, TC03, TC04, TC05, TC09, TC10, TC18).",
+              "Non-Existing Resources: 404 for missing bundle and target account; empty DB case (TC06, TC07, TC22, TC23).",
+              "Security/Negative: SQL injection and XSS attempts rejected (TC15, TC16).",
+              "Resilience: Retry after transient network failure succeeds (TC17).",
+              "Headers: Required X-Killbill-CreatedBy enforced; optional Reason/Comment max length; Location header validated (TC01, TC02, TC11, TC21).",
+              "Backward compatibility: Works without optional params (TC26).",
+              "Performance/Concurrency (non-functional): Response time under load, concurrent requests without corruption, resource utilization (TC27-TC30)."
+            ],
+            "gaps": [
+              "POST - Duplicate Submission/Idempotency: No scenario covering repeated identical POSTs (e.g., re-submitting same transfer) and expected behavior (e.g., 409, safe retry, or idempotency key semantics).",
+              "POST - Content Negotiation: No tests for incorrect Content-Type (e.g., text/plain) returning 415 or missing/incorrect Accept header returning 406.",
+              "POST - Default Behavior Assertions: No explicit assertion that billingPolicy defaults to END_OF_TERM when omitted, or default handling when requestedDate is omitted (effective date expectation).",
+              "Body Field Validation: No test for invalid accountId format (non-UUID) resulting in 400; only non-existent and injection are covered.",
+              "Authorization Depth: No 403 Forbidden/insufficient permissions scenario distinct from 401.",
+              "Rate Limiting/Throttling: No scenarios validating 429 responses or headers under burst traffic.",
+              "Concurrency Semantics: While TC29 tests performance with concurrency, there is no functional test ensuring consistent outcomes when two transfers for the same bundle happen concurrently (e.g., one should succeed, the other fail with 409 or similar).",
+              "Request Body Schema Strictness: No test for additional/unknown fields inside JSON body (TC19 covers extra request parameters generally, but not unknown fields within the Bundle object) and type errors for pluginProperty entries (non-string types).",
+              "Temporal Rules: No tests for requestedDate in the past/future edge cases if the API imposes constraints, or timezone handling/format nuances.",
+              "Response Headers: No checks for Content-Type application/json on success/error responses or other standard headers (no-cache, correlation IDs if applicable)."
+            ],
+            "recommendations": [
+              "Add an idempotency/duplicate submission suite: send the same request twice (with and without an Idempotency-Key if supported) and assert deterministic behavior (second call 200/201 with same result or 409 Conflict).",
+              "Add content negotiation tests: 415 for wrong/missing Content-Type and 406 for unacceptable Accept header if enforced.",
+              "Assert default behaviors: a scenario that omits billingPolicy and verifies default END_OF_TERM is applied, and clarifies effective transfer date when requestedDate is omitted.",
+              "Extend body validation: negative test for invalid accountId format (non-UUID) and type validation errors inside body (e.g., accountId as number).",
+              "Include a 403 Forbidden scenario for authenticated users lacking permission to transfer bundles.",
+              "Introduce rate-limiting tests: burst POSTs to validate 429 responses and retry-after headers (if implemented).",
+              "Add functional concurrency tests for same-bundle race: two concurrent transfer requests for the same bundle\u2014assert one succeeds and the other fails gracefully (e.g., 409).",
+              "Tighten schema strictness: send unknown fields inside the Bundle JSON and non-string values in pluginProperty to assert they are rejected or ignored per contract.",
+              "Add temporal edge cases: requestedDate in past and future, timezone variants, and boundary formats to ensure correct parsing and enforcement.",
+              "Verify response headers consistently: assert Content-Type application/json for 201/4xx/5xx and any standard headers required by API guidelines."
+            ],
+            "usage": {
+              "completion_tokens": 1969,
+              "prompt_tokens": 7734,
+              "total_tokens": 9703,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 960,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

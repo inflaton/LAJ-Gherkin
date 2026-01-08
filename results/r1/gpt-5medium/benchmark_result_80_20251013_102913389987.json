@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "80_2025-10-13T10:29:13.389963",
+    "jira_id": "80",
+    "jira_title": "Implement/Test API: POST /1.0/kb/credits - Create a credit",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:28:03.889599",
+    "benchmark_end_time": "2025-10-13T10:29:13.389960",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 69.500361,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "80_qe_sup-gpt4.1_agent-gpt4.1_1748921125.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "POST - Valid Payload: Multiple success scenarios cover single and bulk credit creation, with and without invoiceId (TC01, TC02, TC03).",
+              "POST - Valid Payload: Query parameters autoCommit and pluginProperty behavior validated, including multi-valued pluginProperty (TC04, TC05).",
+              "POST - Valid Payload: Optional headers X-Killbill-Reason and X-Killbill-Comment exercised; required X-Killbill-CreatedBy enforced (TC06, TC10).",
+              "POST - Valid Payload: Behavior when no invoiceId leads to CBA/CREDIT adjustment validated (TC07).",
+              "POST - Invalid Payload: Malformed JSON, empty body, missing required fields, invalid accountId format, unsupported currency, and invalid pluginProperty type are covered (TC11, TC12, TC14, TC15, TC16, TC21).",
+              "POST - Duplicate Submission: Idempotency/duplicate retry tested to prevent duplicate credits (TC30).",
+              "POST - Large Payloads: Maximum items, very large payload handling, and timeout under heavy body size/load are covered (TC23, TC24, TC25).",
+              "POST - Validation: Numeric sign rules are considered (positive amount case explored), extra fields ignored, and schema conformance checked (TC13, TC22).",
+              "POST - Server Error Handling: Service unavailable and plugin subsystem failures mapped to 503/500 are tested (TC17, TC28, TC29).",
+              "Error Scenarios from story: 400 on invalid account or malformed body; 404 on missing account or invoice are explicitly tested (TC08, TC09, TC11, TC12, TC14).",
+              "Response semantics: 201 Created, JSON array of InvoiceItem in the response, and Location header presence validated for single-create (TC01, TC02).",
+              "Security/Hardening: Authorization/permissions (403), SQL injection, and XSS sanitization are exercised (TC18, TC19, TC20).",
+              "State/Business effects: Credits reflected in account balance; creation of new credit invoice when no prior data (TC26, TC27).",
+              "Backward compatibility/no optional params path is validated (TC31).",
+              "Performance and concurrency characteristics under normal/peak/stress included (TC32, TC33, TC34)."
+            ],
+            "gaps": [
+              "Positive amount behavior is ambiguous in tests; the story implies amounts are negative or treated as such, but TC13 does not assert a single expected outcome.",
+              "No explicit verification of response Content-Type header (produces application/json) or of request Content-Type handling; no 415 Unsupported Media Type scenario.",
+              "autoCommit default behavior is not asserted (i.e., verify that without autoCommit the invoice remains uncommitted).",
+              "Mixed-account array payloads are not tested; the story suggests credits are for an account, so behavior when array includes different accountIds is undefined in tests.",
+              "Omission of itemType is not tested; story says itemType typically CREDIT_ADJ or CBA_ADJ, but behavior when itemType is omitted is not validated.",
+              "No boundary tests for amount precision/range (e.g., zero, extremely large/small magnitudes, excessive decimal precision) or currency/amount consistency rules.",
+              "Location header semantics for multi-create are not verified (what Location points to when multiple credits are created).",
+              "General 500 Internal Server Error path unrelated to plugins (e.g., database failure) is not explicitly simulated and asserted.",
+              "Accept header/content negotiation is not exercised (e.g., client requests non-JSON Accept leading to 406)."
+            ],
+            "recommendations": [
+              "Clarify and codify expected behavior for positive amounts: either enforce 400 invalid amount or accept and transform to negative; assert the exact response and stored value.",
+              "Add tests to verify response Content-Type is application/json and to handle incorrect/missing Content-Type on request with a 415 Unsupported Media Type.",
+              "Add a scenario to assert default autoCommit=false behavior by verifying the credit invoice is not committed unless autoCommit=true.",
+              "Introduce a test where the request array contains items with different accountIds; assert whether it is rejected with 400 or supported per API contract.",
+              "Add a scenario where itemType is omitted to confirm the server infers CREDIT_ADJ/CBA_ADJ correctly based on presence of invoiceId.",
+              "Include boundary validation for amount (zero, very large, very small, excessive precision) and ensure clear error messaging on violations.",
+              "For multi-create, assert the Location header behavior (e.g., points to account invoice resource or is omitted) to match the API contract.",
+              "Simulate a non-plugin internal failure (e.g., forced DB error) and assert a 500 Internal Server Error with a stable error response schema.",
+              "Exercise Accept header negotiation (e.g., Accept: application/xml) and assert 406 Not Acceptable or documented behavior."
+            ],
+            "usage": {
+              "completion_tokens": 4360,
+              "prompt_tokens": 8287,
+              "total_tokens": 12647,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3328,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-14T21:58:02.700546",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:56:32.713694",
+    "benchmark_end_time": "2025-10-14T21:58:02.700540",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 87,
+    "average_generation_time_seconds": 89.986846,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 87,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 87,
+            "covered": [
+              "Valid Deletion: Successful 204 responses when removing all, some, or none of the custom fields (TC01\u2013TC06, TC11\u2013TC12, TC16, TC18, TC20).",
+              "Non-Existent Resource: 404 for valid-but-missing invoiceItemId (TC08).",
+              "Input Validation: 400 for invalid invoiceItemId, malformed/mixed customField IDs, and missing required header (TC07, TC09, TC10, TC17).",
+              "Query Parameters: Behavior with absence/presence, duplicates, extra params, and large lists (TC01\u2013TC02, TC11\u2013TC12, TC18).",
+              "Security/Authorization: 401 for invalid/expired token and injection payload handling (TC19, TC15).",
+              "Resilience: Handling under load and dependency outage (TC13, TC14)."
+            ],
+            "gaps": [
+              "Concurrency: No scenarios for simultaneous deletes/updates on the same invoice item; idempotent repeat of the same subset deletion not covered.",
+              "Soft Deletes/Audit: No verification of soft-delete vs hard-delete behavior, nor audit trail created from X-Killbill-CreatedBy/Reason/Comment.",
+              "Atomicity on partial invalid lists: TC17 expects 400 but does not assert that no valid fields were removed (all-or-nothing behavior).",
+              "Query encoding: No test to enforce collectionFormat=multi vs comma-separated lists; no case for empty customField parameter (customField=).",
+              "Ownership validation: No scenario where provided customField IDs do not belong to the invoice item (should be rejected).",
+              "Response headers: No validation of Content-Type for 204 or consistency with produces: application/json.",
+              "Authorization/Permissions: 403 (authenticated but unauthorized) not covered if RBAC applies.",
+              "Rate limiting/throttling: No coverage for burst DELETE requests behavior."
+            ],
+            "recommendations": [
+              "Add concurrency tests: two parallel DELETEs for the same invoice item; DELETE while another request adds/removes fields; verify race-safe and idempotent outcomes.",
+              "Define and test deletion semantics: confirm hard vs soft delete; verify subsequent GET shows fields removed and audit logs include CreatedBy/Reason/Comment.",
+              "Add atomicity check: for mixed valid/invalid IDs, assert 400 and that zero fields were deleted.",
+              "Add query encoding tests: reject CSV (customField=a,b), accept repeated customField parameters; handle empty customField query (customField=) explicitly.",
+              "Add ownership validation: use customField IDs belonging to a different item and expect 400/404 with clear error.",
+              "Validate response headers for 204 (no Content-Type/body) or document expected headers to match produces contract.",
+              "Include RBAC test for 403 when token is valid but lacks permissions (if applicable).",
+              "Consider rate-limiting test: rapid repeated DELETEs to ensure correct 429 or graceful handling (if applicable)."
+            ],
+            "usage": {
+              "completion_tokens": 4156,
+              "prompt_tokens": 5523,
+              "total_tokens": 9679,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3520,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

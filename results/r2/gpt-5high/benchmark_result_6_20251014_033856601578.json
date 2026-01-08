@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-14T03:38:56.601539",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T03:36:40.994072",
+    "benchmark_end_time": "2025-10-14T03:38:56.601534",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 135.607462,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "PUT: Valid Request \u2014 Multiple success paths verify 204 and persistence of updates (TC01, TC02, TC03, TC04, TC15, TC16, TC17, TC24, TC26 within limits).",
+              "PUT: Non-Existing/Invalid Resource \u2014 Invalid UUID format (TC06) and non-existent account handling present (TC07), covering the story\u2019s 400 error expectation.",
+              "Request validation \u2014 Missing body (TC09), malformed JSON (TC10), and invalid CustomField schema (TC11) all return 400 as per story.",
+              "Headers \u2014 Required X-Killbill-CreatedBy enforced (TC08); optional Reason/Comment accepted (TC02); extra headers ignored (TC05).",
+              "Authorization and robustness \u2014 401 for missing/invalid auth (TC12); resilience scenarios include 502/503/504 and retry logic (TC13, TC14, TC19, TC22).",
+              "Boundaries \u2014 Empty array semantics (TC15), large arrays (TC04), payload near limit and 413 on overflow (TC26), duplicate field names rejected (TC23).",
+              "Security \u2014 SQL injection and XSS payloads rejected with 400 (TC20, TC21).",
+              "Integrations \u2014 Audit logs and external reporting updated on success (TC27, TC28)."
+            ],
+            "gaps": [
+              "PUT: Partial update semantics \u2014 No test clarifies whether sending a subset of custom fields merges or replaces the full set; guideline expects explicit handling (reject unless allowed).",
+              "PUT: Concurrency on the same resource \u2014 No scenario where two clients update the same account concurrently; no conflict detection (409/412) or last-write-wins behavior verified.",
+              "PUT: Idempotency \u2014 No test that repeating the exact same PUT yields 204 with no additional changes and identical final state.",
+              "Atomicity/All-or-nothing \u2014 TC18 reports invalid objects but does not assert that no valid objects were persisted; atomic rollback behavior is unverified.",
+              "Non-existing resource status \u2014 TC07 expects 400; if the contract intends 404 for missing accounts, coverage mismatches the guideline; needs clarification and a dedicated 404 case if applicable.",
+              "Response semantics \u2014 No checks for 204 having no body and appropriate headers; error responses not validated for Content-Type application/json as per 'Produces'.",
+              "Header value validation \u2014 No negative tests for empty/whitespace or overlong X-Killbill-CreatedBy; not verified that audit metadata records CreatedBy value.",
+              "Schema edge validation \u2014 Type mismatches, invalid enum/range constraints, and behavior for additional properties versus schema definition are not asserted (TC17 assumes extras are ignored without referencing schema rules)."
+            ],
+            "recommendations": [
+              "Add explicit partial-update tests: send a subset of fields and verify whether the server replaces the full set or rejects partial updates; document expected behavior.",
+              "Add concurrency tests on the same account: two simultaneous PUTs with different payloads; assert conflict handling (409/412 via ETag/If-Match) or clearly document and verify last-write-wins.",
+              "Add idempotency test: issue the same PUT twice and verify second call returns 204 with no changes and identical stored state (timestamps/audit aside).",
+              "Strengthen atomicity: extend TC18 to assert that no valid objects are applied when any object is invalid; verify pre/post state consistency.",
+              "Clarify and test status codes for non-existent accounts: if the API should return 404, add a scenario expecting 404 and correct error body; align TC07 accordingly.",
+              "Verify response headers and bodies: assert no response body for 204; assert Content-Type application/json and structured error body for 4xx/5xx; optionally test Accept header behavior.",
+              "Add header value validation: empty/whitespace and overly long X-Killbill-CreatedBy should be rejected; confirm CreatedBy/Reason/Comment are captured in audit logs (extend TC27).",
+              "Expand schema validation: add tests for invalid data types, out-of-range/length violations (just-over limits), and enforce or reject additional properties per the CustomField schema (update TC17 based on schema)."
+            ],
+            "usage": {
+              "completion_tokens": 6878,
+              "prompt_tokens": 6919,
+              "total_tokens": 13797,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5952,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

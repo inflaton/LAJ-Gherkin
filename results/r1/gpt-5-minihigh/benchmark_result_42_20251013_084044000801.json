@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "42_2025-10-13T08:40:44.000776",
+    "jira_id": "42",
+    "jira_title": "Implement/Test API: GET /1.0/kb/admin/queues - Get queues entries",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T08:37:55.111846",
+    "benchmark_end_time": "2025-10-13T08:40:44.000772",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 168.888926,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "42_qe_sup-gpt4.1_agent-gpt4.1_1748918658.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid requests and filtering: Multiple scenarios (TC01, TC02, TC03, TC04, TC05, TC10, TC23) verify successful retrieval and correct filtering by accountId, queueName, serviceName, minDate/maxDate and combinations of filters.",
+              "Empty responses: TC11 and TC29 verify behavior when the database is empty and when filters match no entries (HTTP 200 with empty body).",
+              "Query parameter validation: Positive and negative checks for accountId (valid, invalid format, not found), date formats, and flag toggles (withHistory, withInProcessing, withBusEvents, withNotifications) are present (TC02, TC13, TC14, TC25, TC06-TC09).",
+              "Error handling coverage: Explicit scenarios for common error responses are included (400 for invalid input, 404 for account not found, 500 internal error, 503 service unavailable, 504 timeout) (TC13, TC14, TC25, TC30, TC16, TC19).",
+              "Authorization (partial): Missing/invalid auth token is tested (401) (TC15).",
+              "Security hardening: Injection and XSS attempts are addressed (TC17, TC26) to ensure inputs are sanitized or rejected.",
+              "Resilience and performance: Large-data retrieval performance expectations, timeout handling, concurrency, and recovery from transient failures are exercised (TC18, TC19, TC20, TC27).",
+              "Regression and backward compatibility: Regression test for withHistory (TC21) and backward-compatibility tests for omitted optional parameters (TC22) are included.",
+              "Robustness and docs: Tests for extra/unexpected parameters (TC12) and a scenario checking documentation/error message quality and error schema (TC28) are present.",
+              "Response content-type check: At least one scenario asserts application/octet-stream for successful responses (TC01)."
+            ],
+            "gaps": [
+              "Pagination: No scenarios verify pagination, offsets/limits, page sizes, total counts, stable ordering, or streaming/chunked responses which are important for very large datasets (TC18).",
+              "Rate limiting and throttling: There are no tests for rate-limit exceed behavior (e.g., 429 responses), Retry-After headers, or interaction between throttling and concurrency tests.",
+              "Caching behavior and conditional GET: No tests validate caching headers (ETag, Cache-Control), conditional requests (If-None-Match -> 304), or expected cache semantics for this endpoint.",
+              "Role-based authorization (403): Only 401 (unauthenticated) is tested. There is no test for an authenticated but unauthorized user (non-admin) receiving 403/forbidden.",
+              "Headers and content-type consistency: Aside from TC01, most scenarios do not assert Content-Type, Content-Length, or other standard headers. Error responses are not consistently asserted to follow the documented content-type/error schema across all error scenarios.",
+              "Boolean and date edge cases: Missing tests for malformed boolean values (e.g., withHistory=foo), numeric/alternative boolean encodings, and contradictory date ranges (minDate > maxDate) or timezone/ISO-format edge cases.",
+              "Octet-stream payload structure and assertions: Tests assert presence/absence of entries but do not parse or validate the binary/octet-stream payload format, field-level presence/absence, counts, ordering, or that flags remove the expected fields from the stream.",
+              "Input boundary and fuzzing: No tests for very large parameter values, maximum allowed string lengths, Unicode/emoji inputs, or intentionally long queueName/serviceName strings to validate input limits and protection against resource exhaustion.",
+              "Unsupported methods and HTTP semantics: No checks that non-GET methods return 405 Method Not Allowed or that Accept header/content negotiation is properly handled.",
+              "Downstream partial-failure scenarios: While full service-down and timeout are covered, there are no tests simulating partial failures of optional subsystems (e.g., bus events or notifications failing while core queue retrieval should still succeed or return partial results)."
+            ],
+            "recommendations": [
+              "Add pagination tests (page/limit or offset/limit) and verify stable ordering, totals, default page sizes, last-page behavior, and combining pagination with filters and flags. If the API does not support pagination, document this and add large-result handling expectations (streaming/chunking) to the acceptance criteria.",
+              "Introduce rate-limiting tests: hammer the endpoint to trigger 429 responses, verify Retry-After header and client behavior, and test interplay between concurrency and throttling.",
+              "Add caching/conditional GET tests: assert presence of ETag and Cache-Control headers, test If-None-Match leading to 304 Not Modified, and ensure caching headers are correct for successful and error responses.",
+              "Expand authorization tests: verify role-based access control by testing valid tokens with insufficient privileges (expect 403), and test admin vs non-admin behavior explicitly.",
+              "Assert headers and content-types consistently across all success and error scenarios: add assertions that success returns application/octet-stream and errors return the documented JSON error content-type and schema. Enforce consistent error payload shape in every error test.",
+              "Add robust input validation tests: malformed boolean values (withHistory=abc), alternative boolean encodings, minDate > maxDate, and timezone/format edge cases for dates; assert correct 400 responses or defined behavior.",
+              "Add binary payload validation: where possible deserialize or parse the octet-stream and validate counts, fields present/absent per flags (history/inProcessing/busEvents/notifications), ordering guarantees, and that combined filters produce exact expected results.",
+              "Add boundary and fuzz tests for parameter sizes and character sets (very long strings, Unicode, control characters) to catch parsing, validation and DoS vulnerabilities.",
+              "Add HTTP semantics tests: verify unsupported methods return 405, check Accept header handling and content negotiation, and validate CORS/security headers if applicable.",
+              "Simulate partial downstream failures: test cases where optional subsystems (bus events, notifications) are transiently unavailable to confirm partial responses or graceful degradation, and assert correct error reporting or fallback behavior."
+            ],
+            "usage": {
+              "completion_tokens": 9590,
+              "prompt_tokens": 6030,
+              "total_tokens": 15620,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 8320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

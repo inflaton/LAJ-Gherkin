@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-10-13T10:08:23.996233",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:07:12.109681",
+    "benchmark_end_time": "2025-10-13T10:08:23.996228",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 91,
+    "average_generation_time_seconds": 71.886547,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 91,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 91,
+            "covered": [
+              "DELETE - Valid Deletion: Multiple success paths returning 204 (all tags, single tagDef, multiple tagDef, optional headers, no tags on payment).",
+              "DELETE - Non-Existent Resource: 404 when paymentId does not exist.",
+              "DELETE - Concurrency: Concurrent delete requests handled gracefully.",
+              "Input validation: 400 for invalid paymentId format and invalid tagDef; injection attempts rejected.",
+              "Headers: Required X-Killbill-CreatedBy enforced (missing -> 400); optional Reason/Comment accepted; audit logging verified.",
+              "Query parameters: tagDef optional and multi-valued (collectionFormat=multi) covered; extra unexpected parameter tolerated.",
+              "Data consistency: Post-deletion GET reflects updated tags.",
+              "Operational resilience: 503 (service unavailable) and 504 (timeout) covered; high-volume performance scenario included.",
+              "Authorization: 401 for missing/invalid authentication."
+            ],
+            "gaps": [
+              "Soft delete semantics: No explicit verification whether removals are soft-deleted/tombstoned versus hard removal (if applicable per system behavior).",
+              "Response headers: No assertions for Content-Type (Produces: application/json) on error responses; no explicit checks for correct headers with 204 (e.g., absence of body).",
+              "Idempotency and duplicates: No test for repeating the same DELETE producing the same 204 outcome; no handling of duplicate tagDef values in a single request.",
+              "Mixed-valid tagDef list: Scenario with a mixture of valid UUIDs and invalid values in one request is missing to confirm full rejection versus partial delete.",
+              "Authorization granularity: No 403 Forbidden/role-based permission scenarios; only 401 is covered.",
+              "Boundary limits: No explicit upper-bound tests (e.g., maximum tagDef count allowed, very long X-Killbill-CreatedBy/Reason/Comment values, Unicode/encoding edge cases).",
+              "Strict parsing of collectionFormat=multi: No scenario ensuring comma-separated single parameter is rejected vs. multiple parameters being required."
+            ],
+            "recommendations": [
+              "Add idempotency scenarios: repeat DELETE on already tag-less payment and with same tagDef set; include duplicate tagDef values to ensure de-duplication and stable 204.",
+              "Add mixed-valid tagDef test (one invalid among valid) to verify behavior (expected 400 and no partial deletions).",
+              "Assert response headers: verify Content-Type: application/json for 4xx/5xx and that 204 has no body; optionally assert no Content-Type for 204 if that is the contract.",
+              "Clarify deletion model; if soft-delete applies, add tests to verify tombstoning/history and retrieval via audit endpoints (and no hard removal).",
+              "Introduce authorization/permission tests returning 403 for users lacking tag-removal rights (if applicable).",
+              "Add boundary and robustness tests: maximum allowed tagDef entries (and 413/400 when exceeded), very long/Unicode CreatedBy/Reason/Comment, and invalid encodings.",
+              "Add a negative test to ensure collectionFormat=multi is enforced (reject comma-separated lists in a single tagDef parameter)."
+            ],
+            "usage": {
+              "completion_tokens": 3993,
+              "prompt_tokens": 5560,
+              "total_tokens": 9553,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3328,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-09-30T11:05:43.583005",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-30T11:05:13.317477",
+    "benchmark_end_time": "2025-09-30T11:05:43.582995",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 20000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 30.265518,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "PUT Valid Request: Multiple success scenarios (TC01, TC02, TC03, TC04, TC05, TC06, TC07, TC19) verify that valid requests return 204 and backend CBA changes are applied or remain as expected.",
+              "Non-Existing Resource: TC08 and TC17 cover behavior when an account does not exist (expected 400 invalid account id).",
+              "AccountId validation: TC09 and TC16 cover invalid format and boundary (very large) accountId cases.",
+              "Required header validation: TC10, TC11, TC25, TC26 cover missing, empty, whitespace-only and null X-Killbill-CreatedBy header handling.",
+              "Optional headers: TC02 validates optional X-Killbill-Reason and X-Killbill-Comment are accepted.",
+              "Concurrency: TC18 tests concurrent PUT requests and consistency.",
+              "Performance: TC20 and TC21 include response-time expectations under normal and peak loads.",
+              "Error & availability: TC13 (transient/network retry) and TC14 (service unavailable 503) cover transient and downstream-unavailable cases.",
+              "Security inputs: TC15 and TC24 test malicious/malformed header inputs (SQLi and XSS) and validate no information leakage or script execution.",
+              "Unsupported HTTP method: TC22 verifies method-not-allowed (405) for GET.",
+              "Robustness: TC12/TC23 test extra/unsupported headers and unexpected query parameters being tolerated."
+            ],
+            "gaps": [
+              "Authorization (401/403): The Background mentions a valid auth token but there are no negative tests for missing/invalid/insufficient authorization (401/403) or role-based access.",
+              "Server-side error handling (500/502/etc.): There are no explicit tests simulating internal server errors (e.g., DB failure) and validating appropriate 5xx responses and safe error messages.",
+              "Response headers / content-type / contract: No assertions for response headers (e.g., Content-Type, caching headers) despite the API spec listing Produced content-type (and 204 has special semantics).",
+              "Idempotency / Duplicate submissions: No explicit tests for repeated identical requests to verify idempotency semantics beyond concurrency; e.g., retry semantics for duplicate rebalances (side-effects / duplication).",
+              "PUT payload/body handling: The API spec indicates no request body (N/A). There are no tests that send unexpected request bodies to confirm they are ignored or rejected (partial-update guidance from PUT in guidelines).",
+              "Authorization header format and length: There are header value validation tests for CreatedBy but not for maximum length or allowed character-set of header values.",
+              "Rate limiting / throttling: No tests verifying rate limiting behaviour (429) or server throttling under sustained request bursts.",
+              "Detailed UUID validation for valid-but-malformed cases: Tests cover blatantly invalid and oversized IDs, but not borderline valid-looking but incorrect UUID variants (e.g., wrong version, missing dashes).",
+              "Content / Schema validation: Because the endpoint returns 204, there is no verification of response body schema for successes; however the spec mentions producing application/json \u2014 this mismatch is not tested."
+            ],
+            "recommendations": [
+              "Add authorization negative tests: missing token, invalid token, and insufficient privileges to assert 401/403 responses.",
+              "Simulate server faults (DB/network exceptions) to verify 5xx responses and that no sensitive details are leaked.",
+              "Validate response headers and API contract: assert Content-Type (when applicable), and document/validate the 204 + application/json mismatch (or assert no body and correct headers).",
+              "Test idempotency and duplicate-submission behavior explicitly: repeat the same PUT multiple times and verify no duplicate side-effects / correct semantics.",
+              "Add tests that include unexpected request bodies to confirm the server rejects them or ignores them per API contract (PUT/partial-update guidance).",
+              "Add rate-limiting / throttling tests that generate sustained bursts to verify 429 or backoff behavior and ensure graceful degradation.",
+              "Add more fine-grained UUID tests (valid-format but invalid resource) and variant malformed UUIDs (missing dashes, wrong version) to ensure robust path parameter validation.",
+              "Add header-length and character-set boundary tests for X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment to catch truncation or storage errors.",
+              "Add an explicit test for server response when the spec claims application/json but 204 (no content) is returned \u2014 confirm the expected behavior and update either spec or tests accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 2104,
+              "prompt_tokens": 5515,
+              "total_tokens": 7619,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

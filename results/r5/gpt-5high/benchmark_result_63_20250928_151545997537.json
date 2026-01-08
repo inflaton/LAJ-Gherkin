@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "63_2025-09-28T15:15:45.997510",
+    "jira_id": "63",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/pause - Pause a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T15:12:33.047865",
+    "benchmark_end_time": "2025-09-28T15:15:45.997506",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 192.949641,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "63_qe_sup-gpt4.1_agent-gpt4.1_1748920074.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT/Valid Request: Successful pause with required header (204), future scheduling via requestedDate, pluginProperty handling, and audit headers recorded.",
+              "PUT/Non-Existing Resource: 404 covered for unknown bundleId and empty database.",
+              "PUT/Concurrency Issues: Concurrent pause requests tested; only one succeeds, others fail appropriately.",
+              "Input validation: UUID format, SQL injection, XSS, malformed/past requestedDate, malformed pluginProperty, missing required header, extra query params, and very large pluginProperty arrays.",
+              "Authorization: 401 for unauthorized user is covered.",
+              "Error scenarios per story: 400 for already paused/invalid state; 404 for not found.",
+              "Integration/resilience: Service unavailability (503), dependency failure (502), and downstream consistency validated.",
+              "Regression/Isolation and Performance: Pausing one bundle doesn\u2019t affect others; basic load/perf expectations validated."
+            ],
+            "gaps": [
+              "Request body handling: The endpoint specifies no request body (N/A), but no test sends a body to ensure it is rejected or ignored per contract.",
+              "Idempotency/retry semantics: No sequential retry test (same PUT twice); verify second call outcome and that retries are safe.",
+              "204 response semantics: No checks that 204 returns an empty body and appropriate headers (e.g., Content-Type absent or correct for 204).",
+              "Scheduling semantics: For requestedDate, no verification that state remains active before the date and flips to paused on/after the date (e.g., via clock manipulation).",
+              "Time zone/DST edges: No tests for requestedDate around time zone boundaries or DST transitions.",
+              "Authorization granularity: 403 (authenticated but not authorized) not covered.",
+              "pluginProperty encoding: Collection format 'multi' (repeated query keys) not explicitly tested; current tests imply an array but not wire-level encoding.",
+              "Header value constraints: No tests for blank/whitespace, overly long, or non-ASCII values in X-Killbill-CreatedBy/Reason/Comment."
+            ],
+            "recommendations": [
+              "Add a scenario sending a non-empty JSON body with the PUT to ensure the API rejects or ignores it as per contract.",
+              "Add an idempotency/retry test: perform a successful pause, then repeat the same PUT and assert the documented behavior (e.g., 400 already paused) and that no duplicate side-effects occur.",
+              "Validate 204 semantics: assert empty response body and appropriate headers (e.g., no Content-Type for 204) despite the spec listing 'application/json'.",
+              "Introduce time-based tests using a controllable clock: verify active state before requestedDate and paused state on/after requestedDate.",
+              "Add time zone/DST boundary tests for requestedDate (e.g., UTC vs tenant time zone, DST transitions).",
+              "Include a 403 Forbidden scenario for an authenticated user lacking the required permission.",
+              "Explicitly test pluginProperty as repeated query params (pluginProperty=key1=val1&pluginProperty=key2=val2) and with percent-encoded characters; ensure comma-separated forms are rejected if not supported.",
+              "Add header validation boundaries: empty/whitespace-only CreatedBy, excessive length for Reason/Comment, and non-ASCII characters to confirm acceptance/rejection and audit recording."
+            ],
+            "usage": {
+              "completion_tokens": 7653,
+              "prompt_tokens": 6254,
+              "total_tokens": 13907,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6912,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-10-14T06:51:36.183173",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:49:36.161710",
+    "benchmark_end_time": "2025-10-14T06:51:36.183169",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 93,
+    "average_generation_time_seconds": 120.021459,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 93,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 93,
+            "covered": [
+              "DELETE: Valid Deletion is thoroughly exercised (remove all tags when tagDef omitted, remove specific tags, handle empty array, handle bundle with no tags, large batches of tagDef values).",
+              "DELETE: Non-Existent Resource covered with 404 for non-existent bundleId.",
+              "DELETE: Concurrency covered with 100 concurrent DELETEs and verification of no corruption.",
+              "Headers: Required X-Killbill-CreatedBy enforced (present and missing), optional X-Killbill-Reason/Comment exercised; header injection validated (400/422).",
+              "Path/query validation: bundleId UUID pattern validation (400), tagDef UUID validation (400), partial invalid tagDef list (400), multiple tagDef parameters (collectionFormat=multi), and ignoring extra unexpected query params.",
+              "Error handling breadth: 401 unauthorized, 503 service unavailable, and timeout behavior (504 vs 204) covered.",
+              "Response semantics: 204 No Content asserted with empty body; state verification via follow-up GET confirms correct tag persistence after deletion."
+            ],
+            "gaps": [
+              "Idempotency not explicitly verified (repeating the same DELETE after tags are already removed should return 204 and leave state unchanged).",
+              "Behavior when tagDef contains valid UUIDs that are not associated to the bundle is not covered (should typically be no-op with 204).",
+              "Behavior when tagDef contains valid UUIDs that do not correspond to any existing tag definition is not covered (decide between 400 vs 404 and assert).",
+              "Authorization: 403 Forbidden (authenticated user without required permission) not covered; only 401 Unauthorized is tested.",
+              "Header value edge cases: X-Killbill-CreatedBy present but empty/whitespace, or exceeding length limits are not tested.",
+              "Response headers: Content-Type handling for 204 (often absent) and any standard headers (e.g., Date, request ID) not asserted; story mentions produces application/json but behavior for 204 not validated.",
+              "Soft delete behavior is not addressed; if the system uses soft deletes/auditable removals, no tests confirm the deletion mode.",
+              "Audit trail expectations (given CreatedBy/Reason/Comment) are not validated via audit log retrieval.",
+              "Query param edge cases: duplicate tagDef values, tagDef specified with empty value (e.g., tagDef=), or mixed casing/ordering not covered.",
+              "TC19 (Accessibility) is UI-focused and not applicable to this API endpoint; it does not contribute to API coverage."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: perform DELETE to remove tags, then repeat the same DELETE; expect 204 both times and unchanged state.",
+              "Add a scenario where tagDef includes UUIDs not currently attached to the bundle; expect 204 and no errors.",
+              "Add a scenario where tagDef includes syntactically valid but unknown tag definition UUIDs; define and assert expected status (400 or 404) per API contract.",
+              "Add a 403 Forbidden scenario for an authenticated user lacking permission to delete tags.",
+              "Add header edge-case tests: X-Killbill-CreatedBy present but empty/whitespace and overly long values; assert appropriate validation errors.",
+              "Clarify and validate response headers for 204: either assert absence of Content-Type for 204 or, if mandated by spec, assert correct Content-Type; ensure no body is returned.",
+              "If applicable, add tests to verify soft-delete vs hard-delete semantics or at least confirm audit logs are created (CreatedBy/Reason/Comment) via an audit retrieval endpoint.",
+              "Add query-parameter robustness tests: duplicate tagDef values, tagDef with empty value (tagDef=), and confirm order-independence of processing.",
+              "Consider a race-condition/idempotency test where two clients attempt overlapping deletions (e.g., different subsets) and assert final consistent state.",
+              "Remove or relocate TC19 (Accessibility) to a UI test suite, as it is out of scope for this API endpoint."
+            ],
+            "usage": {
+              "completion_tokens": 6154,
+              "prompt_tokens": 4976,
+              "total_tokens": 11130,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5312,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

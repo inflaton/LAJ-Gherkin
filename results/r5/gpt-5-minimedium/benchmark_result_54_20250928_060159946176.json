@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "54_2025-09-28T06:01:59.946147",
+    "jira_id": "54",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/tags - Remove tags from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T06:01:29.337580",
+    "benchmark_end_time": "2025-09-28T06:01:59.946143",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 30.608563,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "54_qe_sup-gpt4.1_agent-gpt4.1_1748919454.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC04, TC12, TC16) exercise successful deletions for all-tags, specific-tags, empty-array, and large-batch cases.",
+              "Error handling for client input: Invalid bundleId format (TC05) and invalid tagDef format (TC07, TC13) are covered.",
+              "Non-existent resource: 404 when bundleId does not exist (TC06) is included.",
+              "Required headers: Presence/absence of X-Killbill-CreatedBy is tested (TC03, TC08).",
+              "Optional headers: Use of X-Killbill-Reason and X-Killbill-Comment is exercised (TC03).",
+              "Authorization/authentication: Unauthorized user scenario is present (TC09).",
+              "Service availability and failures: Service unavailable (503) and timeout/long-running operations (TC10, TC18) are included.",
+              "Concurrency/performance: Concurrent DELETE requests and performance under load are covered (TC15).",
+              "Security/input-sanitization: Header injection/XSS/SQL injection is considered (TC14).",
+              "Integration/consistency: Post-deletion verification via GET to confirm data consistency is covered (TC17).",
+              "Robustness to unexpected inputs: Extra unexpected query params and duplicate/large numbers of tagDef parameters are addressed (TC11, TC12).",
+              "Regression: Specific regression scenario for empty tagDef array is covered (TC16).",
+              "Accessibility: Error rendering accessibility check included (TC19) (UI-focused)."
+            ],
+            "gaps": [
+              "Soft delete semantics: No tests verify whether deletion is soft (marked deleted) vs hard (physically removed), or check soft-delete flags/history entries.",
+              "Idempotency / deleting non-associated tags: No explicit test for deleting a tagDef that is not associated to the bundle (should it return 204 or a specific warning?).",
+              "Partial-success semantics: When multiple tagDefs are provided and some do not exist or are not associated, behavior is not fully specified/tested beyond the invalid-UUID case (TC13 covers invalid format but not non-associated tagIds).",
+              "Server error handling (5xx beyond 503): No tests for internal server error (500) or database failures that should surface as 500.",
+              "Response headers and content-type: Tests do not validate response headers (Content-Type, Cache-Control, ETag) or that responses produce application/json as the spec mentions.",
+              "Authorization granularity: Only a generic unauthorized case (401) present \u2014 no tests for forbidden (403) vs unauthenticated (401), nor RBAC scenarios (insufficient permissions).",
+              "Rate limiting / throttling: No tests for rate limiting, throttling or detecting 429 responses.",
+              "Pagination / GET-specific behaviours: Although not strictly a DELETE concern, related GET pagination and tag-list retrieval behaviours are not covered (useful for integration checks with large tag sets).",
+              "URL encoding / parameter encoding edge cases: No tests for URL-encoded UUIDs, repeated tagDef parameters handling (duplicates), or extremely long query strings that could hit server limits.",
+              "Audit/logging verification: Presence and correctness of audit entries (that CreatedBy/Reason/Comment are logged) are not validated.",
+              "Content negotiation: No tests for Accept header handling and whether responses conform to requested media types.",
+              "Rate/Load failure modes: While concurrency success is tested, degradation behavior under partial failures (some requests fail) is not covered."
+            ],
+            "recommendations": [
+              "Add tests that verify soft-delete vs hard-delete behavior and inspect persistence layer (e.g., check DB flag or audit/history endpoints) to confirm intended semantics.",
+              "Add idempotency tests: delete of a tag that is not associated should be exercised to assert whether the API returns 204 or a specific error.",
+              "Introduce partial-success scenarios where some tagDef UUIDs are valid/not associated/exist to assert atomicity or partial failure behavior and expected status codes.",
+              "Add server-failure tests (simulate DB error, 500) to validate 5xx behavior and error messages.",
+              "Validate response headers: check Content-Type, Content-Length, Cache-Control, and ETag where applicable; ensure \"produces: application/json\" is respected even for empty responses if required by spec.",
+              "Differentiate auth failures: add tests for 401 vs 403 and role-based access (insufficient permissions) to ensure correct semantics.",
+              "Add rate-limiting tests to exercise throttling (429) and verify client behavior under bursts.",
+              "Add URL-encoding and query-parameter edge-case tests: repeated tagDef params, duplicate UUIDs, extremely long query strings, and encoded characters.",
+              "Add tests that verify audit/logging entries reflect X-Killbill-CreatedBy, Reason and Comment values after successful deletions.",
+              "Add tests to verify behavior when deleting very large tag sets (including measuring response times and service degradation) and define acceptable SLAs; include tests for graceful degradation (some requests 200/204 while others 504/503).",
+              "Add verification of content negotiation (Accept header) and ensure error responses include machine-readable JSON error objects and matching HTTP status codes."
+            ],
+            "usage": {
+              "completion_tokens": 2112,
+              "prompt_tokens": 4976,
+              "total_tokens": 7088,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

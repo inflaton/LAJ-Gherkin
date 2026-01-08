@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "53_2025-09-28T07:56:12.851593",
+    "jira_id": "53",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/tags - Add tags to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:54:48.694384",
+    "benchmark_end_time": "2025-09-28T07:56:12.851588",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 84.157204,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "53_qe_sup-gpt4.1_agent-gpt4.1_1748919377.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid payloads: multiple scenarios (single tag, multiple tags, empty array) validate successful creation and 201 responses (TC01, TC03, TC04, TC05, TC07).",
+              "Header handling: required X-Killbill-CreatedBy present test and missing-header negative test (TC01, TC13); optional X-Killbill-Reason and X-Killbill-Comment exercised (TC02).",
+              "Request-body validation: malformed JSON, non-array payload and missing body are tested (TC10, TC11, TC14); invalid/malformed tag UUIDs and non-existent tag definitions tested (TC12).",
+              "Path parameter validation: invalid bundleId format and non-existent bundleId covered (TC08, TC09).",
+              "Duplicate handling: test coverage for bundles that already have tags and regression against duplicate Tag objects (TC06, TC26).",
+              "Large-payload handling: maximum allowed payload and payload-too-large cases included (TC20, TC21).",
+              "Error & dependency scenarios: unauthorized (401), service unavailable (503), timeout (504) and transient network retry behaviours are covered (TC16, TC17, TC22, TC19).",
+              "Security: malicious input injection patterns are tested (TC18).",
+              "Integration & persistence: DB persistence checks and GET verification / cross-service consistency included (TC01 persistence check, TC27, TC28).",
+              "Performance & concurrency: normal and peak load/performance checks present (TC24, TC25).",
+              "Tolerance for extra headers: extra/unsupported HTTP headers accepted and do not break the call (TC23).",
+              "Accessibility: API documentation accessibility test present (TC29)."
+            ],
+            "gaps": [
+              "403 Forbidden / insufficient-permission negative case is missing (no scenario that asserts 403 when auth is valid but lacks the right permissions).",
+              "Content-Type / media-type validation (e.g., missing or wrong Content-Type -> 415) is not covered. The spec states consumes: application/json but there is no explicit test for this. ",
+              "500 Internal Server Error / simulated server-side exception is not explicitly tested (TC17 covers 503 but not a 500 DB exception scenario).",
+              "Duplicate UUIDs inside the request payload (same tagDefinitionId repeated within the array) is not explicitly tested \u2014 behaviour unclear (error vs deduplication).",
+              "Idempotency and repeated identical POST requests (beyond the duplicate-tag regression) are not exercised to confirm safe retry semantics. ",
+              "Concurrency race conditions specifically testing two clients adding the same tag at exactly the same time (to prove transactional integrity and no duplicate creation) are not present \u2014 TC25 is load testing but not targeted race-condition verification. ",
+              "Full Tag object schema validation is weak: tests assert bundleId and tagDefinitionId but do not validate full Tag fields (tagId, createdBy, createdDate, audit fields, returned Content-Type, etc.).",
+              "Header-value validation edge-cases (empty X-Killbill-CreatedBy, overly long values, invalid characters) are not covered. ",
+              "Rate-limiting / throttling behaviour is not tested (how the API responds under repeated rapid requests beyond performance tests).",
+              "Response headers validation (Content-Type on response, caching headers or explicit lack thereof for POST) is not covered."
+            ],
+            "recommendations": [
+              "Add a negative scenario for insufficient permissions (valid credentials but missing permissions) expecting 403 to distinguish authn vs authz failures.",
+              "Add tests for Content-Type handling: missing Content-Type and unsupported media type (e.g., text/plain or application/xml) asserting 415 (or documented behavior).",
+              "Add a server-error simulation that forces a 500 (e.g., mocked DB exception) and assert error handling / user-facing message and logging behaviour.",
+              "Add tests for duplicate UUIDs inside the request payload and define expected behaviour (reject, dedupe, or idempotently ignore duplicates).",
+              "Add explicit idempotency tests: re-send the same POST repeatedly and assert either idempotent behaviour or documented duplicate handling (and no duplicate Tag objects).",
+              "Create focused concurrency/race-condition tests where two or more clients concurrently add the same tag(s) and assert system remains consistent (no duplicate tags, transactions roll back correctly on conflicts).",
+              "Extend response assertions to validate the full Tag schema: presence and format of tagId, bundleId, tagDefinitionId, createdBy (matches X-Killbill-CreatedBy), createdDate/timestamps, and the response Content-Type header.",
+              "Add header validation edge-case tests: empty X-Killbill-CreatedBy, extremely long strings for CreatedBy/Reason/Comment, and invalid characters to enforce header validation rules.",
+              "Include rate-limiting / throttling tests (or verifier that none exists) to ensure a gracefully degraded response (e.g., 429) when limits are exceeded.",
+              "Assert response headers for POST (Content-Type, Cache-Control or absence of caching headers) to ensure clients can rely on response semantics."
+            ],
+            "usage": {
+              "completion_tokens": 7197,
+              "prompt_tokens": 6808,
+              "total_tokens": 14005,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6144,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

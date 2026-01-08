@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "5_2025-10-14T06:09:27.319811",
+    "jira_id": "5",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/customFields - Add custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T06:06:53.515825",
+    "benchmark_end_time": "2025-10-14T06:09:27.319807",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 153.803982,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "5_qe_sup-gpt4.1_agent-gpt4.1_1748916088.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST > Valid Payload: Multiple success paths with required and optional headers, including accounts with/without existing fields, boundary values, and compatibility/regression (TC01\u2013TC05, TC13\u2013TC14, TC23\u2013TC24, TC29).",
+              "POST > Invalid Payload: Malformed/empty body, empty array, unsupported fields, missing required fields, wrong data types, duplicates, and null handling produce 400s (TC08\u2013TC12, TC26\u2013TC28, TC30).",
+              "POST > Large Payloads: Max allowed accepted; oversized rejected (TC14, TC15).",
+              "POST > Validation: Path param UUID format enforced (TC06); required header X-Killbill-CreatedBy enforced (TC07); field-level validation covered (TC27\u2013TC30).",
+              "POST > Server Error Handling (partial): Service unavailable and dependency inconsistencies covered; transient failure with retry handled (TC17, TC20, TC25).",
+              "Authorization: 401 on missing/invalid token is verified (TC16).",
+              "Performance/Concurrency: Normal and peak load scenarios; concurrency without corruption (TC21\u2013TC22).",
+              "Security: SQL injection and XSS inputs rejected (TC18\u2013TC19).",
+              "Response behavior: Success returns JSON array of CustomField objects; association to the account asserted (TC01\u2013TC05).",
+              "Unknown params handling: Extra query parameter tolerated without failure (TC13)."
+            ],
+            "gaps": [
+              "POST > Duplicate Submission/Idempotency: No test to ensure retrying the same POST (or concurrent identical POSTs) does not create duplicates or is guarded via an idempotency key.",
+              "POST > Server Error Handling: No explicit simulation/assertion of 500 Internal Server Error (e.g., DB failure) response and body.",
+              "Content negotiation and headers: No tests for request Content-Type handling (415) or Accept negotiation (406), nor verification that responses include Content-Type: application/json as per Produces.",
+              "Response contract: Tests say \u201cmatches the request\u201d rather than validating against the CustomField schema (#/definitions/CustomField) and allowing server-enriched fields (ids, audit info).",
+              "Error response contract: Scenarios only check for a generic error message; they do not verify standard error payload structure (error code, message, requestId/trace).",
+              "Non-existent account status: Tests assume 400; specification is silent. Typically 404 Not Found is expected\u2014needs clarification and coverage.",
+              "Persistence and auditability: No follow-up verification that created fields are retrievable via GET and that audit logs reflect CreatedBy/Reason/Comment.",
+              "Authorization breadth: 403 Forbidden (authenticated but not authorized) not covered.",
+              "Data constraints depth: No explicit tests for max lengths, allowed charset, case sensitivity, or uniqueness across existing fields (beyond within-payload duplicates).",
+              "Spec alignment: TC05 expects response to include pre-existing custom fields, which may contradict \u201cresponse represents created fields\u201d in the story. This needs confirmation."
+            ],
+            "recommendations": [
+              "Add idempotency/duplicate submission tests: post the same payload twice (sync and concurrent). If supported, include an Idempotency-Key header; verify only one set of fields is created or that the second call returns the same result without duplication.",
+              "Simulate DB failure to validate 500 Internal Server Error behavior and error body contract.",
+              "Add content negotiation tests: missing/incorrect Content-Type -> 415; unacceptable Accept header -> 406; verify response header Content-Type: application/json for 201 and 4xx/5xx.",
+              "Validate response against the CustomField JSON schema (#/definitions/CustomField) instead of strict \u201cmatches request\u201d; allow server-generated fields and verify required properties/types.",
+              "Assert standard error payload structure (e.g., errorCode, message, type, requestId) across 400/401/500/503 cases.",
+              "Clarify expected status code for non-existent account (likely 404) and add a scenario accordingly; adjust TC10 if needed.",
+              "Add persistence/audit checks: after a successful POST, GET the account\u2019s custom fields to confirm storage and verify audit logs capture CreatedBy/Reason/Comment.",
+              "Add 403 Forbidden scenario for authenticated users lacking permissions/tenant access.",
+              "Extend data constraint tests: boundary lengths, allowed characters, case-insensitive uniqueness against existing fields, and name/value normalization behavior.",
+              "Review and align TC05 with the API contract: confirm whether the response should include only newly created fields; adjust assertion accordingly.",
+              "Refine unknown parameter behavior (TC13): explicitly assert that unexpected params are ignored and do not alter creation or are rejected per spec."
+            ],
+            "usage": {
+              "completion_tokens": 7710,
+              "prompt_tokens": 6650,
+              "total_tokens": 14360,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6720,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

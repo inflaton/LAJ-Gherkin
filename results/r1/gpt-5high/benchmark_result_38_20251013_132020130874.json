@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "38_2025-10-13T13:20:20.130846",
+    "jira_id": "38",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/{accountId}/emails/{accountEmailId}/auditLogsWithHistory - Retrieve account email audit logs with history by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T13:18:09.635806",
+    "benchmark_end_time": "2025-10-13T13:20:20.130842",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 130.495036,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "38_qe_sup-gpt4.1_agent-gpt4.1_1748918465.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: 200 OK with application/json and array of AuditLog objects is verified (schema check included).",
+              "Empty Response: No audit logs returns 200 with empty JSON array.",
+              "Error Handling: 404 for missing account or account email is exercised across multiple DB states.",
+              "Path Parameter Validation: Invalid UUID formats return 400 for both accountId and accountEmailId.",
+              "Authorization: Missing and invalid tokens return 401.",
+              "Query Parameters: Unknown/extra query parameter is tolerated without breaking the response.",
+              "Resilience: Service unavailable (503) and gateway timeout (504) scenarios covered.",
+              "Security: SQL injection and XSS attempts in path parameters are rejected.",
+              "Performance/Scale: Large result set (>1000) and response time expectation covered.",
+              "Regression/Ordering: Logs are verified to be ordered by changeDate descending."
+            ],
+            "gaps": [
+              "Pagination: No tests for pagination behavior with large datasets (limit/offset) or explicit confirmation that pagination is not supported.",
+              "Caching Behavior: No validation of ETag/If-None-Match or Cache-Control/Expires headers.",
+              "Rate Limiting: No tests for throttling/429 behavior under burst traffic.",
+              "Authorization (Forbidden): No scenario for a valid token lacking permission/tenant leading to 403.",
+              "Content Negotiation: No tests for Accept header handling (e.g., application/xml -> 406, defaulting to JSON).",
+              "Error Response Contract: Error payload schema and Content-Type for 4xx/5xx responses not asserted.",
+              "Resource Association: No test where accountEmailId exists but does not belong to accountId (should return 404/403).",
+              "History Semantics: Only presence of a history field is checked; no verification of correct historical versions and ordering within each log.",
+              "Headers/Observability: No assertions for correlation headers (e.g., X-Request-Id) if required by platform standards.",
+              "Out-of-scope test present: Accessibility/UI scenario (TC17) is not part of API acceptance and should live in UI tests."
+            ],
+            "recommendations": [
+              "Add pagination tests: request with limit/offset (or confirm behavior if unsupported) and validate stable ordering and counts.",
+              "Validate caching: assert ETag and Cache-Control on 200, then reissue with If-None-Match to expect 304 when unchanged.",
+              "Introduce rate-limiting tests: send bursts to observe 429 and rate-limit headers where applicable.",
+              "Add a 403 scenario: valid token without required permissions or wrong tenant should yield Forbidden.",
+              "Test content negotiation: vary Accept header (application/json, */*, unsupported types) and validate status/Content-Type.",
+              "Define and validate a common error schema across 400/401/403/404/5xx and assert Content-Type application/json for errors.",
+              "Add association-negative test: email belonging to a different account should not be retrievable under another account.",
+              "Deep-check history: create/update/delete the email, then verify history snapshots, actors, timestamps, and per-entry ordering.",
+              "Optionally assert presence of platform standard headers (e.g., X-Request-Id/trace) if mandated.",
+              "Move the accessibility scenario to a UI test suite to keep the API suite focused."
+            ],
+            "usage": {
+              "completion_tokens": 7161,
+              "prompt_tokens": 5014,
+              "total_tokens": 12175,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6464,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

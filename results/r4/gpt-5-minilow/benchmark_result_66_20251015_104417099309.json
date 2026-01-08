@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-15T10:44:17.099278",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:44:00.870296",
+    "benchmark_end_time": "2025-10-15T10:44:17.099274",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 16.228978,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "PUT Valid Request: Happy path (TC01) verifies successful update and 204 status.",
+              "Non-Existing Resource: TC04 and TC15 cover bundle-not-found (404) behaviour.",
+              "Invalid Path / Malformed ID: TC03 covers malformed bundleId format (400).",
+              "Request Validation: TC06, TC07, TC08 cover missing body, malformed JSON, and missing externalKey respectively (400s).",
+              "Business Rule - Duplicate externalKey: TC05 covers conflict when new externalKey already exists for same account.",
+              "Headers handling: TC02 covers missing required X-Killbill-CreatedBy; TC14 covers optional X-Killbill-Reason and X-Killbill-Comment; TC21 covers extra unexpected headers.",
+              "Edge cases for externalKey: TC09 (extra fields), TC10 (very long key), TC11 (empty key), TC19 (special chars), TC20 (leading/trailing spaces), TC18 (regression case).",
+              "Security/Authorization: TC12 includes missing/invalid auth token leading to 401/403.",
+              "Resilience/Integration: TC13 simulates dependent service/database unavailable (503).",
+              "Concurrency & Performance: TC17 covers concurrent updates; TC16 and TC23 cover large payload and response-time expectations.",
+              "Backward compatibility & misc: TC22 covers legacy clients; TC24 covers API documentation accessibility."
+            ],
+            "gaps": [
+              "Response Body / Content-Type on Success: The story says the endpoint 'Produces: application/json' while success returns 204 \u2014 tests do not validate response Content-Type or the presence/absence of a response body for success cases.",
+              "Exact status-code normalization for conflict cases: The story calls out 400 for invalid arguments including 'externalKey already in use' but some tests (TC17) allow 409. Tests do not assert the canonical status code for race/conflict scenarios (400 vs 409) or verify consistent error codes/messages.",
+              "Schema-level validation of request Bundle object: Tests validate presence of externalKey but do not validate full Bundle schema or that only externalKey is accepted/updated and other bundle fields remain unchanged (partial-update semantics).",
+              "Path parameter pattern enforcement (UUID regex): TC03 covers malformed id but there is no explicit test for various invalid UUID formats or boundary cases that match the regex in the API definition.",
+              "Idempotency / Duplicate Submission: No test for repeated identical requests (replay/duplicate) and how system handles them (idempotent behaviour).",
+              "Audit/tracking headers behavior: While CreatedBy is tested for missing, there's no test asserting that CreatedBy/Reason/Comment are recorded in audit/logs or visible in bundle metadata.",
+              "Authorization specifics: TC12 allows 401 or 403 but doesn't test role-based permissions or differentiated messages for unauthorized vs forbidden; no test for valid auth with insufficient privileges.",
+              "Input constraints & validation detail: No tests assert maximum/minimum length boundaries precisely (TC10 uses 255 but not compared to system limit), allowed character set is fuzzy (TC19 allows either 204 or 400), and trimming/normalization rules (TC20) are not asserted precisely.",
+              "Response payload for errors: Tests check for an error message presence but don't assert standard error payload schema/fields (error codes, type, message, fields).",
+              "Rate limiting / Throttling & Caching: No tests for rate limiting, throttling behavior, or caching headers despite these being part of standard API test concerns.",
+              "Partial update vs full replace: No explicit test ensuring PUT doesn't inadvertently change other bundle fields (i.e., ensuring only externalKey is updated).",
+              "Database uniqueness constraint enforcement cross-account variation: Tests cover same-account conflict but do not explicitly assert that same externalKey can exist on different accounts (allowed scenario).",
+              "Performance under sustained load: TC16/TC23 touch performance but there is no load test or threshold validation beyond single-request timing."
+            ],
+            "recommendations": [
+              "Validate response Content-Type and body behavior for success (204 should have no body; if API produces application/json confirm empty JSON or specific body convention).",
+              "Define and assert canonical status codes for conflict/race scenarios (decide 400 vs 409) and add tests that expect the decided code and error schema consistently.",
+              "Add tests that verify only externalKey is updated and other bundle fields remain unchanged (to check partial-update semantics for PUT).",
+              "Add explicit UUID pattern tests: multiple malformed UUID variants and borderline cases to ensure correct 400 behavior when path param fails validation.",
+              "Add idempotency/duplicate-submission tests: send the same successful request twice and verify deterministic behavior (no unintended side-effects).",
+              "Add audit/logging verification tests to check that X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment are recorded where applicable.",
+              "Tighten input constraint tests: assert exact maximum length allowed (e.g., if system limit is N validate N and N+1) and exact allowed character set and normalization (trim) rules with pass/fail expectations.",
+              "Add tests for error response schema: verify structured error fields (error-code, message, field) for each error scenario.",
+              "Add authorization matrix tests: valid token with insufficient privileges (403), missing token (401), and valid token (200/204) to assert role-based behavior explicitly.",
+              "Add rate-limiting and throttling tests and caching tests (ETag, Cache-Control) even if PUTs usually are non-cacheable; verify headers and handling under repeated requests.",
+              "Add cross-account uniqueness test: verify same externalKey can be used on different accounts if that's allowed, and is rejected only within the same account.",
+              "Add load/concurrency stress tests beyond single concurrency scenario to observe behavior under sustained high concurrency and validate throughput/latency SLA."
+            ],
+            "usage": {
+              "completion_tokens": 1537,
+              "prompt_tokens": 6051,
+              "total_tokens": 7588,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 320,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

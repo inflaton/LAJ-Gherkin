@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-10-13T07:40:20.597417",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T07:38:30.556911",
+    "benchmark_end_time": "2025-10-13T07:40:20.597411",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 110.0405,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid payloads: single and multiple tag creation with 201 responses and DB association (TC01, TC02, TC04, TC05).",
+              "Request body validation: empty array, malformed body (not an array), malformed UUIDs, extra unexpected parameters, and special-character regression (TC07, TC08, TC09, TC17, TC23).",
+              "Path and header validation: missing accountId, invalid accountId format, non-existent account, and missing required header X-Killbill-CreatedBy (TC11, TC12, TC13, TC14).",
+              "Authorization: missing/invalid authentication token yields 401 (TC15).",
+              "Optional headers handling: presence of X-Killbill-Reason and X-Killbill-Comment accepted (TC03).",
+              "Error handling for dependency failure: service unavailable scenario (503) simulated (TC16).",
+              "Large payload and boundary: bulk add with 100 tag IDs (TC18).",
+              "Duplicate and concurrency handling: duplicate IDs in request and concurrent requests to check duplicate avoidance and concurrent safety (TC19, TC21).",
+              "Query parameter resilience: pagination, sorting, filtering query params are ignored for POST (TC06).",
+              "Performance expectation: response time requirement (within 2 seconds) covered by TC20.",
+              "Non-existent tag definition handling: returns appropriate error for unknown tag-def IDs (TC10).",
+              "Backward compatibility/regression coverage: API version and regression cases covered (TC23, TC24)."
+            ],
+            "gaps": [
+              "Response schema and field-level validation is not asserted: tests do not verify Tag object fields (id is UUID, tagDefinitionId matches request, objectType == ACCOUNT, objectId == accountId, createdBy == X-Killbill-CreatedBy, createdDate present) or that response Content-Type is application/json.",
+              "Atomicity/transactionality for batch requests is not tested: no scenario where a batch contains a mix of valid and invalid tagDefinitionIds to verify all-or-nothing vs partial commits.",
+              "Handling of adding tags that already exist on the account is not explicitly tested (idempotency semantics when an existing tagDefinitionId is re-submitted outside concurrent race).",
+              "Permission/authorization negative case (403 Forbidden) for an authenticated user without required permissions is missing.",
+              "Internal server error (500) simulation is missing \u2014 only 503 dependency failure is covered.",
+              "Rate limiting and throttling behavior (multiple rapid requests causing 429 or throttling) is not covered.",
+              "Content-Type negotiation and validation (missing or wrong Content-Type leading to 415/400, and Accept header handling) are not tested.",
+              "Validation of array element types beyond malformed UUID strings (nulls, empty strings, numeric types, objects inside array beyond the single object case) is incomplete.",
+              "Very large payloads and size limits beyond the 100-ID boundary (e.g., payloads that could hit request-size limits) are not tested.",
+              "Verification that optional headers (X-Killbill-Reason, X-Killbill-Comment) are persisted or reflected in audit/log fields of the created Tag objects (if part of contract) is missing."
+            ],
+            "recommendations": [
+              "Add schema-level assertions for the returned Tag objects: check presence and types of fields (id UUID, tagDefinitionId, objectType == ACCOUNT, objectId == accountId, createdBy matches header, createdDate timestamp) and assert response Content-Type is application/json.",
+              "Create a test for atomicity: POST with mixed valid and invalid tagDefinitionIds and assert documented behavior (either full rollback with an error or partial success with explicit partial-failure semantics).",
+              "Add an idempotency test: POST a tagDefinitionId that already exists on the account (non-concurrent) and assert no duplicate in DB and that returned response conforms to API contract (201/200/409 as documented).",
+              "Add a 403 Forbidden scenario: authenticated user without required permissions should receive 403 to cover RBAC/permission enforcement.",
+              "Simulate an internal server error (500) (e.g., DB exception) to ensure the service surfaces a 5xx appropriately and logs useful diagnostics (separate from dependency 503 tests).",
+              "Add rate-limiting tests: hammer the endpoint to validate throttling behavior and correct 429 responses or backoff behavior if applicable.",
+              "Add Content-Type/Accept validation tests: missing or incorrect Content-Type should produce documented error (415 or 400) and Accept header handling should produce application/json responses or appropriate negotiation errors.",
+              "Add tests for invalid array elements: null, empty string, numeric, and nested objects in the array to ensure robust input validation and consistent 400 responses.",
+              "Stress test very large payloads beyond 100 items to find server limits and verify graceful handling or documented error responses for payload-size limits.",
+              "Add tests that assert optional headers (X-Killbill-Reason, X-Killbill-Comment) are recorded where the API contract requires it (e.g., audit fields) or explicitly not recorded, to prevent regressions.",
+              "Extend security tests to include body-based injection attempts (script/SQL) and ensure responses do not reflect injected content and inputs are sanitized/escaped."
+            ],
+            "usage": {
+              "completion_tokens": 8261,
+              "prompt_tokens": 6410,
+              "total_tokens": 14671,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7168,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

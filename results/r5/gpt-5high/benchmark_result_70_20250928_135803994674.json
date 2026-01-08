@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "70_2025-09-28T13:58:03.994649",
+    "jira_id": "70",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/catalog - Delete all versions for a per tenant catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T13:55:45.361187",
+    "benchmark_end_time": "2025-09-28T13:58:03.994646",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 138.633459,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "70_qe_sup-gpt4.1_agent-gpt4.1_1748920522.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE Method - Valid Deletion: TC01, TC02, TC05, TC08, TC10, TC12, TC15 verify 204 and full removal of tenant catalog versions",
+              "DELETE Method - Non-Existent Resource: TC06 covers tenant not found (404); TC05 covers no versions present returning 204 (idempotent empty state)",
+              "DELETE Method - Concurrency: TC13 validates concurrent DELETE requests result in one success and consistent final state",
+              "Headers per story: Required X-Killbill-CreatedBy present/validated (TC01, TC03, TC07, TC14); optional Reason/Comment handled (TC02); extra headers tolerated (TC08)",
+              "Error handling breadth: 400 for invalid/missing headers (TC03, TC07, TC14), 401 for invalid/expired token (TC04), 404 for tenant not found (TC06), 500 on system failure (TC09), 400/422 for malicious header input (TC11)",
+              "Destructive semantics: Post-delete GET returns empty/404 (TC01); regression check ensures no orphaned references remain (TC12)",
+              "DELETE request body ignored: TC15 confirms body is ignored and deletion proceeds",
+              "Performance: TC10 validates deletion completes within acceptable time for large datasets"
+            ],
+            "gaps": [
+              "Authorization/Permissions granularity: No test for authenticated user without delete permission (expected 403); story cites permissions issues as an error case",
+              "Idempotency (sequential): No scenario calling DELETE twice sequentially to assert the second call returns 204 or 404 and has no side effects",
+              "Multi-tenant isolation: No scenario proving deleting catalog for tenant A does not affect tenant B",
+              "Audit trail validation: No verification that CreatedBy/Reason/Comment are recorded in audit logs for the deletion",
+              "Soft delete vs hard delete: Not explicitly asserted that no soft-deletion flag exists; permanence is only inferred via GET",
+              "204 response semantics: No explicit check that 204 responses have an empty body and no Content-Type",
+              "Status code determinism: Several steps allow multiple possible codes (e.g., 400 or 401, 204 or 404), which can hide regressions",
+              "Header boundary/encoding: No tests for very long header values, Unicode/non-ASCII, or control characters"
+            ],
+            "recommendations": [
+              "Add a permission-focused scenario: valid auth but insufficient rights yields 403 and no deletion",
+              "Add a sequential idempotency test: perform DELETE twice; assert second response (204 or 404 per contract) and no changes",
+              "Add multi-tenant isolation test: delete for tenant A and verify tenant B catalog remains intact",
+              "Verify audit trail: assert an audit record exists for the deletion and that CreatedBy/Reason/Comment are captured",
+              "Assert 204 semantics: verify empty response body and absence of Content-Type for 204 responses",
+              "Make status codes explicit: replace ambiguous expectations with the single contract value for each case (e.g., missing CreatedBy -> 400, invalid token -> 401, forbidden -> 403)",
+              "Add header robustness tests: extremely long values, Unicode, and control characters should be rejected with clear errors",
+              "Explicitly confirm hard delete: if the API exposes any includeDeleted/withHistory views, ensure deleted versions do not appear; otherwise document and assert permanent removal behavior"
+            ],
+            "usage": {
+              "completion_tokens": 7311,
+              "prompt_tokens": 4159,
+              "total_tokens": 11470,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6592,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

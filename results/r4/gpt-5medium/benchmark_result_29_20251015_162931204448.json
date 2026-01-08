@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "29_2025-10-15T16:29:31.204418",
+    "jira_id": "29",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/paymentMethods/{paymentMethodId}/setDefault - Set the default payment method",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:27:48.772113",
+    "benchmark_end_time": "2025-10-15T16:29:31.204413",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 102.4323,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "29_qe_sup-gpt4.1_agent-gpt4.1_1748917854.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT - Valid Request: Happy paths covered (204) with required header only, with payAllUnpaidInvoices=true, with pluginProperty, and with optional headers; verifies default flag set and audit log entries.",
+              "PUT - Non-Existing Resource: 404s for non-existent account/payment method and when payment method does not belong to the account; account with no payment methods.",
+              "PUT - Concurrency: Concurrent requests result in a single default method; consistency asserted.",
+              "Input validation: UUID format errors return 400 (invalid/partial UUIDs), boundary UUIDs exercised; missing required header returns 400; unexpected extra query param tolerated.",
+              "Behavioral side effects: payAllUnpaidInvoices=true triggers attempts to pay unpaid invoices; scenario for no unpaid invoices ensures no attempts.",
+              "Authorization/Authentication: 401 for missing/invalid auth token.",
+              "Resilience/availability: 503 for service down; 503/504 for slow downstream dependency.",
+              "Security: Injection attempt in X-Killbill-CreatedBy is rejected; no execution.",
+              "Regression/data integrity: New default clears old default."
+            ],
+            "gaps": [
+              "Idempotency: No explicit test that repeating the same PUT (when the payment method is already default) remains idempotent (still 204, no duplicate side effects).",
+              "payAllUnpaidInvoices validation: No test for invalid/non-boolean values (e.g., payAllUnpaidInvoices=abc) returning 400; no explicit test for payAllUnpaidInvoices=false ensuring no attempts occur even with unpaid invoices.",
+              "Error mapping for server failures: No scenario for generic 500 (e.g., DB failure) to confirm correct error code and body.",
+              "Optional headers validation: No boundary/validation tests for X-Killbill-Reason/Comment (e.g., very long values, special characters, injection) and how they are stored/truncated in audit.",
+              "Response semantics: For 204, no assertion that the response body is empty and headers are appropriate (e.g., Content-Type absent or consistent with spec that claims produces application/json).",
+              "Request payload/content-type: No test for handling an unexpected JSON request body or wrong Content-Type (e.g., 415 or ignore body).",
+              "Plugin properties robustness: No tests for extreme pluginProperty values (length, special characters), duplicate keys behavior, or invalid encoding.",
+              "Authorization depth: No 403 Forbidden scenario for authenticated but unauthorized user/role.",
+              "Post-condition observability: No follow-up verification that future payments (e.g., next invoice auto-payment) actually use the new default method."
+            ],
+            "recommendations": [
+              "Add an idempotency scenario: call the endpoint twice with the same already-default payment method; expect 204 both times, no extra payment attempts, and unchanged state.",
+              "Extend payAllUnpaidInvoices coverage: include payAllUnpaidInvoices=false and invalid values (abc/1/yes) leading to 400; verify false causes no payment attempts even with unpaid invoices.",
+              "Introduce a 500 Internal Server Error simulation (e.g., DB outage) and validate error contract (status, errorCode, message).",
+              "Validate optional headers: test oversized Reason/Comment, special characters, and injection; assert safe storage/truncation and proper audit log rendering.",
+              "Assert response semantics for 204: verify empty body and headers (especially Content-Type) comply with the API spec that lists produces application/json.",
+              "Negative payload test: send a JSON body with Content-Type: application/json to confirm it is rejected or ignored per spec (define expected behavior).",
+              "Strengthen pluginProperty tests: very long values, URL-encoded/special characters, duplicates, and maximum length enforcement with clear outcomes.",
+              "Add a 403 Forbidden scenario for authenticated users lacking required permissions to set default payment methods.",
+              "Add an end-to-end post-condition: after setting the default, create/trigger a payment and assert the new default method is used."
+            ],
+            "usage": {
+              "completion_tokens": 3717,
+              "prompt_tokens": 6898,
+              "total_tokens": 10615,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2880,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

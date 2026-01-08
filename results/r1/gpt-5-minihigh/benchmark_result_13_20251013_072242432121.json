@@ -1,0 +1,95 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-13T07:22:42.432096",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T07:20:49.767173",
+    "benchmark_end_time": "2025-10-13T07:22:42.432093",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 112.66492,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Deletion: Success path (204) with default behavior and account marked closed (soft-delete) \u2014 TC01, TC06.",
+              "Query Parameters: Comprehensive coverage of optional flags: all-true, all-false, each-flag individually, pairwise combinations, and unsupported extra parameter handling \u2014 TC02, TC03, TC04, TC05, TC13.",
+              "Path parameter validation and injection protection: invalid UUID format and SQL injection tested and return 400 \u2014 TC08, TC15.",
+              "Header validation: required X-Killbill-CreatedBy absence handled (400) and X-Killbill-Comment XSS sanitation tested \u2014 TC09, TC16.",
+              "Authentication: missing/invalid authentication returns 401 \u2014 TC10.",
+              "Idempotency and non-existent resources: already-closed and non-existent accounts return 204 and are idempotent \u2014 TC11, TC12.",
+              "Dependent resources and scale cases: account with no subscriptions/invoices, large-scale processing (1000 items), and behaviours for cancelling subscriptions / writing-off / item-adjusting invoices covered \u2014 TC06, TC07, TC02, TC04, TC05, TC19.",
+              "Error handling: system-level failure (database unavailable) produces 500 \u2014 TC14.",
+              "Resilience: transient network failure & retry semantics with idempotency validated \u2014 TC17.",
+              "Concurrency & performance: concurrent closures for multiple accounts tested for acceptable response times \u2014 TC18.",
+              "Regression & backward compatibility: regression scenario for unpaid invoices and client compatibility (no optional headers) \u2014 TC19, TC20.",
+              "Accessibility & documentation: documentation and error-response accessibility covered \u2014 TC21."
+            ],
+            "gaps": [
+              "403 Forbidden (authenticated but unauthorized) scenarios are not covered \u2014 tests only cover unauthenticated (401) cases.",
+              "Invalid query parameter types and malformed boolean values are not tested (e.g., cancelAllSubscriptions=notABool) \u2014 no validation behavior asserted for bad param values.",
+              "Duplicate / repeated query-parameter handling and precedence (e.g., cancelAllSubscriptions=true&cancelAllSubscriptions=false) is not tested.",
+              "Concurrent deletion of the same account (race conditions where multiple users simultaneously delete the same account) is not explicitly tested \u2014 current concurrency test uses unique accounts.",
+              "Partial failures in downstream services (e.g., subscription service times out or fails to cancel some subscriptions, invoice service fails mid-operation) are not simulated \u2014 no tests for partial-success vs rollback behavior.",
+              "Assertions about response headers and payload shape are incomplete: the feature does not assert Content-Type (application/json) or the exact error JSON schema (story states Produces: application/json).",
+              "Audit/logging verification is missing: no tests assert that X-Killbill-CreatedBy / Reason / Comment are persisted in change records or audit trails.",
+              "Granular verification of invoice write-off and item-adjust results (invoice status, balances, created adjustment records) is not present \u2014 tests assert high-level outcome only.",
+              "Header edge-case validation (empty strings, excessively long header values, non-UTF characters) is not covered.",
+              "Rate-limiting / throttling behavior under heavy bursts is not covered beyond the basic concurrency/performance test."
+            ],
+            "recommendations": [
+              "Add 403 tests for authenticated users lacking authorization to ensure proper Forbidden responses and messaging.",
+              "Add validation tests for malformed query parameter values (non-boolean strings, numeric values, missing values) and assert expected 400 validation responses or documented behavior.",
+              "Add tests for repeated/duplicate query parameters to establish and verify precedence rules.",
+              "Create concurrency tests that attempt to delete the same account concurrently (N threads hitting the same accountId) to verify race conditions, idempotency and correct ordering of side-effects.",
+              "Simulate partial downstream failures (subscriptions/invoices/notifications) and assert transactional behavior or clear partial-failure semantics and error reporting; add retry/backoff expectations where applicable.",
+              "Assert response headers and body formats: verify Content-Type for error responses (application/json), that 204 has no body, and validate error JSON against a schema.",
+              "Add tests to assert that X-Killbill-CreatedBy / X-Killbill-Reason / X-Killbill-Comment are recorded in the account audit/change log with correct values.",
+              "Enhance invoice/subscription verification to check concrete state changes: invoice status, balance, created adjustment entries, subscription cancellation dates/reasons, rather than only high-level assertions.",
+              "Add header edge-case tests (empty, very long, non-printable characters) and confirm appropriate validation or sanitization.",
+              "Add rate-limiting / throttling tests (burst traffic) and observe graceful degradation / appropriate error codes (429) if applicable.",
+              "Consider parametrizing optional-flag combination tests (including triple combinations) to reduce manual test enumeration while ensuring full logical coverage; document expected business rules for conflicting flags to avoid ambiguity."
+            ],
+            "usage": {
+              "completion_tokens": 6842,
+              "prompt_tokens": 6316,
+              "total_tokens": 13158,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

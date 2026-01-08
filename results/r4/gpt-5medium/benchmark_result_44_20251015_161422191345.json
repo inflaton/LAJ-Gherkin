@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-15T16:14:22.191311",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:13:01.880401",
+    "benchmark_end_time": "2025-10-15T16:14:22.191305",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 80.310904,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request (POST): Multiple success paths with defaults and explicit offset/limit (TC01, TC02, TC03, TC13), including empty-result case (TC04).",
+              "Query Parameters: Wide coverage of valid combinations, defaults, and partial input; unexpected extra param behavior considered (TC01, TC02, TC11, TC13).",
+              "Pagination: Offset/limit sequencing, default limit, and max-limit edges exercised; large datasets covered (TC02, TC10, TC12).",
+              "Authorization: Unauthorized/expired token scenarios return 401/403 (TC08).",
+              "Validation: Required header enforced; type/range validation for offset/limit; header parsing regression; injection resiliency (TC05, TC06, TC07, TC14, TC16, TC17).",
+              "Duplicate Submission/Idempotency: Retries and concurrency do not double-generate invoices (TC15, TC18).",
+              "Performance/Scalability: Very large volumes and concurrent requests with response time/resource checks (TC12, TC18).",
+              "Server/Dependency Unavailable: 503 path covered (TC09)."
+            ],
+            "gaps": [
+              "Server Error Handling: No scenario simulating an internal server error (500) or database failure pathway.",
+              "Rate Limiting/Throttling: No tests for 429 Too Many Requests or server back-pressure behavior.",
+              "Data scope assurance: No explicit assertion that non-parked accounts remain unaffected by the operation.",
+              "Boundary validation: Behavior when limit exceeds the maximum allowed (above the documented cap) is not tested.",
+              "Pagination edge: Offset beyond the number of parked accounts (e.g., offset > total) not covered; expected no-op path unverified.",
+              "Response schema: Tests only check content type and generic messages; no validation of response JSON structure/fields (e.g., counts processed, offset/limit echoed, audit identifiers).",
+              "Content negotiation: No test for unsupported media type or unexpected request body handling (e.g., 415 or ignored body).",
+              "Authorization depth: No scenario for authenticated but insufficient privileges (non-admin) receiving 403."
+            ],
+            "recommendations": [
+              "Add a test to simulate a 500 Internal Server Error (e.g., database failure) and verify proper error body and stability.",
+              "Introduce rate limiting scenarios: bursts causing 429 responses, including checking Retry-After headers and graceful degradation.",
+              "Add assertions ensuring only parked accounts are processed; verify non-parked accounts are unchanged.",
+              "Test limit above the maximum allowed to confirm a 400 with a clear validation message.",
+              "Cover pagination edges: offset equal to and greater than total parked accounts should return 200 with no work performed.",
+              "Validate the response schema: include fields like processedCount, offset, limit, requestId/audit info; assert types and required fields.",
+              "Add a case sending an unexpected JSON body or wrong Content-Type to confirm 415 or defined handling.",
+              "Include a scenario where an authenticated non-admin user is denied (403) to validate role-based authorization.",
+              "Consider a multi-page workflow test to process all parked accounts across successive requests without gaps or overlaps.",
+              "Clarify behavior for extra query parameters (e.g., always reject with 400) and encode it in tests to avoid ambiguity."
+            ],
+            "usage": {
+              "completion_tokens": 3901,
+              "prompt_tokens": 5207,
+              "total_tokens": 9108,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3200,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

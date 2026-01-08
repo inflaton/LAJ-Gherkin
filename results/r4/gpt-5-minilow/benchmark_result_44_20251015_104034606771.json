@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-15T10:40:34.606742",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:40:20.394386",
+    "benchmark_end_time": "2025-10-15T10:40:34.606739",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 14.212353,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple successful scenarios (TC01, TC02, TC03, TC10, TC13, TC16, TC17) exercise normal and edge valid usages of the POST endpoint with default and explicit pagination parameters and header combinations.",
+              "Empty Response: TC04 explicitly covers the case when there are no parked accounts and verifies a successful 200 with indication that no invoices were generated.",
+              "Query Parameters / Validation: TC02, TC06, TC07, TC11, TC13 cover valid and invalid combinations of offset/limit, non-integer values, missing limit (partial input), and unexpected query parameters.",
+              "Authorization: TC08 covers unauthorized/expired token scenarios and expected 401/403 behavior.",
+              "Header Validation / Auditing: TC03, TC14, TC16 test required and optional headers, header parsing, auditing of reason/comment, and injection attempts in header values.",
+              "Error Handling: TC09, TC05, TC06, TC07 cover server/dependency unavailability, missing required header, and invalid parameter errors (>=400 class responses).",
+              "Concurrency / Performance: TC15, TC18, TC12 address retry behavior to avoid duplicate invoice creation, concurrent requests, large-volume processing and acceptable response-time expectations.",
+              "Regression / Backward Compatibility: TC16 and TC17 explicitly cover header-parsing regression and older clients not sending optional headers.",
+              "Edge cases: Several edge scenarios are present (max limit TC10, extremely large volumes TC12, extra params TC11)."
+            ],
+            "gaps": [
+              "Pagination mechanics / continuity: Although offset/limit are tested (TC02, TC13), there are no explicit tests validating pagination continuity across multiple sequential calls (e.g., processing page 1 then page 2 yields non-overlapping coverage and eventual completion).",
+              "Duplicate Submission / Idempotency: There is no focused test proving duplicate submissions (e.g., re-sending the same request twice intentionally) are handled idempotently or are rejected; TC15 covers transient retry but not intentional duplicate submission semantics.",
+              "Server-side error handling coverage depth: TC09 covers service unavailability (503) but there are no targeted tests for internal server errors (500) caused by DB failures, exceptions, or malformed internal data.",
+              "Rate limiting / throttling: No tests exercise rate limiting or behavior under sustained high request rates beyond TC18 concurrency; explicit rate-limit behavior and 429 responses are not covered.",
+              "Caching behavior: There are no tests for caching-related headers or behavior (ETag, Cache-Control) \u2014 even if caching may be irrelevant for an admin POST, the guidelines mention verifying caching when applicable.",
+              "Detailed response content assertions: Tests assert response code and content type but lack verification of response JSON structure, per-account results, success/failure counts, or error codes in the body.",
+              "Authorization scope/roles: TC08 checks invalid/expired token, but there are no tests that validate role-based access (e.g., proper admin role vs. non-admin token resulting in 403).",
+              "Input size and payload validation for POST: The story specifies no request body, so tests don't cover malformed payloads \u2014 but the standard POST guidelines expect malformed/large payloads, duplicate payload semantics, which are not applicable or not covered explicitly.",
+              "Rate of invoice generation / throttling/backpressure: While TC12 expects acceptable response time for 10k, there are no checks for backpressure or graceful degradation (e.g., queueing, partial successes, progress reporting).",
+              "Audit/logging verification: TC03/TC16 assert auditable behavior but do not validate that audit records/log entries are actually created or persisted."
+            ],
+            "recommendations": [
+              "Add explicit pagination-sequence tests that perform multiple sequential POSTs with offset/limit to assert no overlap/missing accounts and eventual completion of all parked accounts.",
+              "Add idempotency/duplicate-submission tests: send identical requests multiple times (beyond transient retry) and assert invoices are not duplicated or are safely deduplicated; include database verification of invoice counts per account.",
+              "Add server error simulations for 500 Internal Server Error (e.g., mock DB exception) and verify consumer-facing error code, message, and that partial processing is handled consistently (transactional behavior or compensating actions).",
+              "Introduce explicit rate-limiting tests to verify 429 or throttling behavior and system stability under sustained high request rates distinct from concurrency functional tests.",
+              "If relevant, add caching/headers tests to confirm no unintended caching for admin POST endpoints and presence/absence of Cache-Control or ETag where applicable; if caching is intentionally inapplicable, add a test asserting caching headers are absent/controlled.",
+              "Enhance response-body validation: assert JSON schema for the response (fields such as processedCount, failedCount, details array per account) and verify expected fields exist and contain correct values.",
+              "Add role-based authorization tests to validate only admin users with appropriate role/claims can perform the operation and non-admin tokens receive 403.",
+              "Add tests to verify audit/log persistence: read audit tables or logs to ensure X-Killbill-Reason and X-Killbill-Comment values are recorded and tied to the operation.",
+              "Add explicit duplicate/double-processing prevention tests for concurrent requests targeting overlapping account ranges to ensure invoices are generated exactly once and to measure conflict resolution behavior.",
+              "Define and test operational thresholds: specify acceptable response time numbers for large-volume tests (TC12) and create assertions against those SLAs; include tests for graceful degradation (e.g., partial success responses with retry tokens) if supported."
+            ],
+            "usage": {
+              "completion_tokens": 1288,
+              "prompt_tokens": 5207,
+              "total_tokens": 6495,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

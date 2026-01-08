@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "17_2025-10-13T20:28:54.207972",
+    "jira_id": "17",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/emails - Add account email",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T20:26:43.528603",
+    "benchmark_end_time": "2025-10-13T20:28:54.207966",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 130.679363,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "17_qe_sup-gpt4.1_agent-gpt4.1_1748916898.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Core acceptance criteria: happy path(s) for creating an email (201), response body contains AccountEmail and Location header presence (TC01, TC02, TC03, TC04, TC05).",
+              "Path parameter validation: invalid UUID and missing accountId handled (400) and non-existent account returns 404 (TC07, TC08, TC09).",
+              "Header handling: required X-Killbill-CreatedBy and optional X-Killbill-Reason/X-Killbill-Comment are exercised (TC02, TC05, TC13).",
+              "Request body validation: malformed JSON, missing required fields, invalid email format and empty body covered (TC10, TC11, TC12, TC17).",
+              "Security/input sanitization: SQL injection and XSS attack vectors are included (TC23, TC24).",
+              "Edge conditions and variants: large payloads, extra unsupported fields in the body, extra query parameters are included (TC06, TC16, TC18).",
+              "Resilience and error paths: external dependency/unavailability (503), slow DB/timeouts, and transient network retry scenarios are included (TC15, TC19, TC25).",
+              "Concurrency/race conditions: concurrent POST requests are exercised (TC20).",
+              "Integration and visibility: verifying the email via subsequent GET and downstream propagation covered (TC26).",
+              "Authorization and accessibility: unauthorized access and documentation / error-message clarity are covered (TC14, TC27)."
+            ],
+            "gaps": [
+              "Duplicate submission / idempotency is not explicitly tested: there is no deterministic test for posting the exact same AccountEmail twice and asserting whether the API deduplicates, rejects, or creates duplicates.",
+              "Response headers are not fully validated: Content-Type (produces application/json) and precise Location header format/content (URL pattern, resource id presence) are not asserted.",
+              "Response schema/field-level validation is incomplete: tests assert \"AccountEmail object present\" but do not validate fields (ids, timestamps, emailType, primary flag, types, lengths) or strict JSON schema compliance.",
+              "Content negotiation / request Content-Type handling is missing: tests do not cover missing or incorrect Content-Type (e.g., missing application/json or wrong media type -> 415) or Accept header mismatches.",
+              "Server 500 behaviour is not explicitly simulated or asserted (tests cover 503/timeouts but not Internal Server Error handling and 500 responses).",
+              "Rate limiting / throttling behavior is not covered (no tests for 429 or Retry-After under high request rates).",
+              "Several scenarios allow ambiguous outcomes (TC06, TC16, TC18, TC21): they permit either 201 or 400 which makes the test outcomes non-deterministic absent a clear API decision.",
+              "Audit verification is missing: there are no tests asserting that X-Killbill-CreatedBy/Reason/Comment are recorded in resource metadata or audit logs.",
+              "Retry idempotency remains unverified: TC25 retries but does not assert whether retry caused duplicate resource creation.",
+              "Header validation edge-cases are not covered: invalid/empty X-Killbill-CreatedBy values, header length/format constraints are not tested.",
+              "Performance SLO assertions are not present: TC19 mentions measuring response time but no explicit thresholds or pass/fail criteria are enforced."
+            ],
+            "recommendations": [
+              "Add an explicit duplicate-submission test: POST the same AccountEmail twice and assert the documented behavior (either idempotent result, 409/422, or creation of a second resource).",
+              "Assert response Content-Type == application/json and validate the Location header format exactly (e.g., contains /accounts/{accountId}/emails/{emailId} or documented pattern); follow up with a GET on the Location to validate the resource.",
+              "Add strict response JSON Schema validation tests to verify field presence, types and constraints (id, accountId, email, isPrimary, createdDate, etc.).",
+              "Add tests for missing/incorrect request Content-Type and Accept headers (expect 415 Unsupported Media Type or 406 Not Acceptable if applicable).",
+              "Simulate and assert 500 Internal Server Error handling (in addition to 503) and verify API returns a sensible error body/structure for 5xx errors.",
+              "Introduce rate-limiting/throttling tests (high request bursts) and assert 429 responses and Retry-After semantics if the API implements rate limits.",
+              "Resolve ambiguous test expectations: decide and codify expected behavior for TC06/TC16/TC18/TC21 (reject or accept extra fields/large payload/unicode) and change tests to expect one deterministic outcome.",
+              "Add tests to verify audit behavior: ensure X-Killbill-CreatedBy/Reason/Comment are persisted in audit logs or resource metadata and surfaced via API where applicable.",
+              "Extend retry/idempotency tests to assert that retries do not create duplicate records (or document and test the expected duplicate behavior).",
+              "Add negative header validation tests for invalid/empty X-Killbill-CreatedBy and header length/format limits.",
+              "Add performance SLOs to TC19: define acceptable response-time thresholds and add automated assertions; extend concurrency TC20 to include stress tests for data integrity under high load."
+            ],
+            "usage": {
+              "completion_tokens": 6665,
+              "prompt_tokens": 6487,
+              "total_tokens": 13152,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5568,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

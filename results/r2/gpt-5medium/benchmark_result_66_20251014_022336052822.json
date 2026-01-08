@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "66_2025-10-14T02:23:36.052792",
+    "jira_id": "66",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/renameKey - Update a bundle externalKey",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T02:22:06.792761",
+    "benchmark_end_time": "2025-10-14T02:23:36.052787",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 89.260026,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "66_qe_sup-gpt4.1_agent-gpt4.1_1748920286.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "PUT - Valid Request: Happy paths verify 204 and that externalKey is updated (TC01, TC14, TC09).",
+              "PUT - Non-Existing Resource: 404 is asserted for unknown bundleId and empty system (TC04, TC15).",
+              "PUT - Concurrency Issues: Concurrent update behavior is exercised; only one succeeds (TC17).",
+              "Request validation and error handling: missing required header (TC02), malformed UUID (TC03), missing body (TC06), malformed JSON (TC07), missing/empty externalKey (TC08, TC11), duplicate key for same account (TC05).",
+              "Authorization: Unauthorized/forbidden access covered with 401/403 (TC12).",
+              "Optional/extra headers: Reason/Comment handled; unexpected header tolerated (TC14, TC21).",
+              "Input edge cases: long key, special characters, leading/trailing spaces (TC10, TC19, TC20).",
+              "Resilience/performance: dependency outage 503, large payload behavior, response time under normal load (TC13, TC16, TC23).",
+              "Regression/compat: previously problematic key and legacy client behavior (TC18, TC22)."
+            ],
+            "gaps": [
+              "PUT - Partial Update semantics: No assertion that only externalKey is modifiable and other bundle fields remain unchanged; TC09 doesn\u2019t check that extra fields are ignored/no-ops.",
+              "Status code specificity: Several scenarios allow multiple outcomes (e.g., TC10, TC12, TC17, TC18 use \u201c204 or 400/403/409\u201d), which weakens the contract. Conflicts should align to a single expected code per spec (story indicates 400).",
+              "Idempotency: No tests for updating to the same externalKey (no-op) or repeating the same PUT to ensure consistent, side-effect-free outcomes.",
+              "Error response contract: Tests don\u2019t verify that error responses are application/json with a defined schema; 204 responses aren\u2019t checked for having no body.",
+              "Content negotiation/enforcement: Missing tests for 415 Unsupported Media Type when Content-Type is absent/incorrect and for Accept header behavior if applicable.",
+              "UUID format boundary: Only a blatantly malformed id is tested; near-valid edge cases (uppercase hex, extra whitespace) are not covered to assert strict pattern enforcement.",
+              "Server error handling: No coverage for unexpected 500 Internal Server Error paths.",
+              "Audit metadata persistence: No verification that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs/events (if the platform exposes them)."
+            ],
+            "recommendations": [
+              "Add a scenario that sends extra fields and then verifies only externalKey changes while all other bundle attributes remain unchanged; alternatively, assert the API rejects updates to any fields other than externalKey.",
+              "Resolve ambiguous Then steps by asserting a single, contract-aligned status code: 204 for success, 400 for invalid arguments (including conflicts), 404 for not found, and remove \u201c204 or/400 or/409\u201d language.",
+              "Introduce idempotency tests: (1) PUT externalKey equal to current value with defined outcome; (2) Repeat the same valid PUT twice and ensure the second is consistent and side-effect free.",
+              "Validate response headers and bodies: assert error Content-Type application/json; check standardized error fields; verify 204 responses have no body.",
+              "Add a 415 Unsupported Media Type scenario for missing/wrong Content-Type and, if relevant, test Accept header negotiation.",
+              "Broaden UUID validation with near-valid malformed cases (e.g., correct length but bad segment, uppercase/lowercase handling, leading/trailing spaces).",
+              "Add a scenario simulating an unexpected server exception to assert a 500 path and error payload.",
+              "If audit logs are available, add checks confirming CreatedBy/Reason/Comment are persisted and retrievable in audit/audit trail APIs."
+            ],
+            "usage": {
+              "completion_tokens": 4090,
+              "prompt_tokens": 6051,
+              "total_tokens": 10141,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3264,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-14T01:55:51.291451",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T01:54:19.763448",
+    "benchmark_end_time": "2025-10-14T01:55:51.291448",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 91.528,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Request/Valid Payload: Multiple success paths (default, explicit offset/limit, optional headers) return 200 with application/json (TC01, TC02, TC03, TC13).",
+              "Empty Response: No parked accounts returns 200 with indication that nothing was generated (TC04).",
+              "Query Parameters: offset/limit combinations, defaults, and extra unexpected param exercised (TC01, TC02, TC11, TC13).",
+              "Pagination: Offset/limit behavior including defaults and upper bounds covered (TC01, TC02, TC10, TC13).",
+              "Authorization: Missing required header, invalid/expired token paths covered with 400/401/403 (TC05, TC08).",
+              "Validation: Negative/zero/non-integer parameters produce 400; required header enforced (TC05, TC06, TC07).",
+              "Error Handling (partial): Service unavailable (503) path covered (TC09).",
+              "Duplicate Submission/Idempotency: Retries and concurrency ensure invoices generated once per parked account (TC15, TC18).",
+              "Performance: Large data volume and concurrent requests validated with acceptable response time/resource usage (TC12, TC18).",
+              "Security: Header injection attempt handled without leaking sensitive info (TC14).",
+              "Auditability/Headers: Optional reason/comment recorded; header parsing regression covered (TC03, TC16).",
+              "Backward Compatibility: Older clients omitting optional headers still succeed (TC17)."
+            ],
+            "gaps": [
+              "Server Error Handling: No explicit 500 Internal Server Error scenario (e.g., database failure during processing).",
+              "Rate Limiting/Throttling: No 429 or behavior verification under burst traffic beyond allowed limits.",
+              "Header Boundary Conditions: No tests for empty/blank X-Killbill-CreatedBy, overly long header values, or invalid character sets.",
+              "Pagination Consistency: No multi-call tests to prove deterministic ordering and no overlap/gaps across successive pages (e.g., offset 0/100 then 100/100).",
+              "Non-parked Accounts Safety: No assertion that non-parked accounts are not affected when the job runs.",
+              "Offset Beyond Range: No scenario for offset greater than total parked accounts (should return 200 with zero processed).",
+              "Error Response Schema: Tests check presence of error message but not a consistent error body structure (code, message, requestId).",
+              "Security (query params): No injection/fuzzing attempts in query parameters (even though typed, robustness should be verified).",
+              "Request Body Handling: Story says body is N/A but API consumes application/json; no test to ensure an unexpected body is ignored or results in 415/400 as designed.",
+              "Unknown/Unsupported Headers: No scenario sending extra headers to verify they are ignored or validated as per policy."
+            ],
+            "recommendations": [
+              "Add a server-failure test that simulates a database exception and expects 500 with a well-formed error body.",
+              "Introduce rate-limiting tests (burst of POSTs) to verify 429 and correct Retry-After semantics if applicable to admin endpoints.",
+              "Add header boundary tests: empty/whitespace CreatedBy, very long strings, non-UTF-8 characters; verify validation and logging.",
+              "Create pagination consistency scenarios calling multiple pages in sequence and asserting no duplicates or gaps across page boundaries.",
+              "Add a safety check asserting that non-parked accounts have no invoices generated after the run.",
+              "Test offset values beyond the total parked count and expect a 200 with zero processed.",
+              "Validate error response schema (fields like code, message, type, requestId) across 400/401/403/503.",
+              "Add security fuzzing for query params (e.g., very large integers, scientific notation, encoded payloads) to confirm robust parsing and sanitization.",
+              "Clarify and test behavior when a JSON body is sent: either ignore body and succeed or return 400/415; codify in tests.",
+              "Add a scenario with unknown headers (e.g., X-Unknown) to confirm they are ignored or rejected per spec."
+            ],
+            "usage": {
+              "completion_tokens": 4070,
+              "prompt_tokens": 5207,
+              "total_tokens": 9277,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3200,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

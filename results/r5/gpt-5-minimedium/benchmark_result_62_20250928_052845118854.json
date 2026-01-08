@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "62_2025-09-28T05:28:45.118817",
+    "jira_id": "62",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles/search/{searchKey} - Search bundles",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T05:28:13.119967",
+    "benchmark_end_time": "2025-09-28T05:28:45.118812",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 31.998845,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "62_qe_sup-gpt4.1_agent-gpt4.1_1748919997.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple happy-path scenarios (TC01, TC02, TC05 etc.) verify successful retrieval and JSON response for valid parameters.",
+              "Empty Response: TC06, TC07, TC24 cover cases where no results are returned (empty arrays).",
+              "Pagination: Many pagination behaviors are exercised: explicit offset/limit (TC02), offset > total (TC07), limit=0 (TC08), large-volume requests (TC19), max-values (TC26) and combined pagination with audit (TC05).",
+              "Query Parameters: A wide variety of valid and invalid query parameter combinations are tested \u2014 audit variants (TC03, TC04), invalid audit value (TC12), invalid/negative pagination values (TC10, TC11), unexpected extra parameter (TC18), injection attempt in searchKey (TC17).",
+              "Authorization: Authentication-related error handling is covered (TC13 missing token, TC14 invalid token -> 401).",
+              "Error Handling: Server-side errors and dependency failures are covered (TC15 503, TC16 500, TC25 504 timeout).",
+              "Search semantics: Substring match and searchKey matching behaviors are considered (TC27), and partial / empty DB states are covered (TC23, TC24).",
+              "Performance/Concurrency: Basic performance-oriented cases are present (TC19 large data volume, TC20 concurrent requests).",
+              "Response format: At least one test asserts application/json response (TC01)."
+            ],
+            "gaps": [
+              "Schema / Field-level Validation: No tests assert the shape/content of each Bundle object against the Bundle schema (required fields, types, presence of id/accountId, dates, etc.).",
+              "Default Query Param Values: The default behaviors and values (offset defaults to 0, limit defaults to 100, audit defaults to NONE) are not explicitly asserted \u2014 TC01 implicitly covers \"no query params\" but does not validate defaults or default-size behavior (e.g., default limit=100).",
+              "Audit=NONE behavior: There is no explicit test asserting that audit=NONE (or absence of audit param) returns no audit fields.",
+              "Non-integer / Malformed Query Param Types: No tests for non-integer strings, very large numbers exceeding integer ranges, or malformed numeric types for offset/limit (e.g., offset=abc).",
+              "Authorization nuance (403 / scopes): Tests cover 401 for missing/invalid tokens but do not cover 403 (authenticated but unauthorized / insufficient scope or roles).",
+              "Rate Limiting / Throttling: No tests to validate behavior under rate limits (429) or that repeated rapid requests are throttled.",
+              "Caching / Conditional GET: No tests for caching headers (ETag, Cache-Control, Last-Modified) or conditional requests (If-None-Match -> 304).",
+              "Content Negotiation & Headers: Accept header handling, Content-Type consistency across requests/responses, and other header behaviors are not validated beyond a single JSON assertion.",
+              "Path param encoding and special-character handling: No explicit tests for URL-encoded searchKey, spaces, unicode, or other path-encoding edge-cases.",
+              "Boundary Value & Limits: While some large-value tests exist, boundary tests at default limits (e.g., exactly 100), off-by-one around page boundaries, and server-imposed maximum limits/validation errors are not explicit.",
+              "Error payload consistency and information leakage: While errors are asserted by code, tests do not validate the structure of error responses (fields, codes) or that they do not leak internal stack traces beyond TC17 mention."
+            ],
+            "recommendations": [
+              "Add schema validation tests: assert each Bundle object contains required fields with correct types and optional fields behave as expected (including audit fields depending on audit param).",
+              "Explicitly test default parameter behavior: add a test calling the endpoint with no query params that asserts offset == 0, limit == 100 semantics (e.g., create >100 matches and verify only 100 returned).",
+              "Verify audit=NONE and absence-of-audit: add a test asserting that when audit is absent or set to NONE no audit info is present in Bundle objects.",
+              "Add malformed-type tests for pagination: send offset=abc, limit=1.5, extremely large numeric strings to confirm 4xx responses and clear error messages.",
+              "Include authorization scope tests (403): create authenticated tokens with insufficient privileges to confirm 403 and appropriate error payloads.",
+              "Implement rate-limiting tests: rapid-fire requests and expect 429 or documented behavior; validate Retry-After header when applicable.",
+              "Add caching/conditional GET tests: verify presence/semantics of Cache-Control and ETag headers, and test If-None-Match leading to 304 responses.",
+              "Test content negotiation and headers: exercise Accept variations and assert Content-Type and consistent response encoding; validate error Content-Type too.",
+              "Add path-encoding tests: exercise searchKey with spaces, /, ?, unicode, reserved characters and verify correct handling or proper 4xx responses.",
+              "Add boundary and off-by-one tests: verify behavior when total matches == limit, limit+1, offset at boundary, and server maximum limit enforcement.",
+              "Validate error payload format and security: assert error JSON schema, no stack traces or sensitive data in error messages for 4xx/5xx responses."
+            ],
+            "usage": {
+              "completion_tokens": 2522,
+              "prompt_tokens": 5050,
+              "total_tokens": 7572,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1408,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

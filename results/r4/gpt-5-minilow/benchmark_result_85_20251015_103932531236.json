@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "85_2025-10-15T10:39:32.531208",
+    "jira_id": "85",
+    "jira_title": "Implement/Test API: GET /1.0/kb/export/{accountId} - Export account data",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:39:21.177404",
+    "benchmark_end_time": "2025-10-15T10:39:32.531204",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 11.3538,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "85_qe_sup-gpt4.1_agent-gpt4.1_1748921476.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Request: Multiple success scenarios (TC01, TC02, TC08, TC13, TC14, TC15) verify successful export returns 200 and application/octet-stream with valid archive content.",
+              "Empty Response: TC07 covers behavior when the database is empty (404 expected).",
+              "Input Validation: TC03, TC04, TC11 validate required header presence and malformed/malicious accountId formats (400 responses).",
+              "Not Found Handling: TC05 and TC07 check 404 when account does not exist.",
+              "Error/Failure Modes: TC10 (service unavailable -> 500), TC17 (timeout -> 504), and TC09 (degraded performance) cover downstream/unavailable behavior and response time constraints.",
+              "Concurrency/Load: TC13 verifies concurrent requests for the same account return successful exports.",
+              "HTTP Method Semantics: TC16 verifies unsupported HTTP method returns 405.",
+              "Authentication/Authorization: TC18 checks unauthorized access returns 401 when token missing (if auth required).",
+              "Headers: Required and optional header behavior is tested (X-Killbill-CreatedBy required, X-Killbill-Reason/Comment optional) across multiple scenarios."
+            ],
+            "gaps": [
+              "Pagination: No tests address pagination behavior \u2014 while export is per-account, the guidelines expect pagination checks for large dataset endpoints.",
+              "Query Parameters: No scenarios test query parameters or variations (filters, format options) \u2014 the story doesn't define query params but the guideline asks to verify them if present.",
+              "Rate Limiting / Throttling: No tests for rate limiting, burst traffic handling, or graceful degradation under request storms beyond concurrency TC13.",
+              "Caching Behavior: No tests verify caching headers (ETag, Cache-Control) or caching semantics for repeated requests.",
+              "Response Content Validation Depth: Tests assert presence of an export archive but do not validate archive structure/content details (e.g., expected files, metadata, compression format).",
+              "Content-Encoding and Transfer Details: No checks for Content-Encoding, Content-Length, chunked transfer, or streaming correctness for large responses.",
+              "Authorization granularity: TC18 covers missing token (401) but there are no tests for forbidden access (403) or role/scoped authorization rules.",
+              "Rate/Retry Behavior on Downstream Failures: While TC10/TC09 cover failures/timeouts, there's no test for retry logic, circuit breaker behavior or backoff policies.",
+              "Schema/Metadata Headers: No tests validate presence/format of bookkeeping headers (e.g., export version, checksum) that might be important for clients."
+            ],
+            "recommendations": [
+              "Add pagination-related tests if the export can include paginated internal resources or if clients can request partial exports; if pagination is not applicable, explicitly document that and remove pagination from guideline scope for this endpoint.",
+              "Add tests for query parameters or documented optional request parameters (format, date range, include/exclude sub-resources), including invalid parameter values.",
+              "Add rate-limiting and throttling tests (e.g., burst of requests until 429 is returned) to validate server behavior under high request rates.",
+              "Add caching tests: repeated identical requests should be checked for ETag/Cache-Control headers and proper 304 behavior if supported.",
+              "Extend content validation: after unpacking the returned archive, validate expected files, manifest/metadata, and that the archive format (compression type, file names) matches the contract.",
+              "Add tests for Content-Encoding, Content-Length/chunked transfer behavior and for large-stream correctness beyond simple size checks.",
+              "Include forbidden (403) authorization tests to cover role-based access control or scoped tokens, not just missing token (401).",
+              "Add tests for retry/circuit-breaker/backoff behavior when downstream services intermittently fail, and ensure appropriate metrics/logging where required.",
+              "Consider adding tests that assert specific audit headers (e.g., exported-by, export-timestamp, checksum) if these are part of the API contract."
+            ],
+            "usage": {
+              "completion_tokens": 1020,
+              "prompt_tokens": 5510,
+              "total_tokens": 6530,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

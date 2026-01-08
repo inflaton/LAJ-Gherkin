@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-15T03:10:23.364516",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T03:08:15.489773",
+    "benchmark_end_time": "2025-10-15T03:10:23.364510",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 127.874737,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "PUT Method: Valid Request and idempotent behavior verified (host out-of-rotation -> 204 and transitions to in-rotation; already in rotation -> 204 with no state change).",
+              "Authorization: Proper handling of unauthenticated (401) and insufficient privileges (403).",
+              "Method correctness: 405 returned when using GET on a PUT-only endpoint.",
+              "Operational error handling: 503 when service/endpoint is unavailable.",
+              "Concurrency Issues: Multiple concurrent PUTs complete successfully without race conditions.",
+              "Resilience: Retry after transient network interruption leads to successful 204.",
+              "Performance: Response time validated under degraded/high-load conditions.",
+              "Robustness: Unexpected request body and extra headers do not break behavior (still 204) per current tests.",
+              "Regression: Previously fixed rotation bug remains resolved.",
+              "Response semantics: 204 status with empty body validated."
+            ],
+            "gaps": [
+              "Response headers not validated: Story specifies Produces: application/json, but tests do not assert Content-Type (especially for error responses) or other relevant headers.",
+              "Server error handling not covered: No simulation of internal failures (e.g., dependency/database issues) returning 5xx with standardized JSON error payload.",
+              "Rate limiting not tested: No coverage for 429 Too Many Requests and presence of Retry-After header under burst traffic.",
+              "Content negotiation not covered: No tests for Accept header mismatches (e.g., 406 Not Acceptable) or verification that error payloads are JSON per spec.",
+              "405 completeness: Tests do not assert presence of Allow header listing permitted methods when 405 is returned.",
+              "Unknown inputs handling: No explicit test for behavior with unexpected query parameters (ignore vs reject with 400).",
+              "Request body policy ambiguity: Story says Request Body: N/A, but TC07 expects success with a non-empty body; behavior should be clarified (reject with 400/415 vs ignore) and tested accordingly."
+            ],
+            "recommendations": [
+              "Add assertions for headers: verify Content-Type: application/json on all error responses; for 204 responses, assert empty body and consistent header behavior per API spec.",
+              "Introduce fault-injection tests to trigger 500 Internal Server Error and validate standardized JSON error structure (e.g., fields like code, message, requestId).",
+              "Add rate limiting scenario: send high-frequency bursts and expect 429 Too Many Requests with Retry-After header if applicable.",
+              "Test content negotiation: send unsupported Accept (e.g., text/plain) to validate 406 Not Acceptable or defined fallback; verify error payloads are JSON with the expected schema.",
+              "Enhance 405 test to assert the Allow header lists PUT (and any other supported methods).",
+              "Clarify and codify behavior for non-empty request body and unexpected query parameters; add scenarios to either reject with 400/415 or to ignore safely while returning 204.",
+              "Optionally add a sequential idempotency test (multiple PUTs in quick succession) to complement concurrency coverage and ensure no side effects beyond logs/metrics.",
+              "If bodies are rejected, add a 415 Unsupported Media Type scenario when Content-Type is set with an unsupported type alongside a body."
+            ],
+            "usage": {
+              "completion_tokens": 7458,
+              "prompt_tokens": 3274,
+              "total_tokens": 10732,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6784,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

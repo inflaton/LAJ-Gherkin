@@ -1,0 +1,96 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "51_2025-10-14T19:51:52.295101",
+    "jira_id": "51",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId} - Transfer a bundle to another account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:49:34.844177",
+    "benchmark_end_time": "2025-10-14T19:51:52.295097",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 137.45092,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "51_qe_sup-gpt4.1_agent-gpt4.1_1748919232.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid payloads and successful transfers: TC01 and TC02 validate minimal and full parameter sets and check for 201, response body and Location header.",
+              "Billing policy values and invalid value handling: TC03 verifies START_OF_TERM, END_OF_TERM, IMMEDIATE; TC10 covers an invalid value.",
+              "requestedDate validation and use: TC02 and TC04 test valid dates; TC09 tests invalid formats.",
+              "pluginProperty behaviors: TC02, TC05, TC18 and TC20 cover multiple values, empty array and large payload handling; TC16 tests XSS attempts.",
+              "Required and optional headers: X-Killbill-CreatedBy requirement covered (TC11) and optional X-Killbill-Reason and X-Killbill-Comment handled (TC02, TC21).",
+              "Request body presence and accountId requirement: TC01/TC02 supply accountId and TC12 checks missing body handling.",
+              "Error handling for resource not found and authorization: TC06/TC07 for 404s, TC13 for 401.",
+              "Server error handling and dependency failures: TC14 covers 503 and TC24 covers 500 inconsistent dependency.",
+              "Security checks: SQL injection (TC15) and XSS (TC16) negative tests.",
+              "Edge cases and regressions: transfer to same account (TC25), extra unexpected parameters ignored (TC19), empty DB (TC22), partial DB (TC23), transient network retry (TC17).",
+              "Performance and concurrency: TC27-TC30 and TC29 cover response time, peak load, concurrent requests and resource utilization.",
+              "Background and preconditions: feature Background defines API availability, DB state with source and target accounts, existing bundle and valid auth token so scenarios are executable."
+            ],
+            "gaps": [
+              "Duplicate submission and idempotency behavior is not tested; no expectation for repeated identical POSTs or idempotency key handling.",
+              "Malformed JSON and incorrect or missing Content-Type request header are not covered (how server reacts to non JSON or syntactically invalid JSON).",
+              "AccountId format validation (non UUID) is not explicitly tested; SQL injection is covered but not simple format violations for accountId.",
+              "No explicit test asserting the default billingPolicy is END_OF_TERM when billingPolicy is omitted from the request.",
+              "No negative tests for header fields exceeding allowed length (X-Killbill-Reason / X-Killbill-Comment overflow scenarios are not tested to ensure proper rejection).",
+              "pluginProperty type validation for wrong types (e.g., supplying an object, numeric values, or a single non-array value) is missing.",
+              "No explicit assertions on response Content-Type header being application/json or strict schema level validation of returned Bundle fields (tests state \"valid Bundle\" but do not assert specific fields like accountId, effective date, billing policy were updated).",
+              "No targeted race condition test for two concurrent transfers of the same bundle to different target accounts (conflicting operations and locking semantics).",
+              "Rate limiting / throttling behavior under repeated rapid requests is not covered (no 429 or similar behavior tests).",
+              "Timezone and requestedDate boundary cases (far past, far future, or timezone-specific formats) are not covered."
+            ],
+            "recommendations": [
+              "Add duplicate submission / idempotency tests: submit identical transfer requests twice (with and without an idempotency key if supported) and assert the second request behavior (idempotent success or appropriate error) to prevent accidental double transfers.",
+              "Add malformed JSON and Content-Type tests: send invalid JSON payloads and requests missing or using incorrect Content-Type headers to verify the API returns 400 and a clear error message.",
+              "Add accountId format validation tests: provide non UUID accountId values and expect 400 with an informative error describing the expected UUID pattern.",
+              "Add a default billingPolicy test: omit billingPolicy and assert the returned Bundle shows billingPolicy set to END_OF_TERM (per the spec) and any side effects (billing dates) are correct.",
+              "Add header boundary tests: send X-Killbill-Reason and X-Killbill-Comment values longer than allowed and assert the API rejects them with appropriate error codes and messages.",
+              "Add pluginProperty type and content validation tests: submit pluginProperty as non-array, use non-string elements, and include malformed entries to ensure the API validates element types and formats.",
+              "Assert response headers and schema explicitly: verify Content-Type is application/json and that Location exactly matches the returned bundle URL/id; implement full Bundle schema checks to confirm accountId and relevant fields were updated by the transfer.",
+              "Add a focused concurrency conflict test: execute two simultaneous transfer requests for the same bundle to different target accounts and assert deterministic behavior (one succeeds, the other fails with a clear error such as conflict) to check locking and transactional consistency.",
+              "Introduce rate limiting / throttling tests: hammer the endpoint to validate 429 or configured throttling behavior and ensure graceful degradation and meaningful error messages under load.",
+              "Add requestedDate timezone and boundary tests: test far past/future dates and timezone formatted dates to ensure correct effective date calculation and validation.",
+              "Add tests for malformed or missing authentication headers beyond a single 401 case to validate all authentication failure modes and ensure consistent responses.",
+              "Where possible, convert high level \"valid Bundle\" assertions into explicit field checks (accountId, effective date, billing policy, subscription states) to improve schema level coverage and catch regressions."
+            ],
+            "usage": {
+              "completion_tokens": 8743,
+              "prompt_tokens": 7734,
+              "total_tokens": 16477,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7616,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

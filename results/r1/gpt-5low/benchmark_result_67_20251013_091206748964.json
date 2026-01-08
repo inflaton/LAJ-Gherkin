@@ -1,0 +1,81 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "67_2025-10-13T09:12:06.748940",
+    "jira_id": "67",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/xml - Retrieve the full catalog as XML",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:11:47.220658",
+    "benchmark_end_time": "2025-10-13T09:12:06.748936",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 19.528278,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "67_qe_sup-gpt4.1_agent-gpt4.1_1748920336.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "GET/Valid Request: Multiple success paths validate retrieval with no params, requestedDate, accountId, and both together; verifies 200, Content-Type text/xml, and well-formed/schema-conformant XML.",
+              "GET/Empty Response: Covered via no catalog present (404/400) and empty-but-valid catalog XML (200).",
+              "GET/Query Parameters: Robust coverage of valid/invalid combinations, including bad formats (requestedDate/accountId), unsupported extras, max lengths, and malicious input; also handles non-matching requestedDate.",
+              "GET/Authorization: Includes 401 (missing token) and 403 (insufficient permissions).",
+              "Resilience/Errors: Includes 503 service unavailable and 504 timeout; transient failure and retry; large data performance; concurrent requests under load; regression for malformed XML; backward compatibility of XML schema."
+            ],
+            "gaps": [
+              "GET/Caching Behavior: No scenarios validating caching headers (ETag/Last-Modified, Cache-Control) or conditional requests (If-None-Match/If-Modified-Since -> 304).",
+              "GET/Rate Limiting: No coverage for throttling behavior (e.g., burst traffic leading to 429 Too Many Requests and appropriate Retry-After).",
+              "Combination error path: No scenario where accountId is valid but requestedDate has no matching version for that account (expected 404/400 with precise message).",
+              "Account existence/tenancy edge cases: Missing case for well-formed but non-existent accountId (expected 404) and behavior when tenant-specific catalog features are disabled while accountId is provided.",
+              "Content negotiation/headers: No check for Accept header handling when client requests text/xml (or non-acceptable type -> 406 if applicable by API policy).",
+              "Operational errors: No explicit coverage for unexpected 500 Internal Server Error handling and error body contract.",
+              "Security headers and robustness: No validation that responses include safe defaults (e.g., no XSS via XML, appropriate Content-Type charset) or that XML external entity (XXE) attacks are mitigated."
+            ],
+            "recommendations": [
+              "Add caching tests: verify ETag and/or Last-Modified on 200 responses; issue conditional GET with If-None-Match/If-Modified-Since returning 304; assert Cache-Control and Expires as per API policy.",
+              "Add rate limiting tests: generate burst traffic to trigger 429; assert Retry-After header and that normal throughput resumes after backoff.",
+              "Add combined mismatch scenario: valid accountId + requestedDate with no effective version -> 404/400 with clear error payload.",
+              "Add account existence/tenancy tests: valid-but-nonexistent accountId -> 404; accountId provided when tenant-specific catalog features are disabled -> defined behavior (ignore with 200 latest tenant catalog or 400) and document expectation.",
+              "Add Accept header tests: request with Accept: text/xml returns 200 and correct Content-Type; optionally test non-acceptable Accept leading to 406 if the service enforces content negotiation.",
+              "Add generic 500 error handling scenario: simulate unexpected server error and assert stable error schema/log correlation ID.",
+              "Add XML security hardening tests: attempt XXE and large-entity expansion; ensure parser protections are enabled; verify Content-Type includes charset and no executable processing instructions are returned."
+            ],
+            "usage": {
+              "completion_tokens": 1477,
+              "prompt_tokens": 4724,
+              "total_tokens": 6201,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 768,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

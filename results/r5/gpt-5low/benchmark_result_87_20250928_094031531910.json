@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-09-28T09:40:31.531876",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:39:44.419864",
+    "benchmark_end_time": "2025-09-28T09:40:31.531869",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 47.112005,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: Multiple success paths verify 201 with correct Tag array and association (TC01\u2013TC05, TC22).",
+              "Invalid Payload: Malformed JSON, empty array, null/empty entries, extra fields, invalid UUID format, and missing required header return 400 as expected (TC06\u2013TC07, TC09\u2013TC12, TC24).",
+              "Resource Not Found: Non-existent invoice item returns 404 (TC08, TC15).",
+              "Optional Headers: X-Killbill-Reason and X-Killbill-Comment exercised (TC03).",
+              "Large Payloads: Very large array covered with 201 or 413 expectation (TC19).",
+              "Validation: Path UUID format, body content validation, and security/malicious input handled (TC07, TC11, TC18, TC24).",
+              "Authorization: Unauthorized access returns 401 (TC16).",
+              "Resilience/Errors: Service unavailable and dependency failure return 503; timeout 504 covered (TC17, TC21, TC25).",
+              "Idempotency-like behaviors: Duplicate tag IDs in request and re-adding existing tag do not create duplicates (TC13, TC20)."
+            ],
+            "gaps": [
+              "Duplicate Submission (idempotent retry): No scenario for repeating the exact same POST request twice and verifying no unintended duplication and consistent 201/200 behavior.",
+              "500 Internal Server Error: No simulation of unexpected server/database failure returning 500.",
+              "Content negotiation and media types: No checks for request Content-Type=application/json enforcement (e.g., 415 on text/plain) or response Content-Type=application/json.",
+              "Missing body entirely: No scenario where the request body is absent (not just empty array) leading to 400.",
+              "Non-existent tag definition IDs: No case where tag definition UUIDs are well-formed but do not exist, clarifying expected 400/404 behavior.",
+              "Response schema validation depth: Scenarios assert presence of Tag objects but do not validate full schema (fields, types) or that tagDefinitionIds exactly match and duplicates are consistently de-duplicated across all success paths.",
+              "Headers/audit propagation: No verification that CreatedBy/Reason/Comment are persisted/audited as per system conventions (if applicable).",
+              "Produces header: No validation that response includes appropriate Content-Type and character encoding."
+            ],
+            "recommendations": [
+              "Add a duplicate submission test: POST the same valid payload twice to the same invoice item; verify idempotent behavior (no duplicate tags) and consistent status/response.",
+              "Introduce a 500 simulation (e.g., forced DB failure) to validate generic server error handling and error body contract.",
+              "Add media type tests: send Content-Type text/plain or missing; expect 415; assert response Content-Type is application/json on success/errors.",
+              "Add a test for missing request body (no payload) to expect 400 with clear error.",
+              "Add a test where tag definition UUIDs are syntactically valid but do not exist; define and assert expected status code (likely 400 with validation error).",
+              "Strengthen response schema assertions: validate required Tag fields (ids, object type, createdDate, tagDefinitionId), types, and that returned list order/contents align with request (minus duplicates).",
+              "Verify headers/audit behavior: assert CreatedBy/Reason/Comment are recorded/returned if the API exposes them (or via follow-up GET/audit logs).",
+              "Validate response headers: assert Content-Type and no unexpected headers; add negative test for unsupported Accept header if applicable."
+            ],
+            "usage": {
+              "completion_tokens": 1786,
+              "prompt_tokens": 6738,
+              "total_tokens": 8524,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

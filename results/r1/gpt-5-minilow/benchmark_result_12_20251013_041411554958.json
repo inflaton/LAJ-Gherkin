@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "12_2025-10-13T04:14:11.554924",
+    "jira_id": "12",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId} - Update account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:13:51.471596",
+    "benchmark_end_time": "2025-10-13T04:14:11.554919",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 20.083323,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "12_qe_sup-gpt4.1_agent-gpt4.1_1748916603.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01, TC02, TC13, TC20) verify successful updates with minimal, full, large, and boundary-value payloads and expect 204.",
+              "Required Headers: TC01/TC02/TC03/TC04/TC05 explicitly exercise presence and absence of X-Killbill-CreatedBy and optional X-Killbill-Reason / X-Killbill-Comment.",
+              "Request Body Validation: TC07, TC21 check invalid account data and invalid input formats and expect 400.",
+              "Path Parameter Validation: TC06 validates accountId format (UUID) and expects 400 on invalid format.",
+              "Non-Existing Resource: TC08 covers updating a non-existent account and the expected error response.",
+              "treatNullAsReset behavior: TC03 and TC04 cover both true and false semantics for null fields handling.",
+              "Empty Body Handling: TC11 covers empty request body leading to 400.",
+              "Server Error Handling: TC12 simulates database unavailable and expects 500.",
+              "Concurrency: TC17 tests concurrent updates and consistency expectations.",
+              "Partial Update Semantics: TC19 verifies partial updates (only provided fields are changed).",
+              "Extra/Unsupported Input: TC10 and TC22 cover extra body fields and extra query parameters and the API\u2019s tolerant/ignoring behavior.",
+              "Security Input Sanitization: TC18 ensures injection attempts are handled (sanitized or rejected).",
+              "Integration & Propagation: TC16 checks downstream propagation to dependent services.",
+              "Performance and Timeout: TC14 checks timeout / high-latency behavior."
+            ],
+            "gaps": [
+              "PUT Guideline - Partial Update enforcement nuance: The feature includes partial update scenarios (TC19) but does not explicitly assert whether partial updates are allowed vs. full replace semantics for every field (test matrix for \u201cfields omitted = unchanged\u201d vs \u201cfields omitted = cleared\u201d across multiple field types is missing).",
+              "Idempotency / Duplicate Submission: No explicit scenario tests idempotency or duplicate submission behavior for PUT (e.g., repeated identical PUTs).",
+              "Authorization vs Authentication nuance: TC09 covers missing/invalid authentication token (401) but there is no test for insufficient privileges/forbidden (403) if different auth scopes exist.",
+              "HTTP Response Body & Headers Assertions: Many scenarios assert status codes and DB state, but there are limited explicit assertions for response headers, response content-type, or for the success case response body (story states produces application/json). TC01/TC02 expect 204 \u2014 these do not validate response headers or content-type. ",
+              "Validation of produced media type: The story indicates produces application/json; tests do not assert Content-Type on errors/success (especially for error cases where a body is expected).",
+              "Rate Limiting and Throttling: Not covered (standard guidelines mention for other methods; relevant for PUT as well under load/concurrency).",
+              "Caching / ETag / Cache-Control: Not applicable commonly to PUT responses, but tests do not validate whether caching headers are correctly managed (e.g., disabling caches via headers).",
+              "Audit/Change Metadata: Tests set X-Killbill-CreatedBy/etc., but do not assert that audit metadata (createdBy/reason/comment) is stored or logged/available via audit endpoints.",
+              "Schema-level exhaustive validation: The account schema fields matrix (strings, numeric ranges, enum values, required/optional) is not exhaustively tested \u2014 only general invalid/valid cases are present."
+            ],
+            "recommendations": [
+              "Add explicit tests to define and assert update semantics clearly: create a matrix test that demonstrates for each field whether omission means \"leave unchanged\" or \"clear\" (full-replace vs partial-merge), covering string, numeric, boolean and nested fields.",
+              "Add idempotency/duplicate-submission tests: send the same PUT multiple times and verify consistent results and no unintended side effects (e.g., duplicate audit entries if applicable).",
+              "Add an authorization/permission test that expects 403 for authenticated users lacking update permission to distinguish authn vs authz.",
+              "Assert response headers and produced media type: add checks for Content-Type and any API-specific headers on both success (where applicable) and error responses to match \"produces: application/json\".",
+              "Add more exhaustive schema validation tests: enumerate required fields, min/max/length constraints and enum boundaries to cover validation rules and ensure 400 responses include helpful messages.",
+              "Add rate-limiting / throttling tests: simulate many rapid PUTs to validate API behavior under stress and ensure proper status codes or retry hints are returned.",
+              "Add audit/metadata verification: after updates with X-Killbill-CreatedBy / Reason / Comment assert that those values are persisted in audit logs or visible via a read endpoint if the system provides one.",
+              "Consider tests for cache-control behavior around updates (ensure caches downstream are invalidated or headers instruct no-caching where appropriate).",
+              "Document expected behavior for extra fields and unexpected query params explicitly in tests (TC10/TC22 currently allow either 204 or ignore; choose and assert one consistent behavior)."
+            ],
+            "usage": {
+              "completion_tokens": 1192,
+              "prompt_tokens": 5451,
+              "total_tokens": 6643,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

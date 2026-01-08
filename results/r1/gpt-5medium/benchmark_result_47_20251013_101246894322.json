@@ -1,0 +1,81 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "47_2025-10-13T10:12:46.894295",
+    "jira_id": "47",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache/tenants - Invalidates Caches per tenant level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T10:12:01.757952",
+    "benchmark_end_time": "2025-10-13T10:12:46.894290",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 45.136338,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "47_qe_sup-gpt4.1_agent-gpt4.1_1748918923.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "DELETE Valid Deletion: Success path returns 204 with empty body; cache is invalidated and behavior is idempotent (TC01, TC09, TC11, TC13).",
+              "DELETE Non-Existent Resource: Non-existent tenant context returns 404 (TC04).",
+              "DELETE Concurrency: Multiple concurrent DELETEs under load return 204 with no race conditions (TC10).",
+              "Error Handling: Broad coverage of 4xx/5xx conditions including 400 malformed request, 401 unauthorized/missing auth, 500 internal error, 503 service unavailable, 504 timeout (TC02, TC03, TC05, TC06, TC07, TC14).",
+              "Security Negative: Header injection attempt handled with error (TC08).",
+              "Integration Effect: Dependent services reflect invalidation, preventing stale data (TC12).",
+              "State Variations: Cache already empty and partially populated states handled correctly (TC09, TC13)."
+            ],
+            "gaps": [
+              "Authorization granularity: No scenario for authenticated user lacking admin privileges (expected 403 Forbidden).",
+              "Tenant context header handling: Missing tests for absent/malformed tenant headers versus valid authentication (likely 400/422).",
+              "Content negotiation/headers: No verification of response headers per spec (e.g., error responses Content-Type: application/json; 204 responses with no Content-Type/body).",
+              "Multi-tenant isolation: No scenario ensuring invalidating cache for one tenant does not impact other tenants.",
+              "Deterministic security response: TC08 allows 400 or 403; expected behavior should be specific and asserted.",
+              "Method semantics: No test ensuring request body is rejected/ignored deterministically on DELETE (and appropriate status, e.g., 400/415), nor Accept header handling."
+            ],
+            "recommendations": [
+              "Add a scenario for authorized but non-admin identity attempting DELETE to assert 403 Forbidden.",
+              "Add scenarios for missing and malformed tenant context headers/tokens to assert correct 4xx status and error structure.",
+              "Verify headers: assert Content-Type: application/json for error responses; assert empty body (and absence of Content-Type) for 204 responses; consider testing Accept negotiation.",
+              "Add a multi-tenant isolation test: invalidate for Tenant A while validating that Tenant B cache remains intact.",
+              "Make TC08 deterministic by specifying exactly which status code is expected for injection attempts (prefer 400 for validation failure or 403 if blocked by a WAF/policy).",
+              "Clarify and test DELETE body handling: sending a payload should either be rejected with 400/415 or explicitly ignored; assert consistent behavior and error schema."
+            ],
+            "usage": {
+              "completion_tokens": 2681,
+              "prompt_tokens": 3389,
+              "total_tokens": 6070,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2112,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

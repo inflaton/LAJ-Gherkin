@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-09-30T11:09:30.831863",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-30T11:08:10.633953",
+    "benchmark_end_time": "2025-09-30T11:09:30.831846",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 20000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 80.197893,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC05, TC06, TC11, TC12, TC18) verify successful 204 responses and the removal of all / specific / duplicate / large sets of custom fields.",
+              "Query Parameters: Thorough coverage for query param behavior \u2014 absence (remove all) (TC01), specific subsets (TC02), malformed values (TC10), duplicates (TC18), extra/unexpected params (TC11), large collections (TC12), and mixed valid/invalid lists (TC17).",
+              "Path Parameter Validation: Invalid UUID format (TC07 -> 400) and non-existent resource (TC08 -> 404) are explicitly tested.",
+              "Header handling & Authorization: Required header presence and optional headers tested (TC05, TC06), missing required header (TC09), expired/invalid token (TC19), and header-parsing regression/formatting (TC20) are covered.",
+              "Idempotency / Empty-state: TC04 verifies deleting when no custom fields returns 204 (idempotent behavior in empty state).",
+              "Error & Failure Modes: Error cases for invalid inputs (TC10, TC17), service unavailability (TC14 -> 503), and malformed invoice id (TC07) are included.",
+              "Performance & Scalability: Large payload handling (TC12) and heavy-load behavior/response-time expectation (TC13) are present.",
+              "Security: Injection attempt handling is covered by TC15.",
+              "Header limits: Handling of a very long X-Killbill-Comment header is covered by TC16.",
+              "Regression checks: TC20 covers previously problematic header formatting / parsing."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No explicit tests simulate concurrent modifications/deletions (e.g., two clients deleting overlapping custom fields simultaneously) to detect race conditions or locking issues.",
+              "Soft-delete / Audit Trail: No tests verify whether deletions are soft (flagged) vs hard (permanently removed), nor that audit metadata (who/when/reason/comment) is persisted or queryable.",
+              "Response contract & headers: Tests do not assert response headers (e.g., Content-Type / application/json) or validate the JSON error schema/fields for error responses even though the API specifies \"Produces: application/json\".",
+              "Authorization roles / 403: There are tests for missing/invalid authentication (400/401) but no tests for forbidden access (403) or role/permission-based denial.",
+              "Partial-success semantics ambiguous: TC17 assumes a 400 for mixed valid/invalid customField IDs \u2014 the API behavior for \"some IDs not present / belong to another resource\" is not clarified and not exhaustively tested (e.g., ignore missing IDs vs fail entire request).",
+              "Explicit idempotency (repeated calls): Only implicit empty-state idempotency is covered (TC04). No explicit test calling the same DELETE twice with the same IDs to verify consistent responses and no side effects.",
+              "Rate limiting / Throttling: No tests for rate limiting (e.g., 429 responses) under rapid repeated requests.",
+              "Edge cases for query formatting: Missing tests for empty/blank customField parameters, URL-encoded values, very long query strings, or unusual collection encodings (e.g., comma-separated vs multi).",
+              "Server error coverage: No explicit test simulating a 500 Internal Server Error (generic DB failure) \u2014 only 503 service unavailable is covered."
+            ],
+            "recommendations": [
+              "Add concurrency/race-condition tests: simulate concurrent clients deleting overlapping and disjoint sets of custom fields to validate atomicity, locking, and final state consistency; assert no lost updates and predictable responses.",
+              "Add soft-delete and audit-trail verification: after deletion, assert whether custom fields are truly removed or marked deleted; verify audit records include X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment where applicable.",
+              "Assert response headers and error contract: add checks for Content-Type: application/json on both success and error responses (or confirm spec behavior for 204), and validate error response JSON schema (error code, message, parameter), not just HTTP status and message text.",
+              "Add 403 / permission tests: create tokens/users with insufficient privileges and assert 403 Forbidden is returned where appropriate.",
+              "Clarify and test partial-success policy: define expected behavior when provided customField IDs are valid UUIDs but not associated with the target invoice item (or exist elsewhere). Add tests for (a) ignore-missing behavior (204), (b) fail-whole-request (400/422), or (c) return per-ID error details \u2014 aligned with API contract.",
+              "Add explicit idempotency tests: call the same DELETE twice (or more) and assert consistent 204 responses and no adverse side effects.",
+              "Add rate-limiting tests: flood the endpoint with repeated requests to verify throttling and correct handling (429) or other service-protection behaviors.",
+              "Add query-param edge-case tests: empty customField values, URL-encoded payloads, extremely long query strings, and alternate collection encodings to ensure robust parsing/validation.",
+              "Add server-error simulations: force DB/dependency failures to ensure 500/503 responses are handled consistently and meaningful error bodies are returned.",
+              "Verify \"Produces: application/json\" behavior for 204 responses: decide whether Content-Type must be present for no-body responses and add assertions (or update API spec/tests to reflect practical behavior)."
+            ],
+            "usage": {
+              "completion_tokens": 5887,
+              "prompt_tokens": 5523,
+              "total_tokens": 11410,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4736,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

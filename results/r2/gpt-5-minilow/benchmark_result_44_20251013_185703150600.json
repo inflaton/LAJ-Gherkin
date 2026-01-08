@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-13T18:57:03.150571",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:56:43.475046",
+    "benchmark_end_time": "2025-10-13T18:57:03.150567",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 72,
+    "average_generation_time_seconds": 19.675521,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 72,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 72,
+            "covered": [
+              "Valid Request: Multiple successful scenarios (TC01, TC02, TC03, TC10, TC13, TC16, TC17) cover valid uses of the POST endpoint with default and explicit pagination, headers, and edge limits.",
+              "Empty Response: TC04 covers the behavior when no parked accounts exist and verifies the response indicates no invoices were generated.",
+              "Pagination / Query Parameters: TC02, TC11, TC13 and TC10 exercise offset/limit combinations, unexpected extra params, and maximum limit edge-case handling.",
+              "Header Validation / Auditability: TC03, TC05, TC14 and TC16 cover required/optional header presence, parsing, auditing, and malicious header input handling.",
+              "Authorization: TC08 covers invalid/expired token handling and expected 401/403 responses.",
+              "Server/Error Handling: TC06, TC07, TC09 cover invalid parameter values/types and downstream service unavailability (503).",
+              "Concurrency / Duplicate Generation: TC15 and TC18 address retries and concurrent requests with expectations that invoices are not generated multiple times and are generated exactly once per account.",
+              "Performance / Large Volume: TC12 addresses large data volumes and response time expectations.",
+              "Regression / Backward Compatibility: TC16 and TC17 cover header parsing regression and compatibility with older clients."
+            ],
+            "gaps": [
+              "Rate Limiting: No explicit tests for rate limiting, throttling, or behaviour under frequent repeated requests beyond concurrency (e.g., 429 responses).",
+              "Caching Behavior: No tests check caching headers (ETag, Cache-Control) or cache-related responses \u2014 though this is less typical for an administrative POST, guidelines request caching checks.",
+              "Duplicate Submission / Idempotency Semantics: While TC15/TC18 address duplicate generation prevention, there is no explicit test for duplicate HTTP submissions (same request repeated quickly) and the system\u00e2\u20ac\u2122s response semantics (e.g., idempotency keys, 409 conflict, or safe retry behavior) for POST.",
+              "Large/Invalid Payload Handling: The API defines no request body, but POST-method guidelines expect tests for malformed/large payloads; there are no tests for unexpected request bodies or content-type handling.",
+              "Rate / Resource Exhaustion: Beyond single large-volume runs (TC12), there are no stress tests for sustained high throughput or tests asserting soft-failures vs. partial processing under resource exhaustion (e.g., 500 with partial progress reporting).",
+              "Detailed Pagination Bounds & Sorting: Tests check offset/limit behavior but do not validate boundary conditions precisely (e.g., offset exactly equal to total, offset+limit exceeding total, stable ordering of parked accounts across pages).",
+              "Authorization Granularity: TC08 checks invalid/expired tokens but does not verify role-based access control differences (admin vs non-admin users) or token scopes/claims."
+            ],
+            "recommendations": [
+              "Add explicit rate-limiting tests: send many sequential requests to verify 429 responses or throttling behavior and include expected retry-after headers.",
+              "Add tests for duplicate POST submissions: simulate identical repeated requests (with and without idempotency keys if supported) and validate invoices are generated exactly once and response codes for duplicates.",
+              "Add tests for unexpected request bodies and content-types: send a JSON body, malformed body, or very large body and assert appropriate validation/error responses (400/413/415 as applicable).",
+              "Expand pagination boundary tests: verify behavior when offset == total, offset > total, limit combined with offset exceeding total, and ensure deterministic ordering across pages.",
+              "Add RBAC tests: verify that non-admins or users with insufficient scopes receive 403 and admins succeed; test token scopes/claims if applicable.",
+              "Add sustained load/resource exhaustion tests: long-running high-throughput tests to confirm graceful degradation, partial-failure reporting, and that no silent data corruption occurs (validate idempotency/partial commits).",
+              "If caching is relevant, add tests asserting presence/absence of caching headers or that POST responses are not cached; otherwise document that caching tests are intentionally omitted for this admin POST endpoint."
+            ],
+            "usage": {
+              "completion_tokens": 980,
+              "prompt_tokens": 5207,
+              "total_tokens": 6187,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 128,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

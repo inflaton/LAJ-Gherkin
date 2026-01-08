@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "72_2025-10-13T22:41:34.921616",
+    "jira_id": "72",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/availableAddons - Retrieve available add-ons for a given product",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T22:39:22.537119",
+    "benchmark_end_time": "2025-10-13T22:41:34.921612",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 67,
+    "average_generation_time_seconds": 132.384493,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 67,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "72_qe_sup-gpt4.1_agent-gpt4.1_1748920690.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 67,
+            "covered": [
+              "Valid requests: TC01, TC02, TC03, TC04, TC05, TC19 and TC22 exercise successful retrieval for no parameters and combinations of baseProductName, priceListName and accountId.",
+              "Empty responses: TC06 (base product with no add-ons) and TC07 (empty catalog) verify the API returns an empty JSON array and 200 status.",
+              "Query parameter combinations and validation: TC02-TC05, TC08-TC10, TC17 and TC21 cover many valid and invalid parameter combinations including non existent values, malformed UUID and extra parameters being ignored.",
+              "Authentication negative cases: TC11 and TC12 validate missing and invalid tokens resulting in 401 responses.",
+              "Error and resilience handling: TC13, TC14 and TC20 cover catalog service unavailable, database failure and backend timeout with expected 503, 500 and 504 statuses.",
+              "Security input validation: TC15 and TC16 include SQL injection and XSS attempts and assert rejection and no DB corruption.",
+              "Performance and load: TC18 covers a large dataset scenario with response time expectations and TC23 covers concurrent requests (100 parallel) and response correctness.",
+              "Response contract basics: many scenarios assert response code and content-type application/json, exercising the basic HTTP contract.",
+              "Regression and backward compatibility: TC21 and TC22 capture known regressions and backward compatibility expectations."
+            ],
+            "gaps": [
+              "Pagination: No scenarios exercise pagination parameters (limit, offset or page token) or verify behavior when large result sets are expected to be paginated. TC18 stresses volume but does not validate paging behavior.",
+              "Caching behavior: No tests check caching headers such as ETag, Cache-Control, Last-Modified, or conditional GET semantics (If-None-Match or If-Modified-Since and 304 responses).",
+              "Rate limiting and throttling: No tests verify rate limit enforcement or 429 responses and Retry-After header under bursts that exceed configured limits. TC23 tests concurrency but does not assert rate limiting behavior.",
+              "Authorization nuance: There are 401 tests, but no tests for 403 forbidden cases, role based access control, or tenant isolation checks when accountId belongs to another tenant.",
+              "Schema validation: Tests assert a JSON array of PlanDetail objects but do not validate PlanDetail structure, required fields, data types, pricing details or nested phase structures against a JSON schema.",
+              "Well formed but unknown accountId: No test for a valid UUID that is not present in the system to determine if the API should return 404 or an empty array.",
+              "Content negotiation and Accept header: No tests for Accept header handling or behavior when client requests unsupported content types.",
+              "HTTP method constraints: No negative tests verifying unsupported HTTP methods return 405 Method Not Allowed.",
+              "URL encoding and boundary conditions: No tests for URL encoded product or price list names, unicode characters, extremely long query parameter values, or leading/trailing whitespace handling.",
+              "Output sanitization checks: TC16 tests input XSS, but there are no assertions that returned PlanDetail fields are sanitized or escaped to prevent reflected XSS in responses."
+            ],
+            "recommendations": [
+              "Add pagination tests if the API intends to support paging: verify parameters like limit and offset or page token, stable ordering, total counts if available, and behavior at page boundaries; if paging is not supported, add tests that assert the entire set is returned and document limits.",
+              "Add caching tests: assert presence and correctness of ETag, Cache-Control and Last-Modified headers; test conditional GETs using If-None-Match and If-Modified-Since and expect 304 when appropriate.",
+              "Add rate limiting tests: run bursts that exceed configured limits to verify 429 responses, the Retry-After header and graceful degradation; include sustained load and burst scenarios.",
+              "Expand authorization tests: add 403 scenarios for insufficient privileges, tenant isolation tests using accountId from another tenant, and tests for role based access restrictions if applicable.",
+              "Add strict JSON schema validation for PlanDetail objects: verify required fields, types, nested pricing and phase information, currency fields and identifier formats using a JSON schema validator.",
+              "Add tests for well formed but unknown accountId: use a valid UUID not tied to any account to assert the documented behavior (404 versus empty array) and make the behavior explicit in the API contract.",
+              "Add content negotiation tests: verify Accept header handling and ensure non JSON Accept headers are rejected or handled as specified.",
+              "Add HTTP method negative tests: ensure POST, PUT, PATCH, DELETE to this endpoint return 405 where appropriate.",
+              "Add URL encoding, Unicode and boundary tests: test names with spaces, special characters, long strings, and leading/trailing whitespace to ensure consistent handling and proper URL encoding.",
+              "Extend security checks: after injection tests assert that database state is unchanged, validate that returned fields are encoded to prevent reflected XSS, and add fuzzing for query parameters.",
+              "Improve existing assertions: replace freeform \"JSON array of PlanDetail objects\" checks with schema validation, assert exact error payload structure for failures, and include checks for caching and retry headers where applicable."
+            ],
+            "usage": {
+              "completion_tokens": 8168,
+              "prompt_tokens": 5214,
+              "total_tokens": 13382,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "18_2025-10-15T17:01:26.973284",
+    "jira_id": "18",
+    "jira_title": "Implement/Test API: GET /1.0/kb/accounts/pagination - List accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:59:48.854423",
+    "benchmark_end_time": "2025-10-15T17:01:26.973279",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 98.118856,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "18_qe_sup-gpt4.1_agent-gpt4.1_1748917007.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Request: Happy paths with default/no params and multiple valid parameter combinations return 200 and JSON arrays; optional fields (balance, CBA, audit) are included/excluded per flags.",
+              "Empty Response: No data and offset beyond available data return 200 with empty arrays.",
+              "Pagination: Offset/limit combinations, boundaries, offset=0, limit>total, large datasets (10k), and boundary case (offset+limit) are exercised; concurrent pagination requests assert correct subsets with no leakage.",
+              "Query Parameters: Broad coverage of valid/invalid/malformed inputs (negative/zero/overflow ints, invalid booleans, invalid enum, extra params, single-param requests); both balance flags together covered.",
+              "Authorization: 401 for missing and invalid credentials covered.",
+              "Error Handling: 400s for invalid inputs, 405 for wrong method, 414/400 for excessive query length, 503 for service and dependency outages, and network timeout simulated.",
+              "Security: SQL injection and XSS attempts handled with proper rejections and safety assertions.",
+              "Performance/Resilience: Response time under load and with large limits; recovery after transient network error and dependency recovery.",
+              "Integration: Audit=FULL cross-validated against audit log records.",
+              "Accessibility/UX: Valid JSON structure and descriptive error messages in error responses."
+            ],
+            "gaps": [
+              "Caching Behavior: No scenarios verify ETag/Last-Modified, Cache-Control headers, or conditional GET (If-None-Match/If-Modified-Since -> 304).",
+              "Rate Limiting/Throttling: No tests for bursts causing 429 Too Many Requests or presence of Retry-After and rate-limit headers.",
+              "Content Negotiation/Headers: No explicit assertions for Content-Type: application/json on success/errors or behavior with unsupported Accept header (e.g., 406).",
+              "Authorization Depth: No scenario for authenticated user lacking required permissions/roles returning 403 (if RBAC applies).",
+              "Schema Contract: No strict validation against #/definitions/Account (field presence/types) across variants (default, with balance/CBA, audit levels).",
+              "Pagination Order Guarantees: No checks for deterministic/consistent ordering across pages or for duplicates/gaps when iterating pages.",
+              "Validation Limits: No test that exceeding maximum allowed limit (e.g., 10001) is rejected with 400.",
+              "Generic 5xx: No coverage for unexpected 500 Internal Server Error behavior/format."
+            ],
+            "recommendations": [
+              "Add caching scenarios: verify ETag and Cache-Control on successful responses; send If-None-Match to assert 304 Not Modified and cache revalidation behavior.",
+              "Introduce rate limiting tests: fire rapid concurrent/burst requests to trigger 429; assert Retry-After and any X-RateLimit-* headers; confirm below-threshold requests succeed.",
+              "Validate headers: assert Content-Type: application/json for success and error responses; add a test with unsupported Accept to expect 406 or documented fallback.",
+              "Add authorization-negative test for 403 Forbidden when credentials are valid but lack required scope/role (if applicable).",
+              "Add JSON Schema validation for Account (#/definitions/Account) ensuring required fields/types and conditional presence of balance/CBA/audit per flags.",
+              "Test pagination order stability: verify a consistent sort key (e.g., accountId or createdDate) and that merging consecutive pages yields no duplicates/skips.",
+              "Add boundary validation for maximums: e.g., limit greater than allowed (10001) returns 400 with clear error; confirm exact handling is documented.",
+              "Include a generic 500 error simulation (e.g., forced server fault) to verify error payload contract and observability (correlation ID if supported).",
+              "Assert default behaviors explicitly: offset defaults to 0, limit to 100, audit to NONE, booleans to false, and that these defaults are documented in responses or logs.",
+              "Where applicable, check error response schema consistency (error code/key/message) across 4xx/5xx cases."
+            ],
+            "usage": {
+              "completion_tokens": 4691,
+              "prompt_tokens": 7354,
+              "total_tokens": 12045,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3840,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

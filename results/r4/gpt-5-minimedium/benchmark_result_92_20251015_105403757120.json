@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-10-15T10:54:03.757092",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:53:41.548580",
+    "benchmark_end_time": "2025-10-15T10:54:03.757088",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 22.208508,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (remove all fields, remove subset, single-field removal, no-fields) validate successful 204 behaviour.",
+              "Query Parameters: Robust coverage for customField parameter variants \u2014 subset removal, duplicates, malformed values, very large lists, extra/unexpected query params.",
+              "Header Handling: Required header (X-Killbill-CreatedBy) presence/absence tested, optional headers (X-Killbill-Reason, X-Killbill-Comment) tested, long comment string and regression formatting tested.",
+              "Error Handling: 400 for invalid invoiceItemId format and malformed customField IDs; 404 for non-existent invoice item; 503 for dependent service unavailability; 401 for expired/invalid auth token.",
+              "Security & Validation: Injection attempt scenario and invalid input handling are covered.",
+              "Performance/Scale: Large number of customField IDs and heavy-load timing scenario included.",
+              "Empty Response Cases: Scenario for invoice item with no custom fields confirms 204/empty body behaviour."
+            ],
+            "gaps": [
+              "Soft Delete Semantics: No tests verify whether deletion is soft (flagged) vs hard (physically removed) or verify audit trail/metadata persistence.",
+              "Concurrency / Race Conditions: No dedicated tests for race conditions (e.g., two concurrent deletes or delete while another actor modifies fields) beyond a generic heavy-load scenario.",
+              "Idempotency / Repeat Deletes: No explicit test that repeated DELETEs are idempotent (e.g., deleting twice returns 204 or appropriate status).",
+              "Response Headers / Content-Type: The story indicates \"Produces: application/json\", but tests assert empty body for 204 and do not verify response headers or content-type handling for both 204 and any non-204 error responses.",
+              "Behavior for Valid UUIDs That Don\u2019t Belong to the Invoice Item: Missing test for when customField UUIDs are syntactically valid but do not exist or belong to another entity \u2014 expected server behaviour (ignore, partial success, or error) is not validated.",
+              "Authorization Scope / Missing Auth Token: While expired/invalid token is tested, there is no test for completely missing authentication token or role/permission-based authorization (403 scenarios).",
+              "Ambiguous Partial-Success Behavior: Partial lists containing some non-existent but syntactically valid IDs are only tested as invalid-mix -> 400; there is no validation/assertion of alternative behaviours (partial success vs fail-all) or the exact expected error payload format.",
+              "Query Parameter Edge Cases: No test for empty customField parameter (e.g., customField= or customField=[]) or different multi-value encodings (comma-separated vs repeated keys) and maximum query-string length limits.",
+              "Rate Limiting / Throttling: No tests for rate-limiting behavior (429) or throttling even though heavy-load is present; these are distinct scenarios.",
+              "Audit / Logging: No tests assert that delete reason/comment are persisted to audit logs or returned in any audit endpoint."
+            ],
+            "recommendations": [
+              "Add idempotency tests: delete the same invoice item custom fields twice and assert expected response (commonly 204 both times or defined behaviour).",
+              "Add concurrency tests: simulate concurrent deletes and concurrent modifications to ensure deterministic / safe behaviour and to catch race conditions.",
+              "Clarify and test soft-delete vs hard-delete semantics: verify persisted state, audit records, or that fields are truly removed from storage.",
+              "Verify response headers and content-type: assert presence/absence of application/json, appropriate cache-control or other relevant headers for both 204 and error responses.",
+              "Test behaviour for valid-UUID-but-non-existent customField IDs: decide on expected behaviour (ignore vs error) and add tests accordingly, including partial-success semantics and error payload structure.",
+              "Include auth-negative tests beyond expired token: missing token (401) and insufficient-permission/forbidden (403) scenarios.",
+              "Add query-encoding edge-case tests: empty customField param, comma-separated vs repeated query params, and very long query strings to detect server limits.",
+              "Add rate-limiting/throttling tests (429) and retries/backoff behaviour if applicable.",
+              "Add validation tests for header values: empty X-Killbill-CreatedBy, extremely long CreatedBy, unusual characters, and ensure proper validation messages.",
+              "Add audit/logging checks: assert that X-Killbill-Reason and X-Killbill-Comment are stored in audit logs or visible via relevant administrative endpoints if required by policy."
+            ],
+            "usage": {
+              "completion_tokens": 2416,
+              "prompt_tokens": 5523,
+              "total_tokens": 7939,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1472,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

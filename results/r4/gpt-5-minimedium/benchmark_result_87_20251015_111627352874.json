@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "87_2025-10-15T11:16:27.352842",
+    "jira_id": "87",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoiceItems/{invoiceItemId}/tags - Add tags to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:16:01.813890",
+    "benchmark_end_time": "2025-10-15T11:16:27.352837",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 25.538947,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "87_qe_sup-gpt4.1_agent-gpt4.1_1748921631.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Payload: Multiple scenarios (TC01, TC02, TC03, TC04, TC05, TC22) verify successful creation with single and multiple tag definition UUIDs, optional headers, and state variations.",
+              "Required Header Validation: TC06 validates behavior when X-Killbill-CreatedBy is missing.",
+              "Path Parameter & Existence Validation: TC07 covers invalid invoiceItemId format (400) and TC08/TC15 cover non-existent invoice item (404) cases.",
+              "Request Body Validation: TC09 (malformed JSON), TC10 (empty array), TC11 (invalid tag definition UUID), TC12 (unsupported extra fields), and TC24 (null/empty entries) cover a broad range of invalid payloads.",
+              "Duplicate Handling / Idempotency: TC13 and TC20 check duplicate UUIDs in the payload and adding a tag that already exists on the invoice item.",
+              "Large Payloads & Performance: TC14 and TC19 test heavy load and very large payload handling (201 vs 413).",
+              "Error & Dependency Handling: TC17 (service down), TC21 (dependent tag-definition service down), and TC25 (timeout) cover server/dependency failure modes.",
+              "Security: TC18 tests malicious payloads (injection/script) and expects validation errors.",
+              "Business Constraints: TC23 covers maximum allowed tags reached (business limit).",
+              "Authentication: TC16 covers unauthorized access (401).",
+              "Response Expectations: Several scenarios assert response status codes and that returned Tag objects match request tagDefinitionIds (TC01, TC02, etc.)."
+            ],
+            "gaps": [
+              "Concurrency / Race Conditions: No tests for simultaneous requests (e.g., two clients adding the same tag at the same time) to validate race handling and transactional behavior.",
+              "Rate Limiting & Throttling: No tests exercise multiple rapid requests to verify rate limiting and backoff behavior.",
+              "Response Headers & Content-Type: No assertions for response Content-Type, caching headers (where relevant), or other HTTP headers (e.g., Location, ETag) and schema-level validation of Tag object fields (ids, createdBy, createdDate, objectType, etc.).",
+              "Persistence Verification: Tests assert response content but do not explicitly verify persistence in the database or via a GET that tags are actually associated (end-to-end persistence checks).",
+              "Authorization Scope / Permission Levels: Tests only cover unauthenticated (401) but not authenticated-but-forbidden (403) scenarios or role-based permissions.",
+              "Tag Definition Non-Existence Semantics: While invalid tag UUID is covered (TC11), there is no explicit test distinguishing 400 vs 404 behaviors from the tag-definition service for missing tag definitions (e.g., when a referenced tag definition truly does not exist).",
+              "Header Value Validation: Missing X-Killbill-CreatedBy is tested, but not invalid/empty createdBy values, nor validation of optional header formats/lengths.",
+              "Schema Contract / Field-level Assertions: Tests check tagDefinitionId presence but not full Tag object schema or types/constraints for each Tag field.",
+              "Idempotency Guarantees Under Retry: Not covered (e.g., client retries on network failures leading to duplicate creation attempts)."
+            ],
+            "recommendations": [
+              "Add concurrency tests (parallel requests) to verify race-condition handling and that duplicates are not created under simultaneous calls.",
+              "Implement rate-limiting tests by issuing many requests in a short window and asserting appropriate 429 or throttling behavior (or documented behavior).",
+              "Assert response headers and content-type (e.g., application/json), and add schema validation of returned Tag objects (check required fields, types, timestamps, createdBy, tagDefinitionId, objectType, objectId).",
+              "Add end-to-end persistence checks: after POST, call the appropriate GET to confirm tags are actually associated with the invoice item and persisted in the database.",
+              "Add authorization scope tests (403) to cover authenticated users without permission and test more granular permission scenarios if the API supports them.",
+              "Add tests that simulate the tag-definition service returning 404 for a referenced tagDefinitionId and validate whether the API should return 400 vs 404; align tests with the expected contract.",
+              "Test header validation beyond presence: empty X-Killbill-CreatedBy, overly long header values, and invalid characters for optional headers (X-Killbill-Reason, X-Killbill-Comment).",
+              "Add idempotency/retry tests: simulate network failures and client retries to validate duplicate request handling and server idempotency behavior.",
+              "Add contract/negative tests for content-type enforcement (missing or wrong Content-Type header) to ensure server returns proper error (e.g., 415 or 400).",
+              "Document and add tests for expected error message structure and codes to make error handling deterministic for clients."
+            ],
+            "usage": {
+              "completion_tokens": 2418,
+              "prompt_tokens": 6738,
+              "total_tokens": 9156,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1408,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

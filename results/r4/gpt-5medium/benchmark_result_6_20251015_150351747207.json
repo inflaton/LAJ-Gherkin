@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-15T15:03:51.747168",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:02:21.576517",
+    "benchmark_end_time": "2025-10-15T15:03:51.747162",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 90.170645,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "PUT Valid Request: Multiple successful updates returning 204, with required header present (TC01) and with optional headers (TC02).",
+              "Input validation per story: 400 on invalid accountId format (TC06) and malformed/missing body (TC09, TC10), invalid CustomField schema (TC11), and missing required header (TC08).",
+              "Non-existing resource handling: 400 when account does not exist (TC07).",
+              "Payload handling: large arrays and near-limit payloads covered, including 413 when exceeding limits (TC04, TC26).",
+              "Edge behaviors: empty array semantics leading to removal of all fields (TC15).",
+              "Security hardening: negative tests for SQL injection and XSS inputs (TC20, TC21).",
+              "Authorization: 401 when auth token missing/invalid (TC12).",
+              "Server and dependency errors: 502/503/504 scenarios are exercised (TC13, TC14, TC19).",
+              "Integration side effects: audit log and external reporting reflections are validated (TC27, TC28).",
+              "Unsupported headers are ignored without breaking the request (TC05)."
+            ],
+            "gaps": [
+              "PUT partial update semantics: No scenario clarifies whether PUT replaces the entire set vs merges; no test to ensure partial updates are rejected unless allowed.",
+              "Concurrency on the same resource: No race-condition test where multiple clients update the same accountId concurrently; only concurrent updates across different accounts are covered (TC25).",
+              "Idempotency: No test that repeating the same PUT request results in no additional changes and still returns 204.",
+              "Atomicity/transactionality: For mixed valid/invalid payload (TC18), there is no assertion that no changes are applied (all-or-nothing behavior).",
+              "Content negotiation and headers: No tests for Content-Type handling (e.g., 415 Unsupported Media Type when not application/json) or Accept header mismatches (406), and no verification of response headers such as Content-Type on success despite \"produces: application/json\" in story.",
+              "Response semantics for 204: No assertion that the response body is empty and headers are appropriate for a 204.",
+              "Header value validation: No boundary tests for X-Killbill-CreatedBy/Reason/Comment (length limits, allowed charset, whitespace-only values).",
+              "UUID pattern edge cases: Only blatantly invalid format tested; no tests for near-valid patterns (e.g., wrong group lengths, uppercase/lowercase nuances) if the regex is strict.",
+              "Audit propagation: Although audit service updates are checked (TC27), there is no verification that CreatedBy/Reason/Comment values are recorded correctly in audit metadata.",
+              "Schema strictness: Extra properties in CustomField are accepted (TC17) but there is no test asserting the server rejects unknown properties if strict schema is required, or explicitly documenting that they are ignored per spec.",
+              "Error body structure: Tests assert presence of an error message but not a consistent error schema (code, message, fields) across 4xx/5xx responses.",
+              "Rate limiting/throttling: No 429 scenario or behavior under burst writes (if applicable to this API)."
+            ],
+            "recommendations": [
+              "Add scenarios to define and verify PUT semantics: one where a subset of custom fields is sent and assert whether others are removed (replace) or preserved (merge). If partial updates are not allowed, ensure the API returns 400 with guidance.",
+              "Introduce same-account concurrency tests: two or more simultaneous PUTs to the same accountId with conflicting payloads; assert final state, absence of lost updates, and any locking/versioning behavior.",
+              "Add idempotency test: perform the same PUT twice and confirm the second returns 204 and the state remains unchanged.",
+              "Guarantee atomicity: extend TC18 to assert the database is unchanged when any CustomField is invalid (all-or-nothing) and verify error payload lists invalid items.",
+              "Content negotiation: add tests for missing/incorrect Content-Type (expect 415) and unsupported Accept header (expect 406); verify response headers on success per spec (including absence of body for 204).",
+              "Validate headers more thoroughly: tests for max length, invalid characters, and whitespace-only for X-Killbill-CreatedBy/Reason/Comment; confirm optional headers are persisted into audit metadata.",
+              "Clarify and enforce schema strictness: if unknown properties are not allowed, expect 400; if allowed, confirm they are ignored and not stored.",
+              "Standardize error response schema checks: validate keys like errorCode, message, and field-level details across 400/401/413/5xx.",
+              "Expand UUID validation: add near-miss patterns (wrong segment lengths, extra hyphens) to ensure strict regex enforcement.",
+              "Add load-related negative scenario for throttling/rate limits if the platform enforces them (expect 429) and verify retry behavior and headers like Retry-After."
+            ],
+            "usage": {
+              "completion_tokens": 3985,
+              "prompt_tokens": 6919,
+              "total_tokens": 10904,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2944,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-10-14T19:11:16.213145",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T19:09:07.547962",
+    "benchmark_end_time": "2025-10-14T19:11:16.213140",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 128.665178,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Core acceptance criteria: success (204) for delete-all (no tagDef), single tagDef, and multiple tagDef cases are present (TC01, TC02, TC03).",
+              "Path & parameter validation: invalid paymentId format -> 400 (TC06), non-existent paymentId -> 404 (TC07), invalid tagDef format -> 400 (TC09), tagDef not present -> 204 no-op (TC10).",
+              "Header validation: required X-Killbill-CreatedBy missing -> 400 (TC08); optional X-Killbill-Reason and X-Killbill-Comment accepted (TC04).",
+              "Response behavior: 204 responses and empty-body expectations are asserted; common error codes (400, 401, 404, 503, 504) are covered across scenarios (TC06, TC07, TC11, TC12, TC22).",
+              "Security & input validation: SQL injection attempt in tagDef handled (TC13).",
+              "Robustness & non-functional: concurrency (TC16), performance/load (TC17), handling large numbers of parameters (TC15), timeouts (TC22), and service unavailability (TC12) are exercised.",
+              "Operational/integration: audit logging and data consistency after removal are included (TC20, TC21).",
+              "Idempotency/no-op cases: deleting when there are no tags and deleting tagDefs not present return 204 and leave system unchanged (TC05, TC10)."
+            ],
+            "gaps": [
+              "Authorization/permissions: no test for authenticated-but-forbidden (403) or role-based permission denial; only unauthenticated (401) is present (TC11).",
+              "Soft-delete vs hard-delete semantics: no explicit tests confirming whether removals are soft (tombstoned) or hard-deleted beyond audit-log presence.",
+              "Response headers & schema: the spec lists \"produces: application/json\" but tests do not assert Content-Type or error response body schema/fields; 204 header behavior (presence/absence of Content-Type, Cache-Control) is not validated.",
+              "Mixed/partial parameter validation: missing tests where tagDef list contains both valid and invalid UUIDs (expected behaviour not defined/tested).",
+              "Duplicate tagDef and idempotency edge-cases: no explicit test for duplicate tagDef parameters or repeated identical deletes and their precise semantics.",
+              "URL/query-length and encoding limits: large-parameter test exists (TC15) but no explicit assertions for request-uri-too-long (414) or server handling of extremely long query strings.",
+              "Rate limiting/throttling: no tests for 429 or behavior under request bursts / throttling rules.",
+              "Authentication edge cases: expired tokens, scopes/claims insufficiency, or token formats are not covered (only missing/invalid token covered).",
+              "Error response content verification: tests assert an error is returned but do not verify exact error JSON structure, fields, error codes, or localization/consistency."
+            ],
+            "recommendations": [
+              "Add a 403 Forbidden scenario for authenticated users without permission (RBAC) and verify error code/message format.",
+              "Add tests for mixed tagDef lists (some valid UUIDs, some invalid) and define expected behavior (reject entire request vs partial apply) in the spec and tests.",
+              "Add tests for duplicate tagDef parameters and repeated identical deletes to assert idempotency and final system state.",
+              "Assert response headers and error body schema: verify Content-Type for error responses (application/json), that 204 responses do not return a body and expected headers (or absence thereof), and that error payloads match documented schema.",
+              "Add rate-limiting tests (429) and throttling behavior under bursts; include assertions that critical requests are not dropped silently.",
+              "Add URL-length and encoding tests to exercise server behavior when query strings become very large (expect 414 or documented handling).",
+              "Add header-validation scenarios for X-Killbill-CreatedBy and optional headers (empty values, overly long values, encoding/charset edge-cases) and verify these values are recorded in audit logs correctly.",
+              "Add tests for persistence/soft-delete semantics: verify history/audit tables, ability to restore if soft-deleted, or confirm permanent removal if hard-delete is expected.",
+              "Introduce explicit 500/internal-server-error and DB-failure simulations to verify transactional rollback and system consistency, and convert TC18 (regression) into concrete, repeatable repro tests for previously fixed bugs."
+            ],
+            "usage": {
+              "completion_tokens": 6705,
+              "prompt_tokens": 5560,
+              "total_tokens": 12265,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5760,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

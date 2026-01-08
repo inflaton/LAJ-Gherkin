@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "74_2025-10-14T02:26:29.856751",
+    "jira_id": "74",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/plan - Retrieve plan for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T02:25:09.438706",
+    "benchmark_end_time": "2025-10-14T02:26:29.856746",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 80.41804,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "74_qe_sup-gpt4.1_agent-gpt4.1_1748920805.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Request: Successful retrieval with both parameters and correct plan selection, including boundary-date handling (TC01, TC13).",
+              "Query Parameters: Broad combinations covered (both present, each missing, neither, extra params), plus invalid formats and non-existent resources (TC02\u2013TC08, TC14).",
+              "Authorization: Unauthorized access scenario validated with 401 (TC09).",
+              "Error Handling: Proper status codes for malformed inputs (400), not found (404), service failures (503), and data integrity conflicts (409/500) (TC05\u2013TC08, TC10, TC12).",
+              "Empty/No Data: Scenarios attempt to cover empty database and no-match outcomes (TC03, TC04, TC11).",
+              "Security/Input Hardening: Injection and XSS attempts in query parameters are rejected (TC17, TC18).",
+              "Non-functional: Performance under normal and concurrent load is exercised (TC15, TC16)."
+            ],
+            "gaps": [
+              "Caching Behavior: No checks for ETag/Cache-Control/Last-Modified or conditional GET (If-None-Match/If-Modified-Since).",
+              "Rate Limiting: No scenarios to validate 429 responses and Retry-After headers under burst traffic.",
+              "Response Headers: No explicit assertions on Content-Type=application/json or produces negotiation; no negative test for unacceptable Accept header.",
+              "Schema Validation: Tests say \"valid JSON Plan object\" but do not validate against the Plan schema (#/definitions/Plan) or key fields.",
+              "Ambiguity When Parameters Are Omitted: Several scenarios allow multiple outcomes (200 or default or empty) instead of asserting the expected contract; behavior for only requestedDate and for neither parameter is unclear.",
+              "No-match On Date For Existing Subscription: Missing a definitive scenario where subscriptionId is valid but requestedDate falls outside any plan period and the exact expected status/body is asserted.",
+              "Invalid-but-well-formed Dates: No tests for out-of-range dates (e.g., 2021-02-30) or date-time supplied where date is expected."
+            ],
+            "recommendations": [
+              "Add caching tests: verify ETag and Cache-Control headers on first GET; then send conditional GET with If-None-Match/If-Modified-Since and expect 304 Not Modified.",
+              "Add rate limiting tests: generate burst traffic to trigger 429 Too Many Requests and assert Retry-After/backoff behavior.",
+              "Assert headers explicitly on success: Content-Type=application/json and correct charset; add negative test with Accept=text/html to expect 406 or a defined fallback.",
+              "Strengthen schema validation: validate the response against the Plan schema (required fields like planName/product/billingPeriod/priceList/phases/effectiveDate).",
+              "Clarify and lock expected behavior when parameters are omitted or when no plan matches; update TC02\u2013TC04 and TC11 to assert a single, specific status code and response shape.",
+              "Add a scenario for valid subscriptionId with requestedDate outside any effective range, asserting the agreed status code (commonly 404) and error body.",
+              "Add tests for invalid-but-well-formed dates (e.g., 2021-02-30) and for disallowed date-time inputs when only date is permitted."
+            ],
+            "usage": {
+              "completion_tokens": 3129,
+              "prompt_tokens": 4829,
+              "total_tokens": 7958,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2432,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

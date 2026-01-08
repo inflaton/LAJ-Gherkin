@@ -1,0 +1,89 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "65_2025-10-15T15:08:34.788107",
+    "jira_id": "65",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/block - Block a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T15:06:39.432107",
+    "benchmark_end_time": "2025-10-15T15:08:34.788100",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 115.355993,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "65_qe_sup-gpt4.1_agent-gpt4.1_1748920218.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST > Valid Payload: Multiple success paths (required only, all optionals, headers-only, query-only, minimal fields) validate 201 and JSON array per BlockingState schema (TC01\u2013TC04, TC15).",
+              "POST > Invalid Payload: Malformed body, missing body, invalid requestedDate format covered with 400 (TC08, TC10, TC11).",
+              "Path/Resource validation: Invalid bundleId format -> 400 and non-existent bundle -> 404 (TC06, TC07, TC05).",
+              "Headers/query handling: Required X-Killbill-CreatedBy enforced; optional Reason/Comment and pluginProperty/requestedDate handled (TC01\u2013TC04, TC09, TC02).",
+              "Large/boundary inputs: Max/min field values and large payload stress handled (TC13, TC14, TC16).",
+              "Security/auth: Invalid token -> 401; injection and XSS inputs sanitized or rejected (TC18\u2013TC20).",
+              "Availability/dependency failures: Service down/unreachable (503) and upstream dependency failures (502/503) covered (TC17, TC28).",
+              "Performance/concurrency/resilience: Normal/peak load SLAs, bulk/parallel requests, network interruption + retry, and concurrency reflection covered (TC21\u2013TC27).",
+              "Regression/integration: Special characters encoding, backward compatibility, and cross-system consistency validated (TC23, TC24, TC29)."
+            ],
+            "gaps": [
+              "Duplicate submission/idempotency: No explicit scenario ensuring retries or repeated identical POSTs do not create duplicate blocking states (e.g., with/without an idempotency key).",
+              "Server error handling (500): No simulation of internal errors (e.g., database failure) returning 500 with structured error body.",
+              "Content negotiation: No test for incorrect or missing Content-Type (expect 415) or Accept headers (possible 406).",
+              "requestedDate semantics: No scenarios for past vs future dates, timezone offsets, or default effective date when requestedDate is omitted with precise assertions on effectiveDate in response.",
+              "pluginProperty validation: No tests for invalid types (non-string), single vs multi encoding errors, empty/duplicate values, or unexpected keys.",
+              "BlockingState field-level validation: No explicit tests for invalid/missing stateName/service combinations, or boolean flag combinations and their domain constraints.",
+              "Authorization/permissions: 403 Forbidden (insufficient privileges) not covered; TC09 expectation is ambiguous (400 or 401) for missing CreatedBy and should be deterministic per spec.",
+              "Response contract details: No assertions for Content-Type application/json on 201, array length/ordering when multiple states are created, or strict response schema validation (reject unknown fields).",
+              "Ambiguity in extra parameters: TC12 has non-deterministic expectation (\u201c201 or ignores extra parameters\u201d); expected behavior should be defined (ignore vs 400)."
+            ],
+            "recommendations": [
+              "Add duplicate submission tests: send identical POST twice and verify no duplicate state is created; if supported, use X-Killbill-Idempotency-Key to assert one creation (idempotent retry) and stable status code.",
+              "Introduce 500 Internal Server Error tests by fault-injecting a DB failure or similar, validating status code, error payload structure, and retryability guidance.",
+              "Add content negotiation tests: wrong/missing Content-Type -> 415; unsupported Accept -> 406 (if applicable).",
+              "Extend requestedDate coverage: past date (backdated), future date (scheduled), timezone offsets (e.g., Z vs +05:30), and default behavior when omitted; assert effectiveDate matches expectation in response.",
+              "Harden pluginProperty validation: non-string values, single parameter vs repeated multi, empty values, duplicates, and unexpected keys; assert 400 or normalization behavior.",
+              "Expand BlockingState validation matrix: required stateName/service presence, invalid service names, and each boolean flag combination (isBlockChange/Entitlement/Billing) including edge cases (all false).",
+              "Add authorization tests for 403 Forbidden when the caller lacks permissions, distinct from authentication failures (401).",
+              "Verify response headers/body contract: assert Content-Type application/json for 201, schema-compliant response with no unknown fields, correct array size/order when multiple states are created, and accurate effectiveDate/audit fields reflecting inputs.",
+              "Clarify and fix TC09 and TC12 expectations: missing X-Killbill-CreatedBy should deterministically yield 400; define whether extra headers/query params are ignored or cause 400 and assert accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 4804,
+              "prompt_tokens": 7893,
+              "total_tokens": 12697,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3840,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

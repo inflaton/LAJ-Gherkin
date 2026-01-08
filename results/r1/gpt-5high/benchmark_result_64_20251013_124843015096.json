@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "64_2025-10-13T12:48:43.015067",
+    "jira_id": "64",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/bundles/{bundleId}/resume - Resume a bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T12:44:02.189409",
+    "benchmark_end_time": "2025-10-13T12:48:43.015062",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 280.825653,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "64_qe_sup-gpt4.1_agent-gpt4.1_1748920138.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "PUT Valid Request: Multiple success paths validated (required header only, with requestedDate, with pluginProperty, and with all optional fields), returning 204 and verifying state transition for the bundle and all contained subscriptions (TC01\u2013TC04).",
+              "Invalid State Handling: Attempts to resume active or cancelled bundles return 400 as expected (TC08, TC09).",
+              "Non-Existing Resource: 404 when the bundle does not exist (empty database case) (TC05).",
+              "Path/Header/Query Validation: Invalid UUID returns 400 (TC06), missing required X-Killbill-CreatedBy returns 400 (TC07), requestedDate in the past returns 400 (TC20), pluginProperty wrong type returns 400 (TC19), extra/unexpected params behavior covered (TC11), header normalization/whitespace handled (TC26), and boundary lengths tested (TC12).",
+              "Optional Headers and Audit: X-Killbill-Reason and X-Killbill-Comment captured in audit log (TC04).",
+              "Concurrency: Concurrent resume requests handled (first 204, subsequent 400/409) (TC21).",
+              "Authorization: Unauthorized access results in 401/403 (TC10).",
+              "Server Error Handling: Dependency outage (500) and plugin timeout (204 or 504) are exercised (TC14, TC25).",
+              "Security Hardening: SQL injection attempt via pluginProperty and XSS in comment handled safely (TC16, TC17).",
+              "Resilience and Performance: Retry after transient failure succeeds (TC15); response time under normal/peak load is checked (TC22)."
+            ],
+            "gaps": [
+              "Response headers/content negotiation not asserted: no checks for Produces application/json, Content-Type on errors, or that 204 responses have no body; no Accept header behavior (e.g., 406) validated.",
+              "404 in a populated dataset (unknown bundleId while other bundles exist) is not explicitly covered (only empty DB case).",
+              "Idempotency of repeated sequential PUT calls on the same bundle is not defined/tested (what should the second call return after a successful resume?).",
+              "Strict requestedDate validation gaps: invalid date formats (non-ISO, impossible dates like 2025-13-01 or 2025-02-30) and boundary behavior for \"today\" vs future not covered.",
+              "pluginProperty collectionFormat=multi is not explicitly verified using repeated query parameters (pluginProperty=a&pluginProperty=b) and proper URL encoding of special characters.",
+              "Error payload schema is not validated for 4xx/5xx responses (expected structure, fields, and codes).",
+              "Audit behavior on failures is not asserted (e.g., ensure no audit entries are created for 400/404/5xx).",
+              "Authorization granularity not separated: missing token vs invalid token vs authenticated-but-forbidden are grouped together rather than validated individually.",
+              "Explicit limits/behavior for header lengths and pluginProperty size/count are not defined or asserted (e.g., expected 400/413 when limits are exceeded)."
+            ],
+            "recommendations": [
+              "Add scenarios to assert response headers and content negotiation: verify Content-Type for error responses, confirm 204 has no body, and test unsupported Accept header leading to 406 (if applicable).",
+              "Add a 404 scenario with an unknown bundleId in a non-empty database to distinguish not-found from empty-dataset behavior.",
+              "Define and test idempotency for repeated sequential PUTs: perform the operation twice and assert the expected status for the second call (e.g., 400/409) and no duplicate side effects.",
+              "Expand requestedDate validation: test invalid formats (e.g., 2025-13-01, 2025-02-30, non-ISO strings), boundary of today, and any documented timezone rules.",
+              "Verify pluginProperty collectionFormat=multi by sending repeated params (pluginProperty=k1=v1&pluginProperty=k2=v2) and include URL-encoded characters (+, &, %, spaces) to confirm parsing.",
+              "Validate error response schema for 400/404/500/504 against the service\u2019s standard error contract (fields, codes, messages).",
+              "Add assertions that failure cases do not create audit entries; for successes, assert audit fields (CreatedBy/Reason/Comment) and normalization (e.g., trimming).",
+              "Split authorization tests: missing token -> 401, invalid token -> 401, authenticated but insufficient permissions -> 403.",
+              "Define explicit size/length limits for headers and pluginProperty (count and total size) and add tests exceeding those limits to assert the expected 400 or 413 with clear messaging."
+            ],
+            "usage": {
+              "completion_tokens": 7770,
+              "prompt_tokens": 6265,
+              "total_tokens": 14035,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6784,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 6144
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

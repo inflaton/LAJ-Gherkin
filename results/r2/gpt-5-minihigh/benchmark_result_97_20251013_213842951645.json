@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "97_2025-10-13T21:38:42.951619",
+    "jira_id": "97",
+    "jira_title": "Implement/Test API: GET /1.0/kb/invoicePayments/{paymentId}/customFields - Retrieve payment custom fields",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T21:36:13.964421",
+    "benchmark_end_time": "2025-10-13T21:38:42.951614",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 148.987193,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "97_qe_sup-gpt4.1_agent-gpt4.1_1749544689.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid requests and audit parameter variants are well covered (TC01 default NONE, TC02 FULL, TC03 MINIMAL, TC16 explicit NONE).",
+              "Empty and no-data responses covered (TC04, TC19 regression, TC22 empty DB, TC23 partial DB state).",
+              "Error handling for invalid and non-existent paymentId covered (TC06 HTTP 400, TC07 HTTP 404) including malformed, trailing spaces, and special characters (TC20, TC21).",
+              "Authentication negative cases covered (TC08 no credentials, TC09 invalid token -> HTTP 401).",
+              "Query parameter robustness: unknown params ignored (TC05) and malformed audit values produce 400 (TC25).",
+              "Input validation / security: SQL injection and XSS patterns tested (TC13, TC14).",
+              "Resilience and dependency errors covered: service unavailable and dependency failure (TC10 HTTP 503, TC17 HTTP 502) and retry behavior (TC15).",
+              "Performance and scale scenarios included: large payload test with 1000 fields (TC11), response time SLA (TC12), and concurrent load (TC24).",
+              "Data consistency and regression checks present (TC18 ensures recently added fields are returned; TC19 checks previous 500-on-empty bug)."
+            ],
+            "gaps": [
+              "Pagination: No tests verify paging behavior (limit/offset/page params, Link headers, or partial page responses) when datasets grow beyond reasonable limits.",
+              "Caching and content negotiation: No assertions on response headers such as Content-Type, ETag, Cache-Control, or If-None-Match/304 behavior; Accept header handling is not tested.",
+              "Rate limiting / throttling: No tests exercise server rate limits (e.g., 429 responses, Retry-After) or abusive-request handling.",
+              "Authorization granularity/permissions: Tests cover 401 but do not cover 403 Forbidden or role-based access control where an authenticated user lacks permission to view custom fields.",
+              "Schema-level validation: Tests assert a \"JSON array of CustomField objects\" but do not validate the CustomField schema fields, types, required properties (ids as UUIDs, name, value, audit object structure), or exact payload contract.",
+              "Generic 500 Internal Server Error handling: Aside from regression mention, there is no explicit test that simulates an internal server error and verifies a well-formed 500 response and error payload.",
+              "Edge cases for field content: No tests for very large individual custom field values, unusual encodings or unicode/emojis inside custom field values, or binary-encoded content in values.",
+              "Combinatorial query param behaviors: No tests for multiple/combined query parameters, case-insensitivity and whitespace tolerance for audit values, or unexpected param collisions."
+            ],
+            "recommendations": [
+              "Add pagination tests: create more than a single page worth of custom fields and validate limit/offset or page semantics, Link or pagination headers, and correct results when fetching subsequent pages. If the API is intentionally non-paginated, add a contract test asserting that and document practical limits.",
+              "Add caching and content-negotiation tests: assert Content-Type: application/json, validate presence and semantics of ETag and Cache-Control, test If-None-Match to receive 304 when content unchanged, and test behavior with unsupported Accept headers.",
+              "Add rate-limiting tests: exercise burst traffic to validate 429 responses, Retry-After header, and correct degradation behavior; include steady-state load tests to ensure no false positives for throttling.",
+              "Add authorization/permission tests for 403: simulate authenticated users with insufficient privileges and verify 403 Forbidden and a clear error body.",
+              "Add JSON schema validation for CustomField objects: assert required properties, types (UUIDs, strings), audit object contents vary correctly by audit level (NONE/MINIMAL/FULL), and validate sample payloads against the API schema definition.",
+              "Add server error tests for 500: simulate DB or unexpected failures to verify a consistent 500 error response and logging/metrics hooks are triggered; include negative-path assertion that 500s are handled gracefully by clients where needed.",
+              "Add tests for field-content edge cases: very large string values, unicode/emojis, and unusual encodings to ensure the API handles and returns them correctly.",
+              "Add combinatorial and robustness tests for query params: case-insensitive audit values, leading/trailing whitespace handling, multiple query params together, and unexpected param name/value collisions."
+            ],
+            "usage": {
+              "completion_tokens": 6885,
+              "prompt_tokens": 5216,
+              "total_tokens": 12101,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5952,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-13T18:56:06.679703",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:55:42.977040",
+    "benchmark_end_time": "2025-10-13T18:56:06.679699",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 23.702659,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple successful closure scenarios (default, all true, all false, individual options, combinations) validate correct 204 responses and side-effects.",
+              "Path parameter validation: Invalid UUID format and SQL-injection-like payload tests cover validation and input sanitization for accountId (400 responses).",
+              "Headers / Authentication: Required header X-Killbill-CreatedBy missing case (400) and authentication missing/invalid cases (401) are tested.",
+              "Idempotency / Non-existent / Already-closed: Non-existent and already-closed account behaviors are covered (204 and idempotency).",
+              "Error handling: System failure (database unavailable) returning 500 is covered.",
+              "Business effects: Cancellation of subscriptions, write-off and item-adjust behavior for unpaid invoices, and removal of future notifications are tested across many combinations and edge volumes (large numbers).",
+              "Concurrency / Performance: Concurrent closure and large-batch processing scenarios are included (performance/response-time expectations).",
+              "Security: SQL injection in path and XSS in header are explicitly tested.",
+              "Regression & backward compatibility: Regression cases and old-client compatibility (missing optional headers) are included.",
+              "Extra/unsupported parameters: Test that unknown query parameters are ignored."
+            ],
+            "gaps": [
+              "Boolean query parameter validation: No tests for malformed or non-boolean query parameter values (e.g., cancelAllSubscriptions=notabool) and their expected responses.",
+              "Default values verification: Although several scenarios assume defaults, there is limited explicit assertion that each parameter defaults to the documented value (e.g., removeFutureNotifications default=true) \u2014 especially for combinations where defaults interact.",
+              "Response metadata / contract: The API documentation states produces application/json \u2014 tests do not assert Content-Type or response body shape for error responses, or presence/absence of body on 204 responses.",
+              "Header value validation: X-Killbill-Reason and X-Killbill-Comment optional behavior is not fully exercised (e.g., very long comments, encoding, presence vs absence beyond XSS).",
+              "Soft delete persistence semantics: Tests assert \"marked as closed\" but do not verify other soft-delete artifacts (e.g., audit records, deletion timestamps or ability to restore) if applicable.",
+              "Rate limiting / throttling: No tests for rate limiting or handling of bursts beyond the concurrency scenario.",
+              "Caching / headers: No tests for caching behavior or related headers (ETag, Cache-Control) \u2014 even if less relevant for DELETE, some infra may surface caching headers on error responses or follow-up GETs.",
+              "Error detail validation: Error payload content, error codes/messages and consistency are not exhaustively validated across error paths (400/401/500).",
+              "Partial failure / rollback semantics: No tests for partial failure within a closure operation (e.g., subscriptions cancelled but invoice write-off failed) and expected transactional/compensating behaviors."
+            ],
+            "recommendations": [
+              "Add tests for invalid boolean query parameter values and ensure the API either rejects (400) or coerces consistently per spec.",
+              "Explicitly assert default boolean parameter values by testing absence of each parameter one-at-a-time and verifying the documented default behavior (especially removeFutureNotifications default=true).",
+              "Validate response contract: add assertions for Content-Type and shape of error responses (JSON error object), and confirm 204 responses contain no body.",
+              "Expand header tests: include large/edge-case X-Killbill-Reason and X-Killbill-Comment values, encoding scenarios, and verify they are recorded properly (audit/log) or sanitized.",
+              "Add partial-failure/transactionality tests: simulate failures in one cleanup action (e.g., invoice service down) and assert overall behavior (rollback, partial completion, or compensating actions) and the returned error semantics.",
+              "Include rate-limiting/throttling tests: simulate high-frequency requests to validate 429 or proper handling if applicable.",
+              "Add tests to verify any soft-delete metadata (closed flag, timestamp, who closed) and that follow-up GETs reflect closure state consistently.",
+              "Add checks that security-sensitive side-effects do not leak (confirm no DB compromise after SQL-injection payloads beyond status code).",
+              "Assert performance SLOs numerically in the large-volume and concurrency tests (response time, throughput) rather than just \u201cwithin acceptable time\u201d."
+            ],
+            "usage": {
+              "completion_tokens": 1349,
+              "prompt_tokens": 6316,
+              "total_tokens": 7665,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 448,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

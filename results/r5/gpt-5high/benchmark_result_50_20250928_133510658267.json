@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "50_2025-09-28T13:35:10.658243",
+    "jira_id": "50",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles/{bundleId} - Retrieve a bundle by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T13:31:31.270906",
+    "benchmark_end_time": "2025-09-28T13:35:10.658240",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 219.387334,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "50_qe_sup-gpt4.1_agent-gpt4.1_1748919117.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Request: Successful 200 responses with application/json and a Bundle object for valid bundleId, including audit levels NONE (default), FULL, and MINIMAL (TC01\u2013TC04).",
+              "Query Parameters: Default audit behavior when omitted, valid enum values, invalid value returning 400, and unknown parameter safely ignored (TC01\u2013TC05, TC10).",
+              "Path Parameter Validation: Malformed UUID and XSS/injection attempts correctly return 400 (TC07, TC15).",
+              "Not Found Handling: 404 for non-existent bundle and when the database is empty (TC06, TC11).",
+              "Authorization: 401 for missing and invalid authentication tokens (TC08, TC09).",
+              "Robustness: Service unavailable (503), client timeout handling with logging, and transient 500 recovery via retry (TC12, TC13, TC20).",
+              "Performance/Scale: Large bundle response within acceptable latency (TC14).",
+              "Concurrency: Parallel requests for the same bundleId return consistent 200 and data (TC18).",
+              "Compatibility/Accessibility: Backward-compatible response structure and JSON readability for assistive tech (TC17, TC19)."
+            ],
+            "gaps": [
+              "Caching Behavior: No tests for ETag/Last-Modified, Cache-Control headers, or conditional GET (If-None-Match/If-Modified-Since) yielding 304.",
+              "Rate Limiting: No scenarios for bursts leading to 429 Too Many Requests and Retry-After handling.",
+              "Authorization Granularity: No 403 Forbidden scenario for valid tokens without sufficient permissions (if applicable to this API).",
+              "Schema Validation: Success responses do not validate against #/definitions/Bundle; error responses (400/404/503/401) not validated against a standard error schema.",
+              "Error Response Consistency: No assertions that error responses return application/json Content-Type and standardized error fields.",
+              "TC16 Correctness: The uppercase bundleId scenario does not actually send an uppercase ID in the request URL, so case-insensitivity is not validated.",
+              "Audit Parameter Robustness: No tests for case sensitivity or trimming (e.g., audit=full, audit= FULL) to confirm normalization or proper 400 errors."
+            ],
+            "recommendations": [
+              "Add caching tests: verify ETag and/or Last-Modified and Cache-Control on 200 responses; perform conditional GET with If-None-Match/If-Modified-Since to assert 304 Not Modified; confirm caching behavior does not leak audit data and varies appropriately by audit parameter.",
+              "Add rate limiting tests: simulate high-frequency requests to assert 429 responses, presence of Retry-After header, and recovery after throttle window.",
+              "Add 403 scenario using a valid token lacking required scope/role; or document that this endpoint uses 401 exclusively and add a test to confirm consistent behavior.",
+              "Introduce strict schema validation: assert the response matches #/definitions/Bundle (required fields, types, nested structures); also validate standardized error schema for 400/404/401/503.",
+              "Assert error response headers and structure: ensure error Content-Type is application/json and include stable fields (e.g., code, message, type, requestId) across all error cases.",
+              "Fix TC16 to actually send the uppercase bundleId in the URL; add edge cases for whitespace (leading/trailing), overlong/short IDs, and UUIDs with invalid hex to harden path validation.",
+              "Add Accept header tests: Accept=application/json should succeed; unsupported Accept should return 406 Not Acceptable (if API supports content negotiation).",
+              "Add combined-params test: audit=FULL with additional unknown params (e.g., foo=bar) to confirm unknowns are ignored while audit is honored."
+            ],
+            "usage": {
+              "completion_tokens": 8602,
+              "prompt_tokens": 5249,
+              "total_tokens": 13851,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7808,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

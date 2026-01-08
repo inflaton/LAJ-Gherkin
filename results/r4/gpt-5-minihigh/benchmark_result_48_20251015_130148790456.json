@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-10-15T13:01:48.790429",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T13:00:45.512589",
+    "benchmark_end_time": "2025-10-15T13:01:48.790425",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 63.277836,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Request: Happy path is covered (TC01) \u2014 successful PUT returns 204 and host is marked in rotation.",
+              "Idempotency: TC02 verifies PUT when host is already in rotation returns 204 and keeps state stable.",
+              "Authorization: 401/403/missing-auth scenarios covered (TC03, TC04, TC09) for invalid credentials and insufficient privileges.",
+              "Method handling: TC06 verifies method-not-allowed (405) for GET on the endpoint.",
+              "Service/unavailability handling: TC05 covers endpoint unreachable/service-down (503).",
+              "Robustness to unexpected input: TC07 (non-empty payload) and TC08 (extra headers) exercise tolerance to unexpected request content.",
+              "Resilience & performance: TC10 covers degraded performance/timeout constraints and TC13 covers transient network interruption/retry behavior.",
+              "Concurrency: TC14 exercises multiple concurrent PUTs to check race conditions and concurrency handling.",
+              "Regression & security: TC11 (regression) and TC12 (injection attempt) demonstrate regression guard and a basic security check."
+            ],
+            "gaps": [
+              "Produces / Content-Type: Acceptance says \"Produces: application/json\" but tests do not assert response Content-Type for success or error cases (or when 204 should have no body).",
+              "500 Internal Server Error: No explicit test simulating an internal server/database failure returning 5xx (500) and checking behavior/error payload.",
+              "400 / 415 / malformed payload handling: No explicit tests for malformed request content-type or invalid JSON leading to 400/415 \u2014 behavior is ambiguous because TC07 treats non-empty body as acceptable.",
+              "Error response schema: Tests do not validate structure of error responses (JSON error fields, error codes, consistent schema), only presence of an error message.",
+              "Rate limiting / throttling: No tests for rate limits (e.g., 429) or server behavior under high request rate beyond concurrency functional success.",
+              "Audit / side-effects verification: No tests verify audit logs, metrics, or propagation to downstream systems/load-balancer after state change.",
+              "No-host / resource-state edge case: No scenario for when there is no host available to put into rotation (how API should respond).",
+              "Token lifecycle & malformed auth headers: Tests cover invalid/insufficient auth but not token expiry, malformed auth header formats, or scope/claims validation.",
+              "Atomicity under concurrency: TC14 exercises concurrency but does not assert atomicity/deduplication or that only one state transition event is recorded (race-condition verification is superficial).",
+              "Content negotiation: No tests for Accept headers or behavior when client requests non-JSON responses."
+            ],
+            "recommendations": [
+              "Assert Content-Type and response body contracts: add tests that verify error responses use application/json and follow the agreed error schema; clarify whether 204 should include headers and ensure tests reflect that.",
+              "Add 5xx server-failure tests: simulate DB or internal failures and assert 500 handling and graceful error payloads.",
+              "Clarify and test payload handling: decide whether non-empty request bodies are allowed/ignored or should produce 400/415; add tests for malformed JSON and incorrect Content-Type.",
+              "Add tests for error response structure: validate fields (code, message, timestamp, requestId) and JSON schema for all >=400 responses.",
+              "Rate-limiting tests: add tests for throttling (rapid repeated requests) and expected 429 behavior and retry semantics.",
+              "Audit & downstream verification: add integration tests that verify audit log entries and that the load balancer / cluster registry observes the host state change.",
+              "Token lifecycle tests: add scenarios for expired tokens, malformed Authorization header formats, and insufficient token scopes/claims.",
+              "Deep concurrency/atomicity tests: enhance TC14 to assert no duplicate state transitions, single event recorded, and correct final state under interleaved operations.",
+              "Edge-case resource tests: add scenario for \"no hosts available\" or other resource-state edge cases and define expected status code and message.",
+              "Add contract/consumer tests: create a contract test (or OpenAPI-driven tests) to ensure the API adheres to the documented Produces: application/json behaviour and error contracts."
+            ],
+            "usage": {
+              "completion_tokens": 5491,
+              "prompt_tokens": 3274,
+              "total_tokens": 8765,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4608,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

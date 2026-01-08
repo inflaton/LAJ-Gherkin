@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-10-14T15:06:47.487270",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T15:05:08.922300",
+    "benchmark_end_time": "2025-10-14T15:06:47.487264",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 98.564964,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "Valid Deletion: Multiple scenarios verify successful deletion (all fields, specific fields, no-fields case) and 204 responses (TC01, TC02, TC04, TC13).",
+              "Path parameter validation: Invalid accountId format and SQL injection test cover accountId validation (TC05, TC19).",
+              "Query parameter validation: Valid UUIDs, invalid UUIDs, duplicates, large lists, unsupported extra params, and XSS test are covered (TC02, TC08, TC09, TC13, TC14, TC20).",
+              "Header handling: Required X-Killbill-CreatedBy presence and missing-header error are tested; optional headers X-Killbill-Reason and X-Killbill-Comment are tested (TC03, TC07).",
+              "Idempotency / Regression: Repeated delete of the same custom field is covered (TC15).",
+              "Non-existent resource handling: Deleting for a valid-but-nonexistent account covered (TC06) and deleting already-deleted fields handled by regression test (TC15).",
+              "Concurrency & Performance: High-concurrency and performance expectations are included (TC16).",
+              "Error conditions & robustness: System error and network timeout scenarios are included (TC11, TC12).",
+              "Authorization & Security: Unauthorized access and security injection tests are present (TC10, TC19, TC20).",
+              "Integration / Consistency: Downstream consistency check is included (TC17)."
+            ],
+            "gaps": [
+              "Atomicity / Partial-failure semantics: No explicit test for mixed lists where some customField IDs exist and some are valid UUIDs but do not exist \u2014 expected transactional behavior (all-or-nothing vs partial delete) is not specified or tested.",
+              "Soft-delete vs hard-delete semantics: No tests verify whether deletion is soft (flagging) or hard (physical removal) and whether deleted items remain queryable via admin endpoints.",
+              "Response headers and content-type: Although the story says produces application/json, there are no assertions about response headers (Content-Type) or about response body shape when errors occur.",
+              "Explicit authorization failure semantics: TC10 allows 401 or 403 but does not assert which one is expected for specific auth states; more granular tests for unauthenticated vs unauthorized roles are missing.",
+              "Header validation edge-cases: No tests for invalid or oversized X-Killbill-CreatedBy, Reason, Comment header values (empty string, too long, non-ASCII).",
+              "Behavior for empty/blank customField parameters: No test for customField= (empty value), or customField present with no values, or encoded empty lists.",
+              "Behavior when some customField IDs are duplicated and include invalid values: Duplicate handling is covered, but not the combination duplicates+invalid UUID in same request.",
+              "Rate limiting / throttling: No tests for API rate limits or throttling behavior under sustained high request rates (distinct from performance).",
+              "Soft failures / partial completion under timeout: TC12 checks timeout but doesn\u2019t assert whether partial deletes may have occurred \u2014 transactional guarantees under network failure not tested."
+            ],
+            "recommendations": [
+              "Add an atomicity test: send a DELETE with a mix of existing customField IDs and valid UUIDs that are not present and assert whether operation is transactional (either all removed or operation fails cleanly) and expected status code.",
+              "Add tests verifying soft-delete vs hard-delete semantics (e.g., check DB/administrative endpoint or audit trail) to ensure business expectations are met.",
+              "Assert response headers: add checks for Content-Type, and that error responses return consistent JSON error schema as implied by \u201cproduces: application/json.\u201d",
+              "Split authorization tests into unauthenticated (expect 401) and unauthorized (authenticated but insufficient role \u2014 expect 403) to remove ambiguity and verify correct behavior per security policy.",
+              "Add header validation tests: empty CreatedBy, overly long values, and invalid character sets for X-Killbill-CreatedBy/Reason/Comment to validate input constraints.",
+              "Add tests for malformed/empty customField parameters (e.g., customField= or customField repeated with no value) to validate request parsing.",
+              "Combine duplicate + invalid customField values in a single request to assert consistent handling and appropriate error messages.",
+              "Introduce rate-limiting / throttling tests distinct from pure performance tests to verify the API returns expected 429 or backpressure behavior when limits are exceeded.",
+              "Add transactional/consistency checks for timeouts and partial failures (ensure either rollback or clearly documented partial-completion behavior)."
+            ],
+            "usage": {
+              "completion_tokens": 2424,
+              "prompt_tokens": 5440,
+              "total_tokens": 7864,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1472,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

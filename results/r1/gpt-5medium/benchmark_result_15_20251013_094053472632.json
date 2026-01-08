@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "15_2025-10-13T09:40:53.472598",
+    "jira_id": "15",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts - Create account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T09:39:46.821255",
+    "benchmark_end_time": "2025-10-13T09:40:53.472593",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 84,
+    "average_generation_time_seconds": 66.651338,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 84,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "15_qe_sup-gpt4.1_agent-gpt4.1_1748916781.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 84,
+            "covered": [
+              "POST: Valid Payload \u2014 Successful creations with minimum/required-only and with optional headers, returning 201, JSON Account object, and Location header (TC01, TC02, TC03, TC16).",
+              "POST: Invalid Payload \u2014 Malformed JSON, missing required fields, and empty body return 400 with error indication (TC05, TC06, TC12).",
+              "Header rules \u2014 Required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason/Comment accepted; header type validation exercised (TC02, TC04, TC08).",
+              "Large payload boundary \u2014 Maximum allowed field sizes accepted with 201 (TC11).",
+              "Server error handling \u2014 Dependency failure (503) and network timeout (504) are exercised (TC10, TC14).",
+              "Authorization \u2014 Unauthorized requests yield 401 (TC09).",
+              "Response headers/flow \u2014 Location header present and usable to retrieve the resource via GET (TC01/TC02/TC03, TC20).",
+              "Concurrency/performance \u2014 Multiple concurrent POSTs succeed within acceptable latency (TC18).",
+              "Flexible input \u2014 Extra unsupported fields in body are ignored on success (TC07)."
+            ],
+            "gaps": [
+              "Duplicate submission handling is ambiguous (TC13 asserts 201 or 409). No deterministic assertion of expected behavior and no idempotent retry/replay test.",
+              "Field-level validation gaps for Account schema (e.g., invalid email/phone formats, bad country/locale/timezone, enum constraints, numeric ranges) are not covered.",
+              "Media type and content negotiation not tested: missing/wrong Content-Type -> 415, unacceptable Accept header -> 406; response Content-Type header not asserted.",
+              "Server error breadth: no coverage for 500 Internal Server Error or standard error body contract; only 503 and 504 paths are tested.",
+              "Large payload negative path not covered (payload exceeding limits -> 400/413).",
+              "Schema contract checks are implicit only; no explicit validation that response strictly conforms to #/definitions/Account (required fields present, types, read-only fields).",
+              "Header boundary tests missing (very long or whitespace-only X-Killbill-* values; allowed character set).",
+              "Security/XSS test (TC15) has ambiguous expected outcome; no explicit verification of sanitization/encoding and consistent status code."
+            ],
+            "recommendations": [
+              "Make duplicate policy explicit: add a test that creates an account, then re-posts the same unique identifier (e.g., externalKey) and asserts the expected outcome (409 Conflict with error body, or 201 with idempotent behavior). Add a replay/idempotent retry test to ensure consistent results.",
+              "Add media type/content negotiation tests: POST with missing/incorrect Content-Type (e.g., text/plain) -> expect 415; POST with Accept: application/xml -> expect 406; assert response Content-Type: application/json on success and error responses.",
+              "Introduce field-level validation scenarios: invalid email format, invalid phone, unsupported currency/locale/timezone, enum violations, out-of-range numeric values, disallowed characters; expect 400 with specific validation messages.",
+              "Cover large payload negatives: exceed documented max lengths/sizes to assert 400 or 413 Payload Too Large, with clear error details.",
+              "Add a 500 Internal Server Error simulation (unexpected exception) and verify status code and standard error schema (code, message, details, requestId).",
+              "Add explicit schema contract assertions for both request and response against #/definitions/Account (types, required fields, read-only/derived fields not writable).",
+              "Strengthen header boundary tests: extremely long X-Killbill-CreatedBy/Reason/Comment, empty-string/whitespace-only values, and non-UTF8 characters; assert accepted or rejected per spec.",
+              "Clarify TC15: decide on policy (reject with 400 vs accept with sanitized value). Verify output encoding prevents script execution and that responses never reflect raw input. Use deterministic assertions.",
+              "Consolidate overlapping success scenarios (TC01/TC03/TC16) using a Scenario Outline with Examples for header combinations while keeping assertions for 201, Location, and JSON body."
+            ],
+            "usage": {
+              "completion_tokens": 4787,
+              "prompt_tokens": 4821,
+              "total_tokens": 9608,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3904,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

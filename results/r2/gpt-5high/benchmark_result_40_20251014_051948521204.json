@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "40_2025-10-14T05:19:48.521175",
+    "jira_id": "40",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{childAccountId}/transferCredit - Move a given child credit to the parent level",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T05:16:52.535379",
+    "benchmark_end_time": "2025-10-14T05:19:48.521171",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 175.985792,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "40_qe_sup-gpt4.1_agent-gpt4.1_1748918568.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "PUT - Valid Request: Successful transfer returns 204 and correctly updates balances; optional headers recorded in audit logs (TC01, TC02).",
+              "PUT - Non-Existing Resource: 404 when child or parent account is missing, including empty database case (TC04, TC05, TC12).",
+              "PUT - Concurrency Issues: Concurrent and repeated requests handled; only one succeeds, others fail due to insufficient credit (TC14, TC16).",
+              "Validation per story: 400 for insufficient credit and other validation failures (missing/invalid required header, malformed UUID, malicious/invalid header inputs) (TC03, TC06, TC07, TC11, TC15).",
+              "Security/Authorization: 401/403 for unauthorized/forbidden access (TC10).",
+              "Operational/Resilience and Performance: API unavailability (503) and performance threshold covered (TC09, TC13).",
+              "Robustness: Extra/unsupported headers ignored without affecting success (TC08).",
+              "PUT - Partial Update: Not applicable for this endpoint (no request body)."
+            ],
+            "gaps": [
+              "Produces application/json in spec is not validated: no checks for Content-Type on error responses and no assertion that 204 has an empty body.",
+              "No test sends an unexpected request body to confirm it is rejected (400) or ignored with no side effects.",
+              "Success semantics are not fully asserted: tests do not verify that the entire child balance is moved (child balance becomes exactly zero) and that exactly one transfer record/audit event is created.",
+              "Concurrency/double-transfer scenarios do not assert final balances or audit deduplication to ensure no double credit at the parent.",
+              "Error response schema is not validated beyond message text (e.g., JSON structure/fields for errors).",
+              "Status-code alignment: some scenarios allow 422, which is not specified in the story; this may create ambiguity versus the 400/404 contract.",
+              "Header boundary cases for optional X-Killbill-Reason and X-Killbill-Comment (length limits, Unicode, whitespace-only) are not covered."
+            ],
+            "recommendations": [
+              "Add assertions for headers and bodies: verify error responses return Content-Type: application/json and that 204 responses have no body.",
+              "Add a negative test that includes a non-empty request body; expect 400 Bad Request (or document/verify that the body is ignored) and no state change.",
+              "Tighten success checks: assert the child balance becomes zero and the parent increases by the exact pre-transfer amount; verify a single audit event capturing X-Killbill-CreatedBy, Reason, and Comment.",
+              "Enhance concurrency tests to check end-state integrity: final balances, no duplicate credit entries at the parent, and no duplicate audit records.",
+              "Align expected status codes with the story; replace or justify any 422 expectations with 400 per the API contract.",
+              "Add boundary tests for header values (max length, Unicode/special chars, whitespace-only) for X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment."
+            ],
+            "usage": {
+              "completion_tokens": 8217,
+              "prompt_tokens": 4953,
+              "total_tokens": 13170,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7552,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-10-13T13:15:40.487583",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T13:13:07.090016",
+    "benchmark_end_time": "2025-10-13T13:15:40.487579",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 89,
+    "average_generation_time_seconds": 153.397563,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 89,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 89,
+            "covered": [
+              "DELETE - Valid Deletion: Success paths covered for removing all tags (no tagDef), single tag, multiple tags, and large lists; idempotency verified when tags are absent or not present on the payment; 204 with empty body asserted.",
+              "DELETE - Non-Existent Resource and Validation: 400 for invalid paymentId UUID; 404 when payment not found; 400 for invalid tagDef and injection attempts; multi-value tagDef (collectionFormat=multi) supported.",
+              "DELETE - Concurrency: Concurrent DELETE requests handled with correct final state and no race-condition errors.",
+              "Headers: Required X-Killbill-CreatedBy enforced (400 when missing); optional X-Killbill-Reason and X-Killbill-Comment supported; audit logging checks include user/reason/comment.",
+              "Data consistency: Follow-up GET validates that tags are actually removed.",
+              "Operational resilience and security: 401 unauthorized, 503 service unavailable, 504 timeout, and performance under load scenarios are covered."
+            ],
+            "gaps": [
+              "DELETE - Soft Deletes: No assertion whether tag removal is soft vs hard delete; expected behavior not verified via history/audit endpoints beyond logging.",
+              "Response headers/content negotiation: No checks that error responses produce Content-Type application/json per contract; no assertion that 204 includes no body and proper headers (e.g., Content-Length: 0); no Accept/406 handling.",
+              "Mixed-validity tagDef list: Case where some tagDef values are valid/present and others invalid/not present is untested (all-or-nothing vs partial removal semantics).",
+              "Duplicate tagDef parameters: No test to ensure duplicates are handled idempotently and do not cause errors.",
+              "Unknown/nonexistent tag definition IDs: Distinct behavior from 'valid but not on payment' is not specified or tested.",
+              "Authorization depth: 403 Forbidden (authenticated but not authorized) not covered if the API differentiates from 401.",
+              "Unexpected request body with DELETE: No test to confirm it is rejected (400/415) or ignored per API behavior.",
+              "Error response schema: Tests only look for a message; they do not assert error payload structure/fields (e.g., code, message).",
+              "Rate limiting/throttling: No explicit 429 coverage under burst traffic, if applicable.",
+              "Collection-format strictness: Not validating that comma-separated tagDef values are rejected when collectionFormat=multi is required."
+            ],
+            "recommendations": [
+              "Add a soft delete verification: Confirm expected behavior (hard vs soft) by checking history/audit endpoints or tag tombstones where applicable.",
+              "Assert response headers: For 204 ensure no body and Content-Length: 0; for 4xx/5xx assert Content-Type: application/json and a consistent error schema; include Accept negotiation (e.g., 406) if supported.",
+              "Extend tagDef matrix: Add cases with mixed valid/invalid IDs and mixed present/not-present IDs; define whether behavior is partial success or all-or-nothing; add a test for duplicate tagDef values.",
+              "Test nonexistent tag definition IDs explicitly to differentiate from 'valid but not on this payment' (expected status should be clarified with API owners).",
+              "Add 403 Forbidden scenario for authenticated users lacking permission/tenant access, if authorization model supports it.",
+              "Send an unexpected request body with DELETE and assert the expected outcome (ignore vs 400/415).",
+              "Validate error payload contract (fields, codes) across 400/401/404/503/504.",
+              "Consider a rate-limiting test for 429 under bursts if the platform enforces throttling.",
+              "Verify collectionFormat=multi strictly: ensure comma-separated values are rejected with 400 and multi-parameter form is required.",
+              "Add a simple repeat-delete idempotency test (same request twice sequentially returns 204 both times) to make idempotence explicit."
+            ],
+            "usage": {
+              "completion_tokens": 6429,
+              "prompt_tokens": 5560,
+              "total_tokens": 11989,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5568,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

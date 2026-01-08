@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "70_2025-10-13T23:51:10.751496",
+    "jira_id": "70",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/catalog - Delete all versions for a per tenant catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T23:50:52.205213",
+    "benchmark_end_time": "2025-10-13T23:51:10.751493",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 18.54628,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "70_qe_sup-gpt4.1_agent-gpt4.1_1748920522.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "DELETE - Valid Deletion: Successful deletion returns 204 and removes all catalog versions (TC01, TC02, TC05, TC08, TC10, TC12, TC15).",
+              "DELETE - Non-Existent Resource: Proper handling for non-existent tenant (404) and tenant with no versions (still 204) (TC05, TC06).",
+              "DELETE - Concurrency: Concurrent requests handled; only one effective delete, others receive 204/404 as appropriate (TC13).",
+              "Error Handling: Missing required header (400/401), invalid/expired token (401), malformed headers (400), system failure (500) (TC03, TC04, TC07, TC09).",
+              "Security/Validation Hardening: Injection/malicious header values rejected (400/422) (TC11).",
+              "Optional Headers Behavior: Reason/Comment optional and accepted when present (TC02).",
+              "Side-effects Verification: Post-delete GET shows empty/404; ensures data actually removed and no orphaned references (TC01, TC12).",
+              "Non-standard input: Request body on DELETE is ignored while still succeeding (TC15).",
+              "Performance: Large number of versions still deleted within acceptable time (TC10)."
+            ],
+            "gaps": [
+              "DELETE - Soft Deletes: No explicit verification of soft-delete vs hard-delete behavior (e.g., flags, retrievability via admin/audit endpoints).",
+              "Authorization/Permissions granularity: No scenario for authenticated but unauthorized user (403 Forbidden) distinct from invalid token (401).",
+              "Idempotency: No explicit sequential test that a second DELETE after successful deletion returns a consistent/defined status (e.g., 204 or 404) and remains side-effect-free.",
+              "Tenant Isolation: No test ensuring deletion for one tenant does not impact catalogs of other tenants.",
+              "Audit Trail Persistence: No verification that X-Killbill-CreatedBy/Reason/Comment are recorded in audit logs/history for the delete operation.",
+              "Rate/Abuse Controls: No scenario covering burst DELETE attempts beyond concurrency (e.g., throttling/429) if applicable to the API policy."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification scenario (or explicitly assert hard-delete) by attempting to retrieve deleted versions via any admin/list endpoints or checking deletion flags and ensuring permanent removal is intended.",
+              "Add a 403 Forbidden scenario where the user is authenticated but lacks permission to delete catalogs for the tenant.",
+              "Add an idempotency scenario: perform DELETE twice sequentially and assert the defined behavior (e.g., first 204, second 404 or 204) with no side effects.",
+              "Add a tenant isolation scenario: seed two tenants; delete for tenant A; verify tenant B catalog versions remain intact.",
+              "Add an audit trail scenario: after DELETE with CreatedBy/Reason/Comment, query audit logs/history to confirm these values are persisted.",
+              "If applicable, add throttling/abuse scenario for rapid repeated DELETEs to validate 429 or documented behavior."
+            ],
+            "usage": {
+              "completion_tokens": 1352,
+              "prompt_tokens": 4159,
+              "total_tokens": 5511,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 704,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

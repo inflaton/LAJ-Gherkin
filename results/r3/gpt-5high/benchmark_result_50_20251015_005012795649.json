@@ -1,0 +1,83 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "50_2025-10-15T00:50:12.795617",
+    "jira_id": "50",
+    "jira_title": "Implement/Test API: GET /1.0/kb/bundles/{bundleId} - Retrieve a bundle by id",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T00:47:25.762196",
+    "benchmark_end_time": "2025-10-15T00:50:12.795613",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 167.033417,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "50_qe_sup-gpt4.1_agent-gpt4.1_1748919117.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Request: Successful 200 responses with application/json for a valid UUID, including default behavior when audit is omitted.",
+              "Query Parameters: audit handled comprehensively (FULL, MINIMAL, NONE, default), invalid audit value (VERBOSE -> 400), and unknown parameters ignored without breaking behavior.",
+              "Path Parameter Validation: Malformed UUID and injection attempts correctly return 400; valid UUID path works.",
+              "Error Handling: 404 for non-existent bundle and empty database; 400 for invalid bundleId and invalid audit parameter value; descriptive error messages asserted.",
+              "Authorization: 401 covered for missing and invalid tokens.",
+              "Produces: application/json verified in success paths (Content-Type assertions).",
+              "Resilience/Robustness (nice-to-have beyond story): 503 service unavailable, client timeout, retry-after transient 500, performance with large data, and concurrency handled.",
+              "Note: Pagination is not applicable to a single-resource GET and is appropriately not tested."
+            ],
+            "gaps": [
+              "Caching Behavior: No tests for ETag/Last-Modified and Cache-Control headers, nor conditional requests (If-None-Match/If-Modified-Since -> 304).",
+              "Rate Limiting/Throttling: No scenarios to verify behavior under high request rates (e.g., 429 Too Many Requests and Retry-After headers).",
+              "Authorization Depth: No 403 Forbidden scenario for valid credentials without required permissions/roles.",
+              "Schema Validation: Steps assert a \u201cvalid Bundle object\u201d but don\u2019t validate against the documented Bundle schema (#/definitions/Bundle) or a standard error schema for 4xx/5xx responses.",
+              "Consistency of Error Responses: Error scenarios don\u2019t assert Content-Type is application/json and don\u2019t verify error payload fields (e.g., code/type/message).",
+              "Ambiguity in TC16: The scenario claims uppercase bundleId but the request path is not actually uppercase and uses digits only, making the test ineffective."
+            ],
+            "recommendations": [
+              "Add caching scenarios: assert ETag and Cache-Control on 200; perform a second GET with If-None-Match to expect 304 Not Modified; optionally validate Last-Modified/If-Modified-Since.",
+              "Add rate limiting tests: issue a burst of concurrent/rapid requests to trigger 429 Too Many Requests; assert Retry-After and ensure behavior recovers after the window.",
+              "Add a 403 Forbidden test: use a valid token lacking permissions and assert 403 with a standardized error payload.",
+              "Introduce strict JSON Schema validation: validate success payloads against the Bundle schema (#/definitions/Bundle) and error payloads against a shared Error schema across 400/401/404/503.",
+              "Enhance error assertions: verify error responses also return application/json and include consistent fields (e.g., code, message, type).",
+              "Fix TC16: Provide a UUID containing alphabetic characters and actually send it uppercase in the request path, e.g., use 3fa85f64-5717-4562-b3fc-2c963f66afa6 and request /.../3FA85F64-5717-4562-B3FC-2C963F66AFA6.",
+              "Add edge-case query parameter tests: audit case sensitivity (e.g., full or Full), and empty value (?audit=) to assert the expected behavior (reject with 400 or normalize explicitly)."
+            ],
+            "usage": {
+              "completion_tokens": 8404,
+              "prompt_tokens": 5249,
+              "total_tokens": 13653,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7680,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

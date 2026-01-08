@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "3_2025-10-15T02:41:24.623021",
+    "jira_id": "3",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/tags - Remove tags from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T02:38:15.427702",
+    "benchmark_end_time": "2025-10-15T02:41:24.623017",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 189.195315,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "3_qe_sup-gpt4.1_agent-gpt4.1_1748915976.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE: Valid Deletion \u2014 single, multiple, and all tags; returns 204 with empty body; DB state verified.",
+              "Headers: Required X-Killbill-CreatedBy enforced; missing header yields 400; optional X-Killbill-Reason and X-Killbill-Comment supported (present and omitted).",
+              "Query Parameters: tagDef optional; multi-value supported; invalid/malformed/mixed values handled; empty array and large lists covered; unexpected params tolerated.",
+              "Path Parameter Validation: invalid format and non-existent accountId return 400.",
+              "Business Rule: Attempt to remove AUTO_PAY_OFF without a default payment method returns 400.",
+              "Authorization: Unauthenticated/unauthorized clients receive 401/403.",
+              "Resilience: Service unavailability returns 5xx; retry after transient network failure succeeds.",
+              "Concurrency/Performance: Concurrent DELETE requests succeed within acceptable time and remove tags.",
+              "Idempotency: Deleting when no tags are present returns 204 and leaves state unchanged."
+            ],
+            "gaps": [
+              "Response headers/content negotiation: No assertions that error responses are application/json, or that 204 responses have no Content-Type; story states Produces: application/json.",
+              "Soft deletes and auditability: No explicit verification of hard vs soft delete, nor persistence of Reason/Comment in audit logs.",
+              "Concurrency on the same resource: No test where two clients delete the same tag from the same account simultaneously or repeat the DELETE; expected idempotent behavior not validated.",
+              "Rate limiting/throttling: No scenarios for bursts leading to 429 or server throttling behavior.",
+              "AUTO_PAY_OFF positive path: No scenario confirming successful removal when a default payment method exists.",
+              "Valid-but-not-applied tags: No scenario where some provided tagDef UUIDs are valid but not currently on the account (should be idempotent 204).",
+              "Duplicate tagDef values: No test that duplicates in the query are handled gracefully (deduped) with 204.",
+              "Error payload schema: No assertions on error body structure (e.g., code, message) and correlation IDs.",
+              "Background step conflict: Background enforces X-Killbill-CreatedBy for all scenarios, conflicting with the negative test that omits it."
+            ],
+            "recommendations": [
+              "Add assertions on Content-Type headers: 4xx/5xx responses return application/json; 204 responses have no body and no Content-Type. Also exercise Accept negotiation.",
+              "Verify audit trail: After deletions with Reason/Comment, fetch audit logs and assert values are persisted; confirm deletion is hard (no soft-deleted rows visible).",
+              "Add same-resource concurrency/idempotency tests: fire two DELETEs for the same account/tag concurrently and repeat the DELETE; both should be safe (e.g., 204) and tag removed once.",
+              "Introduce rate-limiting tests: send high-rate bursts to the same account endpoint; assert documented behavior (429 or graceful handling).",
+              "Add success case for AUTO_PAY_OFF when default payment method exists (expect 204).",
+              "Test mixed applied/unapplied valid tagDefs: request includes one tag present and one valid-but-not-on-account; expect 204 and only present tag removed.",
+              "Test duplicate tagDef parameters; expect 204 and single removal.",
+              "Validate error schema: assert JSON structure and fields for 400/5xx responses.",
+              "Fix Gherkin Background: remove or relax the global CreatedBy header step and set it per scenario so negative header tests are not contradicted.",
+              "Optionally validate post-conditions via GET /1.0/kb/accounts/{accountId}/tags to confirm tag list after deletions."
+            ],
+            "usage": {
+              "completion_tokens": 9415,
+              "prompt_tokens": 5684,
+              "total_tokens": 15099,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 8640,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

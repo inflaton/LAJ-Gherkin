@@ -1,0 +1,98 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "6_2025-10-14T17:36:01.714640",
+    "jira_id": "6",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/customFields - Modify custom fields to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T17:32:50.813226",
+    "benchmark_end_time": "2025-10-14T17:36:01.714636",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 190.90141,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "6_qe_sup-gpt4.1_agent-gpt4.1_1748916194.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Primary success path (204 + DB persistence) is covered: TC01, TC02, TC03 validate successful updates and database persistence for normal, optional-header, and create-on-empty scenarios.",
+              "Request body validation and parsing: TC09 (missing body), TC10 (malformed JSON), TC11 (invalid CustomField schema) cover common request-body error cases.",
+              "Account ID validation: TC06 (invalid UUID format) and TC07 (non-existent account ID) cover path parameter validation and non-existing resource handling (400 responses as per story).",
+              "Required/optional headers handling: TC01/TC08 check required X-Killbill-CreatedBy presence and TC02 verifies optional X-Killbill-Reason/X-Killbill-Comment handling.",
+              "Empty-array semantics and replacement behavior: TC15 verifies an empty array removes all custom fields (PUT semantics tested).",
+              "Large payload / size boundaries: TC04 (100 items) and TC26 (near maximum + 413 handling) exercise large-array/payload scenarios.",
+              "Edge-case field validation: TC16 (max lengths) and TC17 (extra properties ignored) address field-length and robustness to extra properties.",
+              "Partial-input and schema-mixed cases: TC18 checks mixed valid/invalid objects and appropriate 400 reporting.",
+              "Security: SQL injection and XSS payload handling covered by TC20 and TC21.",
+              "Authentication/authorization negative case: TC12 covers missing authentication token and 401 response.",
+              "Service & dependency failure handling: TC13 (503 service down), TC14 (502 dependency failure), and TC19 (504 timeout) cover availability and remote-failure behaviors.",
+              "Concurrency & performance: TC25 (concurrent requests) plus TC22 (retry on transient network error) exercise concurrency/performance and basic recovery behaviors.",
+              "Regression & integration: TC23 (duplicate names), TC24 (backward compatibility), TC27 (audit log integration), and TC28 (external reporting) cover historical/regression and integration concerns.",
+              "Accessibility and documentation: TC29 ensures documentation and error messages are accessible."
+            ],
+            "gaps": [
+              "Content-Type / media-type handling is not tested: there is no explicit test sending non-application/json (expect 415 Unsupported Media Type) or asserting Accept/Content-Type response headers.",
+              "Idempotency / duplicate-submission behavior for PUT is not explicitly tested (re-sending identical PUT should be idempotent and not create duplicates).",
+              "Authorization scope and permission checks (403 Forbidden) and invalid-token scenarios are missing \u2014 only missing-token (401) is covered.",
+              "Race conditions and fine-grained concurrency conflicts are not covered: TC25 stresses concurrency but doesn't assert conflict detection / optimistic-locking / last-writer-wins semantics or test simultaneous, conflicting updates to the same fields.",
+              "Internal-server-error (500) and transactional-rollback scenarios (database failure leading to partial writes) are not explicitly tested.",
+              "Non-array or invalid-array-element bodies are not tested (e.g., sending an object instead of an array, or an array with null / primitive elements should yield 400).",
+              "Response header assertions and error response schema validation are weak/missing \u2014 tests don't assert Content-Type: application/json for error responses nor structured error payload fields (code/message).",
+              "Field-level negative cases such as invalid data types for CustomField properties, empty/blank required header values (e.g., blank X-Killbill-CreatedBy), and boundary counts beyond tested values are not exhaustively covered.",
+              "Rate-limiting / throttling behavior is not covered (no tests for API limits or 429 responses).",
+              "Audit-log content detail verification is light: TC27 checks that audit logs are recorded but doesn't assert the exact content (creator, reason, comment, timestamps) or atomicity guarantees.",
+              "Conditional/optimistic update semantics (ETag / If-Match / conditional headers) are not covered if the API supports them."
+            ],
+            "recommendations": [
+              "Add a test for invalid Content-Type (e.g., text/plain or missing Content-Type) expecting 415 Unsupported Media Type and verify Content-Type handling on request and response.",
+              "Add idempotency tests: send the same PUT twice (or more) and assert 204 each time and that no duplicate records are created; also test retry semantics when a previous request partially failed (ensure atomicity).",
+              "Add authorization scope tests: invalid token -> 401, valid token but insufficient permissions -> 403, and role-based access checks if applicable.",
+              "Add conflict/race-condition tests that simulate simultaneous, conflicting updates to the same account (assert deterministic conflict resolution, last-writer-wins behavior, or appropriate 409/locking response). If ETag/If-Match is supported, add tests exercising conditional updates.",
+              "Simulate database failure to verify 500 Internal Server Error and transactional rollback semantics (no partial writes).",
+              "Add tests for non-array bodies and arrays that contain nulls or non-object elements to ensure 400 responses for bad payload types.",
+              "Assert error response headers and schema: verify Content-Type: application/json on 4xx/5xx responses and validate structured error payload fields (error code, message, field-level errors).",
+              "Expand field-level validation tests: invalid data types for CustomField properties, blank X-Killbill-CreatedBy, maximum counts (beyond 100) and boundary-value tests for lengths and counts.",
+              "Add rate-limiting tests to exercise throttling behavior (ensure 429 responses where applicable) and verify system behavior under sustained high request rates.",
+              "Enhance integration/audit tests to assert exact audit entries (who, when, reason/comment) and that audit/update operations are atomic and consistent.",
+              "If the API supports conditional requests, add ETag/If-Match tests and verify the system's behavior on mismatched versions."
+            ],
+            "usage": {
+              "completion_tokens": 6143,
+              "prompt_tokens": 6919,
+              "total_tokens": 13062,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 4928,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

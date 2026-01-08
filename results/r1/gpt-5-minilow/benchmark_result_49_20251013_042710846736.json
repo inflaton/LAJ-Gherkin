@@ -1,0 +1,87 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-13T04:27:10.846714",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T04:26:52.854781",
+    "benchmark_end_time": "2025-10-13T04:27:10.846710",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 80,
+    "average_generation_time_seconds": 17.991929,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 80,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 80,
+            "covered": [
+              "Valid Deletion: TC01, TC08, TC12 verify successful DELETE returns 204 and host is marked out of rotation.",
+              "Authorization: TC02 and TC03 cover missing and invalid authentication leading to 401 responses.",
+              "Idempotency / Non-Existence: TC04 and TC14 exercise cases where the host is already out of rotation or no hosts exist (409).",
+              "Error Handling: TC05 (service unavailable/503) and TC06 (internal error/500) cover server-side failure modes.",
+              "HTTP Method Handling: TC07 verifies method-not-allowed (405) for invalid HTTP methods.",
+              "Request Validation: TC09 and TC13 cover invalid request body and malicious headers producing 400/401 and input validation concerns.",
+              "Concurrency & Performance: TC10 and TC11 cover response time under load and concurrent request behaviors (first-request 204, subsequent 409/204).",
+              "Regression: TC12 specifically verifies the core defect (host not marked out of rotation) has been fixed and persisted."
+            ],
+            "gaps": [
+              "Response Headers / Content-Type: No scenario verifies the API produces the declared application/json Content-Type header or other headers (e.g., Cache-Control).",
+              "Success Response Body vs Spec: The story notes \u201cproduces: application/json\u201d but success should return an empty body (204). There is no explicit test asserting presence/absence of Content-Type on 204 responses or how the API communicates JSON on errors vs empty success.",
+              "Soft Delete / Persistence Semantics: No tests check whether removal is a soft delete, how the host status is persisted (DB verification beyond \u201cmarked out of rotation\u201d), or how/where the state is stored/reverted.",
+              "Authorization Scope/Roles: Tests cover auth presence/validity (401) but not authorization/role-based access control (403) \u2014 e.g., a valid token without admin role should be rejected.",
+              "Non-Existent Resource Distinction: TC14 covers \u201cno hosts in rotation\u201d but there is no test for deleting a specific host identifier (if API ever supports multi-host) or clear distinction between \u201cresource not found\u201d (404) and \u201cconflict\u201d (409).",
+              "Idempotency Semantics: Although TC04/TC11 touch repeated calls, there is no explicit idempotency verification across multiple identical DELETE calls and time-based retries.",
+              "Request Size/Body Handling: TC09 covers malicious body but there are no tests for very large request bodies or unusual content-types.",
+              "Rate Limiting / Throttling: No tests exercise rate limits or protection against request floods beyond basic concurrency/perf.",
+              "Logging/Audit/Monitoring: No tests validate that the operation is logged/audited or that health-check/monitoring signals reflect the change."
+            ],
+            "recommendations": [
+              "Add header assertions: Verify Content-Type and other relevant response headers on success (204) and error responses (JSON error body). Ensure behavior is defined/verified when a 204 has no body but Content-Type is present or absent.",
+              "Add RBAC tests: Include scenarios where a valid token without admin privileges attempts the DELETE and should receive 403 Forbidden.",
+              "Clarify and test idempotency: Add a scenario that calls DELETE repeatedly and asserts consistent behavior (204 first, subsequent 204 or 409 depending on the chosen semantic) and document expected idempotency.",
+              "Persistency checks: Add tests that verify authoritative persistence (e.g., DB/query endpoint) after deletion and after restart, and tests for soft-delete semantics if applicable (can be restored).",
+              "Differentiate resource-not-found vs conflict: If the API may address specific hosts or identifiers in future, add 404 tests; currently make TC14 explicit about whether 409 is preferred versus 404 and add tests accordingly.",
+              "Rate limiting and throttling: Add tests that exercise high-rate or abuse patterns to ensure appropriate 429/ throttling headers and graceful handling.",
+              "Large/malformed payloads and content-type: Add tests for large/malformed request bodies and various Content-Type headers to ensure robust validation and stable behavior.",
+              "Logging/audit and monitoring: Add assertions (or integration checks) that an audit record/metric is produced when a host is taken out of rotation, and that service health endpoints reflect the change where applicable."
+            ],
+            "usage": {
+              "completion_tokens": 1159,
+              "prompt_tokens": 3433,
+              "total_tokens": 4592,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 256,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

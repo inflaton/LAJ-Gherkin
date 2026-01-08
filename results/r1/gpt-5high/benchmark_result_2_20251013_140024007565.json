@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-10-13T14:00:24.007537",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T13:57:25.383584",
+    "benchmark_end_time": "2025-10-13T14:00:24.007533",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 178.623949,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "POST Valid Payload: Successful creation with single and multiple tags, 201 status, and Tag array response; DB association verified (TC01, TC02, TC04, TC05, TC18, TC24).",
+              "Optional Headers: Reason and Comment supported in success path (TC03).",
+              "Invalid Payload & Validation: Empty array, non-array, malformed UUIDs, unexpected element types, non-existent IDs, missing required header, missing/invalid accountId all return 400 (TC07\u2013TC11, TC12\u2013TC14, TC17, TC23).",
+              "Authorization: 401 when authentication token is missing (TC15).",
+              "Server Error Handling (partial): Dependency failure returns 503 (TC16).",
+              "Duplicate Handling (partial): Duplicate IDs in request are de-duplicated; concurrent requests avoid duplicates (TC19, TC21).",
+              "Boundary/Performance: Large list of 100 tags succeeds; basic latency check (TC18, TC20).",
+              "Versioning/Security: Explicit v1.0 usage covered; header injection sanitized/not reflected (TC24, TC22)."
+            ],
+            "gaps": [
+              "Duplicate Submission Idempotency across requests: No scenario posting the exact same payload twice sequentially to confirm behavior (e.g., 201 then 200/204/409, and no duplicate tags).",
+              "Atomicity on mixed validity: No test where the array contains both valid and invalid tag IDs to confirm all-or-nothing versus partial creation.",
+              "Missing body/Content-Type handling: No test for absent body, invalid JSON at transport level, or wrong/missing Content-Type leading to 400/415.",
+              "Response headers: No explicit check that the response Content-Type is application/json as specified by produces.",
+              "Response schema: No strict validation of the Tag object structure/fields and types in the response.",
+              "Server Error Handling (completeness): 500 Internal Server Error not simulated; only 503 covered.",
+              "Authorization vs. permissions: No 403 Forbidden test for authenticated user lacking permission to add tags.",
+              "Spec alignment issue: TC05 expects response to include pre-existing tags; the story specifies the response array represents the created tags only (potential mismatch).",
+              "Out-of-scope params: TC06 adds pagination/sorting query parameters that the POST endpoint does not define; either clarify behavior or remove.",
+              "Idempotent re-add of an existing tag in a new request (not concurrency): No test that re-posting an already present tag leaves state unchanged and returns a predictable status.",
+              "Optional header validation: No tests for extreme lengths/illegal chars in X-Killbill-Reason/Comment and expected handling.",
+              "Very large payload limits: Only 100 items tested; no test around practical or documented maximums (e.g., 413 Payload Too Large)."
+            ],
+            "recommendations": [
+              "Add an idempotency suite: POST the same array twice; assert second call\u2019s status and that no duplicates are created.",
+              "Add a mixed-validity test (e.g., [\"valid-uuid-1\", \"invalid-uuid\"]) to verify atomic behavior (full rollback vs. partial success) and document expected outcome.",
+              "Add transport-level robustness tests: missing body, null body, invalid JSON, and incorrect/missing Content-Type (expect 400/415).",
+              "Validate response headers: assert Content-Type is application/json on 201 and error responses.",
+              "Enforce response schema checks: validate Tag object fields (e.g., id, tagDefinitionId, createdDate, accountId) and types.",
+              "Simulate 500 Internal Server Error (e.g., DB failure) to complete server error handling per guidelines.",
+              "Add a 403 Forbidden scenario for an authenticated user without the necessary permissions.",
+              "Align TC05 with the story: expect only newly created tags in the response, or update the story/spec if the API is intended to return the full set.",
+              "Clarify/adjust TC06: If unsupported query params are provided, either ensure they are rejected (400) or explicitly documented as ignored; test accordingly.",
+              "Add a re-add test: attempt to add a tag already present on the account in a new POST; verify no duplicate and define expected status code.",
+              "Extend optional header tests: boundary lengths, special characters, and sanitization behavior for X-Killbill-Reason/Comment.",
+              "Stress test payload limits: test near and beyond expected maximum array size to confirm success behavior and 413 handling when exceeded."
+            ],
+            "usage": {
+              "completion_tokens": 7983,
+              "prompt_tokens": 6410,
+              "total_tokens": 14393,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7040,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

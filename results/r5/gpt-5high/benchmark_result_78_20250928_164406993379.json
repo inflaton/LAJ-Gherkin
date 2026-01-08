@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-09-28T16:44:06.993353",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T16:41:51.647007",
+    "benchmark_end_time": "2025-09-28T16:44:06.993349",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 135.346342,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "POST - Valid Payload: Multiple success scenarios return 201 and confirm creation; plan retrievable (TC01, TC02, TC12, TC13, TC19, TC20, TC21, TC23).",
+              "POST - Invalid Payload: Missing fields/body, malformed JSON, invalid currency, missing required header yield 400 (TC03, TC04, TC05, TC08, TC09, TC18).",
+              "POST - Duplicate/Conflict: Existing planId rejected with 400 (TC06).",
+              "POST - Large Payloads: Very large request path exercised with expected boundary outcome (TC15).",
+              "POST - Validation: Boundary values (min/max), optional headers acceptance, and behavior with extra fields covered (TC02, TC07, TC12, TC13).",
+              "POST - Server Error Handling: Catalog service down/degraded returns 503 (TC11, TC24).",
+              "Security/Authorization: Unauthenticated requests return 401 (TC10).",
+              "Protocol Correctness: Unsupported HTTP method returns 405 (TC14).",
+              "Resiliency/Performance/Concurrency: Retry after transient failure (TC16), response-time SLA (TC17), concurrent unique creations (TC22)."
+            ],
+            "gaps": [
+              "Server Error Handling: No test for 500 Internal Server Error (e.g., DB failure/unhandled exception) and no assertion of error body schema.",
+              "Duplicate Submission/Idempotency: No scenario posting the exact same payload twice; TC16 expects 201 on retry instead of asserting conflict or idempotent behavior.",
+              "Validation Depth: No tests for invalid enums (billingPeriod, productCategory), negative/zero amount, wrong data types (amount as string), null vs missing, currency precision/case rules.",
+              "Headers/Content Negotiation: No tests for missing/wrong Content-Type => 415, unsupported Accept => 406, or verifying response Content-Type and optional Location header on 201.",
+              "Required Header Value Constraints: No checks for X-Killbill-CreatedBy empty/whitespace or overlong values; lengths/charset for Reason/Comment not validated.",
+              "Concurrency Conflict: No test for two simultaneous requests with the same planId ensuring one succeeds and the other fails (and catalog stays consistent).",
+              "Authorization/Permissions: No 403 Forbidden scenario for authenticated but unauthorized users.",
+              "Catalog Version Semantics: No explicit verification that the plan is added to the current catalog version only (e.g., by querying specific versions).",
+              "Schema Strictness Ambiguity: TC07 assumes extra fields are accepted; spec does not clarify; lack of scenario asserting rejection if schema is strict.",
+              "Internationalization/Encoding: No tests for Unicode/non-ASCII characters or leading/trailing whitespace handling in string fields."
+            ],
+            "recommendations": [
+              "Add a 500 error-path test by simulating DB/processing failure; assert status and structured error body.",
+              "Add duplicate submission scenarios: (a) POST same payload twice -> second 400/409; (b) retry after ambiguous timeout -> assert conflict/no duplicate created.",
+              "Expand validation suite: invalid enums for billingPeriod/productCategory, negative/zero amount, wrong data types, nulls, currency precision/case, whitespace-only fields.",
+              "Add content negotiation tests: missing/incorrect Content-Type -> 415; unsupported Accept -> 406; verify response Content-Type and (if applicable) Location header on 201.",
+              "Validate header constraints: empty/oversized X-Killbill-CreatedBy; boundary and charset checks for X-Killbill-Reason/Comment.",
+              "Introduce concurrency-conflict test: two simultaneous POSTs with same planId -> one 201, one 400/409; verify catalog remains consistent.",
+              "Add 403 Forbidden test for authenticated users lacking permission to modify the catalog.",
+              "Clarify schema stance on extra fields and add tests accordingly (accept and ignore vs reject with 400 when additionalProperties=false).",
+              "Verify catalog versioning: assert the new plan appears in the current version and not in prior versions.",
+              "Optionally, add i18n tests with Unicode input and trimming rules for user-visible strings."
+            ],
+            "usage": {
+              "completion_tokens": 7467,
+              "prompt_tokens": 5854,
+              "total_tokens": 13321,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6592,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

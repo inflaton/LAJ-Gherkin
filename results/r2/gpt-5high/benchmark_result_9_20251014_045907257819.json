@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "9_2025-10-14T04:59:07.257789",
+    "jira_id": "9",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/block - Block an account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T04:55:57.047307",
+    "benchmark_end_time": "2025-10-14T04:59:07.257785",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 190.210478,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "9_qe_sup-gpt4.1_agent-gpt4.1_1748916388.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST/Valid Payload: Multiple success paths with minimal and full optional inputs return 201 and a JSON array of BlockingState(s) (TC01\u2013TC05, TC15\u2013TC17, TC21).",
+              "POST/Invalid Payload: Missing body, malformed JSON, malicious payload, and missing required header return 400 (TC08\u2013TC10, TC14).",
+              "Validation: Path param UUID format (400) and non-existent account (404) handled (TC06\u2013TC07); query param combinations for requestedDate and pluginProperty, including empty array and ignored extras, are exercised (TC02\u2013TC04, TC15, TC18).",
+              "Server Error Handling: Service/database unavailability covered with 503 responses (TC12, TC22).",
+              "Security: SQL injection in accountId and malicious payloads are rejected (TC13\u2013TC14).",
+              "Performance/Resilience: Concurrency, sustained load, and slow downstream are tested (TC19, TC25, TC26).",
+              "Response Contract: Scenarios assert 201 and that a JSON array of created BlockingState(s) is returned; effectiveDate honored when provided (TC01\u2013TC03).",
+              "Authorization: 401 for missing auth token is covered (TC11).",
+              "Regression/Compatibility: Duplicate-entry regression and backward compatibility with older clients are addressed (TC23\u2013TC24)."
+            ],
+            "gaps": [
+              "Duplicate Submission/Idempotency: No scenario resubmits the same POST to verify deduplication, idempotency keys, or expected conflict behavior.",
+              "Large Payloads: TC20 sends an array in the request body, which contradicts the spec (body should be a single BlockingState object). No test for oversized single-object payloads or 413/400 handling.",
+              "Field-level Validation: No negative tests for syntactically valid JSON missing required BlockingState fields (e.g., service/stateName/isBlock* flags).",
+              "requestedDate Validation: No tests for invalid/edge values (bad format, impossible dates, timezone handling) or server behavior when omitted (default effective date).",
+              "pluginProperty Validation: Missing tests for collectionFormat=multi semantics (pluginProperty=prop1&pluginProperty=prop2), non-string types, illegal characters, and very long values.",
+              "Headers/Content Negotiation: No tests for missing/wrong Content-Type (expect 415), Accept header handling, or header size limits; no boundary tests for X-Killbill-CreatedBy/Reason/Comment lengths/charsets.",
+              "Response Headers/Schema: Scenarios don\u2019t assert response Content-Type: application/json or validate response against the BlockingState JSON schema (types/required fields).",
+              "Server Error breadth: 500 Internal Server Error path not covered; only 503 is exercised.",
+              "Domain Conflicts: No test for overlapping/duplicate blocking states resulting in 409 or defined dedup behavior.",
+              "Auditability: No verification that X-Killbill-Reason and X-Killbill-Comment are persisted/traceable (if applicable).",
+              "Security Depth: No tests for injection via headers or pluginProperty values beyond path/body cases."
+            ],
+            "recommendations": [
+              "Add an explicit duplicate submission test: send the same POST twice (same accountId/body); assert expected idempotent behavior or conflict (e.g., single created state, second 200/409) per API contract.",
+              "Align large-payload testing with the spec: replace TC20 with a single, large BlockingState object near size limits; add a test for 413/400 when exceeding limits.",
+              "Introduce schema-driven validation: negative tests for missing required BlockingState fields and response validation against the BlockingState schema.",
+              "Expand requestedDate coverage: invalid formats (e.g., 2024-13-01), invalid calendar dates, timezone handling, and behavior when omitted (effectiveDate defaults).",
+              "Test pluginProperty per collectionFormat=multi (repeated query params), reject non-string types, and sanitize/limit very long or illegal values.",
+              "Add content negotiation/header tests: missing/incorrect Content-Type (expect 415), Accept handling, and boundary/charset tests for X-Killbill-* headers; assert response Content-Type: application/json.",
+              "Simulate a 500 Internal Server Error (e.g., runtime exception) and verify standardized error payload.",
+              "Cover domain conflict cases: overlapping/identical blocking states to confirm 409 vs. dedup strategy and no duplicates created.",
+              "Validate audit behavior: ensure CreatedBy/Reason/Comment are persisted and retrievable via audit endpoints (if available).",
+              "Extend security tests to include header and pluginProperty injection (SQL/JSON/XML/Unicode control chars) and confirm safe handling."
+            ],
+            "usage": {
+              "completion_tokens": 8929,
+              "prompt_tokens": 7115,
+              "total_tokens": 16044,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7936,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

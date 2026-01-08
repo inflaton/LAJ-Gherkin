@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "100_2025-10-14T17:32:50.812717",
+    "jira_id": "100",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/customFields - Remove custom fields from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T17:30:20.928710",
+    "benchmark_end_time": "2025-10-14T17:32:50.812713",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 149.884003,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "100_qe_sup-gpt4.1_agent-gpt4.1_1748922554.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Core success paths: removal of all custom fields when no customField query parameter (TC01, TC04, TC20) and removal of specific custom fields via multi customField query params (TC02, TC07).",
+              "Required/optional headers: validation of required X-Killbill-CreatedBy and support for optional X-Killbill-Reason and X-Killbill-Comment (TC03, TC11).",
+              "HTTP status handling: positive 204 success flows and major error codes 400 (invalid input), 401 (unauthorized), 404 (not found), 503 (service unavailable) are exercised across scenarios (TC01, TC08, TC09, TC12, TC14).",
+              "Query parameter validation: malformed customField UUIDs produce 400 (TC13, TC16); unexpected extra query params are tolerated/ignored (TC05); collection/multi format exercised.",
+              "Boundary and large-input tests: single-id (min) and large-number tests included (TC06, TC07, TC15) to exercise scale/boundary behaviour.",
+              "Idempotency-like/edge behaviour: deletion of non-existent customField IDs case covered (TC10) and partial-removal behaviour covered (TC02).",
+              "Security checks: header XSS and SQL-injection attempts in query are tested (TC17, TC18).",
+              "Integration & resilience: audit-log integration present (available/unavailable) and service-unavailable behaviour tested (TC21, TC22, TC14).",
+              "Performance/regression: degraded system performance / response-time expectation and a regression scenario are included (TC19, TC20).",
+              "Backward compatibility: legacy client behaviour tested (TC23).",
+              "Empty response verification: 204 responses explicitly asserted to have empty bodies in success scenarios."
+            ],
+            "gaps": [
+              "Concurrency / race conditions: no scenarios simulate concurrent deletes or concurrent modifications to the same invoice payment/custom fields (DELETE guideline: Concurrency).",
+              "Soft-delete vs hard-delete semantics: no test verifies whether custom fields are soft-deleted (flagged) vs permanently removed, or verifies post-delete read behaviour at DB/API level.",
+              "Idempotency / repeated deletes: no explicit test that repeating the same delete request (or deleting already-removed IDs) is handled consistently by the API (e.g., idempotent 204 vs 404).",
+              "Response headers and contract: tests do not assert response headers (e.g., Content-Type / Produces: application/json as declared in the spec), caching or other HTTP metadata.",
+              "Authorization/permissions granularity: 403 Forbidden (insufficient privileges) is not covered \u2014 only authentication failure (401) is tested.",
+              "Error response schema/content: tests assert existence of error messages but do not validate standardized error schema, codes or message contents to ensure consistent API error contract.",
+              "Ambiguities in behavior for non-existent customField IDs and dependent-service failures: some scenarios allow 204 for non-existent IDs (TC10) while other scenarios allow different outcomes for dependent service failures (TC22 ambiguous). The acceptance criteria do not fully define the intended contract (idempotency / partial success semantics).",
+              "Rate limiting / throttling: no tests for 429 / throttling under rapid repeated requests.",
+              "Concurrency with dependent services: no tests simulate race between audit-log availability and deletion (atomicity/compensation handling).",
+              "Boundary/limit policy not asserted: although large counts are tested, the API\u2019s maximum accepted query parameter/URL length handling or a server-limit response (413) is not asserted or defined."
+            ],
+            "recommendations": [
+              "Add explicit concurrency tests: simulate multiple clients issuing overlapping DELETE requests for the same payment/customField IDs and assert consistent, documented behaviour (e.g., idempotent 204 or defined conflict handling).",
+              "Add idempotency tests: delete the same set of customField IDs twice and verify the API returns the documented response for repeated deletions (ideally idempotent 204).",
+              "Clarify and test soft-delete semantics: add tests that check post-delete retrieval (GET) or DB flag to confirm whether fields are soft- or hard-deleted; update acceptance criteria accordingly.",
+              "Assert response headers and contract: add assertions for Content-Type and any other headers declared in the spec (Produces: application/json), and define expected behavior for empty 204 bodies vs content-type.",
+              "Add authorization/permission tests for 403 Forbidden: create a valid authenticated user lacking deletion permission and assert 403 is returned (differentiate authn vs authz).",
+              "Standardize and validate error responses: add tests that assert error response schema (error codes, error keys, and consistent messages) for 400/401/404/503 cases to prevent flaky verification.",
+              "Resolve ambiguous behaviors in the spec and tests: decide on idempotency semantics for non-existent customField IDs and audit-log failure behavior (atomic failure vs best-effort) then update tests to assert the chosen contract.",
+              "Add rate-limiting and throttling tests: simulate bursts of DELETE requests and assert expected 429 responses or documented retry headers, if applicable.",
+              "Extend integration tests for dependent services under race conditions: simulate audit-log timeouts/failures concurrently with deletion to assert atomicity/compensation behaviour and clear expected HTTP status.",
+              "Define and test limits: specify and assert maximum allowed count/size of customField query params and URL length handling. If limits exist, add tests for the limit boundary (expected success) and for exceeding it (expected 413 or defined error)."
+            ],
+            "usage": {
+              "completion_tokens": 6982,
+              "prompt_tokens": 6120,
+              "total_tokens": 13102,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 5824,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

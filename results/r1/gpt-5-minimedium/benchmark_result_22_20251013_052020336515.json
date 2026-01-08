@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-10-13T05:20:20.336487",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:19:46.194379",
+    "benchmark_end_time": "2025-10-13T05:20:20.336482",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 34.142103,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Request: Multiple scenarios (TC01, TC02, TC03) verify successful PUT requests returning 204 for valid accountId and headers.",
+              "PUT Method - Non-Existing Resource: TC08, TC09, TC16, TC17 check invalid or non-existent accountId handling and expect 400 errors.",
+              "Header Validation: Required X-Killbill-CreatedBy presence, empty/whitespace/null handling (TC10, TC11, TC25, TC26) and optional headers (TC02) are covered.",
+              "Business Logic / Data Effects: Various account CBA states are covered (zero, negative, large, multiple transactions, regression cases) across TC04, TC05, TC06, TC07, TC19 to validate backend rebalance behavior.",
+              "Concurrency & Race Conditions: High concurrency scenario is included (TC18) to validate concurrent PUTs and CBA consistency.",
+              "Error Conditions & Unavailability: Network/transient retry (TC13) and service unavailable (TC14) scenarios are present.",
+              "Security & Input Sanitization: SQL injection and XSS style header tests (TC15, TC24) are included to validate input sanitization and error leakage.",
+              "Performance: Response-time requirements under normal and peak load are specified (TC20, TC21).",
+              "Unsupported Inputs: Extra/unsupported headers and unexpected query parameters are tested (TC12, TC23).",
+              "HTTP Method Handling: Unsupported HTTP method test for GET is present (TC22)."
+            ],
+            "gaps": [
+              "Authorization: No scenarios validate missing/invalid authentication or authorization (401/403) even though Background assumes a valid token.",
+              "Server error handling (500): No tests simulate internal server/database failures to ensure sensible 5xx responses and error handling.",
+              "Content-Type / Response Metadata: Acceptance criteria mention \"produces: application/json\" but tests do not assert response content-type, headers, or error response format; 204 responses typically have no body but this is not verified explicitly.",
+              "Idempotency / Duplicate Submission: There is no explicit test that repeated identical rebalancing requests are idempotent or how duplicates are handled outside concurrency.",
+              "Audit / Side-effect Verification: Tests do not verify that optional headers (X-Killbill-Reason, X-Killbill-Comment) are recorded in audit logs or persisted where expected.",
+              "Rate limiting / Throttling: No tests to validate rate limiting behavior or throttling under sustained high request rates.",
+              "Header bounds & encoding: No tests for oversized header values (very long X-Killbill-CreatedBy/Reason/Comment) or non-ASCII/encoded headers beyond SQL/XSS payloads.",
+              "Detailed negative responses: While 400 is asserted for invalid accountId and missing headers, the exact error payload content and fields are not asserted (structure, codes, messages).",
+              "Unsupported methods coverage is limited: Only GET is tested; other invalid methods (POST/DELETE/PATCH) are not explicitly tested for 405 responses."
+            ],
+            "recommendations": [
+              "Add authentication/authorization tests: verify requests with missing or invalid auth tokens return 401/403 as appropriate.",
+              "Add server-failure tests: simulate DB or internal errors to verify 500 responses and graceful error messages; ensure no sensitive info is leaked.",
+              "Assert response metadata and error payloads: add checks for Content-Type, standard error JSON schema (error code, message), and confirm 204 responses have no body where applicable.",
+              "Add idempotency / duplicate submission tests: verify repeated identical PUTs do not produce inconsistent state or duplicate side-effects (audit entries, ledger adjustments).",
+              "Add tests verifying optional header persistence: assert that X-Killbill-Reason and X-Killbill-Comment are recorded in audit/log stores where business rules expect them.",
+              "Add rate-limiting / throttling tests: validate behavior under sustained request bursts and expected 429 or backoff behavior if applicable.",
+              "Test header boundary and encoding cases: include very long header values, non-UTF8 or percent-encoded values, and confirm proper validation (length limits, rejection vs trimming).",
+              "Expand unsupported-method tests: include POST, DELETE, PATCH to ensure the endpoint rejects other verbs with 405 consistently.",
+              "Tighten negative-payload assertions: validate exact error payload fields and codes for invalid accountId / missing headers to ensure API consumers can reliably act on errors."
+            ],
+            "usage": {
+              "completion_tokens": 1839,
+              "prompt_tokens": 5515,
+              "total_tokens": 7354,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

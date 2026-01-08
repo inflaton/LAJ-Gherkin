@@ -1,0 +1,86 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "48_2025-09-28T09:44:47.059838",
+    "jira_id": "48",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/admin/healthcheck - Put the host back into rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T09:44:12.465546",
+    "benchmark_end_time": "2025-09-28T09:44:47.059834",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 34.594288,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "48_qe_sup-gpt4.1_agent-gpt4.1_1748918975.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "PUT - Valid Request: Success path returning 204 with no body (TC01, TC02).",
+              "Idempotency: Repeated PUT when already in-rotation still returns 204 without adverse effects (TC02).",
+              "Authorization: 401 for unauthenticated and 403 for insufficient privileges (TC03, TC04, TC09).",
+              "Error Handling: 503 when service/endpoint unavailable (TC05).",
+              "Method Semantics: 405 for wrong HTTP method (GET on PUT endpoint) (TC06).",
+              "Concurrency Issues: Multiple concurrent PUTs do not cause race conditions (TC14).",
+              "Resilience/Retry: Transient network interruption with successful retry (TC13).",
+              "Performance SLA: Response time under load with appropriate status (TC10).",
+              "Security Hardening: Header injection attempt does not compromise system; appropriate status returned (TC12).",
+              "Operational Outcome: Host state transitions back to in-rotation and remains correct (TC01, TC02, TC11)."
+            ],
+            "gaps": [
+              "AC header requirement: The story says Produces: application/json, but tests do not validate response headers (e.g., Content-Type) for 204 responses or confirm absence of body with zero Content-Length.",
+              "Unexpected payload handling: Story specifies Request Body: N/A. TC07 expects 204 even with a non-empty body; this may mask a spec violation. A 400 Bad Request or explicit ignore rule should be validated.",
+              "Server error handling (500): No scenario simulating internal failures (e.g., unexpected exception) to verify >=400 behavior beyond 503.",
+              "Rate limiting/throttling: No scenario verifying behavior under short-burst traffic and potential 429 responses distinct from concurrency correctness.",
+              "Content negotiation: No tests for Accept headers (e.g., invalid/unsupported Accept leading to 406 if applicable, or ensuring default behavior).",
+              "Additional method constraints: Only GET->405 is tested; no coverage for POST/DELETE/PATCH to ensure consistent 405 behavior if applicable.",
+              "Audit/observability headers: No verification of standard operational headers (e.g., request ID/correlation) if required by platform policies."
+            ],
+            "recommendations": [
+              "Validate headers per AC: even with 204, assert Content-Type (if produced), absence of response body, and Content-Length=0; confirm no misleading JSON payload is returned.",
+              "Clarify and test request body policy: If body is not allowed, add a scenario expecting 400 for non-empty payload. If body is ignored by design, assert it is ignored and outcome/idempotency still holds.",
+              "Add a scenario to simulate internal server error (e.g., dependency failure) and assert 500 with a diagnostic error payload schema.",
+              "Introduce rate limiting tests: burst a sequence of PUTs from the same principal and assert either 204s with no throttling or 429 with proper Retry-After headers, per system policy.",
+              "Add content negotiation tests: send unsupported Accept header and assert 406 or documented fallback; with valid Accept ensure headers match (application/json) even for no-content responses if required.",
+              "Expand 405 coverage: attempt POST, DELETE, PATCH on the endpoint and assert 405 with Allow header listing permitted methods.",
+              "If platform standards require observability: assert presence/propagation of correlation/request-id headers in responses."
+            ],
+            "usage": {
+              "completion_tokens": 1740,
+              "prompt_tokens": 3274,
+              "total_tokens": 5014,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

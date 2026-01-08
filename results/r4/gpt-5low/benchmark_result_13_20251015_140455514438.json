@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-10-15T14:04:55.514408",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T14:04:09.352492",
+    "benchmark_end_time": "2025-10-15T14:04:55.514402",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 46.16191,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE > Valid Deletion: Multiple success paths returning 204, including default behavior and various query parameter combinations (TC01\u2013TC07, TC19, TC20).",
+              "DELETE > Non-Existent Resource: Idempotent handling verified for non-existent and already-closed accounts (TC11, TC12).",
+              "DELETE > Concurrency: Concurrent deletions across multiple accounts covered (TC18).",
+              "DELETE > Soft Deletes: Verification that the account is marked as closed (not hard-deleted) is asserted (TC01, TC06).",
+              "Input Validation: UUID pattern validation and SQL injection in path tested with 400 responses (TC08, TC15).",
+              "Headers: Required X-Killbill-CreatedBy enforced (400 on missing) and optional headers accepted; XSS in comment sanitized (TC09, TC16, TC20).",
+              "Authorization: Missing/invalid auth returns 401 (TC10).",
+              "Robustness/Resilience: Transient network failure with retry and idempotency (TC17).",
+              "Server Error Handling: Backend failure returns 500 (TC14).",
+              "Business Side-Effects: Subscriptions, invoices, and notifications behavior for default/true/false and combinations verified (TC01\u2013TC05, TC07, TC19).",
+              "Extraneous Inputs: Unsupported query param ignored (TC13).",
+              "Performance/Scale: Large volume processing and basic performance assertions (TC07, TC18)."
+            ],
+            "gaps": [
+              "DELETE > Concurrency (race on same resource): No scenario where two clients attempt to close the same account simultaneously to verify idempotency and lack of race conditions on a single account.",
+              "Soft Delete depth: Tests confirm status is closed but do not verify post-conditions via a follow-up GET (e.g., account retrievable with status=CLOSED, no hard delete) or that soft-deleted accounts cannot be used for new activity.",
+              "Content negotiation/response headers: Story states 'produces: application/json'; tests do not assert headers for 204 responses (e.g., Content-Type absent or correct for empty body) and no-body verification.",
+              "Query parameter validation (type/invalid values): No scenarios for invalid boolean values (e.g., cancelAllSubscriptions=foo, 1, null, repeated params) or conflicting params handling.",
+              "Rate limiting/throttling: No coverage for 429 or behavior under burst traffic beyond functional concurrency.",
+              "Audit headers robustness: Optional headers (Reason/Comment) not tested for length limits, character sets, or storage/audit side effects; only XSS in Comment is covered.",
+              "Authorization breadth: No coverage for 403 (authenticated but not authorized) if applicable to roles/tenancy.",
+              "Observability: No verification of audit log entries corresponding to CreatedBy/Reason/Comment where such auditing is expected.",
+              "Error payload shape: For 400/401/500, tests check presence of an error message but not a consistent error schema (code, message, correlation id).",
+              "Idempotency token/retry semantics: Retries are covered, but no explicit idempotency-key/header behavior if the API supports/needs it."
+            ],
+            "recommendations": [
+              "Add a scenario where two clients concurrently DELETE the same account ID; assert one 204, the other 204 with no additional side effects and no race-induced errors.",
+              "Augment soft-delete checks with a follow-up GET to confirm the account persists with status=CLOSED and cannot initiate new subscriptions; verify related data remains intact.",
+              "Assert response headers for 204 responses: empty body and either no Content-Type or appropriate headers per API standard; also assert produces: application/json where applicable (non-204 errors).",
+              "Add negative query parameter validation tests: non-boolean strings, numeric values, nulls, repeated keys; expect 400 with clear error details.",
+              "Introduce rate limiting tests (burst of DELETEs) to validate 429 behavior if enforced, or explicitly document that rate limiting is not applied to this endpoint.",
+              "Expand audit header tests: include X-Killbill-Reason and X-Killbill-Comment with max-length, Unicode, and boundary values; verify they are persisted/sanitized as per spec.",
+              "If authorization roles/tenancy apply, add 403 scenario for authenticated users lacking permission to close accounts.",
+              "Define and assert a standard error response schema for 400/401/500 (error code, message, requestId/correlationId).",
+              "If the platform supports idempotency keys, add a scenario using an Idempotency-Key header to ensure safe retries."
+            ],
+            "usage": {
+              "completion_tokens": 2122,
+              "prompt_tokens": 6316,
+              "total_tokens": 8438,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

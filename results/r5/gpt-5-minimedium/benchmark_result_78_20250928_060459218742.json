@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "78_2025-09-28T06:04:59.218713",
+    "jira_id": "78",
+    "jira_title": "Implement/Test API: POST /1.0/kb/catalog/simplePlan - Add a simple plan entry in the current version of the catalog",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T06:04:12.694848",
+    "benchmark_end_time": "2025-09-28T06:04:59.218709",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 46.523861,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "78_qe_sup-gpt4.1_agent-gpt4.1_1748920999.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Payload: Multiple success scenarios (TC01, TC02, TC12, TC13, TC19, TC20, TC21, TC23) verify creation with valid SimplePlan payloads.",
+              "Required / optional headers: TC01 and TC02 validate required X-Killbill-CreatedBy and optional X-Killbill-Reason / X-Killbill-Comment handling.",
+              "Invalid Payloads & Validation: TC03, TC04, TC05, TC08, TC09, TC18 cover missing headers, missing required fields, invalid currency, empty body, malformed JSON and injection-style invalid input.",
+              "Duplicate / Conflict handling: TC06 tests planId conflict handling (400 on existing planId).",
+              "Large Payloads & Limits: TC15 addresses very large payload behavior (accepts either success or payload-too-large error depending on limits).",
+              "Concurrency: TC22 covers concurrent creation of distinct plans to ensure concurrent success handling.",
+              "Integration / availability: TC11, TC23, TC24 and TC16 cover catalog/unavailable dependent services and transient network failures and retry behavior.",
+              "HTTP method & semantics: TC14 checks unsupported HTTP method handling (405).",
+              "Authentication: TC10 checks missing authentication results in 401.",
+              "Performance: TC17 provides a response-time SLA check (within 2 seconds).",
+              "Response expectations: Success responses assert HTTP 201 and that response body contains confirmation string/URI (per acceptance criteria)."
+            ],
+            "gaps": [
+              "Server-side error simulation (500): No test explicitly simulates internal server errors (database crash, unhandled exceptions) and verifies 500 responses or graceful degradation.",
+              "Content-Type / consumes enforcement: No test verifies that requests without Content-Type: application/json or with wrong content-type are rejected/handled, or that responses have correct Content-Type headers.",
+              "Response headers & schema validation: No checks for presence/semantics of Location or other relevant response headers, nor strict validation that the response body conforms to the documented schema (e.g., exact string format, URI format).",
+              "Concurrency conflict on same planId: No explicit test for race condition where two concurrent requests attempt to create the same planId (would reveal potential duplicate-creation or conflict-return behavior under concurrency).",
+              "Authorization / role-based access (403): Tests cover missing authentication (401) but not authorized-but-forbidden scenarios (403) or role-based access control.",
+              "Field-level enumerations & constraints: No exhaustive tests for enumeration values or allowed sets (productCategory, billingPeriod) and specific numeric range violations (out-of-range amounts) beyond a few examples.",
+              "Idempotency & duplicate submissions semantics: Tests do not verify idempotency behavior (repeat of same request and expected idempotent outcome) or distinct handling of retries beyond TC16 retry after network failure.",
+              "Transactional integrity / rollback on partial failures: No test asserts that when dependent services fail mid-transaction the catalog state is consistent (rollback or compensated behavior).",
+              "Rate limiting and throttling: No tests to verify behavior under high request rates (429 or throttling).",
+              "Test isolation & live-catalog safety: No explicit test setup/teardown or safety checks\u2014story warns about modifying live catalog but tests do not show use of a test catalog or cleanup strategy."
+            ],
+            "recommendations": [
+              "Add a 500-server-error simulation test (e.g., inject DB failure or mock exception) to verify API returns 500 and that client-visible errors are meaningful.",
+              "Add tests for Content-Type enforcement: send requests without Content-Type or with non-JSON content and assert 415/400 or documented behavior; verify response Content-Type is application/json.",
+              "Validate response headers & schema: assert presence/format of Location or URI in response body, and validate the response content strictly matches expected schema (e.g., regex for URI).",
+              "Add a concurrency conflict test: issue two concurrent POSTs with the same planId and assert one succeeds and the other fails deterministically (400/409), verifying transactional uniqueness and race handling.",
+              "Introduce authorization tests for forbidden access (403) to cover RBAC scenarios (valid auth but insufficient privileges).",
+              "Expand field-level validation tests: iterate through productCategory and billingPeriod enums, test boundary numeric values (zero, negative, extremely large), and verify meaningful error messages for each violation.",
+              "Add idempotency tests: resend identical request multiple times and assert defined behavior (e.g., idempotent create or clear duplicate error), including idempotency-key header behavior if supported.",
+              "Test transactional integrity with dependent service failures: simulate dependent-service failure mid-request and assert catalog state is consistent (either plan not created or compensating actions are applied).",
+              "Add rate-limiting / throttling tests and measure behavior under burst load (expect 429 or sensible backoff).",
+              "Ensure test isolation and safety: run tests against a sandbox/test catalog and include setup/teardown steps (or reversible operations) so acceptance tests do not alter the live catalog; add cleanup steps to remove created plans."
+            ],
+            "usage": {
+              "completion_tokens": 2334,
+              "prompt_tokens": 5854,
+              "total_tokens": 8188,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

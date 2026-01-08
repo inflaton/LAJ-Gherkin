@@ -1,0 +1,85 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "13_2025-09-28T14:58:16.244619",
+    "jira_id": "13",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId} - Close account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T14:55:18.679252",
+    "benchmark_end_time": "2025-09-28T14:58:16.244616",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 90,
+    "average_generation_time_seconds": 177.565364,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 90,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "13_qe_sup-gpt4.1_agent-gpt4.1_1748916669.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 90,
+            "covered": [
+              "Valid Deletion: Extensive success-path coverage with 204 responses across default behavior and all combinations of query parameters; side effects verified (subscriptions canceled, invoices written off/item adjusted, notifications removed per defaults/flags).",
+              "Non-Existent Resource and Idempotency: Closing already-closed or non-existent accounts returns 204; retries after transient failure remain idempotent.",
+              "Input validation and security: Invalid UUID format and SQL injection payloads return 400 with descriptive errors; unsupported query parameters are ignored.",
+              "Required headers and authentication: Missing X-Killbill-CreatedBy produces 400; unauthenticated requests return 401; backward compatibility with only required headers validated.",
+              "Error handling: Simulated database outage returns 500 with error body.",
+              "Soft delete behavior: Account is marked as closed (not hard-deleted).",
+              "Performance and concurrency breadth: Large data volume processing and concurrent closures across multiple accounts are covered.",
+              "Security hardening: XSS attempt in X-Killbill-Comment is safely handled."
+            ],
+            "gaps": [
+              "Concurrency on the same resource: No scenario for simultaneous DELETEs on the same account to ensure single, consistent side effects and 204 responses.",
+              "Invalid query parameter values: No tests for non-boolean values (e.g., cancelAllSubscriptions=foo), duplicated params, or case-variance; expected behavior (400 vs ignore) not verified.",
+              "Response headers/body semantics: 204 responses not validated to have no body; Content-Type for error responses and declared produces application/json not verified.",
+              "Header value validation and auditability: No tests for empty/whitespace CreatedBy, overly long or special-character Reason/Comment, or persistence of Reason/Comment in audit logs.",
+              "Authorization granularity: No 403 Forbidden scenario for authenticated but unauthorized users (if applicable).",
+              "Rate limiting/throttling: No tests for 429 or server behavior under burst DELETEs beyond functional concurrency.",
+              "Partial failure/atomicity: No tests verifying rollback or clear error handling if a downstream action (e.g., subscription cancel) fails mid-operation."
+            ],
+            "recommendations": [
+              "Add a scenario for concurrent DELETEs against the same account (two clients in parallel) to validate idempotent, atomic side effects and absence of duplicate cancellations/write-offs.",
+              "Add negative tests for query params with invalid values/types (e.g., cancelAllSubscriptions=foo/1/null), repeated parameters, and mixed-case names; assert 400 or documented ignore behavior consistently.",
+              "Assert HTTP semantics: verify 204 responses have no body and validate response headers (e.g., Content-Type application/json for error responses).",
+              "Validate header values and auditing: reject blank X-Killbill-CreatedBy; test long/special-character Reason/Comment; verify these are safely handled and persisted to audit logs.",
+              "Add a 403 Forbidden scenario for authenticated users lacking permission to close accounts (if authorization is role-based).",
+              "Introduce rate-limiting tests (bursts of DELETEs) to verify 429 or documented throttling behavior.",
+              "Inject partial-failure conditions (e.g., fail subscription cancel or invoice write-off) to confirm transactional consistency or precise error reporting.",
+              "Optionally verify Accept header negotiation and that error payloads conform to the documented error schema."
+            ],
+            "usage": {
+              "completion_tokens": 7097,
+              "prompt_tokens": 6316,
+              "total_tokens": 13413,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6400,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

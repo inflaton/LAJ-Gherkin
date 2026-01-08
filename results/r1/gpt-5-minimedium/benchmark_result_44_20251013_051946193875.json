@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "44_2025-10-13T05:19:46.193850",
+    "jira_id": "44",
+    "jira_title": "Implement/Test API: POST /1.0/kb/admin/invoices - Trigger an invoice generation for all parked accounts",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T05:19:10.888447",
+    "benchmark_end_time": "2025-10-13T05:19:46.193847",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 35.3054,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "44_qe_sup-gpt4.1_agent-gpt4.1_1748918779.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Endpoint existence and basic success behaviour: Multiple scenarios (TC01, TC02, TC03, TC10) validate successful POST requests and proper handling of offset/limit query parameters and defaults.",
+              "Required vs optional headers: TC01, TC03, TC05, TC16 and TC17 cover the required X-Killbill-CreatedBy header, optional X-Killbill-Reason and X-Killbill-Comment, and backward compatibility when optional headers are absent.",
+              "Parameter validation: TC06 and TC07 cover invalid numeric ranges and non-integer types for offset/limit.",
+              "Empty-result handling: TC04 ensures the API responds correctly when no parked accounts exist.",
+              "Error and dependency handling: TC08 and TC09 cover authorization failures and service/unavailable dependency scenarios.",
+              "Edge cases & performance: TC10, TC12, and TC18 address large limits, very large datasets, performance/response-time concerns, and concurrent requests.",
+              "Security and resilience: TC14 addresses injection attempts in headers; TC15 addresses retry semantics and duplicate-generation protection.",
+              "Regression and auditability: TC16 validates header parsing; TC03 and TC16 assert auditability with reason/comment headers where applicable.",
+              "Extra params and robustness: TC11 checks behaviour with unexpected query parameters.",
+              "Accessibility / documentation: TC19 checks API documentation accessibility."
+            ],
+            "gaps": [
+              "Precise response schema and content validation: Few scenarios assert the exact JSON schema or payload content (e.g., structure listing processed accounts, counts, error object schema). Tests mostly check status + content-type but not body shape or field-level values.",
+              "Concrete and deterministic pagination semantics: While offset/limit are tested, there are no checks for ordering guarantees, deterministic paging (stable sort), boundary conditions around offsets at dataset edges, or overlap/gaps between pages.",
+              "Exact status code expectations: Many scenarios allow broad ranges (e.g., 200/400/401/403). There are no tests asserting the exact, documented status code mappings for specific errors (e.g., missing header -> 400 vs 401), which is important for client expectations.",
+              "Server-side error mapping and 5xx handling: Only 503 is covered; there is no explicit test for 500 Internal Server Error, database failures, or other server error modes and how they surface.",
+              "Duplicate/Idempotency under concurrency: TC15 and TC18 touch retries and concurrency but do not fully validate idempotency semantics (e.g., unique operation IDs, guarantees vs eventual consistency) or test repeated identical requests causing duplicates at scale.",
+              "Rate limiting / throttling: No scenarios validate behavior under many rapid requests to ensure rate limiting or throttling is enforced and returns correct codes.",
+              "Limits beyond allowed maximum: There is a test for a large allowed limit (TC10) but no tests asserting rejection or handling when limit exceeds a documented maximum (or system configured cap) and the exact response behavior.",
+              "Audit/log persistence verification: Tests claim \"auditable\" but do not verify audit records persisted to logging or DB (who/when/reason/comment stored).",
+              "Response timing SLAs & monitoring: TC12 mentions response time but there are no concrete assertions or thresholds, nor checks of monitoring/metrics emitted.",
+              "Caching and idempotency headers: Although POSTs are typically not cached, there are no tests to assert server-provided headers relating to retries/idempotency or to ensure responses are not cached incorrectly."
+            ],
+            "recommendations": [
+              "Add JSON-schema-level tests that validate the response body structure: processed account identifiers, counts (requested vs processed), and a clear error object schema for failures.",
+              "Create deterministic pagination tests: verify stable ordering, no duplicate/skipped accounts across pages, boundary conditions (offset at dataset end), and page-size variations (1, 99, 100, 101).",
+              "Tighten expected status codes in tests: assert the exact documented codes for each error scenario (e.g., missing header -> 400 or specific code per spec) rather than allowing ranges.",
+              "Introduce explicit server-error simulations: add tests for 500 Internal Server Error, DB connection failures, and confirm the error payload and monitoring/alerts are triggered appropriately.",
+              "Expand idempotency/duplicate submission tests: include repeated identical requests (sequential and concurrent) with verification that invoices are generated exactly once and/or that an idempotency mechanism prevents duplication; validate via DB queries.",
+              "Add rate-limiting and throttling tests: hammer the endpoint to validate the service returns appropriate 429/other responses and degrades gracefully under load.",
+              "Test behavior when limit exceeds a documented maximum: include cases where limit > allowed and assert correct rejection or automatic capping behavior.",
+              "Verify audit/log persistence: after requests with CreatedBy/Reason/Comment, assert audit entries exist in logs/DB with correct values and timestamps.",
+              "Make performance tests deterministic: specify and assert concrete SLAs for TC12 (e.g., 95th percentile < X seconds) and add load/soak tests that measure resource utilization and throughput.",
+              "Add tests for client-observable retry guidance and response headers: verify that POST responses do not include caching headers and, where applicable, include retry/idempotency guidance (e.g., Retry-After for 429)."
+            ],
+            "usage": {
+              "completion_tokens": 2122,
+              "prompt_tokens": 5207,
+              "total_tokens": 7329,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1024,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

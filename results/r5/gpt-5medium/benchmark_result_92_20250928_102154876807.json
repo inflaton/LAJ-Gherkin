@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "92_2025-09-28T10:21:54.876782",
+    "jira_id": "92",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Remove custom fields from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T10:20:34.973476",
+    "benchmark_end_time": "2025-09-28T10:21:54.876778",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 88,
+    "average_generation_time_seconds": 79.903302,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 88,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "92_qe_sup-gpt4.1_agent-gpt4.1_1748922062.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 88,
+            "covered": [
+              "DELETE \u2022 Valid Deletion: Success paths for removing all or specific custom fields with 204 and empty body (TC01, TC02, TC03, TC04, TC05, TC06, TC11, TC12, TC16, TC18, TC20).",
+              "DELETE \u2022 Non-Existent Resource: 404 when invoice item does not exist (TC08).",
+              "Validation: Invalid invoiceItemId format -> 400 (TC07); malformed customField IDs -> 400 (TC10); mixed valid/invalid IDs -> 400 (TC17); unexpected params tolerated (TC11); duplicate IDs tolerated (TC18).",
+              "Headers: Required X-Killbill-CreatedBy present/missing cases (TC06, TC09); optional Reason/Comment handled, including long Comment and header formatting regression (TC05, TC16, TC20).",
+              "Authorization: 401 for expired/invalid token (TC19).",
+              "Fault handling: Dependent service unavailable -> 503/appropriate (TC14).",
+              "Performance/Resilience: Heavy load with acceptable response time (TC13).",
+              "Large inputs: Many customField IDs handled (TC12).",
+              "Security hardening: Injection attempt in customField rejected (TC15)."
+            ],
+            "gaps": [
+              "DELETE \u2022 Concurrency: No scenarios for race conditions (simultaneous deletes on same invoice item or fields) or conflict handling.",
+              "DELETE \u2022 Idempotency: No test for repeating the same DELETE request after successful deletion (expected consistent outcome).",
+              "DELETE \u2022 Soft delete/audit behavior: No verification that deletions are recorded in audit logs using CreatedBy/Reason/Comment; no check whether data is soft- vs hard-deleted per product expectations.",
+              "Authorization 403: No scenario for authenticated user lacking permission/role receiving 403.",
+              "Auth missing token: Only invalid/expired token is covered; missing credentials case not tested.",
+              "Domain validation: No scenario where customField UUIDs are valid format but do not belong to the target invoice item (foreign/unknown IDs) and expected error/atomicity behavior.",
+              "Atomicity semantics: Mixed valid and non-belonging IDs outcome not defined/tested (all-or-nothing vs partial success).",
+              "Query parameter edge cases: customField present with no values (e.g., customField=), comma-separated list vs collectionFormat=multi, and repeated empty values not covered.",
+              "Response headers: No checks for Content-Type/Accept consistency (e.g., no body with 204; error responses return application/json with standard error schema).",
+              "Reliability: No coverage for generic 500 Internal Server Error mapping when unexpected exceptions occur.",
+              "Internationalization: Non-ASCII/Unicode in Reason/Comment/CreatedBy not tested."
+            ],
+            "recommendations": [
+              "Add concurrency tests: fire two parallel DELETEs for the same invoice item/fields; assert one succeeds and the other remains idempotent (still 204) with consistent end state and no errors.",
+              "Add idempotency test: Execute DELETE, then repeat the identical request (with and without customField list); define and assert expected status (commonly 204) and no side effects.",
+              "Verify audit/soft delete behavior: After deletion, query audit logs/history endpoint to ensure CreatedBy/Reason/Comment are recorded; clarify whether deletion is soft or hard and assert accordingly.",
+              "Add authorization tests for 403 Forbidden: user authenticated but lacking required permissions/role.",
+              "Add missing-credentials test: Omit auth token entirely and expect 401 with appropriate error body.",
+              "Test foreign customField IDs: Provide valid UUIDs that do not belong to the invoice item; assert expected code (400/404) and that no valid fields are deleted; clarify atomicity (all-or-nothing).",
+              "Expand query parameter edge cases: customField with empty value(s), comma-separated vs multi-valued parameters; ensure only documented collectionFormat=multi is accepted and others are rejected with 400.",
+              "Validate response headers: For 204 ensure no Content-Type/body; for errors ensure application/json and error schema (code, message) are returned.",
+              "Add resilience test for unexpected server failure: simulate internal exception and assert 500 with stable error schema.",
+              "Add i18n tests: Use Unicode characters in CreatedBy/Reason/Comment headers and verify they are accepted, persisted to audit, and safely logged."
+            ],
+            "usage": {
+              "completion_tokens": 3556,
+              "prompt_tokens": 5523,
+              "total_tokens": 9079,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 2624,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

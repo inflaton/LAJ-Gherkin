@@ -1,0 +1,82 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "45_2025-10-14T21:19:45.316668",
+    "jira_id": "45",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/cache - Invalidates the given Cache if specified, otherwise invalidates all caches",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-14T21:19:10.991354",
+    "benchmark_end_time": "2025-10-14T21:19:45.316663",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 92,
+    "average_generation_time_seconds": 34.325309,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 92,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "45_qe_sup-gpt4.1_agent-gpt4.1_1748918839.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 92,
+            "covered": [
+              "DELETE > Valid Deletion: 204 responses and empty body for all-caches and specific-cache paths (TC01, TC02, TC08, TC09, TC13).",
+              "DELETE > Non-Existent Resource: 400 when cache does not exist or is not alive (TC03, TC04).",
+              "DELETE > Concurrency: Concurrent invalidation requests with system stability (TC14).",
+              "Input validation around query params: empty, very long, special chars, mixed-case handling (TC05, TC10, TC11, TC12, TC15).",
+              "Error handling: 500 internal error path covered (TC07).",
+              "Authorization: Unauthorized/forbidden access returns appropriate errors (TC06).",
+              "Optional query parameter behavior: omitting cacheName invalidates all caches (TC01) and extra unsupported params are ignored (TC09).",
+              "Empty response confirmation for 204 cases (TC01, TC02, TC08, TC09, TC13).",
+              "Behavior when no caches exist still returns 204 (TC08).",
+              "Performance check for large number of caches (TC13)."
+            ],
+            "gaps": [
+              "Response headers: No verification that the response Content-Type aligns with \"Produces: application/json\" despite empty body; also no checks for absence/presence of entity headers on 204.",
+              "Idempotency: No scenario asserting repeated DELETE calls with the same cacheName (or all-caches) remain safe and yield consistent outcomes.",
+              "Effect verification depth: Scenarios assert caches are invalidated, but do not validate observable side effects (e.g., subsequent GETs show cache misses or timestamps changed) to prove actual invalidation versus a no-op.",
+              "Concurrency depth: No test to ensure serialized behavior/locking avoids partial invalidation or to ensure only one invalidation runs while others deduplicate; no check for race where a cache disappears between validation and invalidation.",
+              "Soft Deletes (guideline item): Not applicable to cache invalidation, but the suite does not explicitly document this N/A mapping."
+            ],
+            "recommendations": [
+              "Add header validation to assert Content-Type: application/json (if produced) for error responses and verify appropriate headers for 204 (typically no body, Content-Length 0, and possibly no Content-Type).",
+              "Add idempotency tests: issue the same DELETE multiple times for a specific cache and for all caches; assert repeated 204s and no adverse effects.",
+              "Enhance effect verification: after invalidation, perform an operation that relies on the cache to confirm it repopulates or shows a cache miss; for specific-cache invalidation, verify other caches remain intact with observable reads.",
+              "Expand concurrency tests: validate that concurrent requests do not lead to partial/inconsistent states, and consider asserting one operation performs the work while others are effectively no-ops; include a case where the cache disappears mid-operation.",
+              "Document that soft delete is not applicable for this endpoint to explicitly satisfy the guideline mapping."
+            ],
+            "usage": {
+              "completion_tokens": 1535,
+              "prompt_tokens": 3739,
+              "total_tokens": 5274,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 896,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

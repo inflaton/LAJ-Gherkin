@@ -1,0 +1,94 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "88_2025-09-28T14:44:47.643707",
+    "jira_id": "88",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoiceItems/{invoiceItemId}/tags - Remove tags from invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T14:40:40.888815",
+    "benchmark_end_time": "2025-09-28T14:44:47.643703",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 246.754888,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "88_qe_sup-gpt4.1_agent-gpt4.1_1748921697.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "DELETE - Valid Deletion: Success paths returning 204 are covered for removing all tags and for specific tagDef subsets; idempotent-like behavior when the item has no tags; ignores unexpected query params (TC01, TC02, TC04, TC05, TC06, TC07).",
+              "DELETE - Non-Existent Resource: 404 when invoice item does not exist (TC08).",
+              "DELETE - Concurrency: High-concurrency scenario included to detect race conditions/perf issues (TC17).",
+              "Input validation: invoiceItemId UUID format -> 400 (TC09); tagDef variations\u2014absent, empty, subset, not-on-item, malformed, very large, partially specified -> appropriate 204/400 handling (TC01\u2013TC06, TC13, TC14, TC16).",
+              "Headers: Required X-Killbill-CreatedBy present/missing (success and 400) and optional X-Killbill-Reason/X-Killbill-Comment handled (TC03, TC10, TC18).",
+              "Security/auth: 401 for invalid/expired token (TC11); injection/XSS attempts in headers rejected with 400/422 (TC15).",
+              "Reliability/integration: Service unavailable 503 is handled (TC12); dependent audit logging outage behavior covered (TC19).",
+              "Response semantics: 204 with empty body asserted for successful operations across scenarios."
+            ],
+            "gaps": [
+              "DELETE - Soft Deletes: No test clarifies whether removal is hard vs soft delete or how reversibility/audit is expected.",
+              "Authorization/Permissions: No 403 Forbidden scenario for an authenticated user lacking rights to remove tags.",
+              "Collection format semantics: tagDef is defined as collectionFormat=multi. No explicit tests for repeated query params (?tagDef=id1&tagDef=id2), handling of comma-separated lists, whitespace/URL-encoded values, or duplicate IDs.",
+              "Non-existent tag definition IDs: No scenario where tagDef contains valid UUIDs that do not map to any tag definition in the system (distinct from tags not present on the item).",
+              "Mixed validity in tagDef: No test where some tagDef entries are valid and others malformed/non-existent to assert all-or-nothing vs partial processing behavior and returned status.",
+              "Response headers: 'Produces: application/json' not validated on error responses (Content-Type); and no assertion that 204 responses omit Content-Type/Content-Length>0.",
+              "Explicit idempotency: No test sending the same DELETE twice on the same item to confirm the second call returns 204 and has no side effects.",
+              "Rate limiting/throttling: No coverage for 429 Too Many Requests or similar policies under burst traffic.",
+              "Server error handling: No simulated 500 (e.g., database failure) to validate error schema and resiliency.",
+              "Ambiguity: TC14 expects 204 or 413 depending on limits\u2014nondeterministic assertion weakens test value; expected outcome should be defined.",
+              "Data isolation: No explicit check that removing tags from one invoice item does not affect tags on other items.",
+              "Observability/audit: No verification that audit entries are written on success with CreatedBy/Reason/Comment captured."
+            ],
+            "recommendations": [
+              "Add a soft-delete/behavior clarification test (or mark as not applicable) and verify persistent state/audit expectations accordingly.",
+              "Add a 403 Forbidden scenario for an authenticated user lacking permission to remove tags.",
+              "Test tagDef collectionFormat=multi explicitly: repeated tagDef params, handling of comma-separated values (accept or reject), duplicate IDs, whitespace/URL-encoded UUIDs.",
+              "Add a scenario where tagDef contains valid-but-nonexistent tag definition IDs; define expected status (likely 400) and message.",
+              "Add a mixed-validity scenario (some valid, some malformed/nonexistent) to confirm all-or-nothing vs partial processing and returned status code.",
+              "Assert response headers: for errors, Content-Type: application/json with a well-formed error payload; for 204, ensure empty body and no inappropriate Content-Type.",
+              "Add an explicit idempotency test: issue the same DELETE twice; both should return 204 and leave state unchanged on the second call.",
+              "Introduce rate limiting/throttling test to validate 429 behavior (if applicable).",
+              "Simulate internal failures (e.g., DB outage) to verify 500 handling and error schema consistency.",
+              "Make TC14 deterministic: define a concrete maximum number of tagDef values and assert 413 with a specific error payload when exceeded; otherwise assert 204 when within limits.",
+              "Add a data isolation test to ensure operations affect only the targeted invoice item.",
+              "Verify audit trail creation on success by querying audit logs to confirm CreatedBy/Reason/Comment are recorded."
+            ],
+            "usage": {
+              "completion_tokens": 8048,
+              "prompt_tokens": 5394,
+              "total_tokens": 13442,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7040,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

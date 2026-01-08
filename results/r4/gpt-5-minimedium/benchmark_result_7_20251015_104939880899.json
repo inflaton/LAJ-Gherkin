@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "7_2025-10-15T10:49:39.880868",
+    "jira_id": "7",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/accounts/{accountId}/customFields - Remove custom fields from account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T10:49:16.346052",
+    "benchmark_end_time": "2025-10-15T10:49:39.880863",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 23.534811,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "7_qe_sup-gpt4.1_agent-gpt4.1_1748916257.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC13, TC14) verify successful deletions and expected 204 response.",
+              "Empty Response: TC01, TC04, TC06 and TC15 assert empty response body and subsequent GET returns empty list.",
+              "Query Parameters: Positive and negative cases for customField query param are covered (TC01 no param, TC02 specific list, TC08 invalid UUID, TC09 extra param, TC14 duplicates, TC13 large list).",
+              "Path Parameter Validation: TC05 validates accountId format; TC19 covers SQL-injection style input for accountId.",
+              "Header Validation: TC03 covers optional headers; TC07 checks missing required X-Killbill-CreatedBy header.",
+              "Non-Existent Resource: TC06 covers deleting with a valid-but-non-existent accountId and expects 204 (idempotent behavior).",
+              "Error Handling: TC05 (400 invalid accountId), TC08 (400 invalid customField), TC11 (500 backend failure), TC12 (504/timeout) included.",
+              "Security: TC19 (SQL injection) and TC20 (XSS in customField) are present.",
+              "Idempotency / Regression: TC15 verifies re-deleting an already-deleted custom field returns 204.",
+              "Concurrency / Performance: TC16 includes 100 concurrent requests to validate throughput and response times.",
+              "Integration / Consistency: TC17 checks dependent services reflect deletion."
+            ],
+            "gaps": [
+              "Pagination & GET-specific behavior: No tests for pagination or large-result handling on the GET /accounts/{accountId}/customFields follow-up (guideline: GET Pagination).",
+              "Caching Behavior & Response Headers: No assertions for response headers (Content-Type application/json, ETag, Cache-Control) although the API contract mentions producing application/json.",
+              "Rate Limiting / Throttling: No tests verify behavior under rate limiting or throttling scenarios (guideline: Rate Limiting).",
+              "Soft Delete vs Hard Delete: No tests distinguish between soft-delete behavior (logical deletion) and physical removal or verify deleted flags / audit fields.",
+              "Partial Failure / Transactionality: No explicit scenario where some customField IDs in the request are invalid/non-existent while others are valid to verify all-or-nothing or partial-commit behavior.",
+              "Concurrency Race Conditions: TC16 targets performance but does not explicitly validate race conditions (e.g., two requests deleting overlapping sets of custom fields at the same time causing inconsistent state).",
+              "Response Content-Type & Schema: Tests do not assert Content-Type or response schema for error responses (the story mentions application/json).",
+              "Authorization granularity: TC10 checks unauthorized access generally but lacks explicit tests for scopes/roles and differentiating 401 vs 403 according to auth mechanisms.",
+              "Unsupported Query Params Handling: TC09 checks an extra param returns 204 but does not validate that unsupported params are ignored vs cause warnings/errors in logs or response metadata."
+            ],
+            "recommendations": [
+              "Add tests asserting response headers (Content-Type: application/json) and, where applicable, caching headers such as ETag or Cache-Control for GET calls used in verification.",
+              "Introduce pagination tests for the GET /accounts/{accountId}/customFields (large result sets) to satisfy GET pagination guideline and verify follow-up GET behavior after deletes under paged results.",
+              "Add transactional / partial-failure tests: send mixed valid and invalid customField IDs together to verify whether the operation is atomic (all-or-nothing) or partial and assert final state accordingly.",
+              "Add explicit soft-delete verification: if the system supports soft deletes, add tests to check deleted flags, audit trail entries, and whether data can be restored; if system performs hard deletes, assert physical removal from storage indexes.",
+              "Expand concurrency tests to include race-condition scenarios (e.g., two requests delete overlapping customField sets concurrently) and verify deterministic final state and absence of data corruption.",
+              "Add rate-limiting tests (bursts of requests beyond threshold) to ensure correct 429 or throttling behavior and to verify operations under throttling do not leave partial state.",
+              "Enhance authorization tests to assert role/permission boundaries and clarify expected 401 vs 403 responses for different auth failure modes.",
+              "Assert response body schema for error cases (JSON error envelope) and message contents to ensure clients can reliably parse and react to errors.",
+              "Add tests for behavior when a customField query param contains UUIDs that do not exist on the account (first-request mixed-nonexistent-IDs case).",
+              "Include observability/audit tests: verify that X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment values are recorded in audit logs or change history where applicable."
+            ],
+            "usage": {
+              "completion_tokens": 2274,
+              "prompt_tokens": 5440,
+              "total_tokens": 7714,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1280,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

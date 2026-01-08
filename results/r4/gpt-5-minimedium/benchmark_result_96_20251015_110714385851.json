@@ -1,0 +1,93 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "96_2025-10-15T11:07:14.385823",
+    "jira_id": "96",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/invoicePayments/{paymentId}/tags - Remove tags from payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:06:54.113699",
+    "benchmark_end_time": "2025-10-15T11:07:14.385819",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 20.27212,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "96_qe_sup-gpt4.1_agent-gpt4.1_1748922290.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid Deletion: Multiple scenarios (TC01, TC02, TC03, TC15) verify successful deletion of all/single/multiple tags returning 204 and empty body.",
+              "Required/Optional Headers: TC04 verifies optional headers (Reason, Comment); TC08 verifies missing required X-Killbill-CreatedBy results in 400.",
+              "Input Validation: TC06 and TC09 validate malformed paymentId and tagDef formats producing 400 responses.",
+              "Non-Existent Resource / Idempotency: TC07 verifies 404 for missing payment; TC10 verifies deleting a tag not present is idempotent (204, system unchanged).",
+              "Authorization & Authentication: TC11 covers unauthorized access (401).",
+              "Error Handling / Service Conditions: TC12 (503) and TC22 (504) cover service unavailability and timeout handling.",
+              "Security: TC13 covers injection attempts in tagDef parameter (400).",
+              "Concurrency & Performance: TC16 and TC17 cover concurrent requests and load/performance concerns.",
+              "Operational/Integration: TC20 checks audit logging; TC21 checks data consistency after removal.",
+              "Edge Cases: TC14 covers unexpected extra query parameters.",
+              "Regression & Compatibility: TC18 and TC19 cover regression and backward compatibility scenarios."
+            ],
+            "gaps": [
+              "Soft Delete Behavior: No tests verify whether tags are soft-deleted (e.g., marked deleted) vs hard-removed, or that deleted records are retained for historical/audit purposes.",
+              "Content-Type / 'Produces' Contract: No assertions on response headers (Content-Type application/json) or that 204 responses conform to the API 'produces' contract.",
+              "Empty or Malformed Collection Semantics: No tests for tagDef present but empty (e.g., tagDef=) or for different collection formats (comma-separated vs repeated params) to validate parsing rules.",
+              "Mixed-validity tagDef list: No test covers mixed requests where some tagDef values are valid UUIDs present on the payment, some are valid UUIDs not present, and some are invalid \u2014 to assert atomicity/partial success behavior.",
+              "X-Killbill-CreatedBy Value Validation: No tests for invalid X-Killbill-CreatedBy values (empty string, overly long, illegal characters) to confirm header validation behavior.",
+              "Rate Limiting / Throttling: Although performance under load is present, there are no explicit tests for rate-limiting (429) or throttling behavior.",
+              "Response Error Body Schema: Tests check for presence of error messages but do not validate the error response schema/fields consistently.",
+              "Request Size Limits / Too Many Parameters: TC15 covers 'large number' but there's no test for exceeding server parameter limits leading to 413 or 400.",
+              "Transactionality / Partial Failures: No explicit tests assert whether operation is atomic (all-or-nothing) when removing multiple tags.",
+              "Caching Headers: No tests verify caching-related headers (ETag, Cache-Control) \u2014 likely low priority for DELETE but useful for completeness."
+            ],
+            "recommendations": [
+              "Add a soft-delete verification: create tags, delete, then query tag storage/audit to confirm whether records are flagged as deleted or removed permanently.",
+              "Assert response headers: verify Content-Type for error responses and ensure 204 responses include/omit expected headers per API spec (e.g., no body, appropriate caching/no-cache headers).",
+              "Add collection-format tests: verify multi-format parsing (repeated tagDef params vs comma-separated) and a test where tagDef is present but empty to ensure predictable behavior.",
+              "Add mixed-validity tagDef tests: send a mix of present/not-present/invalid tagDef values and verify API contract (atomic rollback vs partial success and appropriate status/error details).",
+              "Validate X-Killbill-CreatedBy input: add tests for empty, malformed, or too-long header values to ensure header validation and helpful error messages.",
+              "Add explicit rate-limiting tests: hammer the endpoint to elicit 429 responses and confirm graceful handling and Retry-After header behavior.",
+              "Define and validate error response schema: include assertions for error code, message, and error type fields for all 4xx/5xx tests.",
+              "Test server limits: create a case that exceeds allowed query parameter lengths or number of parameters to see how the server responds (413/400).",
+              "Add transactional behavior tests: verify whether multi-tag removals are atomic by inducing partial failures (e.g., simulate DB error mid-operation) and verifying rollback semantics.",
+              "Clarify and test API contract around 'Produces: application/json' vs 204 empty body\u2014add a test to confirm behavior matches API documentation."
+            ],
+            "usage": {
+              "completion_tokens": 2127,
+              "prompt_tokens": 5560,
+              "total_tokens": 7687,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

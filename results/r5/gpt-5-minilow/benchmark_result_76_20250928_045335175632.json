@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "76_2025-09-28T04:53:35.175599",
+    "jira_id": "76",
+    "jira_title": "Implement/Test API: GET /1.0/kb/catalog/product - Retrieve product for a given subscription and date",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T04:53:17.300833",
+    "benchmark_end_time": "2025-09-28T04:53:35.175593",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 17.87476,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "76_qe_sup-gpt4.1_agent-gpt4.1_1748920894.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Valid Request: Several scenarios (TC01, TC02, TC19, TC22) verify successful retrieval for valid subscriptionId / requestedDate combinations and validate response body and status 200.",
+              "Empty Response / No Data: TC11 and TC13 cover empty database and date-before-subscription edge cases (server returns 404 / no product found).",
+              "Query Parameters: Many combinations are tested \u2014 both parameters present (TC01), only subscriptionId (TC02), only requestedDate (TC03), no parameters (TC04/TC07), invalid/malformed parameters (TC06, TC08) and extra params (TC14).",
+              "Authorization: TC09 explicitly tests unauthorized access (401).",
+              "Input Validation / Error Handling: Tests exist for invalid date format (TC06), invalid UUID (TC08), nonexistent subscription (TC05), and general service/unavailable (TC10) and dependency failures (TC21).",
+              "Security: SQL injection and XSS attempts are covered (TC16, TC17) and assert safe error responses.",
+              "Edge / Regression / Boundary Conditions: Boundary date bug (TC18), future date handling (TC12), and concurrent/peak load behavior (TC15) are included.",
+              "Performance & Availability: Performance/response-time and service/unavailability scenarios included (TC15, TC20, TC10).",
+              "Integration / Data Consistency: TC21 and TC22 check downstream dependency failure and catalog/subscription consistency.",
+              "Response structure / Content-Type: TC01 and other success scenarios assert JSON Product object and Content-Type in at least one scenario."
+            ],
+            "gaps": [
+              "Pagination: No tests address pagination behavior (page/limit) or large result sets returned by this GET \u2014 guidelines request pagination checks for GET endpoints that can return large datasets.",
+              "Caching Behavior: No scenarios verify caching headers (ETag, Cache-Control) or conditional GET behavior (If-None-Match / 304 responses).",
+              "Rate Limiting / Throttling: No tests exercise rate limiting (429) or throttling behavior under repeated requests.",
+              "Ambiguity / Determinism for requestedDate-only or no-parameter cases: TC03 and TC04 are vague ('200 or appropriate error'); the acceptance criteria in the story require deterministic behavior (returns the product associated with subscription's plan on that date) \u2014 tests do not lock down expected deterministic outcomes or document the business rule for omitted params.",
+              "Authorization scope / role-based access: Only a generic unauthorized test (TC09) exists. There is no test covering authorization vs. different auth scopes/roles (401 vs 403) or token expiry cases.",
+              "Response Error Codes Granularity: Some tests allow multiple acceptable codes (e.g., TC03/TC04/TC12 say '200 or appropriate error') which leaves gaps for asserting exact expected codes per business rules (400 vs 422 vs 404).",
+              "Content validation coverage: Only presence/validity of Product object is stated; there are no tests asserting full schema fields, required fields, or negative cases for malformed Product responses.",
+              "Caching + Conditional Requests: No tests for If-Modified-Since/If-None-Match or for validating that identical requests are cached or return 304 when appropriate.",
+              "Rate-limit + Retry behavior in client-friendly headers: No checks for Retry-After header when throttled."
+            ],
+            "recommendations": [
+              "Add explicit pagination tests: if endpoint can return multiple products (requestedDate omitted), add tests for page/limit parameters, very large result sets, and correct pagination metadata.",
+              "Add caching/conditional GET tests: assert presence of Cache-Control and ETag headers on successful responses, and test conditional GETs (If-None-Match) to verify 304 behavior.",
+              "Add rate-limiting tests: hammer the endpoint to validate 429 responses, Retry-After header, and behavior under burst traffic beyond quota.",
+              "Make ambiguous scenarios deterministic: update TC03 and TC04 to reflect the expected business rule (e.g., if requestedDate-only returns error due to ambiguity, assert 400 with specific message; if allowed, assert exact behavior and payload).",
+              "Expand authorization tests: include expired token, insufficient-scope token (403), and validate error payloads are consistent and do not leak sensitive info.",
+              "Tighten error-code expectations: convert tests that currently accept multiple outcomes into explicit assertions based on documented business rules (400 vs 422 vs 404).",
+              "Add schema-level validation tests: assert all required Product fields, types and constraints (use the Product schema in Background), and negative tests for invalid server responses.",
+              "Add conditional/error behavior tests for downstream failures: verify mapping of downstream error codes to API response codes and messages (502 vs 503 vs 504) and ensure no sensitive stack traces are exposed.",
+              "Add caching + performance correlation tests: verify that under high read concurrency, cache improves latency and load, and that cache invalidation occurs correctly when catalog changes.",
+              "Add tests for rate-limit headers and client-friendly guidance (Retry-After) and verify behavior across different clients/identities."
+            ],
+            "usage": {
+              "completion_tokens": 1258,
+              "prompt_tokens": 5044,
+              "total_tokens": 6302,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

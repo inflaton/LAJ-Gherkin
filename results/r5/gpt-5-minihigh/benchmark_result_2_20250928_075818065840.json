@@ -1,0 +1,90 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "2_2025-09-28T07:58:18.065814",
+    "jira_id": "2",
+    "jira_title": "Implement/Test API: POST /1.0/kb/accounts/{accountId}/tags - Add tags to account",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-09-28T07:56:12.852089",
+    "benchmark_end_time": "2025-09-28T07:58:18.065810",
+    "framework": "analyze_gherkin_folder",
+    "device": "Apple M3 Max",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 10000,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 125.213721,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "2_qe_sup-gpt4.1_agent-gpt4.1_1748915914.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "Valid payloads: multiple successful scenarios (TC01, TC02, TC03, TC04, TC05, TC18, TC24) verifying 201 responses and persistence in the database.",
+              "Request body validation: empty array, non-array body, malformed UUIDs, non-existent tag definition IDs, and unexpected extra fields covered (TC07, TC08, TC09, TC10, TC17) producing 400 errors.",
+              "Path & parameter validation: missing accountId in path, invalid accountId format, and non-existent account covered (TC12, TC13, TC14).",
+              "Header handling: required 'X-Killbill-CreatedBy' presence and missing-header negative test covered (TC11); optional headers tested (TC03).",
+              "Query parameters: pagination/sorting/filtering presence is tested and asserted to be ignored for POST (TC06).",
+              "Duplicate & concurrency behavior: duplicate tag IDs in payload and concurrent requests covered (TC19, TC21) to exercise de-duplication and race conditions.",
+              "Authorization & error handling: unauthorized (401) and dependency/service-unavailable (503) scenarios covered (TC15, TC16).",
+              "Security & regression: header injection and special-character regression covered (TC22, TC23).",
+              "Performance: basic latency SLA included (TC20)."
+            ],
+            "gaps": [
+              "Authorization granularity: no test for authenticated-but-forbidden (403) when a user is valid but lacks permission to add tags.",
+              "Response headers and content negotiation: no explicit assertions for 'Content-Type: application/json', 'Location' on create, or caching headers (ETag / Cache-Control) even though API declares application/json.",
+              "Response schema & audit fields: missing field-level validation of the Tag object (e.g., Tag.id, tagDefinitionId type, objectType/objectId, timestamps and audit metadata such as createdBy/reason/comment are not verified).",
+              "Atomicity/transactionality: no test for mixed payloads (some tagDefinition IDs valid, some invalid) to confirm whether the operation is all-or-nothing or partial.",
+              "Idempotency / duplicate submissions across requests: no sequential replay test (re-POST same payload) to verify duplicate-creation handling or idempotency behavior.",
+              "Server error coverage: 500 Internal Server Error / generic 5xx handling is not explicitly tested (only 503 is simulated).",
+              "Request Content-Type validation: missing/incorrect request Content-Type (e.g., absent or not 'application/json' leading to 415/400) is not tested.",
+              "Rate limiting / throttling and high-volume stress beyond the 100-item boundary are not covered.",
+              "Partial success semantics: behavior when some tags already exist and others fail in the same request is not explicitly asserted."
+            ],
+            "recommendations": [
+              "Add a 403 test: authenticated user with insufficient permissions should receive 403 Forbidden and a clear error message.",
+              "Assert response headers on success: verify 'Content-Type: application/json', consider checking 'Location' header semantics on 201, and, if relevant, caching headers (ETag / Cache-Control).",
+              "Add Tag object schema checks: validate returned Tag fields (id is UUID, tagDefinitionId matches request, objectType/objectId, createdDate) and verify audit metadata (createdBy/reason/comment) reflect the request headers.",
+              "Add atomicity tests: submit a mixed payload (valid + invalid tagDefinition IDs) and assert the defined transactional behavior (either full rollback with an error or partial success with clear errors).",
+              "Add idempotency / duplicate-submission tests: re-POST the same payload sequentially and assert duplicates are not created (or that API returns a safe response), and verify DB state.",
+              "Test request Content-Type handling: missing or incorrect Content-Type should return the appropriate error (400/415) and a descriptive message.",
+              "Broaden server error tests to include 500 Internal Server Error and assert structured error responses for unexpected failures.",
+              "Add rate-limiting and stress tests: spike tests and larger payload tests (beyond 100 tags) to identify throughput and payload-size limits.",
+              "Add negative tests for Accept header / content negotiation to ensure the API consistently returns JSON, and add security tests for long/edge-case header values and unicode input.",
+              "Add explicit DB-level assertions for uniqueness constraints and include cleanup/teardown steps to ensure test idempotency and isolation."
+            ],
+            "usage": {
+              "completion_tokens": 8227,
+              "prompt_tokens": 6410,
+              "total_tokens": 14637,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7296,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

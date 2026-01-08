@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "98_2025-10-15T11:23:13.120042",
+    "jira_id": "98",
+    "jira_title": "Implement/Test API: POST /1.0/kb/invoicePayments/{paymentId}/customFields - Add custom fields to payment",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T11:22:53.398669",
+    "benchmark_end_time": "2025-10-15T11:23:13.120039",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 19.72137,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "98_qe_sup-gpt4.1_agent-gpt4.1_1748922413.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "Valid Payload: Multiple happy-path scenarios (TC01, TC02, TC03, TC04, TC05) verify successful creation and 201 responses.",
+              "Path parameter validation: TC10 (invalid uuid -> 400) and TC11 (non-existent -> 404) cover paymentId validation and not-found behaviour.",
+              "Required/optional headers: TC01 and TC09 validate required X-Killbill-CreatedBy behavior; TC02 covers X-Killbill-Reason and X-Killbill-Comment.",
+              "Malformed/Invalid payloads: TC08 (malformed JSON), TC06 (unexpected extra fields), TC16 (missing required properties) cover many invalid body shapes and validation scenarios.",
+              "Empty payload handling: TC07 covers empty JSON array behavior.",
+              "Large payloads / stress: TC15 covers near-maximum payload size and expected 201/413 behaviour.",
+              "Concurrency and duplicate-related regressions: TC19 (concurrency) and TC20 (duplicate field names regression) address race conditions and duplicate-field issues.",
+              "Security inputs: TC14 covers SQL injection/XSS style payloads and checks for sanitization/no-persistence of malicious input.",
+              "Performance: TC22 and TC23 cover response time under normal and peak loads (SLA/2s target/peak load scenarios).",
+              "Integration & persistence: TC24 and TC25 verify persistence and cross-system visibility; TC24 explicitly checks GET for retrieval after creation.",
+              "Unicode and internationalization: TC21 validates handling of unicode characters in field values.",
+              "Error/exception scenarios: TC12 (unauthorized 401), TC13 (dependent service down -> 503) ensure non-happy paths are exercised."
+            ],
+            "gaps": [
+              "Duplicate submission/idempotency: No explicit test for identical repeated requests (same body) to validate de-duplication or idempotency semantics.",
+              "Server error (500) and other intermediate server failures: There is a 503 test, but no explicit 500/Internal Server Error simulation and handling test (e.g., DB exception path producing 500 and appropriate error payload).",
+              "Precise schema validation and type checks: Tests do not enumerate field-level validation rules (e.g., fieldName required/format, fieldValue type/length limits, allowed objectType values), nor do they assert exact error codes/messages for schema violations.",
+              "Content-Type and header enforcement: No negative tests for missing/incorrect Content-Type header (e.g., not application/json) or assertions on response headers (Content-Type, Location, or audit headers).",
+              "Ambiguity in expected status for \u201clenient vs strict\u201d cases: Several scenarios allow 201 or 400 depending on \"API strictness\" (TC06, TC07, TC17, TC20). This weakens deterministic acceptance criteria and leaves gaps in verifying exact documented behavior.",
+              "Rate limiting / throttling: No tests to validate rate limiting behaviour (429 responses, backoff, throttling under high request rates).",
+              "Boundary tests for individual custom field properties: No tests for maximum/minimum lengths, allowed character sets, or forbidden characters beyond injection payloads.",
+              "Audit/logging persistence: No tests confirm that X-Killbill-CreatedBy, X-Killbill-Reason, and X-Killbill-Comment are recorded in audit trails or returned via admin/audit endpoints.",
+              "Error payload content assertions: Many negative tests validate status code only; there are few assertions about error response body structure or machine-readable error codes/messages."
+            ],
+            "recommendations": [
+              "Add an explicit duplicate-submission/idempotency test: send the same POST payload twice and assert whether duplicates are prevented or expected duplicates are returned, and assert idempotency semantics (201 vs 200 vs dedupe behaviour).",
+              "Add server-failure tests that simulate 500 Internal Server Error (e.g., force DB exception or throw) and verify client-visible error code and message, and that the system fails gracefully.",
+              "Create detailed schema validation tests: verify required properties (fieldName, fieldValue, objectType) types and formats, enforce/max-length tests, and assert precise error messages and status codes for each schema violation.",
+              "Add negative tests for Content-Type and missing headers: send requests with no Content-Type or wrong Content-Type and assert 415/400 as appropriate; assert response Content-Type is application/json on success/error.",
+              "Make ambiguous \u201c201 or 400\u201d expectations deterministic: consult API spec and enforce expected behavior in tests (remove \"or\" branches), or add explicit tests for both strict and lenient modes if modes exist and are configurable.",
+              "Add rate limiting and throttling tests: hammer the endpoint to confirm 429 responses or other throttling behaviour and validate backoff/retry guidance.",
+              "Add boundary tests for field-level constraints: very long fieldName/fieldValue, empty strings for required fields, invalid objectType values and ensure correct validation errors.",
+              "Add tests to verify audit/logging: ensure CreatedBy/Reason/Comment are persisted and retrievable in audit endpoints or DB (or present in created custom field metadata), and that these headers are mandatory/optional per spec.",
+              "Enrich negative test assertions: assert error response body schema (error code, message, details) for malformed JSON, missing fields, invalid paymentId, unauthorized, and service unavailable scenarios so clients can programmatically handle errors."
+            ],
+            "usage": {
+              "completion_tokens": 2331,
+              "prompt_tokens": 6845,
+              "total_tokens": 9176,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1216,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

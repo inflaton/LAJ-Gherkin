@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "49_2025-10-13T18:50:45.153872",
+    "jira_id": "49",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/admin/healthcheck - Put the host out of rotation",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T18:50:27.322629",
+    "benchmark_end_time": "2025-10-13T18:50:45.153869",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 78,
+    "average_generation_time_seconds": 17.83124,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 78,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "49_qe_sup-gpt4.1_agent-gpt4.1_1748919010.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 78,
+            "covered": [
+              "Valid Deletion: TC01, TC12 (regression) validate successful DELETE and that the host is marked out of rotation (expected 204).",
+              "Non-Existent Resource / Already Deleted: TC04 and TC14 cover attempts against a host that's already out of rotation or when no hosts exist (409 conflict).",
+              "Authorization: TC02 and TC03 cover missing and invalid authentication (401).",
+              "Invalid Method: TC07 verifies method-not-allowed behavior (405) for using GET instead of DELETE.",
+              "Server / Service Errors: TC05 (503) and TC06 (500) cover service-unavailable and internal server error cases.",
+              "Request Validation: TC09 covers how the API reacts to an unexpected / malicious request body (400).",
+              "Concurrency and Race Conditions: TC11 addresses concurrent requests and expected collision behavior (first request 204, subsequent 409/204).",
+              "Edge cases & Regression: TC12 (regression) and TC14 (no hosts) cover important edge/regression scenarios.",
+              "Performance: TC10 and TC11 include response-time requirements under normal and concurrent load.",
+              "Security header injection: TC13 covers header-based injection attempts and expected rejection (400/401).",
+              "Extra parameters tolerance: TC08 verifies behavior when extra query parameters are provided (still 204)."
+            ],
+            "gaps": [
+              "Soft Delete / Deletion Semantics: No explicit test that verifies whether the host is soft-deleted vs hard-deleted, or that records remain/audit entries are created.",
+              "Idempotency & Repeated Calls: Although TC11 touches concurrency, there is no explicit idempotency test for repeated identical DELETE calls by the same client over time (expected stable behavior beyond immediate concurrency).",
+              "Detailed Authorization scopes/roles: Tests cover missing/invalid tokens but do not verify role-based authorization (e.g., 403 for authenticated but unauthorized admin roles).",
+              "HTTP Response Headers / Content-Type: No checks for response headers (e.g., Content-Type on errors, caching headers, Retry-After for 503).",
+              "Rate Limiting / Throttling: No tests for rate limiting behavior (429) under high request rates beyond performance timing assertions.",
+              "Pagination / Query param validation patterns: Although extra params are allowed (TC08), there's no systematic test of invalid query parameter formats or unexpected parameter types yielding 4xx responses.",
+              "Detailed input validation beyond request body presence: No tests for malformed headers other than injection, malformed tokens formats, or invalid query param values causing 400/422 semantics.",
+              "Recovery / Reconciliation: No test that brings a host back into rotation (PUT/POST) and verifies state transition after DELETE and a subsequent re-enable operation.",
+              "Audit / Logging / Persistence: No verification that the operation is recorded in audit logs or persisted state beyond immediate 'marked out of rotation' check.",
+              "Soft-failure modes: No tests for partial failures where some subsystems succeed and others fail (e.g., marking host state succeeds but writing audit log fails), and expected compensating behavior."
+            ],
+            "recommendations": [
+              "Add explicit idempotency tests: repeat the same DELETE from the same client at separated times and assert consistent and documented responses (204 first time, 409 or 204 subsequently depending on server contract).",
+              "Add authorization role tests: include scenarios with authenticated users lacking admin privileges to assert 403 Forbidden behavior where appropriate.",
+              "Verify response headers and error payload format: assert Content-Type, standard error JSON schema, and any headers like Retry-After on 503, and absence/presence of caching headers.",
+              "Add rate limiting / throttling tests: flood the endpoint to verify a documented 429 or other rate-limit behavior and that graceful errors are returned.",
+              "Cover soft vs hard delete semantics and persistence: tests that verify whether host record is retained, audit/log records created, and how the system reports it through status queries.",
+              "Add recovery/re-enable flows: include tests that re-enable a host (the inverse operation) and verify end-to-end state transitions.",
+              "Expand invalid input validation: test malformed tokens, malformed query parameters, invalid header formats, and ensure consistent 4xx responses with clear error messages.",
+              "Introduce tests for partial-failure and compensation behavior: simulate downstream failures (e.g., DB write fails after state change) and verify transactional integrity or documented behavior.",
+              "Add monitoring of observability outputs where applicable: ensure appropriate metrics/events are emitted (useful for operational management)."
+            ],
+            "usage": {
+              "completion_tokens": 1131,
+              "prompt_tokens": 3433,
+              "total_tokens": 4564,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 192,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

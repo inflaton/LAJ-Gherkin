@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "53_2025-10-15T16:23:38.218613",
+    "jira_id": "53",
+    "jira_title": "Implement/Test API: POST /1.0/kb/bundles/{bundleId}/tags - Add tags to bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T16:22:00.013241",
+    "benchmark_end_time": "2025-10-15T16:23:38.218608",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 86,
+    "average_generation_time_seconds": 98.205367,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 86,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "53_qe_sup-gpt4.1_agent-gpt4.1_1748919377.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 86,
+            "covered": [
+              "POST Valid Payload: Multiple success scenarios (single/multiple tags, with/without existing tags) returning 201 and verifying Tag objects and persistence.",
+              "Header handling: Required X-Killbill-CreatedBy present for success and 400 when missing; optional X-Killbill-Reason and X-Killbill-Comment accepted.",
+              "Path parameter validation: Invalid bundleId format -> 400; non-existent bundleId handled.",
+              "Request body validation: Malformed JSON, non-array body, invalid/missing UUIDs, and missing body -> 400.",
+              "Large payloads: Max allowed payload accepted (201) and exceeding limit rejected (400).",
+              "Duplicate tags within a request or already on bundle are handled without creating duplicates.",
+              "Resiliency/error paths: 503 service unavailable, 504 timeout, and retry of transient failure leading to success.",
+              "Security: Unauthorized (missing/invalid token) -> 401.",
+              "Integration checks: GET verification of POSTed tags and cross-service data consistency.",
+              "Performance baseline under normal and concurrent load.",
+              "Tolerance of extra unsupported headers without breaking the request."
+            ],
+            "gaps": [
+              "Duplicate submission/idempotency across repeated identical POSTs is not tested (same payload sent twice for the same bundle).",
+              "Server error handling for 500 Internal Server Error is not covered; only 503/504 paths are exercised.",
+              "Media type and content negotiation: No tests enforce/validate request Content-Type application/json (e.g., 415 on wrong/missing Content-Type) or response Content-Type application/json; Accept header behavior not validated.",
+              "Standard error schema is not validated (structure/fields of error responses for 400/401/503/504).",
+              "Authorization/permissions: No 403 Forbidden scenario for authenticated user lacking required permissions.",
+              "Atomicity with mixed-validity inputs: No test sending a mix of valid and invalid tag definition UUIDs to confirm all-or-nothing vs partial success behavior.",
+              "Concurrency on the same resource: No scenario for simultaneous POSTs adding the same tag to the same bundle to detect race conditions/deduping.",
+              "Response headers: No validation of headers such as Location (if applicable), correlation/request-id, or caching directives; also no explicit check that the endpoint produces application/json as specified.",
+              "Specification clarity: Empty array behavior is assumed to be 201; the story does not specify, so this should be clarified and asserted explicitly."
+            ],
+            "recommendations": [
+              "Add an idempotency test: send the exact same POST twice to the same bundle and assert no duplicate tags are created; if supported, include Idempotency-Key scenarios.",
+              "Simulate an internal application exception to return 500 and validate proper error handling and schema.",
+              "Add media type tests: verify requests with missing/wrong Content-Type return 415; assert responses include Content-Type: application/json; add Accept header negotiation checks.",
+              "Assert a consistent error response schema (fields like code, message, details) for 400/401/503/504.",
+              "Include a 403 Forbidden scenario for an authenticated user without sufficient permissions/roles.",
+              "Test atomicity with mixed-validity input (one invalid UUID among valid ones) and assert the documented behavior (rollback all vs partial add).",
+              "Introduce a concurrency test posting the same tags concurrently to the same bundle to ensure deduplication and absence of race conditions.",
+              "Validate important response headers (e.g., Location if defined for created resources, correlation/request-id).",
+              "Clarify and codify expected behavior for empty arrays (201 vs 400/204) in the specification and align the tests accordingly."
+            ],
+            "usage": {
+              "completion_tokens": 4285,
+              "prompt_tokens": 6808,
+              "total_tokens": 11093,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 3520,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

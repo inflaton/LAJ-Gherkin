@@ -1,0 +1,92 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "22_2025-10-15T14:08:01.304061",
+    "jira_id": "22",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/accounts/{accountId}/cbaRebalancing - Rebalance account CBA",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T14:07:13.643953",
+    "benchmark_end_time": "2025-10-15T14:08:01.304056",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 85,
+    "average_generation_time_seconds": 47.660103,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 85,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "22_qe_sup-gpt4.1_agent-gpt4.1_1748917370.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 85,
+            "covered": [
+              "PUT - Valid Request: Multiple happy-path scenarios return 204 and assert CBA recalculation (TC01, TC02, TC03).",
+              "PUT - Non-Existing Resource: Invalid/non-existent accountId returns 400 as per story (TC08, TC09, TC16, TC17).",
+              "PUT - Concurrency Issues: High concurrency preserves correctness and returns 204 (TC18).",
+              "Input Validation - Required Header: Missing/empty/whitespace/null X-Killbill-CreatedBy yields 400 (TC10, TC11, TC25, TC26).",
+              "Optional Headers Handling: Reason/Comment provided successfully (TC02); extra/unsupported headers tolerated (TC12); unexpected query params tolerated (TC23).",
+              "Service Reliability: Transient network retry (TC13) and service unavailable 503 (TC14).",
+              "Security Hardening: SQLi in CreatedBy (TC15) and XSS in Comment (TC24).",
+              "Performance: Response time under normal and peak load (TC20, TC21).",
+              "Method Semantics: Unsupported method returns 405 (TC22).",
+              "Path Parameter Validation: UUID format and overlong accountId validated (TC09, TC16)."
+            ],
+            "gaps": [
+              "Authorization/Authentication: No scenarios for missing/invalid auth token leading to 401/403 despite Background assuming a valid token.",
+              "Idempotency: No test that repeating the same PUT (sequentially) yields 204 and no additional changes.",
+              "Post-condition Verification: Steps assert backend changes but do not verify via a follow-up read (e.g., GET of account balance, audit logs) to confirm exact expected CBA values.",
+              "Response Contract on 204: No check that response body is empty, headers are appropriate (e.g., no Content-Type with empty body), and produces application/json is not incorrectly set on 204.",
+              "Error Response Schema: Tests assert generic error messages but do not validate structured error payload (code, message, requestId) for 400/405/503.",
+              "Server Error Handling: No simulation of 500 Internal Server Error or DB failure; only 503 is covered.",
+              "Content Negotiation/Headers: No tests for Accept header handling, or 406/415 behavior; no verification of response headers like correlation IDs.",
+              "Request Body Handling: Endpoint is body-less; no test that a supplied body is rejected or ignored per contract.",
+              "Security Edge Cases: No tests for very long header values, Unicode/UTF-8 in headers, header injection/newline characters, or log-forging attempts.",
+              "Authorization Scopes/RBAC: If applicable, no tests for users lacking permission to rebalance CBA (403)."
+            ],
+            "recommendations": [
+              "Add authorization scenarios: missing token, expired token, invalid signature -> 401; insufficient permissions -> 403.",
+              "Add idempotency scenario: invoke PUT twice (and multiple times) for the same account; verify all respond 204 and the CBA remains unchanged after first success.",
+              "Enhance verification: after PUT, fetch account/ledger via appropriate GETs to assert the exact expected CBA and audit entries; include before/after snapshots.",
+              "Validate 204 response contract: assert empty body, appropriate headers, and absence of misleading Content-Type; if a body is returned, align with contract or update tests.",
+              "Define and assert a standard error schema (fields like errorType, code, message, requestId) for 400/405/503; validate content and do not leak internals.",
+              "Add server fault scenarios: simulate internal errors (500) and timeouts; ensure graceful messages and retry/backoff guidance if applicable.",
+              "Test content negotiation: vary Accept headers (e.g., application/json, */*, unsupported types) and assert 406/415 as appropriate; verify response headers (e.g., request-id/correlation-id).",
+              "Add request body negative test: send a non-empty payload and assert it is rejected (400/415) or ignored per spec; document behavior.",
+              "Expand security tests: extremely long header values, Unicode and RTL characters, CRLF injection in headers, and ensure input is sanitized and errors are generic.",
+              "Boundary/business cases: add explicit expected-value assertions for zero/negative/large CBA using deterministic fixtures, not only generic \u201crebalanced\u201d statements."
+            ],
+            "usage": {
+              "completion_tokens": 2071,
+              "prompt_tokens": 5515,
+              "total_tokens": 7586,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 1152,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

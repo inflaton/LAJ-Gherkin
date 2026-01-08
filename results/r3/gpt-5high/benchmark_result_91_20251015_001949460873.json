@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "91_2025-10-15T00:19:49.460843",
+    "jira_id": "91",
+    "jira_title": "Implement/Test API: PUT /1.0/kb/invoiceItems/{invoiceItemId}/customFields - Modify custom fields to invoice item",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-15T00:17:59.812553",
+    "benchmark_end_time": "2025-10-15T00:19:49.460839",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 82,
+    "average_generation_time_seconds": 109.648286,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 82,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "91_qe_sup-gpt4.1_agent-gpt4.1_1748921988.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 82,
+            "covered": [
+              "PUT Valid Request: Multiple success scenarios with and without optional headers return 204 and persist updates (TC01-TC05, TC21, TC22).",
+              "Non-Existing Resource: 404 for missing invoice item and empty/partial DB states (TC07, TC24, TC25).",
+              "Input validation: invalid UUID, malformed JSON, empty body, unsupported fields lead to 400 (TC06, TC08, TC10, TC11).",
+              "Header handling: required X-Killbill-CreatedBy enforced; optional X-Killbill-Reason and X-Killbill-Comment accepted; missing required header returns 400 (TC01-TC03, TC02, TC09).",
+              "Authorization and robustness: 401 unauthorized, 500/503/504 backend failures, and security payload validation (TC13-TC16, TC19, TC14).",
+              "Idempotency: repeated identical PUTs remain consistent (TC17).",
+              "Performance and large payload handling, including parallelism across items (TC12, TC20, TC21).",
+              "State variations and regression protection (no unrelated data loss) (TC04, TC05, TC18).",
+              "Query parameter strictness explored (TC23)."
+            ],
+            "gaps": [
+              "Partial Update semantics for PUT not defined or tested (merge vs full replace vs reject partial).",
+              "Concurrency on the same invoice item not covered (simultaneous PUTs, expected last-write-wins or 409 with ETag/If-Match).",
+              "Content negotiation/media type not tested (415 for wrong/missing Content-Type, 406 for unacceptable Accept, response headers on 204).",
+              "CustomField schema validation depth missing (required properties, invalid data types, null/blank values, length/charset limits, duplicate field names/entries, conflicting objectType/objectId).",
+              "Empty array [] behavior not covered (clear all fields, no-op, or 400).",
+              "Atomicity with mixed valid/invalid elements in the array not tested (all-or-nothing vs partial apply).",
+              "Authorization 403 for authenticated but unauthorized roles not tested.",
+              "Header-value edge cases not tested (empty/whitespace or overly long X-Killbill-CreatedBy; long/Unicode Reason/Comment).",
+              "Non-deterministic assertions in TC12 and TC23 (multiple possible status codes) reduce test reliability.",
+              "Verification depth is light: steps assert generic \"updated\" without asserting exact persisted set/values or audit records."
+            ],
+            "recommendations": [
+              "Define and add tests for update semantics: replacement vs merge vs rejection; include removal cases by omitting an existing field and sending an empty array.",
+              "Add concurrent-update scenarios on the same invoice item: two clients updating different payloads; include versioning/ETag If-Match tests and expect 409 on conflict or document last-write-wins.",
+              "Add media type/content negotiation tests: wrong/missing Content-Type -> 415; unsupported Accept -> 406; assert that 204 responses have no body and appropriate headers.",
+              "Expand schema validation: missing required fields, invalid types, nulls, overlong strings, illegal characters, duplicate names/entries, objectType/objectId conflicts; enforce array size limits.",
+              "Test atomicity with arrays containing one invalid element to confirm full rollback and clear error messaging.",
+              "Add 403 Forbidden scenario for authenticated users lacking authorization to modify invoice items.",
+              "Validate header values: reject empty/too-long X-Killbill-CreatedBy; exercise Reason/Comment length and Unicode; verify audit entries capture CreatedBy/Reason/Comment.",
+              "Make outcomes deterministic: split TC12 and TC23 into separate scenarios per configuration/strictness with single expected status.",
+              "Strengthen verification steps: after 204, retrieve custom fields and assert exact set, values, and counts; verify no unrelated data changed and audit logs were written.",
+              "Optionally extend idempotency checks to reordered arrays and duplicate keys to ensure stable behavior."
+            ],
+            "usage": {
+              "completion_tokens": 7950,
+              "prompt_tokens": 6450,
+              "total_tokens": 14400,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 7104,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

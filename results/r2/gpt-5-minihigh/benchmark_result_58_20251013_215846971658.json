@@ -1,0 +1,91 @@
+{
+  "benchmark_config": {
+    "benchmark_id": "58_2025-10-13T21:58:46.971624",
+    "jira_id": "58",
+    "jira_title": "Implement/Test API: DELETE /1.0/kb/bundles/{bundleId}/customFields - Remove custom fields from bundle",
+    "benchmark_status": "completed",
+    "total_run": 1,
+    "total_passed": 1,
+    "total_failed": 0
+  },
+  "test_config": {
+    "benchmark_start_time": "2025-10-13T21:56:40.171906",
+    "benchmark_end_time": "2025-10-13T21:58:46.971619",
+    "framework": "analyze_gherkin_folder",
+    "device": "Unknown",
+    "llm_config": {
+      "model": "gpt-5-mini",
+      "temperature": 1.0,
+      "max_tokens": 16384,
+      "seed": -1
+    }
+  },
+  "benchmark_results": {
+    "average_coverage_percentage": 75,
+    "average_generation_time_seconds": 126.799713,
+    "benchmark_output": [
+      {
+        "average_coverage_percentage": 75,
+        "generation_time_seconds": 0.0,
+        "generated_output_count": 1,
+        "status": "completed",
+        "gherkin_id": "58_qe_sup-gpt4.1_agent-gpt4.1_1748919726.feature",
+        "coverage_analysis": [
+          {
+            "coverage_percentage": 75,
+            "covered": [
+              "Path parameter validation (UUID format) and truncated/invalid bundleId checks are covered (TC06, TC22).",
+              "Non-existent bundle handling (404) and database-empty state are covered (TC07, TC23).",
+              "Query-parameter behaviours are well exercised: no customField -> remove all (TC01), single customField (TC02), multiple customField entries (TC03), invalid/empty customField values (TC09, TC19), deletion of a non-present customField (idempotent, TC10), and ignoring unsupported extra params (TC11).",
+              "Required and optional headers: X-Killbill-CreatedBy required / missing header check (TC08); optional X-Killbill-Reason and X-Killbill-Comment handled (TC04, TC18); header injection and comment length edge-cases are covered (TC14, TC20, TC21).",
+              "Authentication failure handling (invalid/expired token -> 401) is covered (TC13).",
+              "Success response semantics (HTTP 204 No Content) and post-deletion verification via GET are exercised in multiple tests (TC01, TC02, TC03, TC05, TC25).",
+              "Error and integration failure handling is covered: service unavailable (TC12) and degraded dependent service (TC24) scenarios are present.",
+              "Concurrency and performance are explicitly tested (concurrent delete TC16; heavy-load removal performance TC15).",
+              "Data consistency and regression checks are included (no cross-bundle side effects TC17; DB consistency after removal TC25)."
+            ],
+            "gaps": [
+              "\"Produces: application/json\" is not asserted anywhere \u2014 tests do not validate response Content-Type or clarify behavior for 204 No Content responses (should there be a body/header?).",
+              "Authorization / permission (403 Forbidden) scenarios are not covered \u2014 tests only cover authentication failure (401) but not insufficient-permission cases.",
+              "Caching behavior and headers (ETag, Cache-Control) on the subsequent GETs are not tested (GET-related guidelines not covered).",
+              "Pagination for GET listing of custom fields (large datasets) is not covered \u2014 no tests for paginated responses or behavior with page/limit parameters.",
+              "Rate limiting / throttling behavior is not tested (no 429 or similar scenarios).",
+              "Soft-delete semantics are not checked \u2014 tests do not verify whether the record is hard-deleted vs flagged (no DB-level soft-delete verification).",
+              "Handling of duplicate customField parameters in the same request (e.g., repeated identical UUIDs) or comma-separated lists is not tested.",
+              "Audit/logging side-effects of required headers (X-Killbill-CreatedBy / Reason / Comment) are not asserted \u2014 no tests validate audit events or DB audit entries.",
+              "Error response payload schema/content is not consistently validated (tests assert presence of an error message in some cases but do not validate a consistent schema or fields).",
+              "Duplicate submission idempotency beyond concurrency is not explicitly tested (retry semantics, sequential duplicate requests not covered)."
+            ],
+            "recommendations": [
+              "Add assertions for response headers: explicitly check Content-Type on success and error responses and clarify expected behavior for 204 No Content with respect to \"Produces: application/json\".",
+              "Add authorization tests for users with insufficient privileges to ensure a 403 Forbidden (or documented equivalent) is returned when appropriate.",
+              "Add caching tests on the GET verification calls: verify ETag is returned, validate conditional GET behavior (If-None-Match) and Cache-Control headers.",
+              "Add pagination tests for GET /1.0/kb/bundles/{bundleId}/customFields (when listing many custom fields) to validate page/limit handling and correctness for large result sets.",
+              "Add rate-limiting/throttling tests (burst of requests) to verify 429 or service-specific throttling behavior and graceful degradation.",
+              "Add tests that verify soft-delete semantics or the lack thereof (e.g., verify DB flags, tombstones, or that physical rows are removed) and ensure the API behavior matches product requirements.",
+              "Add tests for duplicate/ambiguous input forms: repeated identical customField query params, comma-separated lists, and extremely long customField values to validate input handling and deduplication semantics.",
+              "Add tests that validate audit records / event emissions include X-Killbill-CreatedBy, X-Killbill-Reason and X-Killbill-Comment where applicable (system audit trail verification).",
+              "Standardize and assert error response schema (fields, codes, machine-readable error codes) across 4xx/5xx tests so clients can rely on consistent error payloads.",
+              "Add idempotency/retry tests for sequential duplicate deletions (re-sending the same DELETE request) to ensure stable behaviour beyond the concurrent case."
+            ],
+            "usage": {
+              "completion_tokens": 7529,
+              "prompt_tokens": 6309,
+              "total_tokens": 13838,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 6528,
+                "rejected_prediction_tokens": 0
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cached_tokens": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
