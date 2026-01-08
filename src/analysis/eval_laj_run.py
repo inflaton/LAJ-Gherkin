@@ -177,15 +177,26 @@ def get_eval_time(benchmark_report_path: str, base_folder: str) -> float:
     """Extract evaluation time from benchmark report."""
     if not benchmark_report_path:
         return 0.0
-    
-    # Normalize path
+
+    # Normalize path - handle old path structure
     benchmark_report_path = benchmark_report_path.replace("../../../qualityguardian-eval", ".")
     benchmark_report_path = benchmark_report_path.replace(":", "-")
-    
+
+    # Fix old path structure: ./results/llm-as-a-judge-benchmark/new/... -> ./results/...
+    benchmark_report_path = benchmark_report_path.replace("./results/llm-as-a-judge-benchmark/new/", "./results/")
+
     # Make path absolute if it's relative
     if not os.path.isabs(benchmark_report_path):
         benchmark_report_path = os.path.join(os.getcwd(), benchmark_report_path)
-    
+
+    # If file still not found, try to find it in base_folder
+    if not os.path.exists(benchmark_report_path):
+        # Extract just the filename and look for it in base_folder
+        filename = os.path.basename(benchmark_report_path)
+        alternative_path = os.path.join(base_folder, filename)
+        if os.path.exists(alternative_path):
+            benchmark_report_path = alternative_path
+
     try:
         detail = load_json_file(benchmark_report_path)
         return detail["benchmark_results"]["average_generation_time_seconds"]
