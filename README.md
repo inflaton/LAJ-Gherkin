@@ -102,8 +102,11 @@ To evaluate GPT-OSS models via OpenRouter:
 
 1. **Get an OpenRouter API key** from https://openrouter.ai/
 
-2. **Configure environment** - See [.env.openrouter](.env.openrouter) for a complete example (git-ignored):
+2. **Configure environment**
 ```bash
+cp .env.example .env.openrouter
+
+# Edit .env.openrouter and add your OpenRouter API key
 export OPENAI_BASE_URL=https://openrouter.ai/api/v1
 export OPEN_AI_API_KEY=<your-openrouter-api-key>
 export OPEN_AI_MODEL=openai/gpt-oss-20b
@@ -118,8 +121,7 @@ export OPEN_AI_MAX_TOKEN=16384
 
 **GPT-OSS models** evaluated in the paper:
 - `openai/gpt-oss-20b` (low/medium/high reasoning effort)
-- `qwen/qwen-2.5-72b-instruct` (low/medium/high reasoning effort)
-- Other open-source models available via OpenRouter
+- `openai/gpt-oss-120b` (low/medium/high reasoning effort)
 
 ## Quick Start
 
